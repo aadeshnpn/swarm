@@ -103,23 +103,28 @@ class Grid:
         grid_key, grid_value = self.find_grid(point)        
         self.grid_objects[grid_val].remove(agent)
 
+
+    def move_object(self, point, object, newpoint):
+        pass
+        
     ## Check limits for the environment boundary
-    def check_limits(self,i,d):   
-        if i[0] > (width/2):
-            i[0] = i[0] - (i[0] - self.x_limit) - 2
+    def check_limits(self,i,d):  
+        x, y = i 
+        if x > (self.width/2):
+            x = x - (x - self.x_limit) - 2
             d = np.pi + d
-        elif i[0] < (width/2)  * -1:
-            i[0] = i[0] - (i[0] + self.x_limit) + 2
+        elif x < (self.width/2)  * -1:
+            x = x - (x + self.x_limit) + 2
             d = np.pi + d
-        if i[1] > (height/2):
-            i[1] = i[1] - (i[1] - self.y_limit) - 2
+        if y > (self.height/2):
+            y = y - (y - self.y_limit) - 2
             d = np.pi + d            
-        elif i[1] < (height/2) * -1:
-            i[1] = i[1] - (i[1] + self.y_limit) + 2
+        elif y < (self.height/2) * -1:
+            y = y - (y + self.y_limit) + 2
             d = np.pi + d            
-        return (i,d)
+        return ((x,y),d)
 
     ## Using fancy search to find the obstacles object in the particular grid
-    def return_objects(self, object_name, grid_value):
-
+    def get_objects(self, object_name, point):
+        grid_key, grid_value = self.find_grid(point)        
         return list(filter(lambda x : type(x).__name__ == object_name, self.grid_objects[grid_value]))          

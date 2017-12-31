@@ -32,7 +32,6 @@ class EnvironmentModel(Model):
             y = self.random.randint(-self.grid.height/2,self.grid.height/2)
 
             #grid_key, grid_value = self.grid.find_grid((x,y))
-
             self.grid.add_object_to_grid((x,y), a)
 
             #self.grid.place_agent(a,(x,y))
