@@ -14,7 +14,6 @@ class SwarmAgent(Agent):
         self.speed = 2
         
     def step(self):
-        #self.move()
         if self.wealth > 0:
             self.give_money()
 
