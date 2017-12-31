@@ -1,0 +1,6 @@
+.vscode/*
+*.pyc
+__*
+rules/*
+final_rules/*
+resources/*
