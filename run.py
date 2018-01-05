@@ -11,7 +11,7 @@ height = 100
 
 def main():
     
-    env = EnvironmentModel(100, width, height, 10)
+    env = EnvironmentModel(100, width, height, 10, 123)
 
     #exit()
     for i in range(1000):

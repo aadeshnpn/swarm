@@ -10,8 +10,12 @@ from swarms.agent import SwarmAgent
 
 class EnvironmentModel(Model):
     """ A environemnt to model swarms """
-    def __init__(self, N, width, height, grid=10):
-        super().__init__()                
+    def __init__(self, N, width, height, grid=10, seed=None):
+        if seed == None:
+            super().__init__()
+        else:
+            super().__init__(seed)            
+            
         self.num_agents = N
 
         self.grid = Grid (width, height, grid) 
