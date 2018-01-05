@@ -1,13 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Mesa Space Module
-=================
-
-Objects used to add a spatial component to a model.
-
-Grid: base grid, a simple list-of-lists.
-SingleGrid: grid which strictly enforces one object per cell.
-MultiGrid: extension to Grid where each cell is a set of objects.
+Grid: base grid, a simple dictionary.
 
 """
 
@@ -41,6 +34,7 @@ class Grid:
         for ycord in list_ycords:
             for xcord in list_xcords:
                 x1 = xcord; y1 = ycord; x2 = xcord + self.grid_size; y2 = ycord + self.grid_size
+                #print ((x1,y1),(x2,y2),i)
                 self.grid[(x1,y1),(x2,y2)] = i
                 self.grid_objects[i] = []
                 i += 1
