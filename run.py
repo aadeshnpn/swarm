@@ -6,8 +6,8 @@ import argparse
 import os, sys
 
 ## Global variables for width and height
-width = 1600
-height = 800
+width = 100
+height = 100
 
 def main():
     
