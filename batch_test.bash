@@ -13,4 +13,4 @@ pip install .
 
 flake8 . --ignore=F403,E501,E123,E128 --exclude=docs,build
 
-nosetests --with-coverage --cover-package=mesa
+nosetests --with-coverage --cover-package=swarm
