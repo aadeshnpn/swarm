@@ -91,5 +91,12 @@ class TestGrid(unittest.TestCase):
         grids with fixed raidus and fixed point
         '''
         point = (-2, -2)
-        radius = 8
+        radius = 5
         self.assertEqual(self.grid_four_equal_width_height.get_neighborhood(point, radius), [8, 9, 10, 14, 15, 16, 20, 21, 22])
+
+        radius = 9
+        self.assertEqual(self.grid_four_equal_width_height.get_neighborhood(point, radius),
+        [1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 19, 20, 21, 22, 23, 25, 26, 27, 28, 29])
+
+        radius = 4
+        self.assertEqual(self.grid_four_equal_width_height.get_neighborhood(point, radius), [15])
