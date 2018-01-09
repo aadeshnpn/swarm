@@ -69,12 +69,11 @@ class Grid:
 
     ## Find the grid based on the point passed
     def find_grid(self, point):
-        print (self.find_lowerbound(point), self.find_upperbound(point))        
-        grid_key = (self.find_lowerbound(point),self.find_upperbound(point))
+        grid_key = (self.find_lowerbound(point), self.find_upperbound(point))
         try:
             return grid_key, self.grid[grid_key]
         except KeyError:
-            return None,None
+            return None, None
 
     ## Find the adjacent grid based on radius
     def get_neighborhood(self, point, radius):
@@ -87,8 +86,6 @@ class Grid:
             horizontal_grid = list(range(center_grid-scale,center_grid+scale,1))
             width_scale = int(self.width / self.grid_size)
             vertical_grid = list(range(center_grid-scale*width_scale,center_grid+scale*width_scale,width_scale))
-            print (horizontal_grid)
-            print (vertical_grid)
             h_v_grid = []
             for grid in vertical_grid:
                 h_v_grid += list(range(grid-scale,grid+scale,1))
