@@ -8,6 +8,7 @@ from lib.space import Grid
 """
 Simple grid for testing
 Widht:20, Height:20, Grid:5
+ ---- Visual Aid ----
 (-10.0, -10.0) (-5.0, -5.0) 1
 (-5.0, -10.0) (0.0, -5.0) 2
 (0.0, -10.0) (5.0, -5.0) 3
@@ -44,36 +45,49 @@ class TestGrid(unittest.TestCase):
         '''
         For grid 24x24, point (-1,1) should lie in grid number 21
         '''
-        self.assertEqual(self.grid_four_equal_width_height.find_grid((-1, 1))[1], 21)
-        self.assertEqual(self.grid_four_equal_width_height.find_grid((4, 4))[1], 29)
+        grid_key, grid_value = self.grid_four_equal_width_height.find_grid((-1, 1))
+        self.assertEqual(grid_value, 21)
+        self.assertEqual(grid_key, ((-4, 0), (0, 4)))
+
+        grid_key, grid_value = self.grid_four_equal_width_height.find_grid((4, 4))
+        self.assertEqual(grid_value, 29)
+        self.assertEqual(grid_key, ((4, 4), (8, 8)))
 
     def test_location_grid_four_unequal_width_height(self):
         '''
         For grid 24x16, point (-5,1) should lie in grid number 8
         '''
-        self.assertEqual(self.grid_four_unequal_width_height.find_grid((-5, 1))[1], 14)
-        self.assertEqual(self.grid_four_unequal_width_height.find_grid((7, 7))[1], 23)
+        grid_key, grid_value = self.grid_four_unequal_width_height.find_grid((-5, 1))
+        self.assertEqual(grid_value, 14)
+        self.assertEqual(grid_key, ((-8, 0), (-4, 4)))
+
+        grid_key, grid_value = self.grid_four_unequal_width_height.find_grid((7, 7))
+        self.assertEqual(grid_value, 23)
+        self.assertEqual(grid_key, ((4, 4), (8, 8)))
 
     def test_location_grid_five(self):
         '''
         For grid 20x20, point (-1,4) should lie in grid number 10
-        '''        
-        self.assertEqual(self.grid_five.find_grid((-1, 4))[1], 10)
-        self.assertEqual(self.grid_five.find_grid((9, 9))[1], 16)
-        self.assertEqual(self.grid_five.find_grid((-4, -4))[1], 6)
-        self.assertEqual(self.grid_five.find_grid((-9, 3))[1], 9)
+        '''
+        grid_key, grid_value = self.grid_five.find_grid((-1, 4))
+        self.assertEqual(grid_value, 10)
+        self.assertEqual(grid_key, ((-5, 0), (0, 5)))
+
+        grid_key, grid_value = self.grid_five.find_grid((9, 9))
+        self.assertEqual(grid_value, 16)
+        self.assertEqual(grid_key, ((5, 5), (10, 10)))
+
+        grid_key, grid_value = self.grid_five.find_grid((-4, -4))
+        self.assertEqual(grid_value, 6)
+        self.assertEqual(grid_key, ((-5, -5), (0, 0)))
+
+        grid_key, grid_value = self.grid_five.find_grid((-9, 3))
+        self.assertEqual(grid_value, 9)
+        self.assertEqual(grid_key, ((-10, 0), (-5, 5)))
 
     def test_neighboring_grids_with_radius_ten(self):
         '''
         Ensure gird gives accurate results for neighbouring
         grids with fixed raidus and fixed point
         '''
-        #point = (-1, 1)
-        #radius = 5
-        #neighbours = self.grid.get_neighborhood(point, radius)
-        #print(neighbours)
         pass
-
-
-if __name__ == '__main__':
-    unittest.main()
