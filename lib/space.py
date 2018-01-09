@@ -11,7 +11,7 @@ import math
 
 class Grid:
     
-    def __init__(self, width, height, grid_size = 10):
+    def __init__(self, width, height, grid_size=10):
         self.width = width
         self.height = height
         self.x_limit = width / 2
@@ -19,9 +19,10 @@ class Grid:
         self.grid_size = grid_size
         self.grid = {}
         self.grid_objects = {}
-
+        self.width_fix = int (self.x_limit % self.grid_size)
+        self.height_fix = int (self.y_limit % self.grid_size)
         # If the width or height is not comptiable with grid size
-        if self.width % self.grid_size != 0 or self.height % self.grid_size != 0:
+        if self.x_limit % self.grid_size != 0 or self.y_limit % self.grid_size != 0:
             print ("Grid size invalid")
             exit(1)
 
@@ -34,7 +35,6 @@ class Grid:
         for ycord in list_ycords:
             for xcord in list_xcords:
                 x1 = xcord; y1 = ycord; x2 = xcord + self.grid_size; y2 = ycord + self.grid_size
-                #print ((x1,y1),(x2,y2),i)
                 self.grid[(x1,y1),(x2,y2)] = i
                 self.grid_objects[i] = []
                 i += 1
@@ -44,24 +44,32 @@ class Grid:
     ## Modify poitns if the location line in the grid line
     def modify_points(self, point):
         x, y = point[0], point[1]
+
         if point[0] % self.grid_size == 0:
             x = point[0] + 1
         if point[1] % self.grid_size == 0:
-            y = point[1] + 1  
-        return (x,y)
+            y = point[1] + 1
+
+        if point[0] >= self.x_limit:
+            x = point[0] - self.grid_size
+
+        if point[1] >= self.y_limit:
+            y = point[1] - self.grid_size
+        return (x, y)
 
     ## Find the lower bound from the point
     def find_lowerbound(self, point):
-        point = self.modify_points(point)
-        return ((point[0] // self.grid_size) * self.grid_size, (point[1] // self.grid_size) * self.grid_size)
+        point = self.find_upperbound(point)
+        return (point[0] - self.grid_size, point[1] - self.grid_size)
 
     ## Find the upper bound from the point
     def find_upperbound(self, point):
-        point = self.modify_points(point)        
-        return (math.ceil(point[0] / self.grid_size) * self.grid_size, math.ceil(point[1] / self.grid_size) * self.grid_size)        
+        point = self.modify_points(point)    
+        return (point[0] + self.grid_size - 1 * (point[0] % self.grid_size), point[1] + self.grid_size - 1 * (point[1] % self.grid_size))
 
     ## Find the grid based on the point passed
     def find_grid(self, point):
+        print (self.find_lowerbound(point), self.find_upperbound(point))        
         grid_key = (self.find_lowerbound(point),self.find_upperbound(point))
         try:
             return grid_key, self.grid[grid_key]
@@ -79,6 +87,8 @@ class Grid:
             horizontal_grid = list(range(center_grid-scale,center_grid+scale,1))
             width_scale = int(self.width / self.grid_size)
             vertical_grid = list(range(center_grid-scale*width_scale,center_grid+scale*width_scale,width_scale))
+            print (horizontal_grid)
+            print (vertical_grid)
             h_v_grid = []
             for grid in vertical_grid:
                 h_v_grid += list(range(grid-scale,grid+scale,1))

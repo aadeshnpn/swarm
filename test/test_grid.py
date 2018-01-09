@@ -8,31 +8,56 @@ from lib.space import Grid
 """
 Simple grid for testing
 Widht:20, Height:20, Grid:5
-(-10.0, -10.0) (-6.0, -6.0) 1
-(-6.0, -10.0) (-2.0, -6.0) 2
-(-2.0, -10.0) (2.0, -6.0) 3
-(2.0, -10.0) (6.0, -6.0) 4
-(6.0, -10.0) (10.0, -6.0) 5
-(-10.0, -6.0) (-6.0, -2.0) 6
-(-6.0, -6.0) (-2.0, -2.0) 7
-(-2.0, -6.0) (2.0, -2.0) 8
-(2.0, -6.0) (6.0, -2.0) 9
-(6.0, -6.0) (10.0, -2.0) 10
-(-10.0, -2.0) (-6.0, 2.0) 11
-(-6.0, -2.0) (-2.0, 2.0) 12
-(-2.0, -2.0) (2.0, 2.0) 13
-(2.0, -2.0) (6.0, 2.0) 14
-(6.0, -2.0) (10.0, 2.0) 15
-(-10.0, 2.0) (-6.0, 6.0) 16
-(-6.0, 2.0) (-2.0, 6.0) 17
-(-2.0, 2.0) (2.0, 6.0) 18
-(2.0, 2.0) (6.0, 6.0) 19
-(6.0, 2.0) (10.0, 6.0) 20
-(-10.0, 6.0) (-6.0, 10.0) 21
-(-6.0, 6.0) (-2.0, 10.0) 22
-(-2.0, 6.0) (2.0, 10.0) 23
-(2.0, 6.0) (6.0, 10.0) 24
-(6.0, 6.0) (10.0, 10.0) 25
+(-10.0, -10.0) (-5.0, -5.0) 1
+(-5.0, -10.0) (0.0, -5.0) 2
+(0.0, -10.0) (5.0, -5.0) 3
+(5.0, -10.0) (10.0, -5.0) 4
+(-10.0, -5.0) (-5.0, 0.0) 5
+(-5.0, -5.0) (0.0, 0.0) 6
+(0.0, -5.0) (5.0, 0.0) 7
+(5.0, -5.0) (10.0, 0.0) 8
+(-10.0, 0.0) (-5.0, 5.0) 9
+(-5.0, 0.0) (0.0, 5.0) 10
+(0.0, 0.0) (5.0, 5.0) 11
+(5.0, 0.0) (10.0, 5.0) 12
+(-10.0, 5.0) (-5.0, 10.0) 13
+(-5.0, 5.0) (0.0, 10.0) 14
+(0.0, 5.0) (5.0, 10.0) 15
+(5.0, 5.0) (10.0, 10.0) 16
 """
 
-g1 = Grid(20, 20, 2)
+
+class TestGrid(unittest.TestCase):
+    '''
+    Testing the grid system of swarm framework
+    '''
+
+    def setUp(self):
+        self.grid_four_equal_width_height = Grid(24, 24, grid_size=4)
+        self.grid_four_unequal_width_height = Grid(24, 16, grid_size=4)
+        self.grid_five = Grid(20, 20, grid_size=5)
+
+    def test_location_grid_four_equal_width_height(self):
+        point = (-1, 1)
+        self.assertEqual(self.grid_four_equal_widht_height.find_grid(point), 21)
+        
+    def test_location_to_grid(self):
+
+        grid_location_four_uneq = self.grid_four_unequal_widht_height.find_grid(point)        
+        grid_location_five = self.grid_five.find_grid(point)
+
+
+    def test_neighboring_grids_with_radius_ten(self):
+        '''
+        Ensure gird gives accurate results for neighbouring
+        grids with fixed raidus and fixed point
+        '''
+        #point = (-1, 1)
+        #radius = 5
+        #neighbours = self.grid.get_neighborhood(point, radius)
+        #print(neighbours)
+        pass
+
+
+if __name__ == '__main__':
+    unittest.main()

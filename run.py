@@ -4,8 +4,8 @@ from swarms.model import EnvironmentModel
 width = 100
 height = 100
 
+
 def main():
-    
 
     env = EnvironmentModel(100, width, height, 10, 123)
 
@@ -18,4 +18,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    
