@@ -3,39 +3,45 @@
 Grid: base grid, a simple dictionary.
 
 """
-
-import itertools
-import numpy as np
-import random
 import math
+import numpy as np
 
-class Grid:
-    
+
+class Grid(object):
+
+    """
+    Class that defines grid strucutre having attribute
+    Width, height and grid size
+    """
+
     def __init__(self, width, height, grid_size=10):
         self.width = width
         self.height = height
         self.x_limit = width / 2
         self.y_limit = height / 2
         self.grid_size = grid_size
-        self.grid = {}
-        self.grid_objects = {}
-        self.width_fix = int (self.x_limit % self.grid_size)
-        self.height_fix = int (self.y_limit % self.grid_size)
+        self.grid = dict()
+        self.grid_objects = dict()
+        self.width_fix = int(self.x_limit % self.grid_size)
+        self.height_fix = int(self.y_limit % self.grid_size)
         # If the width or height is not comptiable with grid size
         if self.x_limit % self.grid_size != 0 or self.y_limit % self.grid_size != 0:
-            print ("Grid size invalid")
+            print("Grid size invalid")
             exit(1)
 
         # Create list for x cordinate & y cordinate to create grid
-        list_xcords = np.arange(-self.width/2, self.width/2, self.grid_size).tolist() 
-        list_ycords = np.arange(-self.height/2, self.height/2, self.grid_size).tolist()
-        
-        # Create grid structure 
+        list_xcords = np.arange(-self.width / 2, self.width / 2, self.grid_size).tolist()
+        list_ycords = np.arange(-self.height / 2, self.height / 2, self.grid_size).tolist()
+
+        # Create grid structure
         i = 1
         for ycord in list_ycords:
             for xcord in list_xcords:
-                x1 = xcord; y1 = ycord; x2 = xcord + self.grid_size; y2 = ycord + self.grid_size
-                self.grid[(x1,y1),(x2,y2)] = i
+                x1 = xcord
+                y1 = ycord
+                x2 = xcord + self.grid_size
+                y2 = ycord + self.grid_size
+                self.grid[(x1, y1),(x2, y2)] = i
                 self.grid_objects[i] = []
                 i += 1
         self.grid_len = i - 1        
@@ -78,17 +84,18 @@ class Grid:
     ## Find the adjacent grid based on radius
     def get_neighborhood(self, point, radius):
         all_grid = []
-        center_grid_key,center_grid = self.find_grid(point)
-        if self.grid_size > radius:
+        center_grid_key, center_grid = self.find_grid(point)
+
+        if self.grid_size >= radius:
             return [center_grid]
         else:
-            scale = math.ceil(radius/self.grid_size)
-            horizontal_grid = list(range(center_grid-scale,center_grid+scale,1))
+            scale = int(radius / self.grid_size)
+            horizontal_grid = list(range(center_grid-scale,center_grid+scale+1,1))
             width_scale = int(self.width / self.grid_size)
-            vertical_grid = list(range(center_grid-scale*width_scale,center_grid+scale*width_scale,width_scale))
+            vertical_grid = list(range(center_grid-scale*width_scale,center_grid+1+scale*width_scale,width_scale))
             h_v_grid = []
             for grid in vertical_grid:
-                h_v_grid += list(range(grid-scale,grid+scale,1))
+                h_v_grid += list(range(grid-scale,grid+scale+1,1))
             all_grid = h_v_grid + horizontal_grid
             all_grid = [grid for grid in all_grid if grid > 0 and grid <= self.grid_len]
         return list(set(all_grid))
