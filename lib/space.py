@@ -83,6 +83,10 @@ class Grid(object):
 
     ## Find the adjacent grid based on radius
     def get_neighborhood(self, point, radius):
+        """
+        Method that gets the neighboring grids given a point in the space 
+        and the radius
+        """
         all_grid = []
         center_grid_key, center_grid = self.find_grid(point)
 
@@ -90,34 +94,48 @@ class Grid(object):
             return [center_grid]
         else:
             scale = int(radius / self.grid_size)
-            horizontal_grid = list(range(center_grid-scale,center_grid+scale+1,1))
             width_scale = int(self.width / self.grid_size)
-            vertical_grid = list(range(center_grid-scale*width_scale,center_grid+1+scale*width_scale,width_scale))
+            valid_horizontal_start = (math.floor(center_grid / width_scale) * width_scale) + 1
+            valid_horizontal_end = math.ceil(center_grid / width_scale) * width_scale
+            if(center_grid - scale) <= valid_horizontal_start:
+                horizontal_start = valid_horizontal_start
+            else:
+                horizontal_start = center_grid - scale
+            if(center_grid + scale + 1) >= valid_horizontal_end:
+                horizontal_end = valid_horizontal_end
+            else:
+                horizontal_end = center_grid + scale + 1
+
+            #horizontal_grid = list(range(horizontal_start, center_grid + scale + 1, 1))
+            horizontal_grid = list(range(horizontal_start, horizontal_end, 1))            
+            vertical_grid = list(range(center_grid - scale * width_scale, center_grid + 1 + scale * width_scale, width_scale))
             h_v_grid = []
             for grid in vertical_grid:
-                h_v_grid += list(range(grid-scale,grid+scale+1,1))
+                h_v_grid += list(range(grid - scale, grid + scale + 1, 1))
             all_grid = h_v_grid + horizontal_grid
             all_grid = [grid for grid in all_grid if grid > 0 and grid <= self.grid_len]
         return list(set(all_grid))
 
-    ## Add agent to the given grid
     def add_object_to_grid(self, point, agent):
-        grid_key, grid_value = self.find_grid(point)        
+        """
+        Add object to a given grid
+        """
+        grid_key, grid_value = self.find_grid(point)
         self.grid_objects[grid_value].append(agent)
         agent.location = point
 
     ## Remove agent to the given grid
     def remove_object_from_grid(self, point, agent):
-        grid_key, grid_value = self.find_grid(point)        
-        self.grid_objects[grid_val].remove(agent)
+        grid_key, grid_value = self.find_grid(point)
+        self.grid_objects[grid_value].remove(agent)
 
 
     def move_object(self, point, object, newpoint):
         pass
         
     ## Check limits for the environment boundary
-    def check_limits(self,i,d):  
-        x, y = i 
+    def check_limits(self, i, d):
+        x, y = i
         if x > (self.width/2):
             x = x - (x - self.x_limit) - 2
             d = np.pi + d
