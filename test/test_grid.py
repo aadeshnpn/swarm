@@ -101,6 +101,18 @@ class TestGrid(unittest.TestCase):
         radius = 4
         self.assertEqual(self.grid_four_equal_width_height.get_neighborhood(point, radius), [15])
 
+    def test_neighbour_grid_equal_width_height_big_radius(self):
+        '''
+        Ensure gird gives accurate results for neighbouring
+        grids with fixed raidus and fixed point
+        '''
+        point = (11, 11)
+        radius = 17
+        self.assertEqual(self.grid_four_equal_width_height.get_neighborhood(point, radius),
+        [8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24, 26, 27, 28, 29, 30,
+        32, 33, 34, 35, 36])
+
+
     def test_neighbour_grid_equal_width_height_right_horizontal(self):
         '''
         Ensure gird gives accurate results for neighbouring
@@ -187,6 +199,16 @@ class TestGrid(unittest.TestCase):
         radius = 5
         self.assertEqual(self.grid_four_unequal_width_height.get_neighborhood(point, radius), [2, 3, 4, 8, 9, 10, 14, 15, 16])
 
+    def test_neighbour_grid_unequal_width_height_big_radius(self):
+        '''
+        Ensure gird gives accurate results for neighbouring
+        grids with fixed raidus and fixed point
+        '''
+        point = (11, 7)
+
+        radius = 17
+        self.assertEqual(self.grid_four_unequal_width_height.get_neighborhood(point, radius),
+        [2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24])
 
     def test_neighbour_grid_five(self):
         '''
