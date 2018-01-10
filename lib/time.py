@@ -27,6 +27,7 @@ seeds consistent and allow for replication.
 
 """
 
+
 class BaseScheduler:
     """ Simplest scheduler; activates agents one at a time, in the order
     they were added.
@@ -150,12 +151,12 @@ class StagedActivation(BaseScheduler):
     def step(self):
         """ Executes all the stages for all agents. """
         if self.shuffle:
-            random.shuffle(self.agents)
+            self.model.random.shuffle(self.agents)
         for stage in self.stage_list:
             for agent in self.agents[:]:
                 getattr(agent, stage)()  # Run stage
             if self.shuffle_between_stages:
-                random.shuffle(self.agents)
+                self.model.random.shuffle(self.agents)
             self.time += self.stage_time
 
         self.steps += 1

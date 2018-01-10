@@ -43,7 +43,7 @@ class Grid:
                 self.grid[(x1, y1), (x2, y2)] = i
                 self.grid_objects[i] = []
                 i += 1
-        self.grid_len = i - 1        
+        self.grid_len = i - 1
 
     # Modify poitns if the location line in the grid line
     def modify_points(self, point):
@@ -68,7 +68,7 @@ class Grid:
 
     # Find the upper bound from the point
     def find_upperbound(self, point):
-        point = self.modify_points(point)    
+        point = self.modify_points(point)
         return (point[0] + self.grid_size - 1 * (point[0] % self.grid_size), point[1] + self.grid_size - 1 * (point[1] % self.grid_size))
 
     # Find the grid based on the point passed
@@ -99,7 +99,7 @@ class Grid:
     # Find the adjacent grid based on radius
     def get_neighborhood(self, point, radius):
         """
-        Method that gets the neighboring grids given a point in the space 
+        Method that gets the neighboring grids given a point in the space
         and the
         """
         all_grid = []
@@ -107,7 +107,7 @@ class Grid:
 
         if self.grid_size >= radius:
             return [center_grid]
-        else:           
+        else:
             scale = int(radius / self.grid_size)
             width_scale = int(self.width / self.grid_size)
             horizontal_grid = self.get_horizontal_neighbours(center_grid, scale, width_scale)
