@@ -112,7 +112,6 @@ class TestGrid(unittest.TestCase):
         [8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24, 26, 27, 28, 29, 30,
         32, 33, 34, 35, 36])
 
-
     def test_neighbour_grid_equal_width_height_right_horizontal(self):
         '''
         Ensure gird gives accurate results for neighbouring
@@ -121,7 +120,7 @@ class TestGrid(unittest.TestCase):
         point = (10, 6)
         radius = 6
         self.assertEqual(self.grid_four_equal_width_height.get_neighborhood(point, radius), [35, 36, 23, 24, 29, 30])
-    
+
     def test_neighbour_grid_equal_width_height_upper_verticle(self):
         '''
         Ensure gird gives accurate results for neighbouring
@@ -167,7 +166,6 @@ class TestGrid(unittest.TestCase):
         radius = 6
         self.assertEqual(self.grid_four_equal_width_height.get_neighborhood(point, radius), [32, 25, 26, 31])
 
-
     def test_neighbour_grid_equal_width_height_bottom_right(self):
         '''
         Ensure gird gives accurate results for neighbouring
@@ -184,7 +182,7 @@ class TestGrid(unittest.TestCase):
         '''
         point = (10, 10)
         radius = 6
-        self.assertEqual(self.grid_four_equal_width_height.get_neighborhood(point, radius), [35, 36, 29, 30])                        
+        self.assertEqual(self.grid_four_equal_width_height.get_neighborhood(point, radius), [35, 36, 29, 30])
 
     def test_neighbour_grid_unequal_width_height(self):
         '''
@@ -222,3 +220,16 @@ class TestGrid(unittest.TestCase):
 
         radius = 6
         self.assertEqual(self.grid_five.get_neighborhood(point, radius), [2, 3, 4, 6, 7, 8, 10, 11, 12])
+
+    def test_modify_points(self):
+        '''
+        Ensure modifiy points work for points on the edges of the grid box
+        '''
+
+        point = (5, 5)
+        self.assertEqual(self.grid_five.modify_points(point), (6, 6))
+        # This point is the extrem point. Modify point should decrease it
+        point = (10, 10)
+        self.assertEqual(self.grid_five.modify_points(point), (6, 6))
+        # This point is the starting point. Modify point should increase it
+        self.assertEqual(self.grid_five.modify_points(point), (-10, -10))        

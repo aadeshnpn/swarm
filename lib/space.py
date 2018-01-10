@@ -57,10 +57,10 @@ class Grid(object):
             y = point[1] + 1
 
         if point[0] >= self.x_limit:
-            x = point[0] - self.grid_size
+            x = point[0] - self.grid_size + 1
 
         if point[1] >= self.y_limit:
-            y = point[1] - self.grid_size
+            y = point[1] - self.grid_size + 1
         return (x, y)
 
     ## Find the lower bound from the point
