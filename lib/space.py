@@ -7,7 +7,7 @@ import math
 import numpy as np
 
 
-class Grid(object):
+class Grid:
 
     """
     Class that defines grid strucutre having attribute
@@ -32,7 +32,6 @@ class Grid(object):
         # Create list for x cordinate & y cordinate to create grid
         list_xcords = np.arange(-self.width / 2, self.width / 2, self.grid_size).tolist()
         list_ycords = np.arange(-self.height / 2, self.height / 2, self.grid_size).tolist()
-
         # Create grid structure
         i = 1
         for ycord in list_ycords:
@@ -41,13 +40,12 @@ class Grid(object):
                 y1 = ycord
                 x2 = xcord + self.grid_size
                 y2 = ycord + self.grid_size
-                self.grid[(x1, y1),(x2, y2)] = i
+                self.grid[(x1, y1), (x2, y2)] = i
                 self.grid_objects[i] = []
                 i += 1
         self.grid_len = i - 1        
 
-
-    ## Modify poitns if the location line in the grid line
+    # Modify poitns if the location line in the grid line
     def modify_points(self, point):
         x, y = point[0], point[1]
 
@@ -63,24 +61,23 @@ class Grid(object):
             y = point[1] - self.grid_size + 1
         return (x, y)
 
-    ## Find the lower bound from the point
+    # Find the lower bound from the point
     def find_lowerbound(self, point):
         point = self.find_upperbound(point)
         return (point[0] - self.grid_size, point[1] - self.grid_size)
 
-    ## Find the upper bound from the point
+    # Find the upper bound from the point
     def find_upperbound(self, point):
         point = self.modify_points(point)    
         return (point[0] + self.grid_size - 1 * (point[0] % self.grid_size), point[1] + self.grid_size - 1 * (point[1] % self.grid_size))
 
-    ## Find the grid based on the point passed
+    # Find the grid based on the point passed
     def find_grid(self, point):
         grid_key = (self.find_lowerbound(point), self.find_upperbound(point))
         try:
             return grid_key, self.grid[grid_key]
         except KeyError:
             return None, None
-
 
     def get_horizontal_neighbours(self, center_grid, scale, width_scale):
         """
@@ -99,11 +96,11 @@ class Grid(object):
         horizontal_grid = list(range(horizontal_start, horizontal_end, 1))
         return horizontal_grid
 
-    ## Find the adjacent grid based on radius
+    # Find the adjacent grid based on radius
     def get_neighborhood(self, point, radius):
         """
         Method that gets the neighboring grids given a point in the space 
-        and the radius
+        and the
         """
         all_grid = []
         center_grid_key, center_grid = self.find_grid(point)
@@ -116,10 +113,8 @@ class Grid(object):
             horizontal_grid = self.get_horizontal_neighbours(center_grid, scale, width_scale)
             vertical_grid = list(range(center_grid - scale * width_scale, center_grid + 1 + scale * width_scale, width_scale))
             h_v_grid = []
-            #print (horizontal_grid,vertical_grid)
             for grid in vertical_grid:
                 h_v_grid += self.get_horizontal_neighbours(grid, scale, width_scale)
-            #print (h_v_grid)
             all_grid = h_v_grid + horizontal_grid
             all_grid = [grid for grid in all_grid if grid > 0 and grid <= self.grid_len]
         return list(set(all_grid))
@@ -129,36 +124,47 @@ class Grid(object):
         Add object to a given grid
         """
         grid_key, grid_value = self.find_grid(point)
-        self.grid_objects[grid_value].append(agent)
-        agent.location = point
 
-    ## Remove agent to the given grid
+        self.grid_objects[grid_value].append(agent)
+
+    # Remove agent to the given grid
     def remove_object_from_grid(self, point, agent):
         grid_key, grid_value = self.find_grid(point)
         self.grid_objects[grid_value].remove(agent)
 
+    def move_object(self, point, objects, newpoint):
+        grid_key, grid_value = self.find_grid(point)
+        new_grid_key, new_grid_value = self.find_grid(newpoint)
+        if grid_value != new_grid_value:
+            self.remove_object_from_grid(point, objects)
+            self.add_object_to_grid(newpoint, objects)
 
-    def move_object(self, point, object, newpoint):
-        pass
-        
-    ## Check limits for the environment boundary
+    # Check limits for the environment boundary
     def check_limits(self, i, d):
         x, y = i
-        if x > (self.width/2):
+        if x > (self.width / 2):
             x = x - (x - self.x_limit) - 2
             d = np.pi + d
-        elif x < (self.width/2)  * -1:
+        elif x < (self.width / 2) * -1:
             x = x - (x + self.x_limit) + 2
             d = np.pi + d
-        if y > (self.height/2):
+        if y > (self.height / 2):
             y = y - (y - self.y_limit) - 2
-            d = np.pi + d            
-        elif y < (self.height/2) * -1:
+            d = np.pi + d
+        elif y < (self.height / 2) * -1:
             y = y - (y + self.y_limit) + 2
-            d = np.pi + d            
-        return ((x,y),d)
+            d = np.pi + d
+        return ((x, y), d)
 
-    ## Using fancy search to find the obstacles object in the particular grid
-    def get_objects(self, object_name, point):
-        grid_key, grid_value = self.find_grid(point)        
-        return list(filter(lambda x : type(x).__name__ == object_name, self.grid_objects[grid_value]))          
+    # Using fancy search to find the obstacles object in the particular grid
+    def get_objects(self, object_name, grid_value):
+        return list(filter(lambda x: type(x).__name__ == object_name, self.grid_objects[grid_value]))
+
+    def get_objects_from_grid(self, object_name, point):
+        grid_key, grid_value = self.find_grid(point)
+        return self.get_objects(object_name, grid_value)
+
+    def get_object_from_list_of_grid(self, object_name, grid_list):
+        object_list = []
+        for grid in grid_list:
+            object_list += self.get_objects(object_name, grid)

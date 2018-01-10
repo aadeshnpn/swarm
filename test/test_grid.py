@@ -232,4 +232,5 @@ class TestGrid(unittest.TestCase):
         point = (10, 10)
         self.assertEqual(self.grid_five.modify_points(point), (6, 6))
         # This point is the starting point. Modify point should increase it
-        self.assertEqual(self.grid_five.modify_points(point), (-10, -10))        
+        self.assertEqual(self.grid_five.modify_points((-10, -10)), (-9, -9))
+
