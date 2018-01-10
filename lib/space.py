@@ -81,6 +81,24 @@ class Grid(object):
         except KeyError:
             return None, None
 
+
+    def get_horizontal_neighbours(self, center_grid, scale, width_scale):
+        """
+        Method that gets the neighboring horizontal grids
+        """
+        valid_horizontal_start = (math.floor((center_grid - 1) / width_scale) * width_scale) + 1
+        valid_horizontal_end = math.ceil(center_grid / width_scale) * width_scale
+        if(center_grid - scale) < valid_horizontal_start:
+            horizontal_start = valid_horizontal_start
+        else:
+            horizontal_start = center_grid - scale
+        if(center_grid + scale + 1) > valid_horizontal_end:
+            horizontal_end = valid_horizontal_end + 1
+        else:
+            horizontal_end = center_grid + scale + 1
+        horizontal_grid = list(range(horizontal_start, horizontal_end, 1))
+        return horizontal_grid
+
     ## Find the adjacent grid based on radius
     def get_neighborhood(self, point, radius):
         """
@@ -92,26 +110,16 @@ class Grid(object):
 
         if self.grid_size >= radius:
             return [center_grid]
-        else:
+        else:           
             scale = int(radius / self.grid_size)
             width_scale = int(self.width / self.grid_size)
-            valid_horizontal_start = (math.floor(center_grid / width_scale) * width_scale) + 1
-            valid_horizontal_end = math.ceil(center_grid / width_scale) * width_scale
-            if(center_grid - scale) <= valid_horizontal_start:
-                horizontal_start = valid_horizontal_start
-            else:
-                horizontal_start = center_grid - scale
-            if(center_grid + scale + 1) >= valid_horizontal_end:
-                horizontal_end = valid_horizontal_end
-            else:
-                horizontal_end = center_grid + scale + 1
-
-            #horizontal_grid = list(range(horizontal_start, center_grid + scale + 1, 1))
-            horizontal_grid = list(range(horizontal_start, horizontal_end, 1))            
+            horizontal_grid = self.get_horizontal_neighbours(center_grid, scale, width_scale)
             vertical_grid = list(range(center_grid - scale * width_scale, center_grid + 1 + scale * width_scale, width_scale))
             h_v_grid = []
+            #print (horizontal_grid,vertical_grid)
             for grid in vertical_grid:
-                h_v_grid += list(range(grid - scale, grid + scale + 1, 1))
+                h_v_grid += self.get_horizontal_neighbours(grid, scale, width_scale)
+            #print (h_v_grid)
             all_grid = h_v_grid + horizontal_grid
             all_grid = [grid for grid in all_grid if grid > 0 and grid <= self.grid_len]
         return list(set(all_grid))
