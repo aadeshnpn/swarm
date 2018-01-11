@@ -21,6 +21,7 @@ class SwarmAgent(Agent):
 
         self.direction = model.random.rand() * (2 * np.pi)
         self.speed = 2
+        self.radius = 3
 
     def step(self):
         if self.wealth > 0:
@@ -77,11 +78,11 @@ class EnvironmentModel(Model):
 
 
 class TestWealthSwarmSmallGrid(TestCase):
-    
+
     def setUp(self):
         self.environment = EnvironmentModel(100, width, height, 10, 123)
 
-        for i in range(1000):
+        for i in range(50):
             self.environment.step()
 
         self.max_wealth = 0
@@ -93,10 +94,10 @@ class TestWealthSwarmSmallGrid(TestCase):
                 self.max_agent = agent.name
 
     def test_maximum_wealth(self):
-        self.assertEqual(self.max_wealth, 5)
+        self.assertEqual(self.max_wealth, 6)
 
     def test_maximum_wealth_agent(self):
-        self.assertEqual(self.max_agent, 21)
+        self.assertEqual(self.max_agent, 17)
 
 
 class TestWealthSwarmBigGrid(TestCase):
@@ -104,7 +105,7 @@ class TestWealthSwarmBigGrid(TestCase):
     def setUp(self):
         self.environment = EnvironmentModel(1000, 1600, 800, 10, 123)
 
-        for i in range(1000):
+        for i in range(50):
             self.environment.step()
 
         self.max_wealth = 0
@@ -116,7 +117,7 @@ class TestWealthSwarmBigGrid(TestCase):
                 self.max_agent = agent.name
 
     def test_maximum_wealth(self):
-        self.assertEqual(self.max_wealth, 13)
+        self.assertEqual(self.max_wealth, 4)
 
     def test_maximum_wealth_agent(self):
-        self.assertEqual(self.max_agent, 483)        
+        self.assertEqual(self.max_agent, 9)

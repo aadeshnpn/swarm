@@ -7,7 +7,7 @@ height = 800
 
 def main():
 
-    env = EnvironmentModel(10000, width, height, 10, 123)
+    env = EnvironmentModel(1000, width, height, 10, 123)
 
     for i in range(1000):
         env.step()

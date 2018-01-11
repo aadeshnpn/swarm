@@ -7,11 +7,12 @@ class SwarmAgent(Agent):
     """ An minimalistic swarm agent """
     def __init__(self, name, model):
         super().__init__(name, model)
-        self.wealth = 1
         self.location = ()
 
         self.direction = model.random.rand() * (2 * np.pi)
         self.speed = 2
+        self.radius = 3
+        self.wealth = 1
 
     def step(self):
         if self.wealth > 0:

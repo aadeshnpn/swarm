@@ -119,18 +119,19 @@ class Grid:
             all_grid = [grid for grid in all_grid if grid > 0 and grid <= self.grid_len]
         return list(set(all_grid))
 
-    def add_object_to_grid(self, point, agent):
+    def add_object_to_grid(self, point, objects):
         """
         Add object to a given grid
         """
-        grid_key, grid_value = self.find_grid(point)
+        grid_values = self.get_neighborhood(point, objects.radius)
+        for grid in grid_values:
+            self.grid_objects[grid].append(objects)
 
-        self.grid_objects[grid_value].append(agent)
-
-    # Remove agent to the given grid
-    def remove_object_from_grid(self, point, agent):
-        grid_key, grid_value = self.find_grid(point)
-        self.grid_objects[grid_value].remove(agent)
+    # Remove object to the given grid
+    def remove_object_from_grid(self, point, objects):
+        grid_values = self.get_neighborhood(point, objects.radius)
+        for grid in grid_values:
+            self.grid_objects[grid].remove(objects)
 
     def move_object(self, point, objects, newpoint):
         grid_key, grid_value = self.find_grid(point)

@@ -1,24 +1,23 @@
 # Base class for all the objects that can be defined in the environment
 class EnvironmentObject:
-    def __init__(self, id=1, location=(0, 0), radius=20, grid=[1]):
+    def __init__(self, id=1, location=(0, 0), radius=20):
         self.id = id
         self.location = location
         self.radius = radius
-        self.grid = grid
 
 
 # Class to define hub object
 class Hub(EnvironmentObject):
-    def __init__(self, id=1, location=(0, 0), radius=20, grid=[1]):
-        super().__init__(id, location, radius, grid)
+    def __init__(self, id=1, location=(0, 0), radius=20):
+        super().__init__(id, location, radius)
         self.carryable = False
         self.dropable = True
 
 
 # Class to define site object
 class Sites(EnvironmentObject):
-    def __init__(self, id=1, location=(0, 0), radius=20, q_value=0.5, grid=[1]):
-        super().__init__(id, location, radius, grid)
+    def __init__(self, id=1, location=(0, 0), radius=20, q_value=0.5):
+        super().__init__(id, location, radius)
         self.q_value = q_value
         self.food_unit = self.q_value * 1000
         self.carryable = False
@@ -26,8 +25,8 @@ class Sites(EnvironmentObject):
 
 # Class to define obstacle
 class Obstacles(EnvironmentObject):
-    def __init__(self, id=1, location=(0, 0), radius=20, grid=[1]):
-        super().__init__(id, location, radius, grid)
+    def __init__(self, id=1, location=(0, 0), radius=20):
+        super().__init__(id, location, radius)
         self.potential_field = None
         self.carrable = True
         self.dropable = True
@@ -35,8 +34,8 @@ class Obstacles(EnvironmentObject):
 
 # Class to define communication
 class Communication(EnvironmentObject):
-    def __init__(self, id=1, location=(0, 0), radius=20, grid=[1], object_to_communicate=None):
-        super().__init__(id, location, radius, grid)
+    def __init__(self, id=1, location=(0, 0), radius=20, object_to_communicate=None):
+        super().__init__(id, location, radius)
         # Communication parameters for signal
         self.communicated_object = object_to_communicate
         self.communicated_location = self.communicated_object.location
@@ -44,34 +43,34 @@ class Communication(EnvironmentObject):
 
 # Class to define signal
 class Signal(Communication):
-    def __init__(self, id=1, location=(0, 0), radius=20, grid=[1], object_to_communicate=None):
-        super().__init__(id, None, radius, None, object_to_communicate)
+    def __init__(self, id=1, location=(0, 0), radius=20, object_to_communicate=None):
+        super().__init__(id, None, radius, object_to_communicate)
 
 
 # Class to define Cue
 class Cue(Communication):
-    def __init__(self, id=1, location=(0, 0), radius=20, grid=[1], object_to_communicate=None):
-        super().__init__(id, location, radius, grid, object_to_communicate)
+    def __init__(self, id=1, location=(0, 0), radius=20, object_to_communicate=None):
+        super().__init__(id, location, radius, object_to_communicate)
 
 
 # Class to define Traps
 class Traps(EnvironmentObject):
-    def __init__(self, id=1, location=(0, 0), radius=20, grid=[1]):
-        super().__init__(id, location, radius, grid)
+    def __init__(self, id=1, location=(0, 0), radius=20):
+        super().__init__(id, location, radius)
         self.carryable = False
 
 
 # Class to define Food
 class Food:
-    def __init__(self, id=1, location=(0, 0), radius=2, grid=[1]):
-        super().__init__(id, location, radius, grid)
+    def __init__(self, id=1, location=(0, 0), radius=2):
+        super().__init__(id, location, radius)
         self.carryable = True
 
 
 # Class to define Derbis
 class Derbis:
-    def __init__(self, id=1, location=(0, 0), radius=2, grid=[1], weight=5):
-        super().__init__(id, location, radius, grid)
+    def __init__(self, id=1, location=(0, 0), radius=2, weight=5):
+        super().__init__(id, location, radius)
         self.carryable = True
         self.weight = int(self.radius / 2)
         self.shareholders = 0
