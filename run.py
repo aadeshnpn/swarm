@@ -7,13 +7,18 @@ height = 100
 
 def main():
 
-    env = EnvironmentModel(100, width, height, 10, 123)
+    env = EnvironmentModel(1000, width, height, 10, 123)
 
     for i in range(1000):
         env.step()
 
+    max_wealth = 0
+    max_agent = 0
     for agent in env.schedule.agents:
-        print(agent.name, agent.wealth)
+        if agent.wealth > max_wealth:
+            max_wealth = agent.wealth
+            max_agent = agent.name
+    print(max_agent, max_wealth)
 
 
 if __name__ == '__main__':

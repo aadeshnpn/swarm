@@ -9,9 +9,9 @@ class EnvironmentModel(Model):
     """ A environemnt to model swarms """
     def __init__(self, N, width, height, grid=10, seed=None):
         if seed is None:
-            super().__init__()
+            super(EnvironmentModel, self).__init__(seed=None)
         else:
-            super().__init__(seed)
+            super(EnvironmentModel, self).__init__(seed)
 
         self.num_agents = N
 
