@@ -71,7 +71,7 @@ class Food:
 # Class to define Derbis
 class Derbis:
     def __init__(self, id=1, location=(0, 0), radius=2, grid=[1], weight=5):
-        super().__init__(id, location, radius, grid)        
+        super().__init__(id, location, radius, grid)
         self.carryable = True
         self.weight = int(self.radius / 2)
         self.shareholders = 0

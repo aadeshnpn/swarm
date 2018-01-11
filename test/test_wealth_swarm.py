@@ -76,8 +76,8 @@ class EnvironmentModel(Model):
         self.schedule.step()
 
 
-class TestWealthSwarm(TestCase):
-
+class TestWealthSwarmSmallGrid(TestCase):
+    
     def setUp(self):
         self.environment = EnvironmentModel(100, width, height, 10, 123)
 
@@ -94,6 +94,29 @@ class TestWealthSwarm(TestCase):
 
     def test_maximum_wealth(self):
         self.assertEqual(self.max_wealth, 5)
-    
+
     def test_maximum_wealth_agent(self):
         self.assertEqual(self.max_agent, 21)
+
+
+class TestWealthSwarmBigGrid(TestCase):
+
+    def setUp(self):
+        self.environment = EnvironmentModel(1000, 1600, 800, 10, 123)
+
+        for i in range(1000):
+            self.environment.step()
+
+        self.max_wealth = 0
+        self.max_agent = 0
+
+        for agent in self.environment.schedule.agents:
+            if agent.wealth > self.max_wealth:
+                self.max_wealth = agent.wealth
+                self.max_agent = agent.name
+
+    def test_maximum_wealth(self):
+        self.assertEqual(self.max_wealth, 13)
+
+    def test_maximum_wealth_agent(self):
+        self.assertEqual(self.max_agent, 483)        

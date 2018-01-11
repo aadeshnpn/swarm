@@ -1,13 +1,13 @@
 from swarms.model import EnvironmentModel
 
 # Global variables for width and height
-width = 100
-height = 100
+width = 1600
+height = 800
 
 
 def main():
 
-    env = EnvironmentModel(1000, width, height, 10, 123)
+    env = EnvironmentModel(10000, width, height, 10, 123)
 
     for i in range(1000):
         env.step()
