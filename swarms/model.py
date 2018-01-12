@@ -2,7 +2,7 @@ from lib.model import Model
 from lib.time import SimultaneousActivation  # RandomActivation, StagedActivation
 from lib.space import Grid
 from swarms.utils.jsonhandler import JsonData
-from swarms.objects import Hub, Sites
+from swarms.objects import Hub, Sites, Obstacles, Traps
 from swarms.agent import SwarmAgent
 
 filename = "swarms/utils/world.json"
@@ -57,32 +57,11 @@ class EnvironmentModel(Model):
 
         # Create a instance of JsonData to store object that needs to be sent to UI
         self.render_jsondata = JsonData()
-
         self.render_jsondata.objects = {}
-        for obj in [Hub, Sites]:
-            name = obj.__name__.lower()
-            self.render_jsondata.objects[name] = self.create_environment_object(jsondata, obj)
-        print(self.render_jsondata.objects)
-        exit()
-        """
-        # Create hub from json data
-        self.render_jsondata.hubs = []
-        for jhub in jsondata["hub"]:
-            location = (jhub["x"], jhub["y"])
-            hub = Hub(i, location, jhub["radius"])
-            self.grid.add_object_to_grid(location, hub)
-            self.render_jsondata.hub.append(hub)
-            i += 1
 
-        # Create site from json data
-        render_jsondata.sites = []
-        for jsite in jsondata["site"]:
-            location = (jsite["x"], jsite["y"])
-            site = Sites(i, location, jsite["radius"])
-            self.grid.add_object_to_grid(location, site)
-            render_jsondata.sites.append(site)
-            i += 1
-        """
+        for name in jsondata.keys():
+            obj = eval(name.capitalize())
+            self.render_jsondata.objects[name] = self.create_environment_object(jsondata, obj)
 
     def step(self):
         self.schedule.step()

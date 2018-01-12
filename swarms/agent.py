@@ -14,10 +14,12 @@ class SwarmAgent(Agent):
         self.radius = 3
         self.wealth = 1
 
+    # Make necessary Changes
     def step(self):
         if self.wealth > 0:
             self.give_money()
 
+    # Applies the changes
     def advance(self):
         self.move()
 

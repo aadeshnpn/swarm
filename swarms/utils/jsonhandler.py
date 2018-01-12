@@ -15,7 +15,6 @@ class JsonData:
             object_temp["x"] = objects[i].location[0]
             object_temp["y"] = objects[i].location[1]
             object_temp["radius"] = objects[i].radius
-
             try:
                 object_temp["q_value"] = objects[i].q_value
             except KeyError:
