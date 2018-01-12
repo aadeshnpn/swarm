@@ -14,6 +14,13 @@ class SwarmAgent(Agent):
         self.radius = 3
         self.wealth = 1
 
+    # New Agent methods for behavior based robotics
+    def sense(self):
+        pass
+
+    def plan(self):
+        pass
+
     # Make necessary Changes
     def step(self):
         if self.wealth > 0:
