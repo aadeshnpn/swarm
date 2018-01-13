@@ -8,7 +8,7 @@ source ~/anaconda2/bin/activate travis
 python --version
 pip install -r requirements.txt
 
-pip install coveralls flake8 nose
+pip install coveralls flake8 nose py_trees
 
 #pip uninstall swarm -y
 

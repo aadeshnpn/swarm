@@ -1,15 +1,13 @@
 from swarms.model import EnvironmentModel
 
 # Global variables for width and height
-width = 1600
-height = 800
+width = 100
+height = 100
 
 
 def main():
-
-    env = EnvironmentModel(1000, width, height, 10, 123)
-
-    for i in range(1000):
+    env = EnvironmentModel(1000, 1600, 800, 10, 123)
+    for i in range(50):
         env.step()
 
     max_wealth = 0
@@ -18,6 +16,7 @@ def main():
         if agent.wealth > max_wealth:
             max_wealth = agent.wealth
             max_agent = agent.name
+        # print(agent.name, agent.wealth)
     print(max_agent, max_wealth)
 
 

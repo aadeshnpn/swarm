@@ -23,7 +23,7 @@ class EnvironmentModel(Model):
 
         self.schedule = SimultaneousActivation(self)
 
-        self.build_environment_from_json()
+        #self.build_environment_from_json()
 
         for i in range(self.num_agents):
             a = SwarmAgent(i, self)
@@ -34,6 +34,7 @@ class EnvironmentModel(Model):
             y = self.random.randint(-self.grid.height / 2, self.grid.height / 2)
 
             a.location = (x, y)
+
             self.grid.add_object_to_grid((x, y), a)
 
     def create_environment_object(self, jsondata, obj):
