@@ -6,6 +6,7 @@ from lib.space import Grid
 import py_trees
 from py_trees import Behaviour, Status
 
+
 import numpy as np
 
 # Global variables for width and height
@@ -114,7 +115,8 @@ class SwarmAgent(Agent):
         self.direction = model.random.rand() * (2 * np.pi)
         self.speed = 2
         self.radius = 3
-        """
+
+        #"""
         root = py_trees.composites.Sequence("Sequence")
         low = Move('4')
         low.setup(0, self)        
@@ -127,10 +129,19 @@ class SwarmAgent(Agent):
 
         root.add_children([low, higest, high, med])
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
-        """
+        #"""
         # This above part should be replaced by Grammatical Evolution.
         # Based on research, use XML file to generate BT. Parse the XML BT
         # To actually get BT python program gm
+
+        # Grammatical Evolution part
+        from ponyge.algorithm.parameters import params, set_params
+        from ponyge.stats.stats import get_stats
+        list_params_files = ['string_match.txt', 'regression.txt', 'classification.txt']
+        parameter_list = ['--parameters', 'string_match.txt']
+        set_params(parameter_list)
+        individuals = params['SEARCH_LOOP']()
+        #get_stats(individuals, end=True)
 
     def step(self):
         """
@@ -195,7 +206,7 @@ class EnvironmentModel(Model):
 class TestWealthSwarmSmallGrid(TestCase):
 
     def setUp(self):
-        self.environment = EnvironmentModel(100, 100, 100, 10, 123)
+        self.environment = EnvironmentModel(1, 100, 100, 10, 123)
 
         for i in range(50):
             self.environment.step()
