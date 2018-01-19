@@ -5,7 +5,12 @@ from lib.time import SimultaneousActivation  # RandomActivation, StagedActivatio
 from lib.space import Grid
 import py_trees
 from py_trees import Behaviour, Status
-
+from ponyge.operators.initialisation import initialisation
+from ponyge.fitness.evaluation import evaluate_fitness
+from ponyge.operators.crossover import crossover
+from ponyge.operators.mutation import mutation
+from ponyge.operators.replacement import replacement, steady_state
+from ponyge.operators.selection import selection
 
 import numpy as np
 
@@ -116,7 +121,7 @@ class SwarmAgent(Agent):
         self.speed = 2
         self.radius = 3
 
-        #"""
+        # """
         root = py_trees.composites.Sequence("Sequence")
         low = Move('4')
         low.setup(0, self)        
@@ -129,29 +134,36 @@ class SwarmAgent(Agent):
 
         root.add_children([low, higest, high, med])
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
-        #"""
+        # """
         # This above part should be replaced by Grammatical Evolution.
         # Based on research, use XML file to generate BT. Parse the XML BT
         # To actually get BT python program gm
 
         # Grammatical Evolution part
-        from ponyge.algorithm.parameters import params, set_params
-        from ponyge.stats.stats import get_stats
-        list_params_files = ['string_match.txt', 'regression.txt', 'classification.txt']
-        parameter_list = ['--parameters', 'string_match.txt']
-        set_params(parameter_list)
-        individuals = params['SEARCH_LOOP']()
-        #get_stats(individuals, end=True)
+        from ponyge.algorithm.parameters import Parameters
+        parameter = Parameters()
+        # list_params_files = ['string_match.txt', 'regression.txt', 'classification.txt']
+        parameter_list = ['--parameters', 'string_match_dist.txt']
+        parameter.set_params(parameter_list)
+        self.parameter = parameter
+
+        individual = initialisation(self.parameter, self.parameter.params['POPULATION_SIZE'])
+        individual = evaluate_fitness(individual, self.parameter)
+        self.individual = individual
+        self.parameter.stats.get_stats(individual)
+        # individuals = parameter.params['SEARCH_LOOP'](parameter)
+        # parameter.stats.get_stats(individuals, end=True)
+        # get_stats(individuals, end=True)
 
     def step(self):
-        """
-        Doing this is equivalent of using behavior tree with four classes
-        in this order, Move, HasMoney, NeighbourCondition, ShareMoney
-        # self.move()
-        # if self.wealth > 0:
-        #    self.give_money()
-        """
-        self.behaviour_tree.tick()
+        # """
+        # Doing this is equivalent of using behavior tree with four classes
+        # in this order, Move, HasMoney, NeighbourCondition, ShareMoney
+        self.move()
+        if self.wealth > 0:
+            self.give_money()
+        # """
+        # self.behaviour_tree.tick()
 
     def advance(self):
         pass
@@ -172,6 +184,23 @@ class SwarmAgent(Agent):
             other = self.model.random.choice(cellmates)
             other.wealth += 1
             self.wealth -= 1
+            self.exchange_chromosome(cellmates)
+
+    def exchange_chromosome(self, cellmates):
+        # If some agents found near. Exchange chromosomes
+        individuals = self.individual
+        for mate in cellmates:
+            individuals += mate.individual
+        parents = selection(self.parameter, individuals)
+        cross_pop = crossover(self.parameter, parents)
+        new_pop = mutation(self.parameter, cross_pop)
+        new_pop = evaluate_fitness(new_pop, self.parameter)
+        individuals = replacement(self.parameter, new_pop, individuals)
+        individuals.sort(reverse=True)
+        self.individual = [individuals[0]]
+        # print(self.parameter.individual)
+        # print(type(self.parameter.individual))
+        # exit()
 
 
 class EnvironmentModel(Model):
@@ -206,7 +235,7 @@ class EnvironmentModel(Model):
 class TestWealthSwarmSmallGrid(TestCase):
 
     def setUp(self):
-        self.environment = EnvironmentModel(1, 100, 100, 10, 123)
+        self.environment = EnvironmentModel(100, 100, 100, 10, 123)
 
         for i in range(50):
             self.environment.step()

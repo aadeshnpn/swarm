@@ -1,0 +1,13 @@
+# Grammar for simple text strings
+<string> ::= <letter>|<letter><string>
+<letter> ::= <vowel>|<consonant>|<char>
+<char> ::= " "|!|?|,|.
+
+# Vowels and consonats
+<vowel> ::= <lower_vowel> | <upper_vowel>
+<lower_vowel> ::= a|e|o|i|u
+<upper_vowel> ::= A|E|I|O|U
+
+<consonant> ::= <lower_consonant> | <upper_consonant>
+<lower_consonant> ::= b|c|d|f|g|h|j|k|l|m|n|p|q|r|s|t|v|w|x|y|z
+<upper_consonant> ::= B|C|D|F|G|H|J|K|L|M|N|P|Q|R|S|T|V|W|X|Y|Z
