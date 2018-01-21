@@ -120,8 +120,13 @@ class SwarmAgent(Agent):
         self.direction = model.random.rand() * (2 * np.pi)
         self.speed = 2
         self.radius = 3
-
+        
+        # self.exchange_time = model.random.randint(2, 4)
+        # This doesn't help. Maybe only perform genetic operations when 
+        # an agents meet 10% of its total population
         # """
+        self.operation_threshold = 10 #model.random.randint(4, 10)
+        self.genome_storage = []
         root = py_trees.composites.Sequence("Sequence")
         low = Move('4')
         low.setup(0, self)        
@@ -144,13 +149,14 @@ class SwarmAgent(Agent):
         parameter = Parameters()
         # list_params_files = ['string_match.txt', 'regression.txt', 'classification.txt']
         parameter_list = ['--parameters', 'string_match_dist.txt']
+        parameter.params['RANDOM_SEED'] = np.random.randint(1, 99999999)        
+        parameter.params['POPULATION_SIZE'] = self.operation_threshold // 2         
         parameter.set_params(parameter_list)
         self.parameter = parameter
-
-        individual = initialisation(self.parameter, self.parameter.params['POPULATION_SIZE'])
+        individual = initialisation(self.parameter, 1)
         individual = evaluate_fitness(individual, self.parameter)
         self.individual = individual
-        self.parameter.stats.get_stats(individual)
+        # self.parameter.stats.get_stats(individual)
         # individuals = parameter.params['SEARCH_LOOP'](parameter)
         # parameter.stats.get_stats(individuals, end=True)
         # get_stats(individuals, end=True)
@@ -160,8 +166,17 @@ class SwarmAgent(Agent):
         # Doing this is equivalent of using behavior tree with four classes
         # in this order, Move, HasMoney, NeighbourCondition, ShareMoney
         self.move()
+
+        cellmates = self.model.grid.get_objects_from_grid('SwarmAgent', self.location)
+
+        if len(self.genome_storage) >= self.operation_threshold:
+            self.exchange_chromosome(cellmates)
+
+        if len(cellmates) > 1:
+            self.store_genome(cellmates)
+
         if self.wealth > 0:
-            self.give_money()
+            self.give_money(cellmates)
         # """
         # self.behaviour_tree.tick()
 
@@ -177,20 +192,18 @@ class SwarmAgent(Agent):
         self.location = new_location
         self.direction = direction
 
-    def give_money(self):
-        cellmates = self.model.grid.get_objects_from_grid('SwarmAgent', self.location)
-
+    def give_money(self, cellmates):
         if len(cellmates) > 1:
             other = self.model.random.choice(cellmates)
             other.wealth += 1
             self.wealth -= 1
-            self.exchange_chromosome(cellmates)
+
+    def store_genome(self, cellmates):
+        cellmates.remove(self)
+        self.genome_storage += [agent.individual[0] for agent in cellmates]
 
     def exchange_chromosome(self, cellmates):
-        # If some agents found near. Exchange chromosomes
-        individuals = self.individual
-        for mate in cellmates:
-            individuals += mate.individual
+        individuals = self.genome_storage
         parents = selection(self.parameter, individuals)
         cross_pop = crossover(self.parameter, parents)
         new_pop = mutation(self.parameter, cross_pop)
@@ -198,9 +211,7 @@ class SwarmAgent(Agent):
         individuals = replacement(self.parameter, new_pop, individuals)
         individuals.sort(reverse=True)
         self.individual = [individuals[0]]
-        # print(self.parameter.individual)
-        # print(type(self.parameter.individual))
-        # exit()
+        self.genome_storage = []
 
 
 class EnvironmentModel(Model):
@@ -220,13 +231,14 @@ class EnvironmentModel(Model):
         for i in range(self.num_agents):
             a = SwarmAgent(i, self)
             self.schedule.add(a)
-
             # Add the agent to a random grid cell
             x = self.random.randint(-self.grid.width / 2, self.grid.width / 2)
             y = self.random.randint(-self.grid.height / 2, self.grid.height / 2)
 
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)
+            a.operation_threshold = self.num_agents // 10
+        # exit()
 
     def step(self):
         self.schedule.step()
@@ -237,24 +249,36 @@ class TestWealthSwarmSmallGrid(TestCase):
     def setUp(self):
         self.environment = EnvironmentModel(100, 100, 100, 10, 123)
 
-        for i in range(50):
+        for i in range(300):
             self.environment.step()
 
         self.max_wealth = 0
         self.max_agent = 0
-
+        self.one_target = False
         for agent in self.environment.schedule.agents:
             if agent.wealth > self.max_wealth:
                 self.max_wealth = agent.wealth
                 self.max_agent = agent.name
+                self.target = agent.individual[0].phenotype
 
+            print(agent.name, agent.individual[0])
+            if agent.individual[0].phenotype == 'Hello World':
+                self.one_target = True
+    """
     def test_maximum_wealth(self):
         self.assertEqual(self.max_wealth, 6)
 
     def test_maximum_wealth_agent(self):
         self.assertEqual(self.max_agent, 75)
 
+    def test_target_string(self):
+        self.assertEqual(self.target, 'Hello')
 
+    """
+    def test_one_traget(self):
+        self.assertEqual(self.one_target, True)
+
+"""
 class TestWealthSwarmBigGrid(TestCase):
 
     def setUp(self):
@@ -276,3 +300,4 @@ class TestWealthSwarmBigGrid(TestCase):
 
     def test_maximum_wealth_agent(self):
         self.assertEqual(self.max_agent, 302)
+"""
