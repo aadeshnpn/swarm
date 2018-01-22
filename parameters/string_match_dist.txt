@@ -15,5 +15,5 @@ MUTATION_PROBABILITY:   0.09
 FITNESS_FUNCTION:       string_match
 REPLACEMENT:            generational
 SELECTION:              truncation
-TARGET:                 Hello World
+TARGET:                 Hello
 VERBOSE:                False
