@@ -48,7 +48,7 @@ class GoTo(Behaviour):
 # Behaviors defined for move
 class RandomWalk(Behaviour):
     def __init__(self, name):
-        super(GoTo, self).__init__(name)
+        super(RandomWalk, self).__init__(name)
 
     def setup(self, timeout, agent):
         self.agent = agent
@@ -84,7 +84,7 @@ class Move(Behaviour):
 
 class DoNotMove(Behaviour):
     def __init__(self, name):
-        super(Move, self).__init__(name)
+        super(DoNotMove, self).__init__(name)
 
     def setup(self, timeout, agent):
         self.agent = agent
