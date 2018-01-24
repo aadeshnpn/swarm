@@ -5,7 +5,8 @@ from lib.time import SimultaneousActivation
 from lib.space import Grid
 from swarms.sbehaviors import (
     GoTo, RandomWalk, NeighbourObjects,
-    Move, Away, Towards, DoNotMove
+    Move, Away, Towards, DoNotMove,
+    IsMoveable
     )
 from swarms.objects import Sites
 import py_trees
@@ -135,17 +136,26 @@ class SwarmAgentSenseSite(Agent):
         self.capacity = 10
         self.attached_objects = []
         self.moveable = True
+        self.shared_content = dict()
 
-        root = py_trees.composites.Sequence("Sequence")
+        root = py_trees.composites.Selector("Selector")
+        left_sequence = py_trees.composites.Sequence("LSequence")
+        right_sequence = py_trees.composites.Sequence("RSequence")        
         low = RandomWalk('1')
         low.setup(0, self)
+        low1 = IsMoveable('2')
+        low1.setup(0, self)
+        low2 = Move('3')
+        low2.setup(0, self)
         medium = NeighbourObjects('1')
         medium.setup(0, self, 'Sites')
         high = DoNotMove('2')
         high.setup(0, self)
+        left_sequence.add_children([medium, high])
+        right_sequence.add_children([low, low1, low2])
         # medium = GoTo('2')
         # medium.setup(0, self, self.attached_objects['Sites'][0])
-        root.add_children([low, medium, high])
+        root.add_children([left_sequence, right_sequence])
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
 
     def step(self):
@@ -291,13 +301,13 @@ class SenseSiteSwarmEnvironmentModel(Model):
 
         self.schedule = SimultaneousActivation(self)
 
-        self.target = Sites(id=1, location=(0, 0), radius=25, q_value=0.5)
+        self.target = Sites(id=1, location=(0, 0), radius=11, q_value=0.5)
         self.grid.add_object_to_grid(self.target.location, self.target)
 
         for i in range(self.num_agents):
             a = SwarmAgentSenseSite(i, self)
             self.schedule.add(a)
-            x = 30
+            x = 45
             y = 45
             a.location = (x, y)
             a.direction = -2.3561944901923448
@@ -369,10 +379,9 @@ class TestSenseSiteSwarmSmallGrid(TestCase):
         self.environment = SenseSiteSwarmEnvironmentModel(1, 100, 100, 10, 123)
 
         for i in range(50):
-            print(self.environment.agent.location)
             self.environment.step()
 
     def test_agent_path(self):
-        self.assertEqual((0, 0), [(0, 0), (-1, -1), (-43, -26), (-44, -25), (-45, -24)])        
+        self.assertEqual(self.environment.agent.location, (19, 19))
 
 

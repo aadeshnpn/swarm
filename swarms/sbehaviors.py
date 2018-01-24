@@ -19,8 +19,9 @@ class NeighbourObjects(Behaviour):
 
     def update(self):
         grids = self.agent.model.grid.get_neighborhood(self.agent.location, self.agent.radius)
-        objects = self.agent.model.grid.get_object_from_list_of_grid(self.object_name, grids)
-        if len(objects) > 1:
+        objects = self.agent.model.grid.get_objects_from_list_of_grid(self.object_name, grids)
+        if len(objects) >= 1:
+            print ('site object found',objects)
             self.agent.shared_content[self.object_name] = objects
             return Status.SUCCESS
         else:
@@ -151,6 +152,7 @@ class DoNotMove(Behaviour):
         pass
 
     def update(self):
+        self.agent.moveable = False
         return Status.SUCCESS
 
 
