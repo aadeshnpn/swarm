@@ -28,7 +28,7 @@ class NeighbourObjects(Behaviour):
             return Status.FAILURE
 
 
-# Behaviors defined for move
+# Behaviors defined for GoTo Behavior
 class GoTo(Behaviour):
     def __init__(self, name):
         super(GoTo, self).__init__(name)
@@ -42,6 +42,37 @@ class GoTo(Behaviour):
 
     def update(self):
         self.agent.direction = get_direction(self.thing.location, self.agent.location)
+        return Status.SUCCESS
+
+
+# Behaviors defined to move towards something
+class Towards(Behaviour):
+    def __init__(self, name):
+        super(Towards, self).__init__(name)
+
+    def setup(self, timeout, agent):
+        self.agent = agent
+
+    def initialise(self):
+        pass
+
+    def update(self):
+        return Status.SUCCESS
+
+
+# Behaviors defined to move away from something
+class Away(Behaviour):
+    def __init__(self, name):
+        super(Away, self).__init__(name)
+
+    def setup(self, timeout, agent):
+        self.agent = agent
+
+    def initialise(self):
+        pass
+
+    def update(self):
+        self.agent.direction = (self.agent.direction + np.pi) % (2 * np.pi)
         return Status.SUCCESS
 
 
