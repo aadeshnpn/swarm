@@ -14,7 +14,10 @@ class SwarmAgent(Agent):
         self.direction = model.random.rand() * (2 * np.pi)
         self.speed = 2
         self.radius = 3
-        self.wealth = 1
+
+        self.capacity = 10
+        self.attached_objects = []
+        self.moveable = True
         # behaviour_tree.setup(15)
         """
         root = py_trees.composites.Sequence("Sequence")
@@ -53,6 +56,7 @@ class SwarmAgent(Agent):
         # self.move()
         pass
 
+    """
     def move(self):
         new_location = ()
         x = int(self.location[0] + np.cos(self.direction) * self.speed)
@@ -69,3 +73,4 @@ class SwarmAgent(Agent):
             other = self.model.random.choice(cellmates)
             other.wealth += 1
             self.wealth -= 1
+    """

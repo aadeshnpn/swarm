@@ -165,7 +165,8 @@ class Grid:
         grid_key, grid_value = self.find_grid(point)
         return self.get_objects(object_name, grid_value)
 
-    def get_object_from_list_of_grid(self, object_name, grid_list):
+    def get_objects_from_list_of_grid(self, object_name, grid_list):
         object_list = []
         for grid in grid_list:
             object_list += self.get_objects(object_name, grid)
+        return object_list

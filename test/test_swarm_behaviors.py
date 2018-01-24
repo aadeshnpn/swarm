@@ -4,8 +4,8 @@ from lib.model import Model
 from lib.time import SimultaneousActivation
 from lib.space import Grid
 from swarms.sbehaviors import (
-    GoTo, RandomWalk,
-    Move, Away, Towards
+    GoTo, RandomWalk, NeighbourObjects,
+    Move, Away, Towards, DoNotMove
     )
 from swarms.objects import Sites
 import py_trees
@@ -119,6 +119,40 @@ class SwarmAgentRandomWalk(Agent):
 
     def advance(self):
         pass
+
+
+# class to test random walk behavior
+class SwarmAgentSenseSite(Agent):
+    """ An minimalistic behavior tree for swarm agent implementing carry for a simple object"""
+    def __init__(self, name, model):
+        super().__init__(name, model)
+        self.location = ()
+
+        self.direction = model.random.rand() * (2 * np.pi)
+        self.speed = 2
+        self.radius = 3
+
+        self.capacity = 10
+        self.attached_objects = []
+        self.moveable = True
+
+        root = py_trees.composites.Sequence("Sequence")
+        low = RandomWalk('1')
+        low.setup(0, self)
+        medium = NeighbourObjects('1')
+        medium.setup(0, self, 'Sites')
+        high = DoNotMove('2')
+        high.setup(0, self)
+        # medium = GoTo('2')
+        # medium.setup(0, self, self.attached_objects['Sites'][0])
+        root.add_children([low, medium, high])
+        self.behaviour_tree = py_trees.trees.BehaviourTree(root)
+
+    def step(self):
+        self.behaviour_tree.tick()
+
+    def advance(self):
+        pass        
 
 
 class GoToSwarmEnvironmentModel(Model):
@@ -243,6 +277,38 @@ class RandomWalkSwarmEnvironmentModel(Model):
         self.schedule.step()
 
 
+class SenseSiteSwarmEnvironmentModel(Model):
+    """ A environemnt to model swarms """
+    def __init__(self, N, width, height, grid=10, seed=None):
+        if seed is None:
+            super(SenseSiteSwarmEnvironmentModel, self).__init__(seed=None)
+        else:
+            super(SenseSiteSwarmEnvironmentModel, self).__init__(seed)
+
+        self.num_agents = N
+
+        self.grid = Grid(width, height, grid)
+
+        self.schedule = SimultaneousActivation(self)
+
+        self.target = Sites(id=1, location=(0, 0), radius=25, q_value=0.5)
+        self.grid.add_object_to_grid(self.target.location, self.target)
+
+        for i in range(self.num_agents):
+            a = SwarmAgentSenseSite(i, self)
+            self.schedule.add(a)
+            x = 30
+            y = 45
+            a.location = (x, y)
+            a.direction = -2.3561944901923448
+            self.grid.add_object_to_grid((x, y), a)
+
+        self.agent = a
+
+    def step(self):
+        self.schedule.step()        
+
+
 class TestGoToSwarmSmallGrid(TestCase):
     
     def setUp(self):
@@ -295,5 +361,18 @@ class TestRandomWalkSwarmSmallGrid(TestCase):
 
     def test_agent_path(self):
         self.assertEqual(self.trimmed_results, [(0, 0), (-1, -1), (-43, -26), (-44, -25), (-45, -24)])
+
+
+class TestSenseSiteSwarmSmallGrid(TestCase):
+    
+    def setUp(self):
+        self.environment = SenseSiteSwarmEnvironmentModel(1, 100, 100, 10, 123)
+
+        for i in range(50):
+            print(self.environment.agent.location)
+            self.environment.step()
+
+    def test_agent_path(self):
+        self.assertEqual((0, 0), [(0, 0), (-1, -1), (-43, -26), (-44, -25), (-45, -24)])        
 
 
