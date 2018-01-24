@@ -115,7 +115,7 @@ class SwarmAgent(Agent):
 
         root.add_children([low, higest, high, med])
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
-        
+
         # """
         # This above part should be replaced by Grammatical Evolution.
         # Based on research, use XML file to generate BT. Parse the XML BT
@@ -156,7 +156,6 @@ class WealthEnvironmentModel(Model):
 
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)
-            a.operation_threshold = self.num_agents // 10
 
     def step(self):
         self.schedule.step()

@@ -1,30 +1,54 @@
 from py_trees import Behaviour, Status
 import numpy as np
+from swarms.utils.distangle import get_direction
 
 
-class HasMoney(Behaviour):
+# Defining behaviors for the agent
+
+# Sense behavior for the agent
+class NeighbourObjects(Behaviour):
     def __init__(self, name):
-        super(HasMoney, self).__init__(name)
+        super(NeighbourObjects, self).__init__(name)
 
-    def setup(self, timeout, agent):
+    def setup(self, timeout, agent, object_name):
         self.agent = agent
+        self.object_name = object_name
 
     def initialise(self):
         pass
 
     def update(self):
-        if self.agent.wealth > 0:
+        grids = self.agent.model.grid.get_neighbourhood(self.agent.location, self.radius)
+        objects = self.agent.model.grid.get_objects_from_list_of_grid(self.object_name, grids)
+        if len(objects) > 1:
+            self.agent.shared_content[self.object_name] = objects
             return Status.SUCCESS
         else:
+            self.agent.shared_content[self.object_name] = []
             return Status.FAILURE
 
-    #def terminate(self):
-    #    pass
 
-
-class NeighbourCondition(Behaviour):
+# Behaviors defined for move
+class GoTo(Behaviour):
     def __init__(self, name):
-        super(NeighbourCondition, self).__init__(name)
+        super(GoTo, self).__init__(name)
+
+    def setup(self, timeout, agent, thing):
+        self.agent = agent
+        self.thing = thing
+
+    def initialise(self):
+        pass
+
+    def update(self):
+        self.agent.direction = get_direction(self.thing.location, self.agent.location)
+        return Status.SUCCESS
+
+
+# Behaviors defined for move
+class RandomWalk(Behaviour):
+    def __init__(self, name):
+        super(GoTo, self).__init__(name)
 
     def setup(self, timeout, agent):
         self.agent = agent
@@ -33,38 +57,9 @@ class NeighbourCondition(Behaviour):
         pass
 
     def update(self):
-        cellmates = self.agent.model.grid.get_objects_from_grid('SwarmAgent', self.agent.location)
-        if len(cellmates) > 1:
-            return Status.SUCCESS
-        else:
-            return Status.FAILURE
-
-    #def terminate(self):
-    #    pass
-
-
-class ShareMoney(Behaviour):
-    def __init__(self, name):
-        super(ShareMoney, self).__init__(name)
-
-    def setup(self, timeout, agent):
-        self.agent = agent
-
-    def initialise(self):
-        pass
-
-    def update(self):
-        try:
-            cellmates = self.agent.model.grid.get_objects_from_grid('SwarmAgent', self.agent.location)
-            others = self.agent.model.random.choice(cellmates)
-            others.wealth += 1
-            self.agent.wealth -= 1
-            return Status.SUCCESS
-        except:
-            return Status.FAILURE
-
-    #def terminate(self):
-    #    pass
+        delta_d = self.agent.model.random.normal(0, .1)
+        self.agent.direction = (self.agent.direction + delta_d) % (2 * np.pi)
+        return Status.SUCCESS
 
 
 class Move(Behaviour):
@@ -78,16 +73,24 @@ class Move(Behaviour):
         pass
 
     def update(self):
-        try:
-            x = int(self.agent.location[0] + np.cos(self.agent.direction) * self.agent.speed)
-            y = int(self.agent.location[1] + np.sin(self.agent.direction) * self.agent.speed)
-            new_location, direction = self.agent.model.grid.check_limits((x, y), self.agent.direction)
-            self.agent.model.grid.move_object(self.agent.location, self.agent, new_location)
-            self.agent.location = new_location
-            self.agent.direction = direction
-            return Status.SUCCESS
-        except:
-            return Status.FAILURE
+        x = int(self.agent.location[0] + np.cos(self.agent.direction) * self.agent.speed)
+        y = int(self.agent.location[1] + np.sin(self.agent.direction) * self.agent.speed)
+        new_location, direction = self.agent.model.grid.check_limits((x, y), self.agent.direction)
+        self.agent.model.grid.move_object(self.agent.location, self.agent, new_location)
+        self.agent.location = new_location
+        self.agent.direction = direction
+        return Status.SUCCESS
 
-    #def terminate(self):
-    #    pass
+
+class DoNotMove(Behaviour):
+    def __init__(self, name):
+        super(Move, self).__init__(name)
+
+    def setup(self, timeout, agent):
+        self.agent = agent
+
+    def initialise(self):
+        pass
+
+    def update(self):
+        return Status.SUCCESS

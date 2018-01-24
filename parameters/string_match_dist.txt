@@ -17,3 +17,4 @@ REPLACEMENT:            generational
 SELECTION:              truncation
 TARGET:                 Hello
 VERBOSE:                False
+SILENT:                 True

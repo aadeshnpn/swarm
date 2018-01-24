@@ -1,8 +1,8 @@
 from lib.agent import Agent
 
-from swarms.sbehaviors import NeighbourCondition, ShareMoney, Move, HasMoney
+# from swarms.sbehaviors import NeighbourObjects, ShareMoney, Move, HasMoney
 import numpy as np
-import py_trees
+# import py_trees
 
 
 class SwarmAgent(Agent):
@@ -16,19 +16,21 @@ class SwarmAgent(Agent):
         self.radius = 3
         self.wealth = 1
         # behaviour_tree.setup(15)
-
+        """
         root = py_trees.composites.Sequence("Sequence")
         low = Move('4')
         low.setup(0, self)        
         higest = HasMoney('1')
         higest.setup(0, self)
-        high = NeighbourCondition('2')
-        high.setup(0, self)
+        high = NeighbourObjects('2')
+        high.setup(0, self, 'SwarmAgent')
         med = ShareMoney('3')
         med.setup(0, self)
 
         root.add_children([low, higest, high, med])
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
+        """
+        self.shared_contents = dict()
 
     # New Agent methods for behavior based robotics
     def sense(self):
