@@ -24,6 +24,11 @@ class SwarmAgentGoTo(Agent):
         self.speed = 2
         self.radius = 3
 
+        self.capacity = 10
+        self.attached_objects = []
+        self.moveable = True
+        self.shared_content = dict()
+        
         root = py_trees.composites.Sequence("Sequence")
         low = GoTo('1')
         low.setup(0, self, model.target)
@@ -49,6 +54,11 @@ class SwarmAgentGoToAway(Agent):
         self.direction = model.random.rand() * (2 * np.pi)
         self.speed = 2
         self.radius = 3
+
+        self.capacity = 10
+        self.attached_objects = []
+        self.moveable = True
+        self.shared_content = dict()
 
         root = py_trees.composites.Sequence("Sequence")
         low = GoTo('1')
@@ -78,6 +88,11 @@ class SwarmAgentGoToTowards(Agent):
         self.speed = 2
         self.radius = 3
 
+        self.capacity = 10
+        self.attached_objects = []
+        self.moveable = True
+        self.shared_content = dict()
+
         root = py_trees.composites.Sequence("Sequence")
         low = GoTo('1')
         low.setup(0, self, model.target)
@@ -106,6 +121,11 @@ class SwarmAgentRandomWalk(Agent):
         self.direction = model.random.rand() * (2 * np.pi)
         self.speed = 2
         self.radius = 3
+
+        self.capacity = 10
+        self.attached_objects = []
+        self.moveable = True
+        self.shared_content = dict()
 
         root = py_trees.composites.Sequence("Sequence")
         low = RandomWalk('1')
@@ -184,12 +204,12 @@ class SwarmAgentSenseHubSite(Agent):
         root = py_trees.composites.Selector("Selector")
         left_sequence = py_trees.composites.Sequence("LSequence")
         right_sequence = py_trees.composites.Sequence("RSequence")
-        hub_sequence = py_trees.composites.SequenceLoop("L1Sequence")
-        low = RandomWalk('4')
+        hub_sequence = py_trees.composites.RepeatUntilFalse("L1Sequence")
+        low = RandomWalk('5')
         low.setup(0, self)
-        low1 = IsMoveable('5')
+        low1 = IsMoveable('6')
         low1.setup(0, self)
-        low2 = Move('6')
+        low2 = Move('7')
         low2.setup(0, self)
 
         medium = NeighbourObjects('1')
@@ -198,20 +218,26 @@ class SwarmAgentSenseHubSite(Agent):
         high = GoTo('2')
         high.setup(0, self, model.hub)
 
-        high1 = NeighbourObjects('3')
+        highm = Move('3')
+        highm.setup(0, self)
+        
+        #high1 = py_trees.meta.inverter(NeighbourObjects)('4')
+        high1 = NeighbourObjects('4')
         high1.setup(0, self, 'Hub')
 
-        root1 = py_trees.composites.Sequence('subtree')
-        root1.add_children([high, low1, low2, high1])
+        # root1 = py_trees.composites.Sequence('subtree')
+        # root1.add_children([high, low1, low2, high1])
 
-        hub_sequence.add_children([high, high1])
+        hub_sequence.add_children([high, highm, high1])
         left_sequence.add_children([medium, hub_sequence])
         right_sequence.add_children([low, low1, low2])
         # medium = GoTo('2')
         # medium.setup(0, self, self.attached_objects['Sites'][0])
         root.add_children([left_sequence, right_sequence])
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
-        py_trees.display.print_ascii_tree(root)  
+        py_trees.logging.level = py_trees.logging.Level.DEBUG
+        py_trees.display.print_ascii_tree(root, indent=0, show_status=True)  
+
 
     def step(self):
         self.behaviour_tree.tick()

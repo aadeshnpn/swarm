@@ -137,18 +137,16 @@ class Move(Behaviour):
         pass
 
     def update(self):
-        try:
-            x = int(self.agent.location[0] + np.cos(self.agent.direction) * self.agent.speed)
-            y = int(self.agent.location[1] + np.sin(self.agent.direction) * self.agent.speed)
-            new_location, direction = self.agent.model.grid.check_limits((x, y), self.agent.direction)
-            self.agent.model.grid.move_object(self.agent.location, self.agent, new_location)
-            self.agent.location = new_location
-            self.agent.direction = direction
-            for item in self.agent.attached_objects:
-                item.location = self.agent.location
-            return Status.SUCCESS
-        except:
-            return Status.FAILURE
+
+        x = int(self.agent.location[0] + np.cos(self.agent.direction) * self.agent.speed)
+        y = int(self.agent.location[1] + np.sin(self.agent.direction) * self.agent.speed)
+        new_location, direction = self.agent.model.grid.check_limits((x, y), self.agent.direction)
+        self.agent.model.grid.move_object(self.agent.location, self.agent, new_location)
+        self.agent.location = new_location
+        self.agent.direction = direction
+        for item in self.agent.attached_objects:
+            item.location = self.agent.location
+        return Status.SUCCESS
 
 
 # Behavior define for donot move
