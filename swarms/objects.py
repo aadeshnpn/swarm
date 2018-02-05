@@ -68,7 +68,7 @@ class Food:
 
 
 # Class to define Derbis
-class Derbis:
+class Derbis(EnvironmentObject):
     def __init__(self, id=1, location=(0, 0), radius=2, weight=5):
         super().__init__(id, location, radius)
         self.carryable = True

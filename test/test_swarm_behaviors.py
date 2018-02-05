@@ -11,10 +11,7 @@ from swarms.sbehaviors import (
 from swarms.objects import Sites, Hub
 import py_trees
 import numpy as np
-import sys
 
-
-sys.setrecursionlimit(9500)
 
 # Class to tets GoTo behavior for agents
 class SwarmAgentGoTo(Agent):

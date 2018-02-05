@@ -1,18 +1,20 @@
-from py_trees import Behaviour, Status, meta, composites
+from py_trees import Behaviour, Status, meta, composites, Blackboard
 import numpy as np
 from swarms.utils.distangle import get_direction
 
 
 # Defining behaviors for the agent
 
-# Sense behavior for the agent
+# Sense behavior for the agent update using blackboard
 class NeighbourObjects(Behaviour):
     def __init__(self, name):
         super(NeighbourObjects, self).__init__(name)
+        self.blackboard = Blackboard()
 
     def setup(self, timeout, agent, object_name):
         self.agent = agent
         self.object_name = object_name
+        self.blackboard.shared_content = dict()
 
     def initialise(self):
         pass
@@ -21,9 +23,11 @@ class NeighbourObjects(Behaviour):
         grids = self.agent.model.grid.get_neighborhood(self.agent.location, self.agent.radius)
         objects = self.agent.model.grid.get_objects_from_list_of_grid(self.object_name, grids)
         if len(objects) >= 1:
+            self.blackboard.shared_content[self.object_name] = objects
             self.agent.shared_content[self.object_name] = objects
             return Status.SUCCESS
         else:
+            self.blackboard.shared_content[self.object_name] = []            
             self.agent.shared_content[self.object_name] = []
             return Status.FAILURE
 
@@ -154,9 +158,10 @@ class DoNotMove(Behaviour):
 
 
 # Behavior to check carryable attribute of an object
-class IsCarryAble(Behaviour):
+class IsCarryable(Behaviour):
     def __init__(self, name):
-        super(IsCarryAble, self).__init__(name)
+        super(IsCarryable, self).__init__(name)
+        self.blackboard = Blackboard()
 
     def setup(self, timeout, agent, thing):
         self.agent = agent
@@ -166,9 +171,9 @@ class IsCarryAble(Behaviour):
         pass
 
     def update(self):
-
+        objects = self.blackboard.shared_content[self.thing][0]
         try:
-            if self.thing.carryable:
+            if objects.carryable:
                 return Status.SUCCESS
             else:
                 return Status.FAILURE
@@ -180,6 +185,7 @@ class IsCarryAble(Behaviour):
 class IsSingleCarry(Behaviour):
     def __init__(self, name):
         super(IsSingleCarry, self).__init__(name)
+        self.blackboard = Blackboard()
 
     def setup(self, timeout, agent, thing):
         self.agent = agent
@@ -190,9 +196,10 @@ class IsSingleCarry(Behaviour):
 
     def update(self):
         # Logic to carry
+        objects = self.blackboard.shared_content[self.thing][0]
         try:
-            if self.thing.weight:
-                if self.agent.capacity > self.thing.weight:
+            if objects.weight:
+                if self.agent.capacity > objects.weight:
                     return Status.SUCCESS
             else:
                 return Status.FAILURE
@@ -227,6 +234,7 @@ class IsMultipleCarry(Behaviour):
 class SingleCarry(Behaviour):
     def __init__(self, name):
         super(SingleCarry, self).__init__(name)
+        self.blackboard = Blackboard()
 
     def setup(self, timeout, agent, thing):
         self.agent = agent
@@ -237,12 +245,13 @@ class SingleCarry(Behaviour):
 
     def update(self):
         # Logic to carry
-        try:
-            self.agent.attached_objects.append(self.thing)
-            self.agent.model.grid.remove_object_from_grid(self.thing.location, self.thing)
-            return Status.SUCCESS
-        except:
-            return Status.FAILURE
+        #try:
+        objects = self.blackboard.shared_content[self.thing][0]
+        self.agent.attached_objects.append(objects)
+        self.agent.model.grid.remove_object_from_grid(objects.location, objects)
+        return Status.SUCCESS
+        #except:
+        #    return Status.FAILURE
 
 
 # class Inveter(Behaviour):
