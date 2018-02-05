@@ -20,7 +20,6 @@ class NeighbourObjects(Behaviour):
     def update(self):
         grids = self.agent.model.grid.get_neighborhood(self.agent.location, self.agent.radius)
         objects = self.agent.model.grid.get_objects_from_list_of_grid(self.object_name, grids)
-        print(self.object_name)
         if len(objects) >= 1:
             self.agent.shared_content[self.object_name] = objects
             return Status.SUCCESS
@@ -42,20 +41,9 @@ class GoTo(Behaviour):
         pass
 
     def update(self):
-        print('gotohub')        
         self.agent.direction = get_direction(self.thing.location, self.agent.location)
         return Status.SUCCESS
 
-"""
-# Behavior defined for GoTo Behavior
-class GoToLoop(meta.create_imposter(composites.Sequence)):
-    def __init__(self, *args, **kwargs):
-        super(GoToLoop, self).__init__(*args, **kwargs)
-
-    def update(self):
-        self.agent.direction = get_direction(self.thing.location, self.agent.location)
-        return Status.SUCCESS    
-"""
 
 # Behavior defined to move towards something
 class Towards(Behaviour):

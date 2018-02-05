@@ -11,7 +11,10 @@ from swarms.sbehaviors import (
 from swarms.objects import Sites, Hub
 import py_trees
 import numpy as np
+import sys
 
+
+sys.setrecursionlimit(9500)
 
 # Class to tets GoTo behavior for agents
 class SwarmAgentGoTo(Agent):
@@ -205,11 +208,21 @@ class SwarmAgentSenseHubSite(Agent):
         left_sequence = py_trees.composites.Sequence("LSequence")
         right_sequence = py_trees.composites.Sequence("RSequence")
         hub_sequence = py_trees.composites.RepeatUntilFalse("L1Sequence")
-        low = RandomWalk('5')
+
+        right_selector = py_trees.composites.Selector("RSelector")
+        right1_sequence = py_trees.composites.Sequence("R1Sequence")
+
+        hub_dnm = NeighbourObjects('5')
+        hub_dnm.setup(0, self, 'Hub')
+
+        dmn = DoNotMove('6')
+        dmn.setup(0, self)
+
+        low = RandomWalk('7')
         low.setup(0, self)
-        low1 = IsMoveable('6')
+        low1 = IsMoveable('8')
         low1.setup(0, self)
-        low2 = Move('7')
+        low2 = Move('9')
         low2.setup(0, self)
 
         medium = NeighbourObjects('1')
@@ -221,23 +234,21 @@ class SwarmAgentSenseHubSite(Agent):
         highm = Move('3')
         highm.setup(0, self)
         
-        #high1 = py_trees.meta.inverter(NeighbourObjects)('4')
-        high1 = NeighbourObjects('4')
+        high1 = py_trees.meta.inverter(NeighbourObjects)('4')
         high1.setup(0, self, 'Hub')
-
-        # root1 = py_trees.composites.Sequence('subtree')
-        # root1.add_children([high, low1, low2, high1])
 
         hub_sequence.add_children([high, highm, high1])
         left_sequence.add_children([medium, hub_sequence])
-        right_sequence.add_children([low, low1, low2])
-        # medium = GoTo('2')
-        # medium.setup(0, self, self.attached_objects['Sites'][0])
-        root.add_children([left_sequence, right_sequence])
-        self.behaviour_tree = py_trees.trees.BehaviourTree(root)
-        py_trees.logging.level = py_trees.logging.Level.DEBUG
-        py_trees.display.print_ascii_tree(root, indent=0, show_status=True)  
 
+        right1_sequence.add_children([hub_dnm, dmn])
+        right_sequence.add_children([low, low1, low2])
+
+        right_selector.add_children([right1_sequence, right_sequence])
+        root.add_children([left_sequence, right_selector])
+        
+        self.behaviour_tree = py_trees.trees.BehaviourTree(root)
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # py_trees.display.print_ascii_tree(root, indent=0, show_status=True)  
 
     def step(self):
         self.behaviour_tree.tick()
@@ -509,10 +520,10 @@ class TestSenseHubSiteSwarmSmallGrid(TestCase):
     def setUp(self):
         self.environment = SenseHubSiteSwarmEnvironmentModel(1, 100, 100, 10, 123)
 
-        for i in range(50):
+        for i in range(20):
             self.environment.step()
 
     def test_agent_path(self):
-        self.assertEqual(self.environment.agent.location, (19, 19))
+        self.assertEqual(self.environment.agent.location, (-31, -31))
 
 
