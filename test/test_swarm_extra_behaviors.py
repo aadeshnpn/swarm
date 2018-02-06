@@ -24,7 +24,6 @@ class SwarmAgentSingleCarry(Agent):
         self.speed = 2
         self.radius = 3
 
-        self.capacity = self.weight * 2
         self.moveable = True
         self.shared_content = dict()
         

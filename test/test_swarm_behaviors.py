@@ -24,7 +24,6 @@ class SwarmAgentGoTo(Agent):
         self.speed = 2
         self.radius = 3
 
-        self.capacity = self.weight * 2
         self.moveable = True
         self.shared_content = dict()
         
@@ -51,7 +50,6 @@ class SwarmAgentGoToAway(Agent):
         self.speed = 2
         self.radius = 3
 
-        self.capacity = self.weight * 2
         self.moveable = True
         self.shared_content = dict()
 
@@ -83,7 +81,6 @@ class SwarmAgentGoToTowards(Agent):
         self.speed = 2
         self.radius = 3
 
-        self.capacity = self.weight * 2
         self.moveable = True
         self.shared_content = dict()
 
@@ -116,7 +113,6 @@ class SwarmAgentRandomWalk(Agent):
         self.speed = 2
         self.radius = 3
 
-        self.capacity = self.weight * 2
         self.moveable = True
         self.shared_content = dict()
 
@@ -146,7 +142,6 @@ class SwarmAgentSenseSite(Agent):
         self.speed = 2
         self.radius = 3
 
-        self.capacity = self.weight * 2
         self.moveable = True
         self.shared_content = dict()
 
@@ -188,7 +183,6 @@ class SwarmAgentSenseHubSite(Agent):
         self.speed = 2
         self.radius = 3
 
-        self.capacity = self.weight * 2
         self.moveable = True
         self.shared_content = dict()
 

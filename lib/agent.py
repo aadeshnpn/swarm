@@ -14,6 +14,7 @@ class Agent:
         self.name = name
         self.model = model
         self.weight = 5
+        self.capacity = self.weight * 2
         self.force = 10.0
         self.attached_objects = []
 
@@ -32,3 +33,12 @@ class Agent:
             except AttributeError:
                 pass
         return relative_weight
+
+    def get_capacity(self):
+        relative_capacity = self.capacity
+        for item in self.attached_objects:
+            try:
+                relative_capacity -= item.weight
+            except AttributeError:
+                pass
+        return relative_capacity

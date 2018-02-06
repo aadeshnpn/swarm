@@ -18,7 +18,6 @@ class SwarmAgent(Agent):
         self.radius = 3
         self.moveable = True
         self.weight = 5
-        self.capacity = self.weight * 2
         self.shared_contents = dict()
 
     # New Agent methods for behavior based robotics

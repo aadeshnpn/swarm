@@ -28,9 +28,24 @@ class Obstacles(EnvironmentObject):
     def __init__(self, id=1, location=(0, 0), radius=20):
         super().__init__(id, location, radius)
         self.potential_field = None
-        self.carrable = True
+        self.carrable = False
         self.dropable = True
 
+
+# Class to define carryable property
+class Carryable(EnvironmentObject):
+    def __init__(self, id=1, location=(0, 0), radius=20):
+        super().__init__(id, location, radius)
+        # Carryable boolen value
+        self.carryable = True
+        self.weight = int(self.radius / 2)
+        self.motion = False
+        self.agents = []
+
+    def calc_relative_weight(self):
+        relative_weight = weight
+        for agent in self.agents:
+            relative_weight -= agent.capacity        
 
 # Class to define communication
 class Communication(EnvironmentObject):
@@ -61,25 +76,17 @@ class Traps(EnvironmentObject):
 
 
 # Class to define Food
-class Food:
+class Food(Carryable):
     def __init__(self, id=1, location=(0, 0), radius=2):
         super().__init__(id, location, radius)
-        self.carryable = True
 
 
 # Class to define Derbis
-class Derbis(EnvironmentObject):
+class Derbis(Carryable):
     def __init__(self, id=1, location=(0, 0), radius=2, weight=5):
         super().__init__(id, location, radius)
-        self.carryable = True
-        self.weight = int(self.radius / 2)
-        self.shareholders = 0
-        self.motion = False
-        self.agentid = []
 
-    #def calc_relative_weight(self):
-    #    for 
-
+            
 # Class to define Rules
 class Rules:
     def __init__(self, id=1, json_data=None):

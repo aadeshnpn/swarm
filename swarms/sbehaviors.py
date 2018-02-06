@@ -132,8 +132,8 @@ class Move(Behaviour):
         self.agent.accleration = self.agent.force / self.agent.get_weight()
         self.agent.velocity = self.agent.accleration * 1
 
-        x = int(self.agent.location[0] + np.cos(self.agent.direction) * self.agent.speed)
-        y = int(self.agent.location[1] + np.sin(self.agent.direction) * self.agent.speed)
+        x = int(self.agent.location[0] + np.cos(self.agent.direction) * self.agent.velocity)
+        y = int(self.agent.location[1] + np.sin(self.agent.direction) * self.agent.velocity)
         new_location, direction = self.agent.model.grid.check_limits((x, y), self.agent.direction)
         self.agent.model.grid.move_object(self.agent.location, self.agent, new_location)
         self.agent.location = new_location
@@ -201,7 +201,7 @@ class IsSingleCarry(Behaviour):
         objects = self.blackboard.shared_content[self.thing][0]
         try:
             if objects.weight:
-                if self.agent.capacity > objects.weight:
+                if self.agent.get_capacity() > objects.weight:
                     return Status.SUCCESS
             else:
                 return Status.FAILURE
@@ -227,7 +227,7 @@ class IsMultipleCarry(Behaviour):
         objects = self.blackboard.shared_content[self.thing][0]
         try:
             if objects.weight:
-                if self.agent.capacity < objects.weight:
+                if self.agent.get_capacity() < objects.weight:
                     return Status.SUCCESS
             else:
                 return Status.FAILURE
