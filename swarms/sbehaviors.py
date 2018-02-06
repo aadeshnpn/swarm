@@ -129,6 +129,8 @@ class Move(Behaviour):
         pass
 
     def update(self):
+        self.agent.accleration = self.agent.force / self.agent.get_weight()
+        self.agent.velocity = self.agent.accleration * 1
 
         x = int(self.agent.location[0] + np.cos(self.agent.direction) * self.agent.speed)
         y = int(self.agent.location[1] + np.sin(self.agent.direction) * self.agent.speed)
@@ -207,10 +209,11 @@ class IsSingleCarry(Behaviour):
             return Status.FAILURE
 
 
-# Behavior define to check is the item is carrable on its own
+# Behavior define to check is the item is carrable on its own or not
 class IsMultipleCarry(Behaviour):
     def __init__(self, name):
         super(IsMultipleCarry, self).__init__(name)
+        self.blackboard = Blackboard()
 
     def setup(self, timeout, agent, thing):
         self.agent = agent
@@ -221,9 +224,10 @@ class IsMultipleCarry(Behaviour):
 
     def update(self):
         # Logic to carry
+        objects = self.blackboard.shared_content[self.thing][0]
         try:
-            if self.thing.weight:
-                if self.agent.capacity < self.thing.weight:
+            if objects.weight:
+                if self.agent.capacity < objects.weight:
                     return Status.SUCCESS
             else:
                 return Status.FAILURE

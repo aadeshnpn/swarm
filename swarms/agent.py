@@ -12,27 +12,13 @@ class SwarmAgent(Agent):
         self.location = ()
 
         self.direction = model.random.rand() * (2 * np.pi)
+        # This variable was used for move function. Since we are adopting accleration based method this
+        # variable is only kept for the tests to pass
         self.speed = 2
         self.radius = 3
-
-        self.capacity = 10
-        self.attached_objects = []
         self.moveable = True
-        # behaviour_tree.setup(15)
-        """
-        root = py_trees.composites.Sequence("Sequence")
-        low = Move('4')
-        low.setup(0, self)        
-        higest = HasMoney('1')
-        higest.setup(0, self)
-        high = NeighbourObjects('2')
-        high.setup(0, self, 'SwarmAgent')
-        med = ShareMoney('3')
-        med.setup(0, self)
-
-        root.add_children([low, higest, high, med])
-        self.behaviour_tree = py_trees.trees.BehaviourTree(root)
-        """
+        self.weight = 5
+        self.capacity = self.weight * 2
         self.shared_contents = dict()
 
     # New Agent methods for behavior based robotics
@@ -50,11 +36,6 @@ class SwarmAgent(Agent):
         self.move()
         if self.wealth > 0:
             self.give_money()
-
-    # Applies the changes
-    def advance(self):
-        # self.move()
-        pass
 
     """
     def move(self):

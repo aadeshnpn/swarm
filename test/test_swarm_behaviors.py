@@ -24,8 +24,7 @@ class SwarmAgentGoTo(Agent):
         self.speed = 2
         self.radius = 3
 
-        self.capacity = 10
-        self.attached_objects = []
+        self.capacity = self.weight * 2
         self.moveable = True
         self.shared_content = dict()
         
@@ -40,9 +39,6 @@ class SwarmAgentGoTo(Agent):
     def step(self):
         self.behaviour_tree.tick()
 
-    def advance(self):
-        pass
-
 
 # Class to tets GoTo behavior with away for agents
 class SwarmAgentGoToAway(Agent):
@@ -55,8 +51,7 @@ class SwarmAgentGoToAway(Agent):
         self.speed = 2
         self.radius = 3
 
-        self.capacity = 10
-        self.attached_objects = []
+        self.capacity = self.weight * 2
         self.moveable = True
         self.shared_content = dict()
 
@@ -88,8 +83,7 @@ class SwarmAgentGoToTowards(Agent):
         self.speed = 2
         self.radius = 3
 
-        self.capacity = 10
-        self.attached_objects = []
+        self.capacity = self.weight * 2
         self.moveable = True
         self.shared_content = dict()
 
@@ -122,8 +116,7 @@ class SwarmAgentRandomWalk(Agent):
         self.speed = 2
         self.radius = 3
 
-        self.capacity = 10
-        self.attached_objects = []
+        self.capacity = self.weight * 2
         self.moveable = True
         self.shared_content = dict()
 
@@ -153,8 +146,7 @@ class SwarmAgentSenseSite(Agent):
         self.speed = 2
         self.radius = 3
 
-        self.capacity = 10
-        self.attached_objects = []
+        self.capacity = self.weight * 2
         self.moveable = True
         self.shared_content = dict()
 
@@ -196,8 +188,7 @@ class SwarmAgentSenseHubSite(Agent):
         self.speed = 2
         self.radius = 3
 
-        self.capacity = 10
-        self.attached_objects = []
+        self.capacity = self.weight * 2
         self.moveable = True
         self.shared_content = dict()
 

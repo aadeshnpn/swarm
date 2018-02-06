@@ -77,6 +77,8 @@ class Derbis(EnvironmentObject):
         self.motion = False
         self.agentid = []
 
+    #def calc_relative_weight(self):
+    #    for 
 
 # Class to define Rules
 class Rules:
