@@ -45,7 +45,13 @@ class Carryable(EnvironmentObject):
     def calc_relative_weight(self):
         relative_weight = weight
         for agent in self.agents:
-            relative_weight -= agent.capacity        
+            relative_weight -= agent.capacity
+
+    def calc_average_weight(self):
+        average_weight = self.weight
+        if len(self.agents) > 1:
+            average_weight = self.weight / len(self.agents)
+        return average_weight
 
 # Class to define communication
 class Communication(EnvironmentObject):
@@ -86,7 +92,7 @@ class Derbis(Carryable):
     def __init__(self, id=1, location=(0, 0), radius=2, weight=5):
         super().__init__(id, location, radius)
 
-            
+
 # Class to define Rules
 class Rules:
     def __init__(self, id=1, json_data=None):

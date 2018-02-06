@@ -49,6 +49,41 @@ class SwarmAgentSingleCarry(Agent):
         pass
 
 
+class SwarmAgentMultipleCarry(Agent):
+    """ An minimalistic behavior tree for swarm agent implementing carry behavior"""
+    def __init__(self, name, model):
+        super().__init__(name, model)
+        self.location = ()
+
+        self.direction = model.random.rand() * (2 * np.pi)
+        self.speed = 2
+        self.radius = 3
+        self.partial_attached_objects = []
+        self.moveable = True
+        self.shared_content = dict()
+        
+        root = py_trees.composites.Sequence("Sequence")
+        lowest = NeighbourObjects('0')
+        lowest.setup(0, self, 'Derbis')
+
+        low = IsCarryable('1')
+        low.setup(0, self, 'Derbis')
+        medium = IsSingleCarry('2')
+        medium.setup(0, self, 'Derbis')
+        high = SingleCarry('3')
+        high.setup(0, self, 'Derbis')
+
+        root.add_children([lowest, low, medium, high])
+        self.behaviour_tree = py_trees.trees.BehaviourTree(root)
+        py_trees.display.print_ascii_tree(root)
+        
+    def step(self):
+        self.behaviour_tree.tick()
+
+    def advance(self):
+        pass
+
+
 class SingleCarrySwarmEnvironmentModel(Model):
     """ A environemnt to model swarms """
     def __init__(self, N, width, height, grid=10, seed=None):

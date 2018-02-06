@@ -201,7 +201,7 @@ class IsSingleCarry(Behaviour):
         objects = self.blackboard.shared_content[self.thing][0]
         try:
             if objects.weight:
-                if self.agent.get_capacity() > objects.weight:
+                if self.agent.get_capacity() > objects.calc_relative_weight():
                     return Status.SUCCESS
             else:
                 return Status.FAILURE
@@ -248,14 +248,115 @@ class SingleCarry(Behaviour):
         pass
 
     def update(self):
-        # Logic to carry
-        #try:
         objects = self.blackboard.shared_content[self.thing][0]
         self.agent.attached_objects.append(objects)
         self.agent.model.grid.remove_object_from_grid(objects.location, objects)
         return Status.SUCCESS
-        #except:
-        #    return Status.FAILURE
 
 
-# class Inveter(Behaviour):
+class InitiateMultipleCarry(Behaviour):
+    def __init__(self, name):
+        super(MultipleCarry, self).__init__(name)
+        self.blackboard = Blackboard()
+
+    def setup(self, timeout, agent, thing):
+        self.agent = agent
+        self.thing = thing
+
+    def initialise(self):
+        pass
+
+    def update(self):
+        objects = self.blackboard.shared_content[self.thing][0]
+
+        # Update the partial attached object
+        self.agent.partial_attached_objects.append(objects)
+
+        # Update the object so that it knows this agent has attached to it
+        objects.agents.append(self.agent)
+
+        return Status.SUCCESS
+
+
+class IsInPartialAttached(Behaviour):
+    def __init__(self, name):
+        super(IsInPartialAttached, self).__init__(name)
+        self.blackboard = Blackboard()
+
+    def setup(self, timeout, agent, thing):
+        self.agent = agent
+        self.thing = thing
+
+    def initialise(self):
+        pass
+
+    def update(self):
+        objects = self.blackboard.shared_content[self.thing][0]
+
+        if objects in self.agent.partial_attached_objects \
+            and self.agent in objects.agents:
+            return Status.SUCCESS
+        else:
+            return Status.FAILURE
+
+
+class IsEnoughStrengthToCarry(Behaviour):
+    def __init__(self, name):
+        super(IsEnoughStrengthToCarry, self).__init__(name)
+        self.blackboard = Blackboard()
+
+    def setup(self, timeout, agent, thing):
+        self.agent = agent
+        self.thing = thing
+
+    def initialise(self):
+        pass
+
+    def update(self):
+        objects = self.blackboard.shared_content[self.thing][0]
+
+        if self.agent.get_capacity() > objects.calc_relative_weight():
+            objects.motion = True
+            self.agent.model.grid.remove_object_from_grid(objects.location, objects)                    
+            return Status.SUCCESS
+        else:
+            return Status.FAILURE
+
+
+class IsMotionTrue(Behaviour):
+    def __init__(self, name):
+        super(IsMotionTrue, self).__init__(name)
+        # self.blackboard = Blackboard()
+
+    def setup(self, timeout, agent, thing):
+        self.agent = agent
+        self.thing = thing
+
+    def initialise(self):
+        pass
+
+    def update(self):
+        # objects = self.blackboard.shared_content[self.thing][0]
+        if self.agent.partial_attached_objects[0].motion is True:
+            return Status.SUCCESS
+        else:
+            return Status.FAILURE
+
+
+class MultipleCarry(Behaviour):
+    def __init__(self, name):
+        super(MultipleCarry, self).__init__(name)
+        # self.blackboard = Blackboard()
+
+    def setup(self, timeout, agent, thing):
+        self.agent = agent
+        self.thing = thing
+
+    def initialise(self):
+        pass
+
+    def update(self):
+        # objects = self.blackboard.shared_content[self.thing][0]
+        # self.agent.model.grid.remove_object_from_grid(objects.location, objects)
+        objects = self.agent.partial_attached_objects[0]
+        

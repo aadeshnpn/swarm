@@ -17,6 +17,7 @@ class Agent:
         self.capacity = self.weight * 2
         self.force = 10.0
         self.attached_objects = []
+        self.partial_attached_objects = []
 
     def step(self):
         """ A single step of the agent. """
