@@ -1,3 +1,5 @@
+import numpy as np
+
 # Base class for all the objects that can be defined in the environment
 class EnvironmentObject:
     def __init__(self, id=1, location=(0, 0), radius=20):
@@ -40,18 +42,33 @@ class Carryable(EnvironmentObject):
         self.carryable = True
         self.weight = int(self.radius / 2)
         self.motion = False
-        self.agents = []
+        self.agents = dict()
+        self.direction = 0
 
     def calc_relative_weight(self):
-        relative_weight = weight
+        relative_weight = self.weight
         for agent in self.agents:
-            relative_weight -= agent.capacity
+            if relative_weight > 0:
+                relative_weight -= self.agents[agent]
+        return relative_weight
 
     def calc_average_weight(self):
         average_weight = self.weight
         if len(self.agents) > 1:
             average_weight = self.weight / len(self.agents)
         return average_weight
+
+    def calc_totalforces(self):
+        total_force = 0
+        for agent in self.agents:
+            total_force += agent.force
+        return total_force
+
+    def calc_direction(self):
+        average_direction = 0
+        for agent in self.agents:
+            average_direction += agent.direction
+        return average_direction % (2*np.pi)
 
 # Class to define communication
 class Communication(EnvironmentObject):

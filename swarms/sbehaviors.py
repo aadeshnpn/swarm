@@ -143,6 +143,34 @@ class Move(Behaviour):
         return Status.SUCCESS
 
 
+# Behavior defined to move other objects other than agents
+class MoveOthers(Behaviour):
+    def __init__(self, name):
+        super(MoveOthers, self).__init__(name)
+
+    def setup(self, timeout, others):
+        self.others = others
+
+    def initialise(self):
+        pass
+
+    def update(self):
+        accleration = self.others.calc_totalforces() / self.others.weight
+        velocity = accleration * 1
+        direction = self.others.calc_direction()
+        #self.agent.accleration = self.agent.force / self.agent.get_weight()
+        #self.agent.velocity = self.agent.accleration * 1
+
+        x = int(self.others.location[0] + np.cos(direction) * velocity)
+        y = int(self.others.location[1] + np.sin(direction) * velocity)
+        new_location, direction = self.others.agents[0].model.grid.check_limits((x, y), direction)
+
+        self.others.agents[0].model.grid.move_object(self.others.location, self.agent, new_location)
+        self.others.location = new_location
+        self.others.direction = direction
+        return Status.SUCCESS    
+
+
 # Behavior define for donot move
 class DoNotMove(Behaviour):
     def __init__(self, name):
@@ -256,7 +284,7 @@ class SingleCarry(Behaviour):
 
 class InitiateMultipleCarry(Behaviour):
     def __init__(self, name):
-        super(MultipleCarry, self).__init__(name)
+        super(InitiateMultipleCarry, self).__init__(name)
         self.blackboard = Blackboard()
 
     def setup(self, timeout, agent, thing):
@@ -268,14 +296,20 @@ class InitiateMultipleCarry(Behaviour):
 
     def update(self):
         objects = self.blackboard.shared_content[self.thing][0]
+        relative_weight = objects.calc_relative_weight()
+        if  relative_weight > 0:
+            if relative_weight - self.agent.get_capacity() >= 0:
+                capacity_used = self.agent.get_capacity()
+            else:
+                capacity_used = relative_weight
 
-        # Update the partial attached object
-        self.agent.partial_attached_objects.append(objects)
+            # Update the partial attached object
+            self.agent.partial_attached_objects.append(objects)
 
-        # Update the object so that it knows this agent has attached to it
-        objects.agents.append(self.agent)
+            # Update the object so that it knows this agent has attached to it
+            objects.agents[self.agent] = capacity_used
 
-        return Status.SUCCESS
+            return Status.SUCCESS
 
 
 class IsInPartialAttached(Behaviour):
@@ -292,7 +326,7 @@ class IsInPartialAttached(Behaviour):
 
     def update(self):
         objects = self.blackboard.shared_content[self.thing][0]
-
+        # print (self.agent, objects, self.agent.partial_attached_objects, objects.agents)
         if objects in self.agent.partial_attached_objects \
             and self.agent in objects.agents:
             return Status.SUCCESS
@@ -314,10 +348,9 @@ class IsEnoughStrengthToCarry(Behaviour):
 
     def update(self):
         objects = self.blackboard.shared_content[self.thing][0]
-
-        if self.agent.get_capacity() > objects.calc_relative_weight():
-            objects.motion = True
-            self.agent.model.grid.remove_object_from_grid(objects.location, objects)                    
+        print (self.agent.get_capacity(), objects.calc_relative_weight())
+        if self.agent.get_capacity() >= objects.calc_relative_weight():
+            #self.agent.model.grid.remove_object_from_grid(objects.location, objects)
             return Status.SUCCESS
         else:
             return Status.FAILURE
@@ -346,7 +379,7 @@ class IsMotionTrue(Behaviour):
 class MultipleCarry(Behaviour):
     def __init__(self, name):
         super(MultipleCarry, self).__init__(name)
-        # self.blackboard = Blackboard()
+        self.blackboard = Blackboard()
 
     def setup(self, timeout, agent, thing):
         self.agent = agent
@@ -356,7 +389,9 @@ class MultipleCarry(Behaviour):
         pass
 
     def update(self):
-        # objects = self.blackboard.shared_content[self.thing][0]
-        # self.agent.model.grid.remove_object_from_grid(objects.location, objects)
-        objects = self.agent.partial_attached_objects[0]
+        objects = self.blackboard.shared_content[self.thing][0]
+        self.agent.model.grid.remove_object_from_grid(objects.location, objects)
+        #objects = self.agent.partial_attached_objects[0]
+
+        # Needs move function to move it
         
