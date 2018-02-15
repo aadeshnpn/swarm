@@ -15,7 +15,9 @@ import numpy as np
 
 # Class to tets GoTo behavior for agents
 class SwarmAgentGoTo(Agent):
-    """ An minimalistic behavior tree for swarm agent implementing goto behavior"""
+    """ An minimalistic behavior tree for swarm agent implementing goto 
+    behavior
+    """
     def __init__(self, name, model):
         super().__init__(name, model)
         self.location = ()
@@ -41,7 +43,9 @@ class SwarmAgentGoTo(Agent):
 
 # Class to tets GoTo behavior with away for agents
 class SwarmAgentGoToAway(Agent):
-    """ An minimalistic behavior tree for swarm agent implementing goto away behavior"""
+    """ An minimalistic behavior tree for swarm agent implementing goto away 
+    behavior
+    """
     def __init__(self, name, model):
         super().__init__(name, model)
         self.location = ()
@@ -72,7 +76,9 @@ class SwarmAgentGoToAway(Agent):
 
 # Class to tets GoTo behavior with towards for agents
 class SwarmAgentGoToTowards(Agent):
-    """ An minimalistic behavior tree for swarm agent implementing goto away behavior"""
+    """ An minimalistic behavior tree for swarm agent implementing 
+    goto away behavior
+    """
     def __init__(self, name, model):
         super().__init__(name, model)
         self.location = ()
@@ -103,7 +109,9 @@ class SwarmAgentGoToTowards(Agent):
 
 # class to test random walk behavior
 class SwarmAgentRandomWalk(Agent):
-    """ An minimalistic behavior tree for swarm agent implementing Random walk"""
+    """ An minimalistic behavior tree for swarm agent 
+    implementing Random walk
+    """
     def __init__(self, name, model):
         super().__init__(name, model)
         self.wealth = 1
@@ -133,7 +141,9 @@ class SwarmAgentRandomWalk(Agent):
 
 # class to test random walk behavior
 class SwarmAgentSenseSite(Agent):
-    """ An minimalistic behavior tree for swarm agent implementing carry for a simple object"""
+    """ An minimalistic behavior tree for swarm agent 
+    implementing carry for a simple object
+    """
     def __init__(self, name, model):
         super().__init__(name, model)
         self.location = ()
@@ -174,7 +184,9 @@ class SwarmAgentSenseSite(Agent):
 
 
 class SwarmAgentSenseHubSite(Agent):
-    """ An minimalistic behavior tree for swarm agent implementing carry for a simple object"""
+    """ An minimalistic behavior tree for swarm agent 
+    implementing carry for a simple object
+    """
     def __init__(self, name, model):
         super().__init__(name, model)
         self.location = ()
@@ -454,13 +466,15 @@ class TestGoToAwaySwarmSmallGrid(TestCase):
         self.trimmed_results = location_results[0:2] + location_results[48:]
 
     def test_agent_path(self):
-        self.assertEqual(self.trimmed_results, [(20, 35), (18, 34), (-38, -18), (-39, -19)])
+        self.assertEqual(self.trimmed_results, [
+            (20, 35), (18, 34), (-38, -18), (-39, -19)])
 
 
 class TestGoToTowardsSwarmSmallGrid(TestCase):
     
     def setUp(self):
-        self.environment = GoToTowardsSwarmEnvironmentModel(1, 100, 100, 10, 123)
+        self.environment = GoToTowardsSwarmEnvironmentModel(
+            1, 100, 100, 10, 123)
         for i in range(50):
             self.environment.step()
 
@@ -471,7 +485,8 @@ class TestGoToTowardsSwarmSmallGrid(TestCase):
 class TestRandomWalkSwarmSmallGrid(TestCase):
     
     def setUp(self):
-        self.environment = RandomWalkSwarmEnvironmentModel(1, 100, 100, 10, 123)
+        self.environment = RandomWalkSwarmEnvironmentModel(
+            1, 100, 100, 10, 123)
 
         location_results = []
 
@@ -482,7 +497,8 @@ class TestRandomWalkSwarmSmallGrid(TestCase):
         self.trimmed_results = location_results[0:2] + location_results[47:]
 
     def test_agent_path(self):
-        self.assertEqual(self.trimmed_results, [(0, 0), (-1, -1), (-43, -26), (-44, -25), (-45, -24)])
+        self.assertEqual(self.trimmed_results, [
+            (0, 0), (-1, -1), (-43, -26), (-44, -25), (-45, -24)])
 
 
 class TestSenseSiteSwarmSmallGrid(TestCase):
@@ -500,12 +516,11 @@ class TestSenseSiteSwarmSmallGrid(TestCase):
 class TestSenseHubSiteSwarmSmallGrid(TestCase):
     
     def setUp(self):
-        self.environment = SenseHubSiteSwarmEnvironmentModel(1, 100, 100, 10, 123)
+        self.environment = SenseHubSiteSwarmEnvironmentModel(
+            1, 100, 100, 10, 123)
 
         for i in range(20):
             self.environment.step()
 
     def test_agent_path(self):
         self.assertEqual(self.environment.agent.location, (-31, -31))
-
-

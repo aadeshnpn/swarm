@@ -20,8 +20,10 @@ class NeighbourObjects(Behaviour):
         pass
 
     def update(self):
-        grids = self.agent.model.grid.get_neighborhood(self.agent.location, self.agent.radius)
-        objects = self.agent.model.grid.get_objects_from_list_of_grid(self.object_name, grids)
+        grids = self.agent.model.grid.get_neighborhood(
+            self.agent.location, self.agent.radius)
+        objects = self.agent.model.grid.get_objects_from_list_of_grid(
+            self.object_name, grids)
         if len(objects) >= 1:
             self.blackboard.shared_content[self.object_name] = objects
             self.agent.shared_content[self.object_name] = objects
@@ -45,7 +47,8 @@ class GoTo(Behaviour):
         pass
 
     def update(self):
-        self.agent.direction = get_direction(self.thing.location, self.agent.location)
+        self.agent.direction = get_direction(
+            self.thing.location, self.agent.location)
         return Status.SUCCESS
 
 
@@ -128,47 +131,45 @@ class Move(Behaviour):
     def initialise(self):
         pass
 
+    def update_partial_attached_objects(self):
+        for item in self.agent.partial_attached_objects:
+            accleration = self.agent.force / item.weight
+            print(self.agent.force, item.weight)
+            velocity = accleration * 1
+            direction = self.agent.direction
+            x = int(item.location[0] + np.cos(direction) * velocity)
+            y = int(item.location[1] + np.sin(direction) * velocity)
+            object_agent = list(item.agents.keys())[0]
+            new_location, direction = object_agent.model.grid.check_limits(
+                (x, y), direction)
+            print('update', item.location, new_location)
+            object_agent.model.grid.move_object(
+                item.location, item, new_location)
+            item.location = new_location
+
     def update(self):
         self.agent.accleration = self.agent.force / self.agent.get_weight()
         self.agent.velocity = self.agent.accleration * 1
 
-        x = int(self.agent.location[0] + np.cos(self.agent.direction) * self.agent.velocity)
-        y = int(self.agent.location[1] + np.sin(self.agent.direction) * self.agent.velocity)
-        new_location, direction = self.agent.model.grid.check_limits((x, y), self.agent.direction)
-        self.agent.model.grid.move_object(self.agent.location, self.agent, new_location)
+        x = int(self.agent.location[0] + np.cos(
+            self.agent.direction) * self.agent.velocity)
+        y = int(self.agent.location[1] + np.sin(
+            self.agent.direction) * self.agent.velocity)
+        new_location, direction = self.agent.model.grid.check_limits(
+            (x, y), self.agent.direction)
+        self.agent.model.grid.move_object(
+            self.agent.location, self.agent, new_location)
         self.agent.location = new_location
         self.agent.direction = direction
+
+        # Full carried object moves along the agent
         for item in self.agent.attached_objects:
             item.location = self.agent.location
+
+        # Partially carried object is moved by the team effor
+        self.update_partial_attached_objects()
+
         return Status.SUCCESS
-
-
-# Behavior defined to move other objects other than agents
-class MoveOthers(Behaviour):
-    def __init__(self, name):
-        super(MoveOthers, self).__init__(name)
-
-    def setup(self, timeout, others):
-        self.others = others
-
-    def initialise(self):
-        pass
-
-    def update(self):
-        accleration = self.others.calc_totalforces() / self.others.weight
-        velocity = accleration * 1
-        direction = self.others.calc_direction()
-        #self.agent.accleration = self.agent.force / self.agent.get_weight()
-        #self.agent.velocity = self.agent.accleration * 1
-
-        x = int(self.others.location[0] + np.cos(direction) * velocity)
-        y = int(self.others.location[1] + np.sin(direction) * velocity)
-        new_location, direction = self.others.agents[0].model.grid.check_limits((x, y), direction)
-
-        self.others.agents[0].model.grid.move_object(self.others.location, self.agent, new_location)
-        self.others.location = new_location
-        self.others.direction = direction
-        return Status.SUCCESS    
 
 
 # Behavior define for donot move
@@ -278,7 +279,8 @@ class SingleCarry(Behaviour):
     def update(self):
         objects = self.blackboard.shared_content[self.thing][0]
         self.agent.attached_objects.append(objects)
-        self.agent.model.grid.remove_object_from_grid(objects.location, objects)
+        self.agent.model.grid.remove_object_from_grid(
+            objects.location, objects)
         return Status.SUCCESS
 
 
@@ -297,7 +299,7 @@ class InitiateMultipleCarry(Behaviour):
     def update(self):
         objects = self.blackboard.shared_content[self.thing][0]
         relative_weight = objects.calc_relative_weight()
-        if  relative_weight > 0:
+        if relative_weight > 0:
             if relative_weight - self.agent.get_capacity() >= 0:
                 capacity_used = self.agent.get_capacity()
             else:
@@ -326,9 +328,10 @@ class IsInPartialAttached(Behaviour):
 
     def update(self):
         objects = self.blackboard.shared_content[self.thing][0]
-        # print (self.agent, objects, self.agent.partial_attached_objects, objects.agents)
-        if objects in self.agent.partial_attached_objects \
-            and self.agent in objects.agents:
+        # print (self.agent, objects,
+        #  self.agent.partial_attached_objects, objects.agents)
+        if objects in self.agent.partial_attached_objects and \
+                self.agent in objects.agents:
             return Status.SUCCESS
         else:
             return Status.FAILURE
@@ -348,9 +351,10 @@ class IsEnoughStrengthToCarry(Behaviour):
 
     def update(self):
         objects = self.blackboard.shared_content[self.thing][0]
-        print (self.agent.get_capacity(), objects.calc_relative_weight())
+        print(self.agent.get_capacity(), objects.calc_relative_weight())
         if self.agent.get_capacity() >= objects.calc_relative_weight():
-            #self.agent.model.grid.remove_object_from_grid(objects.location, objects)
+            # self.agent.model.grid.remove_object_from_grid(
+            # objects.location, objects)
             return Status.SUCCESS
         else:
             return Status.FAILURE
@@ -390,8 +394,9 @@ class MultipleCarry(Behaviour):
 
     def update(self):
         objects = self.blackboard.shared_content[self.thing][0]
-        self.agent.model.grid.remove_object_from_grid(objects.location, objects)
-        #objects = self.agent.partial_attached_objects[0]
+        self.agent.model.grid.remove_object_from_grid(
+            objects.location, objects)
+        # objects = self.agent.partial_attached_objects[0]
 
         # Needs move function to move it
         

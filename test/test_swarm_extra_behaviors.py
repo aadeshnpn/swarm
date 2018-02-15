@@ -6,7 +6,8 @@ from lib.space import Grid
 from swarms.sbehaviors import (
     IsCarryable, IsSingleCarry, SingleCarry,
     NeighbourObjects, IsMultipleCarry, IsInPartialAttached,
-    InitiateMultipleCarry, IsEnoughStrengthToCarry
+    InitiateMultipleCarry, IsEnoughStrengthToCarry,
+    Move
     )
 from swarms.objects import Derbis
 import py_trees
@@ -62,6 +63,10 @@ class SwarmAgentMultipleCarry(Agent):
         self.moveable = True
         self.shared_content = dict()
         
+
+        # Variables realted to carry
+        self.used_capacity = 0
+
         root = py_trees.composites.Sequence("Sequence")
         lowest = NeighbourObjects('0')
         lowest.setup(0, self, 'Derbis')
@@ -85,7 +90,10 @@ class SwarmAgentMultipleCarry(Agent):
         high3 = IsEnoughStrengthToCarry('5')
         high3.setup(0, self, 'Derbis')        
 
-        r2Sequence.add_children([high3])        
+        high4 = Move('6')
+        high4.setup(0, self)
+
+        r2Sequence.add_children([high3, high4])        
 
         r1Selector.add_children([high1, high2])
 
@@ -97,6 +105,10 @@ class SwarmAgentMultipleCarry(Agent):
         py_trees.logging.level = py_trees.logging.Level.DEBUG
         py_trees.display.print_ascii_tree(root)
         
+
+    def unused_capacity(self):
+        return self.capacity - self.used_capacity
+
     def step(self):
         self.behaviour_tree.tick()
 
@@ -181,14 +193,30 @@ class TestSingleCarrySameLocationSwarmSmallGrid(TestCase):
     def test_agent_path(self):
         self.assertEqual(self.environment.agent.attached_objects[0], self.environment.thing)
 
-
+"""
 class TestMultipleCarrySameLocationSwarmSmallGrid(TestCase):
     
     def setUp(self):
         self.environment = MultipleCarrySwarmEnvironmentModel(2, 100, 100, 10, 123)
-
+        print ('starting locatio',self.environment.thing.location)
         for i in range(2):
             self.environment.step()
+            print ('movement of thing',self.environment.thing.location)            
 
     def test_agent_path(self):
         self.assertEqual(2, 3)
+"""
+
+class TestCoolMultipleCarryFunction(TestCase):
+
+    def setUp(self):
+        self.environment = MultipleCarrySwarmEnvironmentModel(10, 100, 100, 10, 123)
+
+        for agent in self.environment.agent:
+            a.used_capacity = np.random.randint(0, 8)
+
+    
+    def test_distribute_weight(self):
+        agents = [(agent.name, agent.used_capacity) for agent in self.environment.agent]
+        print (agents)
+        self.assertEqual(5, 4)        
