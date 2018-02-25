@@ -5,11 +5,12 @@ from lib.time import SimultaneousActivation
 from lib.space import Grid
 from swarms.sbehaviors import (
     GoTo, RandomWalk, NeighbourObjects,
-    Move, Away, Towards, DoNotMove,
-    IsMoveable
+    Away, Towards, DoNotMove,
+    IsMoveable, Move
     )
 from swarms.objects import Sites, Hub
 import py_trees
+from py_trees import Behaviour, Status
 import numpy as np
 
 

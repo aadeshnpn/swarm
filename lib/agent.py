@@ -40,7 +40,6 @@ class Agent:
 
         return relative_weight
 
-
     """
     def bound_capacity(self, rc, weight):
         if rc - weight >= 0:
@@ -54,7 +53,8 @@ class Agent:
         for item in self.attached_objects:
             try:
                 if relative_capacity > 0:
-                    relative_capacity = self.bound_capacity(relative_capacity, item.weight)
+                    relative_capacity = self.bound_capacity(
+                        relative_capacity, item.weight)
                 else:
                     item.agents.remove(self)
                     self.attached_objects.remove(item)
@@ -64,7 +64,8 @@ class Agent:
         for item in self.partial_attached_objects:
             try:
                 if relative_capacity > 0:
-                    relative_capacity = self.bound_capacity(relative_capacity, item.weight)
+                    relative_capacity = self.bound_capacity(
+                        relative_capacity, item.weight)
                 else:
                     item.agents.remove(self)
                     self.partial_attached_objects.remove(item)
@@ -77,11 +78,13 @@ class Agent:
     def get_capacity(self):
         relative_capacity = self.capacity
         for item in self.attached_objects:
+            # indx = item.agents.index(self)
             relative_capacity -= item.agents[self]
 
         for item in self.partial_attached_objects:
+            # indx = item.agents.index(self)
             relative_capacity -= item.agents[self]
-        
+
         if relative_capacity < 0:
             return 0
         else:

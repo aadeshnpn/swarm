@@ -127,15 +127,18 @@ class Move(Behaviour):
 
     def setup(self, timeout, agent):
         self.agent = agent
+        self.dt = 1.1
 
     def initialise(self):
         pass
 
     def update_partial_attached_objects(self):
+        pass
+        """
         for item in self.agent.partial_attached_objects:
             accleration = self.agent.force / item.weight
             print(self.agent.force, item.weight)
-            velocity = accleration * 1
+            velocity = accleration * self.dt
             direction = self.agent.direction
             x = int(item.location[0] + np.cos(direction) * velocity)
             y = int(item.location[1] + np.sin(direction) * velocity)
@@ -146,6 +149,7 @@ class Move(Behaviour):
             object_agent.model.grid.move_object(
                 item.location, item, new_location)
             item.location = new_location
+        """
 
     def update(self):
         self.agent.accleration = self.agent.force / self.agent.get_weight()
@@ -165,9 +169,6 @@ class Move(Behaviour):
         # Full carried object moves along the agent
         for item in self.agent.attached_objects:
             item.location = self.agent.location
-
-        # Partially carried object is moved by the team effor
-        self.update_partial_attached_objects()
 
         return Status.SUCCESS
 
@@ -299,6 +300,7 @@ class InitiateMultipleCarry(Behaviour):
     def update(self):
         objects = self.blackboard.shared_content[self.thing][0]
         relative_weight = objects.calc_relative_weight()
+        print('initial mc', self.agent.name, relative_weight, self.agent.get_capacity())
         if relative_weight > 0:
             if relative_weight - self.agent.get_capacity() >= 0:
                 capacity_used = self.agent.get_capacity()
@@ -309,8 +311,19 @@ class InitiateMultipleCarry(Behaviour):
             self.agent.partial_attached_objects.append(objects)
 
             # Update the object so that it knows this agent has attached to it
+            # self.agent.capacity_used += capacity_used
+            # print('update', relative_weight, capacity_used)
             objects.agents[self.agent] = capacity_used
 
+            return Status.SUCCESS
+        else:
+            # Redistribute the weights to all the attached objects
+            average_weight = objects.redistribute_weights()
+
+            self.agent.partial_attached_objects.append(objects)
+
+            objects.agents[self.agent] = average_weight
+            print('avg weig', self.agent.name, average_weight)
             return Status.SUCCESS
 
 

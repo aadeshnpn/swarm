@@ -42,7 +42,7 @@ class Carryable(EnvironmentObject):
         self.carryable = True
         self.weight = int(self.radius / 2)
         self.motion = False
-        self.agents = []
+        self.agents = dict()
         self.direction = 0
 
     def calc_relative_weight(self):
@@ -68,6 +68,12 @@ class Carryable(EnvironmentObject):
                     agent.used_capacity = average_weight
                 else
         """
+        return average_weight
+
+    def redistribute_weights(self):
+        average_weight = self.weight / (len(self.agents) + 1)
+        for agent in self.agents:
+            self.agents[agent] = average_weight
         return average_weight
 
     def calc_totalforces(self):
