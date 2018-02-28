@@ -1,0 +1,11 @@
+<s> ::= [bt]<rootnode>[/bt]
+<rootnode> ::= <cf>
+<cf> ::= <sequence> | <selector> | <decorator>
+<sequence> ::= [sequence]<execution>[/sequence] | [sequence]<cf><cf>[/sequence] | [sequence]<sequence> <cf>[/sequence]
+<selector> ::= [selector]<execution>[/selector] | [selector]<cf><cf>[/selector] | [selector]<selector> <cf>[/selector]  
+<decorator> ::= [decorator]<execution>[/decorator] 
+#<parallel> ::= [parallel]<execution>[/parallel] | [parallel]<parallel> <cf>[/parallel] | [parallel]<cf>[/parallel]
+<execution>::=<conditions>[act]<action>[/act]
+<conditions>::=[cond]<condition>[/cond]<conditions>|[cond]<condition>[/cond]
+<condition>::=IsMoveable|IsCarryable|IsSingleCarry|IsMupltipleCarry|IsMotionTrue
+<action>::=GoTo|RandomWalk|Move|DoNotMove|SingleCarry|MultipleCarry|Away|Towards|NeighbourObjects

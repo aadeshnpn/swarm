@@ -42,6 +42,7 @@ class SwarmAgentGoTo(Agent):
         high.setup(0, self)
         root.add_children([low, high])
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
+        py_trees.display.print_ascii_tree(root)
 
     def step(self):
         self.behaviour_tree.tick() 
