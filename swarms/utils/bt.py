@@ -34,7 +34,7 @@ def create_bt(root):
         return list1
 
 
-class ConstructBT:
+class BTConstruct:
     """Mapper to map from xml to BT."""
 
     """This class maps xml file generated from grammar to
