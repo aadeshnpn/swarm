@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 import py_trees 
 from py_trees.composites import Sequence, Selector
 import random
+random.seed(123)
 
 from swarms.sbehaviors import (
     IsCarryable, IsSingleCarry, SingleCarry,
