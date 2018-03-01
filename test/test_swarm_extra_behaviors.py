@@ -42,7 +42,7 @@ class SwarmAgentGoTo(Agent):
         high.setup(0, self)
         root.add_children([low, high])
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
-        py_trees.display.print_ascii_tree(root)
+        #py_trees.display.print_ascii_tree(root)
 
     def step(self):
         self.behaviour_tree.tick() 
@@ -78,7 +78,7 @@ class SwarmAgentSingleCarry(Agent):
 
         root.add_children([lowest, low, medium, high])
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
-        py_trees.display.print_ascii_tree(root)
+        #py_trees.display.print_ascii_tree(root)
         
     def step(self):
         self.behaviour_tree.tick()
@@ -143,8 +143,8 @@ class SwarmAgentMultipleCarry(Agent):
         root.add_children([lowest, low, r1Sequence])
 
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
-        py_trees.logging.level = py_trees.logging.Level.DEBUG
-        py_trees.display.print_ascii_tree(root)
+        #py_trees.logging.level = py_trees.logging.Level.DEBUG
+        #py_trees.display.print_ascii_tree(root)
 
     def unused_capacity(self):
         return self.capacity - self.used_capacity
@@ -267,7 +267,7 @@ class TestGoToSwarmSmallGrid(TestCase):
         self.assertEqual(self.environment.agent.location, (27, 27))
 
 
-"""
+
 class TestSingleCarrySameLocationSwarmSmallGrid(TestCase):
     
     def setUp(self):
@@ -315,7 +315,7 @@ class TestCoolMultipleCarryFunction(TestCase):
         for i in range(1):
             self.environment.step()
         self.assertEqual(5, 4)
-"""
+
 
 
 """
