@@ -140,24 +140,20 @@ class GEEnvironmentModel(Model):
 class TestGEBTSmallGrid(TestCase):
     
     def setUp(self):
-        self.environment = GEEnvironmentModel(100, 100, 100, 10, 123)
+        self.environment = GEEnvironmentModel(10, 100, 100, 10, 123)
 
-        #for i in range(1):
-        #    self.environment.step()
+        for i in range(1):
+            self.environment.step()
 
-        #self.one_target = False
-
-        #for agent in self.environment.schedule.agents:
-        #    self.target = agent.individual[0].phenotype
-
-        #    if agent.individual[0].phenotype == 'Hello':
-        #        self.one_target = True
+        for agent in self.environment.schedule.agents:
+            self.target_phenotype = agent.individual[0].phenotype
+            self.target_fitness = agent.individual[0].fitness
 
     def test_target_string(self):
-        self.assertEqual('H', 'Hello')
+        self.assertEqual('<?xml version="1.0" encoding="UTF-8"?><Sequence><Sequence><Sequence><cond>IsMoveable</cond><cond>IsMupltipleCarry</cond><act>RandomWalk</act></Sequence> <Sequence><cond>IsMotionTrue</cond><cond>IsMoveable</cond><cond>IsMotionTrue</cond><act>SingleCarry</act></Sequence></Sequence> <Selector><cond>IsMotionTrue</cond><cond>IsCarryable</cond><cond>IsMupltipleCarry</cond><act>GoTo</act></Selector></Sequence>', self.target_phenotype)
 
-    #def test_one_traget(self):
-    #    self.assertEqual(self.one_target, True)
+    def test_one_traget(self):
+        self.assertEqual(42.857142857142854, self.target_fitness)
 
 
 class TestBT(TestCase):
