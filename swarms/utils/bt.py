@@ -11,7 +11,7 @@ from swarms.sbehaviors import (
     NeighbourObjects, IsMultipleCarry, IsInPartialAttached,
     InitiateMultipleCarry, IsEnoughStrengthToCarry,
     Move, GoTo, IsMotionTrue, RandomWalk, IsMoveable,
-    MultipleCarry
+    MultipleCarry, Away, Towards, IsMultipleCarry
     )
 
 

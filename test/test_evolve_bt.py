@@ -102,7 +102,7 @@ class GEBTAgent(Agent):
         new_pop = mutation(self.parameter, cross_pop)
         new_pop = evaluate_fitness(new_pop, self.parameter)
         individuals = replacement(self.parameter, new_pop, individuals)
-        individuals.sort(reverse=True)
+        individuals.sort(reverse=False)
         self.individual = [individuals[0]]
         self.genome_storage = []    
     
