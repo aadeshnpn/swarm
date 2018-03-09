@@ -11,28 +11,9 @@ from swarms.sbehaviors import (
     NeighbourObjects, IsMultipleCarry, IsInPartialAttached,
     InitiateMultipleCarry, IsEnoughStrengthToCarry,
     Move, GoTo, IsMotionTrue, RandomWalk, IsMoveable,
-    MultipleCarry, Away, Towards, IsMultipleCarry
+    MultipleCarry, Away, Towards, IsMultipleCarry,
+    DoNotMove
     )
-
-
-def create_bt(root):
-    if len(list(root)) == 0:
-        behavior = eval(root.text)(root.text + str(random.randint(10, 90)))
-        return behavior
-    else:
-        list1 = []
-        for node in list(root):
-            if node.tag not in ['cond', 'act']:
-                composits = eval(node.tag)(node.tag + str(random.randint(10, 90)))
-            list1.append(create_bt(node))
-            try:
-                if composits:
-                    composits.add_children(list1.pop())
-                    list1.append(composits)
-            except:
-                pass
-
-        return list1
 
 
 class BTConstruct:
@@ -40,9 +21,30 @@ class BTConstruct:
 
     """This class maps xml file generated from grammar to
     Behavior Trees"""    
-    def __init__(self, filename, xmlstring=None):
+    def __init__(self, filename, agent, xmlstring=None):
         self.filename = filename
         self.xmlstring = xmlstring
+        self.agent = agent
+
+    def create_bt(self, root):
+        if len(list(root)) == 0:
+            behavior = eval(root.text)(root.text + str(random.randint(100, 200)))
+            behavior.setup(0, self.agent, None)
+            return behavior
+        else:
+            list1 = []
+            for node in list(root):
+                if node.tag not in ['cond', 'act']:
+                    composits = eval(node.tag)(node.tag + str(random.randint(10, 90)))                
+                list1.append(self.create_bt(node))
+                try:
+                    if composits:
+                        composits.add_children(list1.pop())
+                        list1.append(composits)
+                except:
+                    pass
+
+            return list1
 
     def construct(self):
         if self.xmlstring is not None:
@@ -55,7 +57,7 @@ class BTConstruct:
             print("Cannont create BT. Check the filename or stream")
             exit()
 
-        whole_list = create_bt(self.root)
+        whole_list = self.create_bt(self.root)
         top = eval(self.root.tag)('Root' + self.root.tag)
         top.add_children(whole_list)
         self.behaviour_tree = py_trees.trees.BehaviourTree(top)

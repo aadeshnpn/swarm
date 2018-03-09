@@ -57,7 +57,7 @@ class Towards(Behaviour):
     def __init__(self, name):
         super(Towards, self).__init__(name)
 
-    def setup(self, timeout, agent):
+    def setup(self, timeout, agent, thing=None):
         self.agent = agent
 
     def initialise(self):
@@ -72,7 +72,7 @@ class Away(Behaviour):
     def __init__(self, name):
         super(Away, self).__init__(name)
 
-    def setup(self, timeout, agent):
+    def setup(self, timeout, agent, thing=None):
         self.agent = agent
 
     def initialise(self):
@@ -88,7 +88,7 @@ class RandomWalk(Behaviour):
     def __init__(self, name):
         super(RandomWalk, self).__init__(name)
 
-    def setup(self, timeout, agent):
+    def setup(self, timeout, agent, thing=None):
         self.agent = agent
 
     def initialise(self):
@@ -104,7 +104,7 @@ class IsMoveable(Behaviour):
     def __init__(self, name):
         super(IsMoveable, self).__init__(name)
 
-    def setup(self, timeout, item):
+    def setup(self, timeout, agent, item):
         self.item = item
 
     def initialise(self):
@@ -125,7 +125,7 @@ class Move(Behaviour):
     def __init__(self, name):
         super(Move, self).__init__(name)
 
-    def setup(self, timeout, agent):
+    def setup(self, timeout, agent, item=None):
         self.agent = agent
         self.dt = 1.1
 
@@ -178,7 +178,7 @@ class DoNotMove(Behaviour):
     def __init__(self, name):
         super(DoNotMove, self).__init__(name)
 
-    def setup(self, timeout, agent):
+    def setup(self, timeout, agent, item=None):
         self.agent = agent
 
     def initialise(self):
@@ -412,4 +412,3 @@ class MultipleCarry(Behaviour):
         # objects = self.agent.partial_attached_objects[0]
 
         # Needs move function to move it
-        

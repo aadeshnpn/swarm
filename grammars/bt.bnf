@@ -8,5 +8,5 @@
 #<parallel> ::= [parallel]<execution>[/parallel] | [parallel]<parallel> <cf>[/parallel] | [parallel]<cf>[/parallel]
 <execution>::=<conditions>[act]<action>[/act]
 <conditions>::=[cond]<condition>[/cond]<conditions>|[cond]<condition>[/cond]
-<condition>::=IsMoveable|IsCarryable|IsSingleCarry|IsMupltipleCarry|IsMotionTrue
-<action>::=GoTo|RandomWalk|Move|DoNotMove|SingleCarry|MultipleCarry|Away|Towards|NeighbourObjects
+<condition>::=NeighbourObjects|IsMoveable|IsCarryable|IsSingleCarry|IsMultipleCarry|IsMotionTrue
+<action>::=GoTo|RandomWalk|Move|DoNotMove|SingleCarry|MultipleCarry|Away|Towards

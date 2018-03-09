@@ -4,7 +4,7 @@ from lib.model import Model
 from lib.time import SimultaneousActivation
 from lib.space import Grid
 from unittest import TestCase
-from swarm.swarms.utils.bt import BTConstruct
+from swarms.utils.bt import BTConstruct
 import py_trees
 import numpy as np
 import xml.etree.ElementTree as ET
@@ -14,7 +14,8 @@ from swarms.sbehaviors import (
     NeighbourObjects, IsMultipleCarry, IsInPartialAttached,
     InitiateMultipleCarry, IsEnoughStrengthToCarry,
     Move, GoTo, IsMotionTrue, RandomWalk, IsMoveable,
-    MultipleCarry, Away, Towards, IsMultipleCarry
+    MultipleCarry, Away, Towards, IsMultipleCarry,
+    DoNotMove
     )
 
 from ponyge.operators.initialisation import initialisation
@@ -43,11 +44,11 @@ class GEBTAgent(Agent):
         # This doesn't help. Maybe only perform genetic operations when 
         # an agents meet 10% of its total population
         # """
-        self.operation_threshold = 10
+        self.operation_threshold = 2
         self.genome_storage = []
 
         # Define a BTContruct object
-        self.mapper = BTConstruct(None, None)
+        self.bt = BTConstruct(None, None)
 
         # Grammatical Evolution part
         from ponyge.algorithm.parameters import Parameters
@@ -61,6 +62,8 @@ class GEBTAgent(Agent):
         individual = evaluate_fitness(individual, self.parameter)
 
         self.individual = individual
+        self.bt.xmlstring = self.individual[0].phenotype
+        self.bt.construct()        
 
     def step(self):
         # """
@@ -68,16 +71,18 @@ class GEBTAgent(Agent):
         # in this order, Move, HasMoney, NeighbourCondition, ShareMoney
         # self.move()
         # execute  BT 
-        self.mapper.xmlstring = self.individual[0].phenotype
-        self.mapper.construct()
+
         py_trees.logging.level = py_trees.logging.Level.DEBUG
-        output = py_trees.display.ascii_tree(self.mapper.behaviour_tree.root)
+        output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
         print (output)
+        self.bt.behaviour_tree.tick()
 
-        cellmates = self.model.grid.get_objects_from_grid('GEAgent', self.location)
-
+        cellmates = self.model.grid.get_objects_from_grid('GEBTAgent', self.location)
+        #print (cellmates)
         if len(self.genome_storage) >= self.operation_threshold:
             self.exchange_chromosome(cellmates)
+            self.bt.xmlstring = self.individual[0].phenotype
+            self.bt.construct()
 
         if len(cellmates) > 1:
             self.store_genome(cellmates)
@@ -129,12 +134,14 @@ class GEEnvironmentModel(Model):
             a = GEBTAgent(i, self)
             self.schedule.add(a)
             # Add the agent to a random grid cell
-            x = self.random.randint(-self.grid.width / 2, self.grid.width / 2)
-            y = self.random.randint(-self.grid.height / 2, self.grid.height / 2)
+            # x = self.random.randint(-self.grid.width / 2, self.grid.width / 2)
+            x = 0           
+            # y = self.random.randint(-self.grid.height / 2, self.grid.height / 2)
+            y = 0
 
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)
-            a.operation_threshold = self.num_agents // 10
+            a.operation_threshold = 2 #self.num_agents // 10
 
     def step(self):
         self.schedule.step()        
@@ -143,15 +150,15 @@ class GEEnvironmentModel(Model):
 class TestGEBTSmallGrid(TestCase):
     
     def setUp(self):
-        self.environment = GEEnvironmentModel(100, 100, 100, 10, 123)
+        self.environment = GEEnvironmentModel(10, 100, 100, 10, 123)
 
-        for i in range(10):
+        for i in range(2):
             self.environment.step()
 
-        for agent in self.environment.schedule.agents:
-            #self.target_phenotype = agent.individual[0].phenotype
-            #self.target_fitness = agent.individual[0].fitness
-            print(agent.name, agent.individual[0].fitness)
+            for agent in self.environment.schedule.agents:
+                #self.target_phenotype = agent.individual[0].phenotype
+                #self.target_fitness = agent.individual[0].fitness
+                print('Step', i, agent.name, agent.individual[0].fitness, agent.location)
 
     #def test_target_string(self):
     #    self.assertEqual('<?xml version="1.0" encoding="UTF-8"?><Sequence><Sequence><Sequence><cond>IsMoveable</cond><cond>IsMupltipleCarry</cond><act>RandomWalk</act></Sequence> <Sequence><cond>IsMotionTrue</cond><cond>IsMoveable</cond><cond>IsMotionTrue</cond><act>SingleCarry</act></Sequence></Sequence> <Selector><cond>IsMotionTrue</cond><cond>IsCarryable</cond><cond>IsMupltipleCarry</cond><act>GoTo</act></Selector></Sequence>', self.target_phenotype)
