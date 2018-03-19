@@ -38,20 +38,23 @@ class NeighbourObjects(Behaviour):
 class GoTo(Behaviour):
     def __init__(self, name):
         super(GoTo, self).__init__(name)
+        self.blackboard = Blackboard()
 
     def setup(self, timeout, agent, item):
         self.agent = agent
         self.item = item
-        #if self.item is None:
-        #    self.item = self.agent.shared_content
 
     def initialise(self):
         pass
 
     def update(self):
-        self.agent.direction = get_direction(
-            self.item.location, self.agent.location)
-        return Status.SUCCESS
+        try:
+            objects = self.blackboard.shared_content[self.item][0]
+            self.agent.direction = get_direction(
+                objects.location, self.agent.location)
+            return Status.SUCCESS
+        except AttributeError or KeyError:
+            return Status.FAILURE
 
 
 # Behavior defined to move towards something
@@ -205,13 +208,13 @@ class IsCarryable(Behaviour):
         pass
 
     def update(self):
-        objects = self.blackboard.shared_content[self.thing][0]
         try:
+            objects = self.blackboard.shared_content[self.thing][0]
             if objects.carryable:
                 return Status.SUCCESS
             else:
                 return Status.FAILURE
-        except AttributeError:
+        except AttributeError or KeyError:
             return Status.FAILURE
 
 
@@ -230,14 +233,14 @@ class IsSingleCarry(Behaviour):
 
     def update(self):
         # Logic to carry
-        objects = self.blackboard.shared_content[self.thing][0]
         try:
+            objects = self.blackboard.shared_content[self.thing][0]            
             if objects.weight:
                 if self.agent.get_capacity() > objects.calc_relative_weight():
                     return Status.SUCCESS
             else:
                 return Status.FAILURE
-        except AttributeError:
+        except AttributeError or KeyError:
             return Status.FAILURE
 
 
@@ -255,15 +258,15 @@ class IsMultipleCarry(Behaviour):
         pass
 
     def update(self):
-        # Logic to carry
-        objects = self.blackboard.shared_content[self.thing][0]
         try:
+            # Logic to carry
+            objects = self.blackboard.shared_content[self.thing][0]            
             if objects.weight:
                 if self.agent.get_capacity() < objects.weight:
                     return Status.SUCCESS
             else:
                 return Status.FAILURE
-        except AttributeError:
+        except AttributeError or KeyError:
             return Status.FAILURE        
 
 
@@ -280,11 +283,15 @@ class SingleCarry(Behaviour):
         pass
 
     def update(self):
-        objects = self.blackboard.shared_content[self.thing][0]
-        self.agent.attached_objects.append(objects)
-        self.agent.model.grid.remove_object_from_grid(
-            objects.location, objects)
-        return Status.SUCCESS
+        try:
+            objects = self.blackboard.shared_content[self.thing][0]
+            self.agent.attached_objects.append(objects)
+            self.agent.model.grid.remove_object_from_grid(
+                objects.location, objects)
+            return Status.SUCCESS                
+        except KeyError:
+            return Status.FAILURE
+
 
 
 class InitiateMultipleCarry(Behaviour):
@@ -300,33 +307,36 @@ class InitiateMultipleCarry(Behaviour):
         pass
 
     def update(self):
-        objects = self.blackboard.shared_content[self.thing][0]
-        relative_weight = objects.calc_relative_weight()
-        print('initial mc', self.agent.name, relative_weight, self.agent.get_capacity())
-        if relative_weight > 0:
-            if relative_weight - self.agent.get_capacity() >= 0:
-                capacity_used = self.agent.get_capacity()
+        try:
+            objects = self.blackboard.shared_content[self.thing][0]
+            relative_weight = objects.calc_relative_weight()
+            print('initial mc', self.agent.name, relative_weight, self.agent.get_capacity())
+            if relative_weight > 0:
+                if relative_weight - self.agent.get_capacity() >= 0:
+                    capacity_used = self.agent.get_capacity()
+                else:
+                    capacity_used = relative_weight
+
+                # Update the partial attached object
+                self.agent.partial_attached_objects.append(objects)
+
+                # Update the object so that it knows this agent has attached to it
+                # self.agent.capacity_used += capacity_used
+                # print('update', relative_weight, capacity_used)
+                objects.agents[self.agent] = capacity_used
+
+                return Status.SUCCESS
             else:
-                capacity_used = relative_weight
+                # Redistribute the weights to all the attached objects
+                average_weight = objects.redistribute_weights()
 
-            # Update the partial attached object
-            self.agent.partial_attached_objects.append(objects)
+                self.agent.partial_attached_objects.append(objects)
 
-            # Update the object so that it knows this agent has attached to it
-            # self.agent.capacity_used += capacity_used
-            # print('update', relative_weight, capacity_used)
-            objects.agents[self.agent] = capacity_used
-
-            return Status.SUCCESS
-        else:
-            # Redistribute the weights to all the attached objects
-            average_weight = objects.redistribute_weights()
-
-            self.agent.partial_attached_objects.append(objects)
-
-            objects.agents[self.agent] = average_weight
-            print('avg weig', self.agent.name, average_weight)
-            return Status.SUCCESS
+                objects.agents[self.agent] = average_weight
+                print('avg weig', self.agent.name, average_weight)
+                return Status.SUCCESS
+        except KeyError:
+            return Status.FAILURE
 
 
 class IsInPartialAttached(Behaviour):

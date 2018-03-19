@@ -14,6 +14,26 @@ from py_trees import Behaviour, Status
 import numpy as np
 
 
+# Class to tets NeighbourObject Behavior
+class SwarmAgentNeighbour(Agent):
+    """ An minimalistic behavior tree for swarm agent implementing goto 
+    behavior
+    """
+    def __init__(self, name, model):
+        super().__init__(name, model)
+        self.location = ()
+
+        self.direction = model.random.rand() * (2 * np.pi)
+        self.speed = 2
+        self.radius = 3
+
+        self.moveable = True
+        self.shared_content = dict()
+        
+    def step(self):
+        pass
+
+
 # Class to tets GoTo behavior for agents
 class SwarmAgentGoTo(Agent):
     """ An minimalistic behavior tree for swarm agent implementing goto 
@@ -39,7 +59,7 @@ class SwarmAgentGoTo(Agent):
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
 
     def step(self):
-        self.behaviour_tree.tick()
+        self.behaviour_tree.tick()        
 
 
 # Class to tets GoTo behavior with away for agents
@@ -252,6 +272,40 @@ class SwarmAgentSenseHubSite(Agent):
         pass        
 
 
+#SwarmAgentNeighbour
+class NeighbourSwarmEnvironmentModel(Model):
+    """ A environemnt to model swarms """
+    def __init__(self, N, width, height, grid=10, seed=None):
+        if seed is None:
+            super(NeighbourSwarmEnvironmentModel, self).__init__(seed=None)
+        else:
+            super(NeighbourSwarmEnvironmentModel, self).__init__(seed)
+
+        self.num_agents = N
+
+        self.grid = Grid(width, height, grid)
+
+        self.schedule = SimultaneousActivation(self)
+        
+        self.target = Sites(id=1, location=(-45, -45), radius=5, q_value=0.5)
+        
+        self.grid.add_object_to_grid(self.target.location, self.target)
+
+        for i in range(self.num_agents):
+            a = SwarmAgentNeighbour(i, self)
+            self.schedule.add(a)
+            x = -45
+            y = -45
+            a.location = (x, y)
+            a.direction = -2.3561944901923448
+            self.grid.add_object_to_grid((x, y), a)
+
+        self.agent = a
+
+    def step(self):
+        self.schedule.step()
+
+
 class GoToSwarmEnvironmentModel(Model):
     """ A environemnt to model swarms """
     def __init__(self, N, width, height, grid=10, seed=None):
@@ -442,6 +496,22 @@ class SenseHubSiteSwarmEnvironmentModel(Model):
 
     def step(self):
         self.schedule.step()                
+
+
+#SwarmAgentNeighbour
+class TestNeighbourSwarmSmallGrid(TestCase):
+    
+    def setUp(self):
+        self.environment = NeighbourSwarmEnvironmentModel(10, 100, 100, 10, 123)
+
+        for i in range(2):
+            self.environment.step()
+
+    def test_agent_path(self):
+        objects = self.environment.grid.get_objects_from_grid('SwarmAgentNeighbour', (-45, -45))
+        objects1 = self.environment.grid.get_objects_from_grid('Sites', (-45, -45))        
+        #print (len(objects), objects1)
+        self.assertEqual((10,1), (len(objects), len(objects1)))
 
 
 class TestGoToSwarmSmallGrid(TestCase):
