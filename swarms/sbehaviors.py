@@ -108,6 +108,7 @@ class RandomWalk(Behaviour):
 class IsMoveable(Behaviour):
     def __init__(self, name):
         super(IsMoveable, self).__init__(name)
+        self.blackboard = Blackboard()
 
     def setup(self, timeout, agent, item):
         self.item = item
@@ -117,11 +118,12 @@ class IsMoveable(Behaviour):
 
     def update(self):
         try:
-            if self.item.moveable:
+            objects = self.blackboard.shared_content[self.item][0]            
+            if objects.moveable:
                 return Status.SUCCESS
             else:
                 return Status.FAILURE
-        except AttributeError:
+        except AttributeError or KeyError:
             return Status.FAILURE
 
 

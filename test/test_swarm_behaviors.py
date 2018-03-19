@@ -181,8 +181,8 @@ class SwarmAgentSenseSite(Agent):
         right_sequence = py_trees.composites.Sequence("RSequence")
         low = RandomWalk('1')
         low.setup(0, self)
-        low1 = IsMoveable('2')
-        low1.setup(0, self)
+        #low1 = IsMoveable('2')
+        #low1.setup(0, self,)
         low2 = Move('3')
         low2.setup(0, self)
         medium = NeighbourObjects('4')
@@ -190,7 +190,7 @@ class SwarmAgentSenseSite(Agent):
         high = DoNotMove('5')
         high.setup(0, self)
         left_sequence.add_children([medium, high])
-        right_sequence.add_children([low, low1, low2])
+        right_sequence.add_children([low, low2])
         # medium = GoTo('2')
         # medium.setup(0, self, self.attached_objects['Sites'][0])
         root.add_children([left_sequence, right_sequence])
@@ -235,8 +235,8 @@ class SwarmAgentSenseHubSite(Agent):
 
         low = RandomWalk('7')
         low.setup(0, self)
-        low1 = IsMoveable('8')
-        low1.setup(0, self)
+        #low1 = IsMoveable('8')
+        #low1.setup(0, self)
         low2 = Move('9')
         low2.setup(0, self)
 
@@ -256,7 +256,7 @@ class SwarmAgentSenseHubSite(Agent):
         left_sequence.add_children([medium, hub_sequence])
 
         right1_sequence.add_children([hub_dnm, dmn])
-        right_sequence.add_children([low, low1, low2])
+        right_sequence.add_children([low, low2])
 
         right_selector.add_children([right1_sequence, right_sequence])
         root.add_children([left_sequence, right_selector])
