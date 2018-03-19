@@ -157,13 +157,12 @@ class Grid:
             d = np.pi + d
         return ((x, y), d)
 
-
     # Using fancy search to find the obstacles object in the particular grid
     def get_objects(self, object_name, grid_value):
-        #if object_name:
+        if object_name:
             return list(filter(lambda x: type(x).__name__ == object_name, self.grid_objects[grid_value]))
-        #else:
-            
+        else:
+            return list(filter(lambda x: type(x).__name__ != 'list', self.grid_objects[grid_value]))
 
     def get_objects_from_grid(self, object_name, point):
         grid_key, grid_value = self.find_grid(point)
