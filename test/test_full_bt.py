@@ -74,7 +74,7 @@ class GEBTAgent(Agent):
 
         py_trees.logging.level = py_trees.logging.Level.DEBUG
         output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
-        print (output)
+        print ('bt tree', output)
         self.bt.behaviour_tree.tick()
 
         cellmates = self.model.grid.get_objects_from_grid('GEBTAgent', self.location)

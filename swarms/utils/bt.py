@@ -28,8 +28,15 @@ class BTConstruct:
 
     def create_bt(self, root):
         if len(list(root)) == 0:
-            behavior = eval(root.text)(root.text + str(random.randint(100, 200)))
-            behavior.setup(0, self.agent, None)
+            node_text = root.text
+            if node_text.find('_') != -1:
+                method, item = node_text.split('_')
+                behavior = eval(method)(method + str(random.randint(100, 200)))
+                behavior.setup(0, self.agent, item)
+            else:
+                method = node_text
+                behavior = eval(method)(method + str(random.randint(100, 200)))
+                behavior.setup(0, self.agent, None)
             return behavior
         else:
             list1 = []

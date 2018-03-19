@@ -1,5 +1,6 @@
 import numpy as np
 
+
 # Base class for all the objects that can be defined in the environment
 class EnvironmentObject:
     def __init__(self, id=1, location=(0, 0), radius=20):
@@ -87,6 +88,7 @@ class Carryable(EnvironmentObject):
         for agent in self.agents:
             average_direction += agent.direction
         return average_direction % (2*np.pi)
+
 
 # Class to define communication
 class Communication(EnvironmentObject):

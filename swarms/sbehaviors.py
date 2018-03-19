@@ -39,16 +39,18 @@ class GoTo(Behaviour):
     def __init__(self, name):
         super(GoTo, self).__init__(name)
 
-    def setup(self, timeout, agent, thing):
+    def setup(self, timeout, agent, item):
         self.agent = agent
-        self.thing = thing
+        self.item = item
+        #if self.item is None:
+        #    self.item = self.agent.shared_content
 
     def initialise(self):
         pass
 
     def update(self):
         self.agent.direction = get_direction(
-            self.thing.location, self.agent.location)
+            self.item.location, self.agent.location)
         return Status.SUCCESS
 
 
