@@ -10,7 +10,7 @@ from swarms.sbehaviors import (
     )
 from swarms.objects import Sites, Hub
 import py_trees
-from py_trees import Behaviour, Status
+from py_trees import Behaviour, Status, Blackboard
 import numpy as np
 
 
@@ -51,8 +51,13 @@ class SwarmAgentGoTo(Agent):
         self.shared_content = dict()
         
         root = py_trees.composites.Sequence("Sequence")
+        
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+        self.blackboard.shared_content[type(model.target).__name__] = [model.target]  
+
         low = GoTo('1')
-        low.setup(0, self, model.target)
+        low.setup(0, self, type(model.target).__name__)
         high = Move('2')
         high.setup(0, self)
         root.add_children([low, high])
@@ -79,8 +84,14 @@ class SwarmAgentGoToAway(Agent):
         self.shared_content = dict()
 
         root = py_trees.composites.Sequence("Sequence")
+
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+        self.blackboard.shared_content[type(model.target).__name__] = [model.target]        
+        
         low = GoTo('1')
-        low.setup(0, self, model.target)
+        low.setup(0, self, type(model.target).__name__)
+
         mid = Away('2')
         mid.setup(0, self)
         high = Move('3')
@@ -244,7 +255,7 @@ class SwarmAgentSenseHubSite(Agent):
         medium.setup(0, self, 'Sites')
 
         high = GoTo('2')
-        high.setup(0, self, model.hub)
+        high.setup(0, self, type(model.hub).__name__)
 
         highm = Move('3')
         highm.setup(0, self)

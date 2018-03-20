@@ -25,12 +25,17 @@ class NeighbourObjects(Behaviour):
         objects = self.agent.model.grid.get_objects_from_list_of_grid(
             self.object_name, grids)
         if len(objects) >= 1:
-            self.blackboard.shared_content[self.object_name] = objects
-            self.agent.shared_content[self.object_name] = objects
+            for item in objects:
+                try:
+                    name = type(item).__name__
+                    self.blackboard.shared_content[name].append(item)
+                    self.agent.shared_content[name].append(item)
+                except KeyError:
+                    self.blackboard.shared_content[name] = [item]
+                    self.agent.shared_content[name] = [item]
+                
             return Status.SUCCESS
         else:
-            self.blackboard.shared_content[self.object_name] = []            
-            self.agent.shared_content[self.object_name] = []
             return Status.FAILURE
 
 
@@ -53,7 +58,7 @@ class GoTo(Behaviour):
             self.agent.direction = get_direction(
                 objects.location, self.agent.location)
             return Status.SUCCESS
-        except AttributeError or KeyError:
+        except (AttributeError, KeyError):
             return Status.FAILURE
 
 
@@ -123,7 +128,7 @@ class IsMoveable(Behaviour):
                 return Status.SUCCESS
             else:
                 return Status.FAILURE
-        except AttributeError or KeyError:
+        except (AttributeError, KeyError):
             return Status.FAILURE
 
 
@@ -216,7 +221,7 @@ class IsCarryable(Behaviour):
                 return Status.SUCCESS
             else:
                 return Status.FAILURE
-        except AttributeError or KeyError:
+        except (AttributeError, KeyError):
             return Status.FAILURE
 
 
@@ -242,7 +247,7 @@ class IsSingleCarry(Behaviour):
                     return Status.SUCCESS
             else:
                 return Status.FAILURE
-        except AttributeError or KeyError:
+        except (AttributeError, KeyError):
             return Status.FAILURE
 
 
@@ -268,7 +273,7 @@ class IsMultipleCarry(Behaviour):
                     return Status.SUCCESS
             else:
                 return Status.FAILURE
-        except AttributeError or KeyError:
+        except (AttributeError, KeyError):
             return Status.FAILURE        
 
 
