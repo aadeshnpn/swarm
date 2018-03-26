@@ -5,6 +5,26 @@ from swarms.utils.distangle import get_direction
 
 # Defining behaviors for the agent
 
+class ObjectsStore:
+    #def __init__(self, blackboard_content, agent_content, item):
+    #    self.blackboard_content = blackboard_content
+    #    self.agent_content = agent_content
+    #    self.item
+
+    @staticmethod
+    def find(blackboard_content, agent_content, name):
+        # Priority to blackboard
+        try:
+            objects = blackboard_content[name]
+            return list(objects)
+        except KeyError:
+            try:
+                objects = agent_content[name]
+                return list(objects)
+            except KeyError:
+                return []
+
+
 # Sense behavior for the agent update using blackboard
 class NeighbourObjects(Behaviour):
     def __init__(self, name):
@@ -28,11 +48,11 @@ class NeighbourObjects(Behaviour):
             for item in objects:
                 try:
                     name = type(item).__name__
-                    self.blackboard.shared_content[name].append(item)
-                    self.agent.shared_content[name].append(item)
+                    self.blackboard.shared_content[name].add(item)
+                    # self.agent.shared_content[name].add(item)
                 except KeyError:
-                    self.blackboard.shared_content[name] = [item]
-                    self.agent.shared_content[name] = [item]
+                    self.blackboard.shared_content[name] = {item}
+                    # self.agent.shared_content[name] = {item}
                 
             return Status.SUCCESS
         else:
@@ -54,11 +74,11 @@ class GoTo(Behaviour):
 
     def update(self):
         try:
-            objects = self.blackboard.shared_content[self.item][0]
+            objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.item)[0]
             self.agent.direction = get_direction(
                 objects.location, self.agent.location)
             return Status.SUCCESS
-        except (AttributeError, KeyError):
+        except (AttributeError, IndexError):
             return Status.FAILURE
 
 
@@ -123,12 +143,12 @@ class IsMoveable(Behaviour):
 
     def update(self):
         try:
-            objects = self.blackboard.shared_content[self.item][0]            
+            objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.item)[0]
             if objects.moveable:
                 return Status.SUCCESS
             else:
                 return Status.FAILURE
-        except (AttributeError, KeyError):
+        except (AttributeError, IndexError):
             return Status.FAILURE
 
 
@@ -216,12 +236,13 @@ class IsCarryable(Behaviour):
 
     def update(self):
         try:
-            objects = self.blackboard.shared_content[self.thing][0]
+            #objects = self.blackboard.shared_content[self.thing].pop()
+            objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.item)[0]            
             if objects.carryable:
                 return Status.SUCCESS
             else:
                 return Status.FAILURE
-        except (AttributeError, KeyError):
+        except (AttributeError, IndexError):
             return Status.FAILURE
 
 
@@ -241,13 +262,14 @@ class IsSingleCarry(Behaviour):
     def update(self):
         # Logic to carry
         try:
-            objects = self.blackboard.shared_content[self.thing][0]            
+            #objects = self.blackboard.shared_content[self.thing].pop() 
+            objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.item)[0]                       
             if objects.weight:
                 if self.agent.get_capacity() > objects.calc_relative_weight():
                     return Status.SUCCESS
             else:
                 return Status.FAILURE
-        except (AttributeError, KeyError):
+        except (AttributeError, IndexError):
             return Status.FAILURE
 
 
@@ -267,13 +289,14 @@ class IsMultipleCarry(Behaviour):
     def update(self):
         try:
             # Logic to carry
-            objects = self.blackboard.shared_content[self.thing][0]            
+            #objects = self.blackboard.shared_content[self.thing].pop()       
+            objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.item)[0]                 
             if objects.weight:
                 if self.agent.get_capacity() < objects.weight:
                     return Status.SUCCESS
             else:
                 return Status.FAILURE
-        except (AttributeError, KeyError):
+        except (AttributeError, IndexError):
             return Status.FAILURE        
 
 
@@ -291,12 +314,13 @@ class SingleCarry(Behaviour):
 
     def update(self):
         try:
-            objects = self.blackboard.shared_content[self.thing][0]
+            #objects = self.blackboard.shared_content[self.thing].pop()
+            objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.item)[0]            
             self.agent.attached_objects.append(objects)
             self.agent.model.grid.remove_object_from_grid(
                 objects.location, objects)
             return Status.SUCCESS                
-        except KeyError:
+        except (AttributeError, IndexError):
             return Status.FAILURE
 
 
@@ -315,7 +339,8 @@ class InitiateMultipleCarry(Behaviour):
 
     def update(self):
         try:
-            objects = self.blackboard.shared_content[self.thing][0]
+            #objects = self.blackboard.shared_content[self.thing].pop()
+            objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.item)[0]                        
             relative_weight = objects.calc_relative_weight()
             print('initial mc', self.agent.name, relative_weight, self.agent.get_capacity())
             if relative_weight > 0:
@@ -342,7 +367,7 @@ class InitiateMultipleCarry(Behaviour):
                 objects.agents[self.agent] = average_weight
                 print('avg weig', self.agent.name, average_weight)
                 return Status.SUCCESS
-        except KeyError:
+        except (KeyError, AttributeError, IndexError):
             return Status.FAILURE
 
 
@@ -359,13 +384,17 @@ class IsInPartialAttached(Behaviour):
         pass
 
     def update(self):
-        objects = self.blackboard.shared_content[self.thing][0]
+        #objects = self.blackboard.shared_content[self.thing].pop()
+        objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.item)[0]                    
         # print (self.agent, objects,
         #  self.agent.partial_attached_objects, objects.agents)
-        if objects in self.agent.partial_attached_objects and \
-                self.agent in objects.agents:
-            return Status.SUCCESS
-        else:
+        try:
+            if objects in self.agent.partial_attached_objects and \
+                    self.agent in objects.agents:
+                return Status.SUCCESS
+            else:
+                return Status.FAILURE
+        except IndexError:
             return Status.FAILURE
 
 
@@ -382,13 +411,17 @@ class IsEnoughStrengthToCarry(Behaviour):
         pass
 
     def update(self):
-        objects = self.blackboard.shared_content[self.thing][0]
-        print(self.agent.get_capacity(), objects.calc_relative_weight())
-        if self.agent.get_capacity() >= objects.calc_relative_weight():
-            # self.agent.model.grid.remove_object_from_grid(
-            # objects.location, objects)
-            return Status.SUCCESS
-        else:
+        #objects = self.blackboard.shared_content[self.thing].pop()
+        objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.item)[0]
+        #print(self.agent.get_capacity(), objects.calc_relative_weight())
+        try: 
+            if self.agent.get_capacity() >= objects.calc_relative_weight():
+                # self.agent.model.grid.remove_object_from_grid(
+                # objects.location, objects)
+                return Status.SUCCESS
+            else:
+                return Status.FAILURE
+        except IndexError:
             return Status.FAILURE
 
 
@@ -425,9 +458,14 @@ class MultipleCarry(Behaviour):
         pass
 
     def update(self):
-        objects = self.blackboard.shared_content[self.thing][0]
-        self.agent.model.grid.remove_object_from_grid(
-            objects.location, objects)
+        #objects = self.blackboard.shared_content[self.thing].pop()
+        objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.item)[0]
+        try:
+            self.agent.model.grid.remove_object_from_grid(
+                objects.location, objects)
+            return Status.SUCCESS
+        except IndexError:
+            return Status.FAILURE
         # objects = self.agent.partial_attached_objects[0]
 
         # Needs move function to move it

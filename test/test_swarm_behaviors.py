@@ -54,7 +54,8 @@ class SwarmAgentGoTo(Agent):
         
         self.blackboard = Blackboard()
         self.blackboard.shared_content = dict()
-        self.blackboard.shared_content[type(model.target).__name__] = [model.target]  
+
+        self.shared_content[type(model.target).__name__] = {model.target}
 
         low = GoTo('1')
         low.setup(0, self, type(model.target).__name__)
@@ -87,10 +88,12 @@ class SwarmAgentGoToAway(Agent):
 
         self.blackboard = Blackboard()
         self.blackboard.shared_content = dict()
-        self.blackboard.shared_content[type(model.target).__name__] = [model.target]        
-        
+              
+        name = type(model.target).__name__
+        self.shared_content[name] = {model.target}        
+
         low = GoTo('1')
-        low.setup(0, self, type(model.target).__name__)
+        low.setup(0, self, name)
 
         mid = Away('2')
         mid.setup(0, self)
@@ -98,6 +101,8 @@ class SwarmAgentGoToAway(Agent):
         high.setup(0, self)
         root.add_children([low, mid, high])
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
+        #py_trees.logging.level = py_trees.logging.Level.DEBUG
+        #py_trees.display.print_ascii_tree(root, indent=0, show_status=True)          
 
     def step(self):
         self.behaviour_tree.tick()
@@ -123,8 +128,16 @@ class SwarmAgentGoToTowards(Agent):
         self.shared_content = dict()
 
         root = py_trees.composites.Sequence("Sequence")
+
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+
+        name = type(model.target).__name__
+        self.shared_content[name] = {model.target}            
+        # self.blackboard.shared_content[type(model.target).__name__] = [model.target] 
+
         low = GoTo('1')
-        low.setup(0, self, model.target)
+        low.setup(0, self, name)
         mid = Towards('2')
         mid.setup(0, self)
         high = Move('3')
@@ -186,6 +199,9 @@ class SwarmAgentSenseSite(Agent):
 
         self.moveable = True
         self.shared_content = dict()
+        
+        #name = type(model.target).__name__
+        #self.shared_content[name] = {model.target}    
 
         root = py_trees.composites.Selector("Selector")
         left_sequence = py_trees.composites.Sequence("LSequence")
@@ -238,6 +254,14 @@ class SwarmAgentSenseHubSite(Agent):
         right_selector = py_trees.composites.Selector("RSelector")
         right1_sequence = py_trees.composites.Sequence("R1Sequence")
 
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+        
+        name = type(model.hub).__name__
+        self.shared_content[name] = {model.hub}
+
+        #self.blackboard.shared_content[type(model.hub).__name__] = [model.hub] 
+
         hub_dnm = NeighbourObjects('5')
         hub_dnm.setup(0, self, 'Hub')
 
@@ -273,11 +297,12 @@ class SwarmAgentSenseHubSite(Agent):
         root.add_children([left_sequence, right_selector])
         
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
-        # py_trees.logging.level = py_trees.logging.Level.DEBUG
-        # py_trees.display.print_ascii_tree(root, indent=0, show_status=True)  
+        #py_trees.logging.level = py_trees.logging.Level.DEBUG
+        #py_trees.display.print_ascii_tree(root, indent=0, show_status=True)
 
     def step(self):
         self.behaviour_tree.tick()
+        print (self.blackboard.shared_content)
 
     def advance(self):
         pass        
