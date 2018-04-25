@@ -4,14 +4,14 @@ import xml.etree.ElementTree as ET
 import py_trees 
 from py_trees.composites import Sequence, Selector
 import random
-random.seed(123)
+#random.seed(123)
 
 from swarms.sbehaviors import (
     IsCarryable, IsSingleCarry, SingleCarry,
     NeighbourObjects, IsMultipleCarry, IsInPartialAttached,
     InitiateMultipleCarry, IsEnoughStrengthToCarry,
     Move, GoTo, IsMotionTrue, RandomWalk, IsMoveable,
-    MultipleCarry, Away, Towards, IsMultipleCarry,
+    MultipleCarry, Away, Towards,
     DoNotMove
     )
 
@@ -73,7 +73,7 @@ class BTConstruct:
 
 
 def main():
-    bt = ConstructBT("/home/aadeshnpn/Documents/BYU/hcmi/swarm/swarms/utils/bt.xml")
+    bt = BTConstruct("/home/aadeshnpn/Documents/BYU/hcmi/swarm/swarms/utils/bt.xml")
     #bt = ConstructBT(None, xmlstring='<?xml version="1.0" encoding="UTF-8"?><Sequence><Sequence><Selector><cond>IsSingleCarry</cond><cond>IsMotionTrue</cond><act>RandomWalk</act></Selector><Sequence><cond>IsMoveable</cond><cond>IsMotionTrue</cond><act>GoTo</act></Sequence></Sequence><Sequence><Selector><cond>IsMotionTrue</cond><cond>IsMoveable</cond><cond>IsCarryable</cond><cond>IsMotionTrue</cond><act>RandomWalk</act></Selector><Sequence><cond>IsCarryable</cond><act>MultipleCarry</act></Sequence></Sequence></Sequence>')
     bt.construct()
 

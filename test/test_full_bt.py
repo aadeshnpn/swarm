@@ -6,6 +6,7 @@ from lib.space import Grid
 from unittest import TestCase
 from swarms.utils.bt import BTConstruct
 import py_trees
+from py_trees import Blackboard
 import numpy as np
 import xml.etree.ElementTree as ET
 
@@ -48,7 +49,12 @@ class GEBTAgent(Agent):
         self.genome_storage = []
 
         # Define a BTContruct object
-        self.bt = BTConstruct(None, None)
+        self.bt = BTConstruct(None, self)
+        
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+        
+        self.shared_content = dict()
 
         # Grammatical Evolution part
         from ponyge.algorithm.parameters import Parameters
@@ -74,7 +80,7 @@ class GEBTAgent(Agent):
 
         py_trees.logging.level = py_trees.logging.Level.DEBUG
         output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
-        print ('bt tree', output)
+        print ('bt tree', output, self.individual[0].phenotype)
         self.bt.behaviour_tree.tick()
 
         cellmates = self.model.grid.get_objects_from_grid('GEBTAgent', self.location)
@@ -164,4 +170,4 @@ class TestGEBTSmallGrid(TestCase):
     #    self.assertEqual('<?xml version="1.0" encoding="UTF-8"?><Sequence><Sequence><Sequence><cond>IsMoveable</cond><cond>IsMupltipleCarry</cond><act>RandomWalk</act></Sequence> <Sequence><cond>IsMotionTrue</cond><cond>IsMoveable</cond><cond>IsMotionTrue</cond><act>SingleCarry</act></Sequence></Sequence> <Selector><cond>IsMotionTrue</cond><cond>IsCarryable</cond><cond>IsMupltipleCarry</cond><act>GoTo</act></Selector></Sequence>', self.target_phenotype)
 
     def test_one_traget(self):
-        self.assertEqual(42.857142857142854, self.target_fitness)
+        self.assertEqual(42.857142857142854, 10)

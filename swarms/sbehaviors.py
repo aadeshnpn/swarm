@@ -324,7 +324,6 @@ class SingleCarry(Behaviour):
             return Status.FAILURE
 
 
-
 class InitiateMultipleCarry(Behaviour):
     def __init__(self, name):
         super(InitiateMultipleCarry, self).__init__(name)
@@ -439,9 +438,12 @@ class IsMotionTrue(Behaviour):
 
     def update(self):
         # objects = self.blackboard.shared_content[self.thing][0]
-        if self.agent.partial_attached_objects[0].motion is True:
-            return Status.SUCCESS
-        else:
+        try:
+            if self.agent.partial_attached_objects[0].motion is True:
+                return Status.SUCCESS
+            else:
+                return Status.FAILURE
+        except (AttributeError, IndexError):
             return Status.FAILURE
 
 
