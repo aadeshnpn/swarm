@@ -246,6 +246,30 @@ class IsCarryable(Behaviour):
             return Status.FAILURE
 
 
+# Behavior to check carryable attribute of an object
+class IsDropable(Behaviour):
+    def __init__(self, name):
+        super(IsDropable, self).__init__(name)
+        self.blackboard = Blackboard()
+
+    def setup(self, timeout, agent, thing):
+        self.agent = agent
+        self.thing = thing
+
+    def initialise(self):
+        pass
+
+    def update(self):
+        try:
+            objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.thing)[0]
+            if objects.dropable:
+                return Status.SUCCESS
+            else:
+                return Status.FAILURE
+        except (AttributeError, IndexError):
+            return Status.FAILURE
+
+
 # Behavior define to check is the item is carrable on its own
 class IsSingleCarry(Behaviour):
     def __init__(self, name):
