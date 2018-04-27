@@ -200,16 +200,16 @@ class SwarmAgentSenseSite(Agent):
         self.moveable = True
         self.shared_content = dict()
         
-        #name = type(model.target).__name__
-        #self.shared_content[name] = {model.target}    
+        # name = type(model.target).__name__
+        # self.shared_content[name] = {model.target}    
 
         root = py_trees.composites.Selector("Selector")
         left_sequence = py_trees.composites.Sequence("LSequence")
         right_sequence = py_trees.composites.Sequence("RSequence")
         low = RandomWalk('1')
         low.setup(0, self)
-        #low1 = IsMoveable('2')
-        #low1.setup(0, self,)
+        # low1 = IsMoveable('2')
+        # low1.setup(0, self,)
         low2 = Move('3')
         low2.setup(0, self)
         medium = NeighbourObjects('4')
@@ -260,7 +260,7 @@ class SwarmAgentSenseHubSite(Agent):
         name = type(model.hub).__name__
         self.shared_content[name] = {model.hub}
 
-        #self.blackboard.shared_content[type(model.hub).__name__] = [model.hub] 
+        # self.blackboard.shared_content[type(model.hub).__name__] = [model.hub] 
 
         hub_dnm = NeighbourObjects('5')
         hub_dnm.setup(0, self, 'Hub')
@@ -270,8 +270,8 @@ class SwarmAgentSenseHubSite(Agent):
 
         low = RandomWalk('7')
         low.setup(0, self)
-        #low1 = IsMoveable('8')
-        #low1.setup(0, self)
+        # low1 = IsMoveable('8')
+        # low1.setup(0, self)
         low2 = Move('9')
         low2.setup(0, self)
 
@@ -297,8 +297,8 @@ class SwarmAgentSenseHubSite(Agent):
         root.add_children([left_sequence, right_selector])
         
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
-        #py_trees.logging.level = py_trees.logging.Level.DEBUG
-        #py_trees.display.print_ascii_tree(root, indent=0, show_status=True)
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # py_trees.display.print_ascii_tree(root, indent=0, show_status=True)
 
     def step(self):
         self.behaviour_tree.tick()
@@ -355,7 +355,7 @@ class GoToSwarmEnvironmentModel(Model):
         self.grid = Grid(width, height, grid)
 
         self.schedule = SimultaneousActivation(self)
-        
+
         self.target = Sites(id=1, location=(45, 45), radius=5, q_value=0.5)
 
         for i in range(self.num_agents):
@@ -417,7 +417,7 @@ class GoToTowardsSwarmEnvironmentModel(Model):
         self.grid = Grid(width, height, grid)
 
         self.schedule = SimultaneousActivation(self)
-        
+
         self.target = Sites(id=1, location=(45, 45), radius=5, q_value=0.5)
 
         for i in range(self.num_agents):

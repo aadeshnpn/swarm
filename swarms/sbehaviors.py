@@ -44,6 +44,7 @@ class NeighbourObjects(Behaviour):
             self.agent.location, self.agent.radius)
         objects = self.agent.model.grid.get_objects_from_list_of_grid(
             self.object_name, grids)
+
         if len(objects) >= 1:
             for item in objects:
                 try:
@@ -53,7 +54,6 @@ class NeighbourObjects(Behaviour):
                 except KeyError:
                     self.blackboard.shared_content[name] = {item}
                     # self.agent.shared_content[name] = {item}
-                
             return Status.SUCCESS
         else:
             return Status.FAILURE
@@ -237,7 +237,7 @@ class IsCarryable(Behaviour):
     def update(self):
         try:
             #objects = self.blackboard.shared_content[self.thing].pop()
-            objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.item)[0]            
+            objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.thing)[0]
             if objects.carryable:
                 return Status.SUCCESS
             else:
@@ -263,7 +263,7 @@ class IsSingleCarry(Behaviour):
         # Logic to carry
         try:
             #objects = self.blackboard.shared_content[self.thing].pop() 
-            objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.item)[0]                       
+            objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.thing)[0]                       
             if objects.weight:
                 if self.agent.get_capacity() > objects.calc_relative_weight():
                     return Status.SUCCESS
@@ -290,7 +290,7 @@ class IsMultipleCarry(Behaviour):
         try:
             # Logic to carry
             #objects = self.blackboard.shared_content[self.thing].pop()       
-            objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.item)[0]                 
+            objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.thing)[0]                 
             if objects.weight:
                 if self.agent.get_capacity() < objects.weight:
                     return Status.SUCCESS
@@ -315,7 +315,7 @@ class SingleCarry(Behaviour):
     def update(self):
         try:
             #objects = self.blackboard.shared_content[self.thing].pop()
-            objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.item)[0]            
+            objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.thing)[0]            
             self.agent.attached_objects.append(objects)
             self.agent.model.grid.remove_object_from_grid(
                 objects.location, objects)
