@@ -1,5 +1,5 @@
 from lib.agent import Agent
-from swarms.objects import Sites
+# from swarms.objects import Sites
 from lib.model import Model
 from lib.time import SimultaneousActivation
 from lib.space import Grid
@@ -8,7 +8,7 @@ from swarms.utils.bt import BTConstruct
 import py_trees
 from py_trees import Blackboard
 import numpy as np
-import xml.etree.ElementTree as ET
+# import xml.etree.ElementTree as ET
 
 from swarms.sbehaviors import (
     IsCarryable, IsSingleCarry, SingleCarry,
@@ -60,7 +60,8 @@ class GEBTAgent(Agent):
         from ponyge.algorithm.parameters import Parameters
         parameter = Parameters()
         parameter_list = ['--parameters', 'swarm.txt']
-        #parameter.params['RANDOM_SEED'] = 1234 # np.random.randint(1, 99999999)        
+        # Comment when different results is desired. Else set this for testing purpose
+        parameter.params['RANDOM_SEED'] = name  # np.random.randint(1, 99999999)        
         parameter.params['POPULATION_SIZE'] = self.operation_threshold // 2         
         parameter.set_params(parameter_list)
         self.parameter = parameter
@@ -79,12 +80,12 @@ class GEBTAgent(Agent):
         # execute  BT 
 
         py_trees.logging.level = py_trees.logging.Level.DEBUG
-        output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
-        print ('bt tree', output, self.individual[0].phenotype)
+        # output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
+        # print ('bt tree', output, self.individual[0].phenotype)
         self.bt.behaviour_tree.tick()
 
         cellmates = self.model.grid.get_objects_from_grid('GEBTAgent', self.location)
-        #print (cellmates)
+        # print (cellmates)
         if len(self.genome_storage) >= self.operation_threshold:
             self.exchange_chromosome(cellmates)
             self.bt.xmlstring = self.individual[0].phenotype
@@ -147,7 +148,7 @@ class GEEnvironmentModel(Model):
 
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)
-            a.operation_threshold = 2 #self.num_agents // 10
+            a.operation_threshold = 2  #  self.num_agents // 10
 
     def step(self):
         self.schedule.step()        
@@ -161,13 +162,13 @@ class TestGEBTSmallGrid(TestCase):
         for i in range(2):
             self.environment.step()
 
-            for agent in self.environment.schedule.agents:
-                #self.target_phenotype = agent.individual[0].phenotype
-                #self.target_fitness = agent.individual[0].fitness
-                print('Step', i, agent.name, agent.individual[0].fitness, agent.location)
+            # for agent in self.environment.schedule.agents:
+            #  self.target_phenotype = agent.individual[0].phenotype
+            #  self.target_fitness = agent.individual[0].fitness
+            #    print('Step', i, agent.name, agent.individual[0].fitness, agent.location)
 
-    #def test_target_string(self):
+    # def test_target_string(self):
     #    self.assertEqual('<?xml version="1.0" encoding="UTF-8"?><Sequence><Sequence><Sequence><cond>IsMoveable</cond><cond>IsMupltipleCarry</cond><act>RandomWalk</act></Sequence> <Sequence><cond>IsMotionTrue</cond><cond>IsMoveable</cond><cond>IsMotionTrue</cond><act>SingleCarry</act></Sequence></Sequence> <Selector><cond>IsMotionTrue</cond><cond>IsCarryable</cond><cond>IsMupltipleCarry</cond><act>GoTo</act></Selector></Sequence>', self.target_phenotype)
 
     def test_one_traget(self):
-        self.assertEqual(42.857142857142854, 10)
+        self.assertEqual(14.285714285714285, self.environment.schedule.agents[0].individual[0].fitness)
