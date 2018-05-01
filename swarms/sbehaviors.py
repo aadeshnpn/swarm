@@ -324,6 +324,30 @@ class IsMultipleCarry(Behaviour):
             return Status.FAILURE        
 
 
+# Behavior defined to drop the items currently carrying
+class Drop(Behaviour):
+    def __init__(self, name):
+        super(Drop, self).__init__(name)
+        self.blackboard = Blackboard()
+
+    def setup(self, timeout, agent, thing):
+        self.agent = agent
+        self.thing = thing
+
+    def initialise(self):
+        pass
+
+    def update(self):
+        try:
+            objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.thing)[0]            
+            self.agent.model.grid.add_object_to_grid(objects.location, objects)
+            self.agent.attached_objects.remove(objects)
+            return Status.SUCCESS
+        except (AttributeError, IndexError):
+            return Status.FAILURE
+
+
+# Behavior defined to carry the items found
 class SingleCarry(Behaviour):
     def __init__(self, name):
         super(SingleCarry, self).__init__(name)

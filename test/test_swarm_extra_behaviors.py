@@ -7,15 +7,15 @@ from swarms.sbehaviors import (
     IsCarryable, IsSingleCarry, SingleCarry,
     NeighbourObjects, IsMultipleCarry, IsInPartialAttached,
     InitiateMultipleCarry, IsEnoughStrengthToCarry,
-    Move, GoTo
+    Move, GoTo, Drop
     )
-from swarms.objects import Derbis, Sites
+from swarms.objects import Derbis, Sites, Hub, Food
 import py_trees
+from py_trees.composites import RepeatUntilFalse
 import numpy as np
 
 
 # Class to test accleration and velocity models
-
 class SwarmAgentGoTo(Agent):
     """ An minimalistic behavior tree for swarm agent implementing goto 
     behavior using accleration and velocity
@@ -47,9 +47,39 @@ class SwarmAgentGoTo(Agent):
     def step(self):
         self.behaviour_tree.tick() 
 
+
+class GoToSwarmEnvironmentModel(Model):
+    """ A environemnt to model swarms """
+    def __init__(self, N, width, height, grid=10, seed=None):
+        if seed is None:
+            super(GoToSwarmEnvironmentModel, self).__init__(seed=None)
+        else:
+            super(GoToSwarmEnvironmentModel, self).__init__(seed)
+
+        self.num_agents = N
+
+        self.grid = Grid(width, height, grid)
+
+        self.schedule = SimultaneousActivation(self)
+        
+        self.target = Sites(id=1, location=(45, 45), radius=5, q_value=0.5)
+
+        for i in range(self.num_agents):
+            a = SwarmAgentGoTo(i, self)
+            self.schedule.add(a)
+            x = -45
+            y = -45
+            a.location = (x, y)
+            a.direction = -2.3561944901923448
+            self.grid.add_object_to_grid((x, y), a)
+
+        self.agent = a
+
+    def step(self):
+        self.schedule.step()
+
+
 # Class to test series of carry and drop behaviors
-
-
 class SwarmAgentSingleCarry(Agent):
     """ An minimalistic behavior tree for swarm agent
     implementing carry behavior
@@ -87,6 +117,54 @@ class SwarmAgentSingleCarry(Agent):
         pass
 
 
+class SingleCarrySwarmEnvironmentModel(Model):
+    """ A environemnt to model swarms """
+    def __init__(self, N, width, height, grid=10, seed=None):
+        if seed is None:
+            super(SingleCarrySwarmEnvironmentModel, self).__init__(seed=None)
+        else:
+            super(SingleCarrySwarmEnvironmentModel, self).__init__(seed)
+
+        self.num_agents = N
+
+        self.grid = Grid(width, height, grid)
+
+        self.schedule = SimultaneousActivation(self)
+        
+        # self.target = Sites(id=1, location=(45, 45), radius=5, q_value=0.5)
+        self.thing = Derbis(id=1, location=(0, 0), radius=4)
+
+        self.grid.add_object_to_grid(self.thing.location, self.thing)
+
+        for i in range(self.num_agents):
+            a = SwarmAgentSingleCarry(i, self)
+            self.schedule.add(a)
+            x = 0
+            y = 0
+            a.location = (x, y)
+            a.direction = -2.3561944901923448
+            self.grid.add_object_to_grid((x, y), a)
+
+        self.agent = a
+
+    def step(self):
+        self.schedule.step()
+
+
+class TestSingleCarrySameLocationSwarmSmallGrid(TestCase):
+    
+    def setUp(self):
+        self.environment = SingleCarrySwarmEnvironmentModel(
+            1, 100, 100, 10, 123)
+
+        for i in range(1):
+            self.environment.step()
+
+    def test_agent_path(self):
+        self.assertEqual(
+            self.environment.agent.attached_objects[0], self.environment.thing)
+
+
 class SwarmAgentSingleCarryDrop(Agent):
     """ An minimalistic behavior tree for swarm agent
     implementing carry behavior
@@ -107,25 +185,45 @@ class SwarmAgentSingleCarryDrop(Agent):
         lsequence = py_trees.composites.Sequence("LSequence")
         rsequence = py_trees.composites.Sequence("RSequence")        
         
+        repeathub = RepeatUntilFalse("RepeatTillHub")
+        repeatsite = RepeatUntilFalse("RepeatTillSite")
+        
+        nearhub = NeighbourObjects('09')
+        nearhub.setup(0, self, 'Hub')
+
+        nearsite = NeighbourObjects('10')
+        nearsite.setup(0, self, 'Sites')
+
         lowest = NeighbourObjects('0')
-        lowest.setup(0, self, 'Derbis')
+        lowest.setup(0, self, 'Food')
 
         low = IsCarryable('1')
-        low.setup(0, self, 'Derbis')
+        low.setup(0, self, 'Food')
         medium = IsSingleCarry('2')
-        medium.setup(0, self, 'Derbis')
+        medium.setup(0, self, 'Food')
         high = SingleCarry('3')
-        high.setup(0, self, 'Derbis')
+        high.setup(0, self, 'Food')
 
         goto1 = GoTo('4')
-        goto1.setup(0, self, model.hub)
-        #drop1 = 
+        goto1.setup(0, self, 'Hub')
+        move1 = Move('5')
+        move1.setup(0, self, None)
+
+        self.shared_content['Hub'] = model.hub
+        self.shared_content['Sites'] = model.site
+        drop1 = Drop('6')
+        drop1.setup(0, self, 'Food')
+        goto2 = GoTo('7')
+        goto2.setup(0, self, 'Sites')
 
         lsequence.add_children([lowest, low, medium, high])
-
+        rsequence.add_children([goto1, drop1, goto2])
+        root.add_children([lsequence, rsequence])
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
+
+        py_trees.logging.level = py_trees.logging.Level.DEBUG        
         py_trees.display.print_ascii_tree(root)
-        
+
     def step(self):
         self.behaviour_tree.tick()
 
@@ -133,10 +231,67 @@ class SwarmAgentSingleCarryDrop(Agent):
         pass
 
 
+class SingleCarryDropSwarmEnvironmentModel(Model):
+    """ A environemnt to model swarms """
+    def __init__(self, N, width, height, grid=10, seed=None):
+        if seed is None:
+            super(SingleCarryDropSwarmEnvironmentModel, self).__init__(seed=None)
+        else:
+            super(SingleCarryDropSwarmEnvironmentModel, self).__init__(seed)
+
+        self.num_agents = N
+
+        self.grid = Grid(width, height, grid)
+
+        self.schedule = SimultaneousActivation(self)
+        
+        # self.target = Sites(id=1, location=(45, 45), radius=5, q_value=0.5)
+        # self.food = Food(id=1, location=(40, 40), radius=4)
+        # self.grid.add_object_to_grid(self.food.location, self.food)
+        self.hub = Hub(id=2, location=(0, 0), radius=20)
+        self.grid.add_object_to_grid(self.hub.location, self.hub)
+        self.site = Sites(id=3, location=(40, 40), radius=20)
+        self.grid.add_object_to_grid(self.site.location, self.site)
+
+        for i in range(self.num_agents):
+            a = SwarmAgentSingleCarryDrop(i, self)
+            self.schedule.add(a)
+            x = 40
+            y = 40
+            a.location = (x, y)
+            a.direction = -2.3561944901923448
+            self.grid.add_object_to_grid((x, y), a)
+
+        self.agent = a
+
+        for i in range(self.num_agents*2):
+            f = Food(i, location=(40, 40), radius=2)
+            self.grid.add_object_to_grid(f.location, f)
+
+    def step(self):
+        self.schedule.step()
+
+
+class TestSingleCarryDropSwarmSmallGrid(TestCase):
+    
+    def setUp(self):
+        self.environment = SingleCarryDropSwarmEnvironmentModel(
+            1, 100, 100, 10, 123)
+
+        for i in range(1):
+            self.environment.step()
+
+    def test_agent_path(self):
+        #self.assertEqual(
+        #    self.environment.agent.attached_objects[0], self.environment.thing)
+        self.assertEqual(9,8)
+
+"""
+
 class SwarmAgentMultipleCarry(Agent):
-    """ An minimalistic behavior tree for swarm agent
-    implementing multiple carry behavior
-    """
+    # An minimalistic behavior tree for swarm agent
+    #implementing multiple carry behavior
+    #
     def __init__(self, name, model):
         super().__init__(name, model)
         self.location = ()
@@ -201,74 +356,8 @@ class SwarmAgentMultipleCarry(Agent):
     def advance(self):
         pass
 
-
-class GoToSwarmEnvironmentModel(Model):
-    """ A environemnt to model swarms """
-    def __init__(self, N, width, height, grid=10, seed=None):
-        if seed is None:
-            super(GoToSwarmEnvironmentModel, self).__init__(seed=None)
-        else:
-            super(GoToSwarmEnvironmentModel, self).__init__(seed)
-
-        self.num_agents = N
-
-        self.grid = Grid(width, height, grid)
-
-        self.schedule = SimultaneousActivation(self)
-        
-        self.target = Sites(id=1, location=(45, 45), radius=5, q_value=0.5)
-
-        for i in range(self.num_agents):
-            a = SwarmAgentGoTo(i, self)
-            self.schedule.add(a)
-            x = -45
-            y = -45
-            a.location = (x, y)
-            a.direction = -2.3561944901923448
-            self.grid.add_object_to_grid((x, y), a)
-
-        self.agent = a
-
-    def step(self):
-        self.schedule.step()
-
-
-class SingleCarrySwarmEnvironmentModel(Model):
-    """ A environemnt to model swarms """
-    def __init__(self, N, width, height, grid=10, seed=None):
-        if seed is None:
-            super(SingleCarrySwarmEnvironmentModel, self).__init__(seed=None)
-        else:
-            super(SingleCarrySwarmEnvironmentModel, self).__init__(seed)
-
-        self.num_agents = N
-
-        self.grid = Grid(width, height, grid)
-
-        self.schedule = SimultaneousActivation(self)
-        
-        # self.target = Sites(id=1, location=(45, 45), radius=5, q_value=0.5)
-        self.thing = Derbis(id=1, location=(0, 0), radius=4)
-
-        self.grid.add_object_to_grid(self.thing.location, self.thing)
-
-        for i in range(self.num_agents):
-            a = SwarmAgentSingleCarry(i, self)
-            self.schedule.add(a)
-            x = 0
-            y = 0
-            a.location = (x, y)
-            a.direction = -2.3561944901923448
-            self.grid.add_object_to_grid((x, y), a)
-
-        self.agent = a
-
-    def step(self):
-        self.schedule.step()
-
-
 class MultipleCarrySwarmEnvironmentModel(Model):
-    """ A environemnt to model swarms """
+    # A environemnt to model swarms
     def __init__(self, N, width, height, grid=10, seed=None):
         if seed is None:
             super(MultipleCarrySwarmEnvironmentModel, self).__init__(seed=None)
@@ -298,23 +387,8 @@ class MultipleCarrySwarmEnvironmentModel(Model):
             self.agent.append(a)
 
     def step(self):
-        self.schedule.step()        
+        self.schedule.step() 
 
-
-class TestSingleCarrySameLocationSwarmSmallGrid(TestCase):
-    
-    def setUp(self):
-        self.environment = SingleCarrySwarmEnvironmentModel(
-            1, 100, 100, 10, 123)
-
-        for i in range(1):
-            self.environment.step()
-
-    def test_agent_path(self):
-        self.assertEqual(
-            self.environment.agent.attached_objects[0], self.environment.thing)
-
-"""
 class TestGoToSwarmSmallGrid(TestCase):
     
     def setUp(self):
