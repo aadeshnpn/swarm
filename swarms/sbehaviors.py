@@ -252,6 +252,7 @@ class IsDropable(Behaviour):
     def __init__(self, name):
         super(IsDropable, self).__init__(name)
         self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()                
 
     def setup(self, timeout, agent, thing):
         self.agent = agent
@@ -323,6 +324,32 @@ class IsMultipleCarry(Behaviour):
                 return Status.FAILURE
         except (AttributeError, IndexError):
             return Status.FAILURE        
+
+
+class IsCarrying(Behaviour):
+    def __init__(self, name):
+        super(IsCarrying, self).__init__(name)
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+
+    def setup(self, timeout, agent, thing):
+        self.agent = agent
+        self.thing = thing
+
+    def initialise(self):
+        pass
+
+    def update(self):
+        try:
+            objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.thing)[0]            
+            #self.agent.model.grid.add_object_to_grid(objects.location, objects)
+            #self.agent.attached_objects.remove(objects)
+            if objects in self.agent.attached_objects:
+                return Status.SUCCESS
+            else:
+                return Status.FAILURE
+        except (AttributeError, IndexError):
+            return Status.FAILURE
 
 
 # Behavior defined to drop the items currently carrying

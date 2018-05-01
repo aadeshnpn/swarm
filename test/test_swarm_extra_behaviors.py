@@ -7,7 +7,7 @@ from swarms.sbehaviors import (
     IsCarryable, IsSingleCarry, SingleCarry,
     NeighbourObjects, IsMultipleCarry, IsInPartialAttached,
     InitiateMultipleCarry, IsEnoughStrengthToCarry,
-    Move, GoTo, Drop
+    Move, GoTo, Drop, IsDropable, IsCarrying
     )
 from swarms.objects import Derbis, Sites, Hub, Food
 import py_trees
@@ -54,7 +54,7 @@ class SwarmAgentGoTo(Agent):
 
 
 class GoToSwarmEnvironmentModel(Model):
-    """ A environemnt to model swarms """
+    """ A environment to model swarms """
     def __init__(self, N, width, height, grid=10, seed=None):
         if seed is None:
             super(GoToSwarmEnvironmentModel, self).__init__(seed=None)
@@ -137,7 +137,7 @@ class SwarmAgentSingleCarry(Agent):
 
 
 class SingleCarrySwarmEnvironmentModel(Model):
-    """ A environemnt to model swarms """
+    """ A environment to model swarms """
     def __init__(self, N, width, height, grid=10, seed=None):
         if seed is None:
             super(SingleCarrySwarmEnvironmentModel, self).__init__(seed=None)
@@ -204,7 +204,7 @@ class SwarmAgentSingleCarryDrop(Agent):
 
         root = py_trees.composites.Sequence("Sequence")
         mseq = py_trees.composites.Sequence('MSequence')
-
+        select = py_trees.composites.Selector('RSelector')
         carryseq = py_trees.composites.Sequence('CSequence')
         
         lowest = NeighbourObjects('0')
@@ -235,11 +235,26 @@ class SwarmAgentSingleCarryDrop(Agent):
         low1 = Move('6')
         low1.setup(0, self, None)
 
-        repeathub.add_children([high1, med1, low1])
 
+        # Drop
+        dropseq = py_trees.composites.Sequence('DSequence')
+        c1 = IsCarrying('6')
+        c1.setup(0, self, 'Food')
+
+        d1 = IsDropable('7')
+        d1.setup(0, self, 'Hub')
+
+        d2 = Drop('8')
+        d2.setup(0, self, 'Food')
+
+        dropseq.add_children([c1, d1, d2])
+
+        repeathub.add_children([high1, med1, low1])
         mseq.add_children([carryseq, repeathub])
+        select.add_children([dropseq, mseq])        
+        #mseq.add_children([carryseq, select])
         #mseq.add_children([carryseq])
-        root.add_children([mseq])
+        root.add_children([select])
 
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
 
@@ -254,7 +269,7 @@ class SwarmAgentSingleCarryDrop(Agent):
 
 
 class SingleCarryDropSwarmEnvironmentModel(Model):
-    """ A environemnt to model swarms """
+    """ A environment to model swarms """
     def __init__(self, N, width, height, grid=10, seed=None):
         if seed is None:
             super(SingleCarryDropSwarmEnvironmentModel, self).__init__(seed=None)
@@ -300,17 +315,22 @@ class TestSingleCarryDropSwarmSmallGrid(TestCase):
         self.environment = SingleCarryDropSwarmEnvironmentModel(
             1, 100, 100, 10, 123)
 
-        for i in range(1):
+        for i in range(2):
             self.environment.step()
 
     def test_agent_food(self):
-        #self.assertEqual(
-        #    self.environment.agent.attached_objects[0], self.environment.thing)
-        self.assertEqual (self.environment.agent.location, self.environment.agent.attached_objects[0].location)
+        # Testing after the food has been transported to hub and dropped. Is the location of the food dropped
+        # and the agent is same or not.
+        transported_food = self.environment.grid.get_objects_from_grid('Food', self.environment.agent.location)[0]
+        self.assertEqual (self.environment.agent.location, transported_food.location)
 
     def test_agent_reach_hub(self):
-        print (self.environment.agent.location, self.environment.agent.attached_objects[0].location)
+        # Testing is the agent has reached near to the hub. The agent won't exactly land on the hub
         self.assertEqual(self.environment.agent.location, (8, 8))        
+
+    def test_agent_drop(self):
+        # Testing if the food has been dropped or not. The agent attached_objects should be empty is this case
+        self.assertEqual([],self.environment.agent.attached_objects)
 
 """
 
@@ -383,7 +403,7 @@ class SwarmAgentMultipleCarry(Agent):
         pass
 
 class MultipleCarrySwarmEnvironmentModel(Model):
-    # A environemnt to model swarms
+    # A environment to model swarms
     def __init__(self, N, width, height, grid=10, seed=None):
         if seed is None:
             super(MultipleCarrySwarmEnvironmentModel, self).__init__(seed=None)
