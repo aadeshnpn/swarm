@@ -31,18 +31,23 @@ class SwarmAgentGoTo(Agent):
         self.moveable = True
         self.shared_content = dict()
         
+        self.shared_content['Sites'] = [model.target]
         # Vairables related to motion
         self.accleration = [0, 0]
         self.velocity = [0, 0]
 
         root = py_trees.composites.Sequence("Sequence")
         low = GoTo('1')
-        low.setup(0, self, model.target)
+        low.setup(0, self, 'Sites')
         high = Move('2')
         high.setup(0, self)
-        root.add_children([low, high])
+
+        higest = py_trees.meta.inverter(NeighbourObjects)('3')
+        higest.setup(0, self, 'Sites')
+        root.add_children([higest, low, high])
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
-        #py_trees.display.print_ascii_tree(root)
+        #py_trees.logging.level = py_trees.logging.Level.DEBUG                
+        py_trees.display.print_ascii_tree(root)
 
     def step(self):
         self.behaviour_tree.tick() 
@@ -63,6 +68,7 @@ class GoToSwarmEnvironmentModel(Model):
         self.schedule = SimultaneousActivation(self)
         
         self.target = Sites(id=1, location=(45, 45), radius=5, q_value=0.5)
+        self.grid.add_object_to_grid(self.target.location, self.target)
 
         for i in range(self.num_agents):
             a = SwarmAgentGoTo(i, self)
@@ -77,6 +83,19 @@ class GoToSwarmEnvironmentModel(Model):
 
     def step(self):
         self.schedule.step()
+
+
+class TestGoToSwarmSmallGrid(TestCase):
+    
+    def setUp(self):
+        self.environment = GoToSwarmEnvironmentModel(1, 100, 100, 10, 123)
+
+        for i in range(69):
+            print(self.environment.agent.location)
+            self.environment.step()
+
+    def test_agent_path(self):
+        self.assertEqual(self.environment.agent.location, (40, 40))
 
 
 # Class to test series of carry and drop behaviors
@@ -179,48 +198,10 @@ class SwarmAgentSingleCarryDrop(Agent):
 
         self.moveable = True
         self.shared_content = dict()        
+        
         #self.shared_content['Hub'] = model.hub
         #self.shared_content['Sites'] = model.site
-        """
-        lsequence = py_trees.composites.Sequence("LSequence")
-        rsequence = py_trees.composites.Sequence("RSequence")        
-        
-        repeathub = RepeatUntilFalse("RepeatTillHub")
-        repeatsite = RepeatUntilFalse("RepeatTillSite")
 
-        nearhub = NeighbourObjects('09')
-        nearhub.setup(0, self, 'Hub')
-
-        nearsite = NeighbourObjects('10')
-        nearsite.setup(0, self, 'Sites')
-
-        lowest = NeighbourObjects('0')
-        lowest.setup(0, self, 'Food')
-
-        low = IsCarryable('1')
-        low.setup(0, self, 'Food')
-        medium = IsSingleCarry('2')
-        medium.setup(0, self, 'Food')
-        high = SingleCarry('3')
-        high.setup(0, self, 'Food')
-
-        goto1 = GoTo('4')
-        goto1.setup(0, self, 'Hub')
-        move1 = Move('5')
-        move1.setup(0, self, None)
-
-        
-        self.shared_content['Hub'] = model.hub
-        self.shared_content['Sites'] = model.site
-        drop1 = Drop('6')
-        drop1.setup(0, self, 'Food')
-        goto2 = GoTo('7')
-        goto2.setup(0, self, 'Sites')
-
-        lsequence.add_children([lowest, low, medium, high])
-        rsequence.add_children([goto1, drop1, goto2])
-        root.add_children([lsequence, rsequence])
-        """
         root = py_trees.composites.Sequence("Sequence")
         mseq = py_trees.composites.Sequence('MSequence')
 
@@ -329,7 +310,7 @@ class TestSingleCarryDropSwarmSmallGrid(TestCase):
 
     def test_agent_reach_hub(self):
         print (self.environment.agent.location, self.environment.agent.attached_objects[0].location)
-        self.assertEqual(9,8)        
+        self.assertEqual(self.environment.agent.location, (8, 8))        
 
 """
 
@@ -434,17 +415,7 @@ class MultipleCarrySwarmEnvironmentModel(Model):
     def step(self):
         self.schedule.step() 
 
-class TestGoToSwarmSmallGrid(TestCase):
-    
-    def setUp(self):
-        self.environment = GoToSwarmEnvironmentModel(1, 100, 100, 10, 123)
 
-        for i in range(69):
-            print(self.environment.agent.location)
-            self.environment.step()
-
-    def test_agent_path(self):
-        self.assertEqual(self.environment.agent.location, (27, 27))
 
 
 class TestMultipleCarrySameLocationSwarmSmallGrid(TestCase):

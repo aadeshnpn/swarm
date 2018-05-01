@@ -68,6 +68,7 @@ class GoTo(Behaviour):
     def setup(self, timeout, agent, item):
         self.agent = agent
         self.item = item
+        self.blackboard.shared_content = dict()        
 
     def initialise(self):
         pass
