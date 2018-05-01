@@ -178,16 +178,16 @@ class SwarmAgentSingleCarryDrop(Agent):
         self.radius = 3
 
         self.moveable = True
-        self.shared_content = dict()
-        
-        root = py_trees.composites.Sequence("Sequence")
-
+        self.shared_content = dict()        
+        #self.shared_content['Hub'] = model.hub
+        #self.shared_content['Sites'] = model.site
+        """
         lsequence = py_trees.composites.Sequence("LSequence")
         rsequence = py_trees.composites.Sequence("RSequence")        
         
         repeathub = RepeatUntilFalse("RepeatTillHub")
         repeatsite = RepeatUntilFalse("RepeatTillSite")
-        
+
         nearhub = NeighbourObjects('09')
         nearhub.setup(0, self, 'Hub')
 
@@ -209,6 +209,7 @@ class SwarmAgentSingleCarryDrop(Agent):
         move1 = Move('5')
         move1.setup(0, self, None)
 
+        
         self.shared_content['Hub'] = model.hub
         self.shared_content['Sites'] = model.site
         drop1 = Drop('6')
@@ -219,6 +220,46 @@ class SwarmAgentSingleCarryDrop(Agent):
         lsequence.add_children([lowest, low, medium, high])
         rsequence.add_children([goto1, drop1, goto2])
         root.add_children([lsequence, rsequence])
+        """
+        root = py_trees.composites.Sequence("Sequence")
+        mseq = py_trees.composites.Sequence('MSequence')
+
+        carryseq = py_trees.composites.Sequence('CSequence')
+        
+        lowest = NeighbourObjects('0')
+        lowest.setup(0, self, 'Food')
+
+        low = IsCarryable('1')
+        low.setup(0, self, 'Food')
+
+        medium = IsSingleCarry('2')
+        medium.setup(0, self, 'Food')
+
+        high = SingleCarry('3')
+        high.setup(0, self, 'Food')        
+
+        carryseq.add_children([lowest, low, medium, high])
+
+        repeathub = RepeatUntilFalse("RepeatSeq")
+        
+        high1 = py_trees.meta.inverter(NeighbourObjects)('4')
+        #high1 = NeighbourObjects('4')
+        high1.setup(0, self, 'Hub')   
+
+        med1 = py_trees.meta.inverter(GoTo)('5')     
+        #med1 = GoTo('5')
+        med1.setup(0, self, 'Hub')
+
+        #low1 = py_trees.meta.inverter(Move)('6')
+        low1 = Move('6')
+        low1.setup(0, self, None)
+
+        repeathub.add_children([high1, med1, low1])
+
+        mseq.add_children([carryseq, repeathub])
+        #mseq.add_children([carryseq])
+        root.add_children([mseq])
+
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
 
         py_trees.logging.level = py_trees.logging.Level.DEBUG        
@@ -248,7 +289,7 @@ class SingleCarryDropSwarmEnvironmentModel(Model):
         # self.target = Sites(id=1, location=(45, 45), radius=5, q_value=0.5)
         # self.food = Food(id=1, location=(40, 40), radius=4)
         # self.grid.add_object_to_grid(self.food.location, self.food)
-        self.hub = Hub(id=2, location=(0, 0), radius=20)
+        self.hub = Hub(id=2, location=(0, 0), radius=5)
         self.grid.add_object_to_grid(self.hub.location, self.hub)
         self.site = Sites(id=3, location=(40, 40), radius=20)
         self.grid.add_object_to_grid(self.site.location, self.site)
@@ -281,10 +322,14 @@ class TestSingleCarryDropSwarmSmallGrid(TestCase):
         for i in range(1):
             self.environment.step()
 
-    def test_agent_path(self):
+    def test_agent_food(self):
         #self.assertEqual(
         #    self.environment.agent.attached_objects[0], self.environment.thing)
-        self.assertEqual(9,8)
+        self.assertEqual (self.environment.agent.location, self.environment.agent.attached_objects[0].location)
+
+    def test_agent_reach_hub(self):
+        print (self.environment.agent.location, self.environment.agent.attached_objects[0].location)
+        self.assertEqual(9,8)        
 
 """
 
