@@ -354,6 +354,7 @@ class SwarmAgentSingleCarryDropReturn(Agent):
         select = py_trees.composites.Selector('RSelector')
         carryseq = py_trees.composites.Sequence('CSequence')
         dropseq = py_trees.composites.Sequence('DSequence')
+        
         lowest = NeighbourObjects('0')
         lowest.setup(0, self, 'Food')
 
@@ -388,7 +389,7 @@ class SwarmAgentSingleCarryDropReturn(Agent):
         high2.setup(0, self, 'Sites')   
 
         #med2 = py_trees.meta.inverter(GoTo)('13')     
-        med2 = GoTo('5')
+        med2 = GoTo('13')
         med2.setup(0, self, 'Sites')
 
         #low1 = py_trees.meta.inverter(Move)('6')
@@ -411,11 +412,11 @@ class SwarmAgentSingleCarryDropReturn(Agent):
         repeathub.add_children([high1, med1, low1])
         repeatsite.add_children([high2, med2, low2])
 
-        #mseq.add_children([carryseq, repeathub])
+        mseq.add_children([carryseq, repeathub])
         nseq.add_children([dropseq, repeatsite])
 
-        #select.add_children([nseq, mseq])
-        select.add_children([nseq])
+        select.add_children([nseq, mseq])
+        #select.add_children([nseq])
         #mseq.add_children([carryseq, select])
         #mseq.add_children([carryseq])
         #root.add_children([select])
@@ -424,9 +425,9 @@ class SwarmAgentSingleCarryDropReturn(Agent):
 
         py_trees.logging.level = py_trees.logging.Level.DEBUG        
         py_trees.display.print_ascii_tree(select)
-        self.attached_objects = [model.food]
-        self.shared_content['Food'] = [model.food]
-        self.shared_content['Hub'] = [model.hub]
+        #self.attached_objects = [model.food]
+        #self.shared_content['Food'] = [model.food]
+        #self.shared_content['Hub'] = [model.hub]
         self.shared_content['Sites'] = [model.site]
 
     def step(self):
@@ -458,16 +459,16 @@ class SingleCarryDropReturnSwarmEnvironmentModel(Model):
         self.site = Sites(id=3, location=(40, 40), radius=5)
         self.grid.add_object_to_grid(self.site.location, self.site)
         
-        for i in range(self.num_agents*2):
-            f = Food(i, location=(0, 0), radius=2)
-            #self.grid.add_object_to_grid(f.location, f)
+        for i in range(self.num_agents):
+            f = Food(i, location=(40, 40), radius=2)
+            self.grid.add_object_to_grid(f.location, f)
             self.food = f
 
         for i in range(self.num_agents):
             a = SwarmAgentSingleCarryDropReturn(i, self)
             self.schedule.add(a)
-            x = 0
-            y = 0
+            x = 40
+            y = 40
             a.location = (x, y)
             a.direction = -2.3561944901923448
             self.grid.add_object_to_grid((x, y), a)
@@ -484,29 +485,36 @@ class TestSingleCarryDropReturnSwarmSmallGrid(TestCase):
     def setUp(self):
         self.environment = SingleCarryDropReturnSwarmEnvironmentModel(
             1, 100, 100, 10, 123)
+        
+        print ('00', self.environment.grid.get_objects_from_grid('Food', (40, 40)))
 
-        for i in range(2):
-            self.environment.step()
-            print (i, self.environment.agent.location)
-    """
     def test_agent_food(self):
         # Testing after the food has been transported to hub and dropped. Is the location of the food dropped
-        # and the agent is same or not.
-        transported_food = self.environment.grid.get_objects_from_grid('Food', self.environment.agent.location)[0]
-        self.assertEqual (self.environment.agent.location, transported_food.location)
+        # and the hub same
+        for i in range(2):
+            self.environment.step()
+
+        transported_food = self.environment.grid.get_objects_from_grid('Food', self.environment.hub.location)[0]
+        self.assertEqual (self.environment.food, transported_food)
 
     def test_agent_reach_hub(self):
         # Testing is the agent has reached near to the hub. The agent won't exactly land on the hub
+        for i in range(1):
+            self.environment.step()        
         self.assertEqual(self.environment.agent.location, (8, 8))        
 
     def test_agent_drop(self):
         # Testing if the food has been dropped or not. The agent attached_objects should be empty is this case
+        for i in range(2):
+            self.environment.step()                
         self.assertEqual([],self.environment.agent.attached_objects)  
-    """
-    def test_test1(self):
-        self.assertEqual(9,8)
 
-
+    def test_agent_reach_site(self):
+        # Testing if the agent has reached site after dropping food in hub
+        for i in range(2):
+            self.environment.step()                
+        self.assertEqual(self.environment.agent.location,self.environment.site.location)
+        
 """
 
 class SwarmAgentMultipleCarry(Agent):
