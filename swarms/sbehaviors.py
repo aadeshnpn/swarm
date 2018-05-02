@@ -44,7 +44,7 @@ class NeighbourObjects(Behaviour):
             self.agent.location, self.agent.radius)
         objects = self.agent.model.grid.get_objects_from_list_of_grid(
             self.object_name, grids)
-
+        
         if len(objects) >= 1:
             for item in objects:
                 try:
