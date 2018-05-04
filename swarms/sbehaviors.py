@@ -252,7 +252,7 @@ class IsDropable(Behaviour):
     def __init__(self, name):
         super(IsDropable, self).__init__(name)
         self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()                
+        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, thing):
         self.agent = agent
@@ -277,6 +277,7 @@ class IsSingleCarry(Behaviour):
     def __init__(self, name):
         super(IsSingleCarry, self).__init__(name)
         self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, thing):
         self.agent = agent
@@ -288,7 +289,7 @@ class IsSingleCarry(Behaviour):
     def update(self):
         # Logic to carry
         try:
-            #objects = self.blackboard.shared_content[self.thing].pop() 
+            # objects = self.blackboard.shared_content[self.thing].pop() 
             objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.thing)[0]                       
             if objects.weight:
                 if self.agent.get_capacity() > objects.calc_relative_weight():
@@ -304,6 +305,7 @@ class IsMultipleCarry(Behaviour):
     def __init__(self, name):
         super(IsMultipleCarry, self).__init__(name)
         self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, thing):
         self.agent = agent
@@ -315,7 +317,7 @@ class IsMultipleCarry(Behaviour):
     def update(self):
         try:
             # Logic to carry
-            #objects = self.blackboard.shared_content[self.thing].pop()       
+            # objects = self.blackboard.shared_content[self.thing].pop()       
             objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.thing)[0]                 
             if objects.weight:
                 if self.agent.get_capacity() < objects.weight:
@@ -342,8 +344,8 @@ class IsCarrying(Behaviour):
     def update(self):
         try:
             objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.thing)[0]            
-            #self.agent.model.grid.add_object_to_grid(objects.location, objects)
-            #self.agent.attached_objects.remove(objects)
+            # self.agent.model.grid.add_object_to_grid(objects.location, objects)
+            # self.agent.attached_objects.remove(objects)
             if objects in self.agent.attached_objects:
                 return Status.SUCCESS
             else:
@@ -380,6 +382,7 @@ class SingleCarry(Behaviour):
     def __init__(self, name):
         super(SingleCarry, self).__init__(name)
         self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, thing):
         self.agent = agent
@@ -390,7 +393,7 @@ class SingleCarry(Behaviour):
 
     def update(self):
         try:
-            #objects = self.blackboard.shared_content[self.thing].pop()
+            # objects = self.blackboard.shared_content[self.thing].pop()
             objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.thing)[0]            
             self.agent.attached_objects.append(objects)
             self.agent.model.grid.remove_object_from_grid(
@@ -404,6 +407,7 @@ class InitiateMultipleCarry(Behaviour):
     def __init__(self, name):
         super(InitiateMultipleCarry, self).__init__(name)
         self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, thing):
         self.agent = agent
@@ -414,7 +418,7 @@ class InitiateMultipleCarry(Behaviour):
 
     def update(self):
         try:
-            #objects = self.blackboard.shared_content[self.thing].pop()
+            # objects = self.blackboard.shared_content[self.thing].pop()
             objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.item)[0]                        
             relative_weight = objects.calc_relative_weight()
             print('initial mc', self.agent.name, relative_weight, self.agent.get_capacity())

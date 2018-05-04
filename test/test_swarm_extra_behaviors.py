@@ -416,18 +416,10 @@ class SwarmAgentSingleCarryDropReturn(Agent):
         nseq.add_children([dropseq, repeatsite])
 
         select.add_children([nseq, mseq])
-        #select.add_children([nseq])
-        #mseq.add_children([carryseq, select])
-        #mseq.add_children([carryseq])
-        #root.add_children([select])
-
         self.behaviour_tree = py_trees.trees.BehaviourTree(select)
 
         py_trees.logging.level = py_trees.logging.Level.DEBUG        
         py_trees.display.print_ascii_tree(select)
-        #self.attached_objects = [model.food]
-        #self.shared_content['Food'] = [model.food]
-        #self.shared_content['Hub'] = [model.hub]
         self.shared_content['Sites'] = [model.site]
 
     def step(self):
@@ -451,9 +443,6 @@ class SingleCarryDropReturnSwarmEnvironmentModel(Model):
 
         self.schedule = SimultaneousActivation(self)
         
-        # self.target = Sites(id=1, location=(45, 45), radius=5, q_value=0.5)
-        # self.food = Food(id=1, location=(40, 40), radius=4)
-        # self.grid.add_object_to_grid(self.food.location, self.food)
         self.hub = Hub(id=2, location=(0, 0), radius=5)
         self.grid.add_object_to_grid(self.hub.location, self.hub)
         self.site = Sites(id=3, location=(40, 40), radius=5)
@@ -479,14 +468,11 @@ class SingleCarryDropReturnSwarmEnvironmentModel(Model):
         self.schedule.step()
 
 
-
 class TestSingleCarryDropReturnSwarmSmallGrid(TestCase):
-    
+
     def setUp(self):
         self.environment = SingleCarryDropReturnSwarmEnvironmentModel(
             1, 100, 100, 10, 123)
-        
-        print ('00', self.environment.grid.get_objects_from_grid('Food', (40, 40)))
 
     def test_agent_food(self):
         # Testing after the food has been transported to hub and dropped. Is the location of the food dropped
@@ -495,27 +481,26 @@ class TestSingleCarryDropReturnSwarmSmallGrid(TestCase):
             self.environment.step()
 
         transported_food = self.environment.grid.get_objects_from_grid('Food', self.environment.hub.location)[0]
-        self.assertEqual (self.environment.food, transported_food)
+        self.assertEqual(self.environment.food, transported_food)
 
     def test_agent_reach_hub(self):
         # Testing is the agent has reached near to the hub. The agent won't exactly land on the hub
         for i in range(1):
-            self.environment.step()        
+            self.environment.step()
         self.assertEqual(self.environment.agent.location, (8, 8))        
 
     def test_agent_drop(self):
         # Testing if the food has been dropped or not. The agent attached_objects should be empty is this case
         for i in range(2):
-            self.environment.step()                
-        self.assertEqual([],self.environment.agent.attached_objects)  
+            self.environment.step()
+        self.assertEqual([], self.environment.agent.attached_objects)  
 
     def test_agent_reach_site(self):
         # Testing if the agent has reached site after dropping food in hub
         for i in range(2):
-            self.environment.step()                
-        self.assertEqual(self.environment.agent.location,self.environment.site.location)
-        
-"""
+            self.environment.step()
+        self.assertEqual(self.environment.agent.location, self.environment.site.location)
+
 
 class SwarmAgentMultipleCarry(Agent):
     # An minimalistic behavior tree for swarm agent
@@ -585,6 +570,7 @@ class SwarmAgentMultipleCarry(Agent):
     def advance(self):
         pass
 
+
 class MultipleCarrySwarmEnvironmentModel(Model):
     # A environment to model swarms
     def __init__(self, N, width, height, grid=10, seed=None):
@@ -619,8 +605,6 @@ class MultipleCarrySwarmEnvironmentModel(Model):
         self.schedule.step() 
 
 
-
-
 class TestMultipleCarrySameLocationSwarmSmallGrid(TestCase):
     
     def setUp(self):
@@ -634,7 +618,7 @@ class TestMultipleCarrySameLocationSwarmSmallGrid(TestCase):
     def test_agent_path(self):
         self.assertEqual(2, 3)
 
-
+"""
 class TestCoolMultipleCarryFunction(TestCase):
 
     def setUp(self):
