@@ -166,42 +166,49 @@ class Move(Behaviour):
         pass
 
     def update_partial_attached_objects(self):
-        pass
-        """
-        for item in self.agent.partial_attached_objects:
-            accleration = self.agent.force / item.weight
-            print(self.agent.force, item.weight)
-            velocity = accleration * self.dt
-            direction = self.agent.direction
-            x = int(item.location[0] + np.cos(direction) * velocity)
-            y = int(item.location[1] + np.sin(direction) * velocity)
-            object_agent = list(item.agents.keys())[0]
-            new_location, direction = object_agent.model.grid.check_limits(
-                (x, y), direction)
-            print('update', item.location, new_location)
-            object_agent.model.grid.move_object(
-                item.location, item, new_location)
-            item.location = new_location
-        """
+        try:
+            for item in self.agent.partial_attached_objects:
+                accleration = self.agent.force / item.weight
+                velocity = accleration * self.dt
+                direction = self.agent.direction
+                x = item.location[0] + np.cos(direction) * velocity
+                y = item.location[1] + np.sin(direction) * velocity
+                object_agent = list(item.agents.keys())[0]
+                new_location, direction = object_agent.model.grid.check_limits(
+                    (x, y), direction)
+                object_agent.model.grid.move_object(
+                    item.location, item, new_location)
+                item.location = new_location
+                return True
+        except:
+            return False
 
     def update(self):
-        self.agent.accleration = self.agent.force / self.agent.get_weight()
-        self.agent.velocity = self.agent.accleration * 1
+        # Partially carried object
+        if not self.update_partial_attached_objects():
+            self.agent.accleration = self.agent.force / self.agent.get_weight()
+            self.agent.velocity = self.agent.accleration * 1
 
-        x = int(self.agent.location[0] + np.cos(
-            self.agent.direction) * self.agent.velocity)
-        y = int(self.agent.location[1] + np.sin(
-            self.agent.direction) * self.agent.velocity)
-        new_location, direction = self.agent.model.grid.check_limits(
-            (x, y), self.agent.direction)
-        self.agent.model.grid.move_object(
-            self.agent.location, self.agent, new_location)
-        self.agent.location = new_location
-        self.agent.direction = direction
+            x = int(self.agent.location[0] + np.cos(
+                self.agent.direction) * self.agent.velocity)
+            y = int(self.agent.location[1] + np.sin(
+                self.agent.direction) * self.agent.velocity)
+            new_location, direction = self.agent.model.grid.check_limits(
+                (x, y), self.agent.direction)
+            self.agent.model.grid.move_object(
+                self.agent.location, self.agent, new_location)
+            self.agent.location = new_location
+            self.agent.direction = direction
 
-        # Full carried object moves along the agent
-        for item in self.agent.attached_objects:
-            item.location = self.agent.location
+            # Full carried object moves along the agent
+            for item in self.agent.attached_objects:
+                item.location = self.agent.location
+        
+        else:
+            self.agent.model.grid.move_object(
+                self.agent.location, self.agent, self.agent.partial_attached_objects[0].location)
+            self.agent.location = self.agent.partial_attached_objects[0].location
+            # self.agent.direction = self.agent.partial_attached_objects[0].direction
 
         return Status.SUCCESS
 
@@ -237,7 +244,7 @@ class IsCarryable(Behaviour):
 
     def update(self):
         try:
-            #objects = self.blackboard.shared_content[self.thing].pop()
+            # objects = self.blackboard.shared_content[self.thing].pop()
             objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.thing)[0]
             if objects.carryable:
                 return Status.SUCCESS
@@ -409,9 +416,9 @@ class InitiateMultipleCarry(Behaviour):
         self.blackboard = Blackboard()
         self.blackboard.shared_content = dict()
 
-    def setup(self, timeout, agent, thing):
+    def setup(self, timeout, agent, item):
         self.agent = agent
-        self.thing = thing
+        self.item = item
 
     def initialise(self):
         pass
@@ -419,9 +426,8 @@ class InitiateMultipleCarry(Behaviour):
     def update(self):
         try:
             # objects = self.blackboard.shared_content[self.thing].pop()
-            objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.item)[0]                        
+            objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.item)[0]
             relative_weight = objects.calc_relative_weight()
-            print('initial mc', self.agent.name, relative_weight, self.agent.get_capacity())
             if relative_weight > 0:
                 if relative_weight - self.agent.get_capacity() >= 0:
                     capacity_used = self.agent.get_capacity()
@@ -444,7 +450,7 @@ class InitiateMultipleCarry(Behaviour):
                 self.agent.partial_attached_objects.append(objects)
 
                 objects.agents[self.agent] = average_weight
-                print('avg weig', self.agent.name, average_weight)
+                # print('avg weig', self.agent.name, average_weight)
                 return Status.SUCCESS
         except (KeyError, AttributeError, IndexError):
             return Status.FAILURE
@@ -454,16 +460,17 @@ class IsInPartialAttached(Behaviour):
     def __init__(self, name):
         super(IsInPartialAttached, self).__init__(name)
         self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
 
-    def setup(self, timeout, agent, thing):
+    def setup(self, timeout, agent, item):
         self.agent = agent
-        self.thing = thing
+        self.item = item
 
     def initialise(self):
         pass
 
     def update(self):
-        #objects = self.blackboard.shared_content[self.thing].pop()
+        # objects = self.blackboard.shared_content[self.thing].pop()
         objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.item)[0]                    
         # print (self.agent, objects,
         #  self.agent.partial_attached_objects, objects.agents)
@@ -481,18 +488,19 @@ class IsEnoughStrengthToCarry(Behaviour):
     def __init__(self, name):
         super(IsEnoughStrengthToCarry, self).__init__(name)
         self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
 
-    def setup(self, timeout, agent, thing):
+    def setup(self, timeout, agent, item):
         self.agent = agent
-        self.thing = thing
+        self.item = item
 
     def initialise(self):
         pass
 
     def update(self):
-        #objects = self.blackboard.shared_content[self.thing].pop()
+        # objects = self.blackboard.shared_content[self.thing].pop()
         objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.item)[0]
-        #print(self.agent.get_capacity(), objects.calc_relative_weight())
+        # print(self.agent.get_capacity(), objects.calc_relative_weight())
         try: 
             if self.agent.get_capacity() >= objects.calc_relative_weight():
                 # self.agent.model.grid.remove_object_from_grid(
@@ -531,10 +539,11 @@ class MultipleCarry(Behaviour):
     def __init__(self, name):
         super(MultipleCarry, self).__init__(name)
         self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
 
-    def setup(self, timeout, agent, thing):
+    def setup(self, timeout, agent, item):
         self.agent = agent
-        self.thing = thing
+        self.item = item
 
     def initialise(self):
         pass

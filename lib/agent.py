@@ -34,8 +34,8 @@ class Agent:
             except AttributeError:
                 pass
         try:
-            relative_weight += self.partial_attached_objects.weight
-        except AttributeError:
+            relative_weight += self.partial_attached_objects[0].weight
+        except (AttributeError, IndexError):
             pass              
 
         return relative_weight
