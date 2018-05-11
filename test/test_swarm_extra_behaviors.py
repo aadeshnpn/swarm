@@ -8,7 +8,7 @@ from swarms.sbehaviors import (
     IsCarryable, IsSingleCarry, SingleCarry,
     NeighbourObjects, IsMultipleCarry, IsInPartialAttached,
     InitiateMultipleCarry, IsEnoughStrengthToCarry,
-    Move, GoTo, Drop, IsDropable, IsCarrying
+    Move, GoTo, Drop, IsDropable, IsCarrying, Towards, DropPartial
     )
 from swarms.objects import Derbis, Sites, Hub, Food
 import py_trees
@@ -641,6 +641,166 @@ class TestMultipleCarrySameLocationSwarmSmallGrid(TestCase):
         agent_loc = self.tuple_round(self.environment.agent[0].location)
         self.assertEqual(item_loc, agent_loc)
 
+
+class SwarmAgentMultipleCarryDrop(Agent):
+    # An minimalistic behavior tree for swarm agent
+    # implementing multiple carry behavior and drop
+    # in the hub
+    def __init__(self, name, model):
+        super().__init__(name, model)
+        self.location = ()
+
+        self.direction = model.random.rand() * (2 * np.pi)
+        self.speed = 2
+        self.radius = 3
+        self.moveable = True
+        self.shared_content = dict()
+
+        # Variables realted to carry
+        self.used_capacity = 0
+
+        # Vairables related to motion
+        self.accleration = [0, 0]
+        self.velocity = [0, 0]
+
+        carryroot = py_trees.composites.Sequence("Sequence")
+        lowest = NeighbourObjects('0')
+        lowest.setup(0, self, 'Derbis')
+
+        low = IsCarryable('1')
+        low.setup(0, self, 'Derbis')
+
+        medium = IsMultipleCarry('2')
+        medium.setup(0, self, 'Derbis')
+
+        r1Sequence = py_trees.composites.Sequence("R1Sequence")        
+        r2Sequence = py_trees.composites.Sequence("R2Sequence")                
+        r1Selector = py_trees.composites.Selector("R1Selector")
+
+        high1 = IsInPartialAttached('3')
+        high1.setup(0, self, 'Derbis')
+
+        high2 = InitiateMultipleCarry('4')
+        high2.setup(0, self, 'Derbis')        
+
+        high3 = IsEnoughStrengthToCarry('5')
+        high3.setup(0, self, 'Derbis')        
+
+        high4 = GoTo('6')
+        high4.setup(0, self, thing='Hub')
+
+        high5 = Move('7')
+        high5.setup(0, self)
+
+        #r2Sequence.add_children([high3, high4, high5])
+
+        r1Selector.add_children([high1, high2])
+
+        # r1Sequence.add_children([medium, r1Selector, r2Sequence])
+        r1Sequence.add_children([medium, r1Selector])
+        carryroot.add_children([lowest, low, r1Sequence])
+
+        ## Adding new sub-tree for drop logic for multiple carry
+        droproot = py_trees.composites.Selector("DropSelector")
+        moveSequence = py_trees.composites.Sequence("MoveSequence")
+        dropSequence = py_trees.composites.Sequence("DropSequence")
+
+        nearHub = py_trees.meta.inverter(NeighbourObjects)('8')
+        nearHub.setup(0, self, 'Hub')
+
+        moveSequence.add_children([nearHub, high3, high4, high5])
+
+        high6 = NeighbourObjects('9')
+        high6.setup(0, self, 'Hub')
+
+        high7 = IsDropable('10')
+        high7.setup(0, self, 'Hub')
+
+        high8 = IsInPartialAttached('11')
+        high8.setup(0, self, thing='Derbis')
+
+        high9 = DropPartial('12')
+        high9.setup(0, self, thing='Derbis')
+
+        dropSequence.add_children([high6, high7, high8, high9])
+        droproot.add_children([moveSequence, dropSequence])
+
+        root = py_trees.composites.Sequence("Root")
+        root.add_children([carryroot, droproot])
+        
+        self.behaviour_tree = py_trees.trees.BehaviourTree(root)
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # py_trees.display.print_ascii_tree(root)
+
+    def unused_capacity(self):
+        return self.capacity - self.used_capacity
+
+    def step(self):
+        self.behaviour_tree.tick()
+
+    def advance(self):
+        pass
+
+
+class MultipleCarrySwarmDropEnvironmentModel(Model):
+    # A environment to model swarms
+    def __init__(self, N, width, height, grid=10, seed=None):
+        if seed is None:
+            super(MultipleCarrySwarmDropEnvironmentModel, self).__init__(seed=None)
+        else:
+            super(MultipleCarrySwarmDropEnvironmentModel, self).__init__(seed)
+
+        self.num_agents = N
+
+        self.grid = Grid(width, height, grid)
+
+        self.schedule = SimultaneousActivation(self)
+
+        self.thing = Derbis(id=1, location=(0, 0), radius=40)
+        self.grid.add_object_to_grid(self.thing.location, self.thing)
+
+        self.agent = []
+        for i in range(self.num_agents):
+            a = SwarmAgentMultipleCarryDrop(i, self)
+            self.schedule.add(a)
+            x = 1
+            y = 1
+            a.location = (x, y)
+            a.direction = -2.3561944901923448
+            self.grid.add_object_to_grid((x, y), a)
+
+            self.agent.append(a)
+
+    def step(self):
+        self.schedule.step()
+
+
+class TestMultipleCarryDropSameLocationSwarmSmallGrid(TestCase):
+
+    def setUp(self):
+        self.environment = MultipleCarrySwarmDropEnvironmentModel(
+            2, 100, 100, 10, 123)
+
+        for i in range(60):
+            self.environment.step()
+
+    def tuple_round(self, loc):
+        loc1 = (np.round(loc[0]), np.round(loc[1]))
+        return loc1
+
+    def test_agent_loc(self):
+        # Check if the two agents end up at same location while carrying
+        # Heavy object
+        agent1_loc = self.tuple_round(self.environment.agent[0].location)
+        agent2_loc = self.tuple_round(self.environment.agent[1].location)
+        self.assertEqual(agent1_loc, agent2_loc)
+
+    def test_agent_object_loc(self):
+        # Check if the location of heavy object and one of the agent is 
+        # almost same after moving
+        item_loc = self.tuple_round(self.environment.thing.location)
+        agent_loc = self.tuple_round(self.environment.agent[0].location)
+        self.assertEqual(item_loc, agent_loc)
 
 """
 class TestCoolMultipleCarryFunction(TestCase):
