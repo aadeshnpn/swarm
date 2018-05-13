@@ -44,7 +44,7 @@ class NeighbourObjects(Behaviour):
             self.agent.location, self.agent.radius)
         objects = self.agent.model.grid.get_objects_from_list_of_grid(
             self.object_name, grids)
-        
+
         if len(objects) >= 1:
             for item in objects:
                 try:
@@ -171,16 +171,18 @@ class Move(Behaviour):
                 accleration = self.agent.force / item.weight
                 velocity = accleration * self.dt
                 direction = self.agent.direction
-                x = item.location[0] + np.cos(direction) * velocity
-                y = item.location[1] + np.sin(direction) * velocity
+                #print ('partiall attached, LAVD', item.location, accleration, velocity, direction)                
+                x = int(np.ceil(item.location[0] + np.cos(direction) * velocity))
+                y = int(np.ceil(item.location[1] + np.sin(direction) * velocity))
                 object_agent = list(item.agents.keys())[0]
                 new_location, direction = object_agent.model.grid.check_limits(
                     (x, y), direction)
+                #print ('partiall attached, newlocation', new_location, direction)                    
                 object_agent.model.grid.move_object(
                     item.location, item, new_location)
                 item.location = new_location
                 return True
-        except:
+        except IndexError:
             return False
 
     def update(self):
@@ -207,6 +209,7 @@ class Move(Behaviour):
         else:
             self.agent.model.grid.move_object(
                 self.agent.location, self.agent, self.agent.partial_attached_objects[0].location)
+            #print ('updating agent location', self.agent.partial_attached_objects[0].location)
             self.agent.location = self.agent.partial_attached_objects[0].location
             # self.agent.direction = self.agent.partial_attached_objects[0].direction
 
@@ -359,32 +362,6 @@ class IsCarrying(Behaviour):
                 return Status.FAILURE
         except (AttributeError, IndexError):
             return Status.FAILURE
-
-
-class IsCarrying(Behaviour):
-    def __init__(self, name):
-        super(IsCarrying, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
-
-    def setup(self, timeout, agent, thing):
-        self.agent = agent
-        self.thing = thing
-
-    def initialise(self):
-        pass
-
-    def update(self):
-        try:
-            objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.thing)[0]            
-            # self.agent.model.grid.add_object_to_grid(objects.location, objects)
-            # self.agent.attached_objects.remove(objects)
-            if objects in self.agent.attached_objects:
-                return Status.SUCCESS
-            else:
-                return Status.FAILURE
-        except (AttributeError, IndexError):
-            return Status.FAILURE            
 
 
 # Behavior defined to drop the items currently carrying
