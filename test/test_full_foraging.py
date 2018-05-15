@@ -76,9 +76,9 @@ class GEBTAgent(Agent):
         self.bt.construct()
 
     def step(self):
-        py_trees.logging.level = py_trees.logging.Level.DEBUG
-        # output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
-        # print ('bt tree', output, self.individual[0].phenotype)
+        #py_trees.logging.level = py_trees.logging.Level.DEBUG
+        output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
+        print ('bt tree', output, self.individual[0].phenotype, self.individual[0].fitness)
         # Get the value of food from hub before ticking the behavior
         food_in_hub_before = self.get_food_in_hub()
         self.bt.behaviour_tree.tick()
