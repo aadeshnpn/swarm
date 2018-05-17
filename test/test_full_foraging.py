@@ -16,7 +16,7 @@ from swarms.sbehaviors import (
     InitiateMultipleCarry, IsEnoughStrengthToCarry,
     Move, GoTo, IsMotionTrue, RandomWalk, IsMoveable,
     MultipleCarry, Away, Towards, IsMultipleCarry,
-    DoNotMove
+    DoNotMove, Drop, IsDropable
     )
 
 from ponyge.operators.initialisation import initialisation
@@ -77,8 +77,8 @@ class GEBTAgent(Agent):
 
     def step(self):
         #py_trees.logging.level = py_trees.logging.Level.DEBUG
-        output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
-        print ('bt tree', output, self.individual[0].phenotype, self.individual[0].fitness)
+        #output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
+        #print ('bt tree', output, self.individual[0].phenotype, self.individual[0].fitness)
         # Get the value of food from hub before ticking the behavior
         food_in_hub_before = self.get_food_in_hub()
         self.bt.behaviour_tree.tick()
@@ -90,10 +90,11 @@ class GEBTAgent(Agent):
         cellmates = self.model.grid.get_objects_from_grid(
             'GEBTAgent', self.location)
         # print (cellmates)
-        if len(self.genome_storage) >= self.operation_threshold:
+        if (len(self.genome_storage) >= self.operation_threshold) and (self.food_collected > 0):
             self.exchange_chromosome(cellmates)
             self.bt.xmlstring = self.individual[0].phenotype
             self.bt.construct()
+            self.food_collected = 0
 
         if len(cellmates) > 1:
             self.store_genome(cellmates)
@@ -157,13 +158,15 @@ class GEEnvironmentModel(Model):
 
         self.schedule = SimultaneousActivation(self)
 
-        # self.site = Sites(id=1, location=(0, 0), radius=11, q_value=0.5)
+        self.site = Sites(id=1, location=(40, 40), radius=11, q_value=0.5)
 
-        # self.grid.add_object_to_grid(self.site.location, self.site)
+        self.grid.add_object_to_grid(self.site.location, self.site)
 
         self.hub = Hub(id=1, location=(0, 0), radius=11)
 
         self.grid.add_object_to_grid(self.hub.location, self.hub)
+        
+        self.agents = []
 
         # Create agents
         for i in range(self.num_agents):
@@ -180,6 +183,7 @@ class GEEnvironmentModel(Model):
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)
             a.operation_threshold = 2  # self.num_agents // 10
+            self.agents.append(a)
 
         # Add equal number of food source
         for i in range(self.num_agents):
@@ -193,10 +197,11 @@ class GEEnvironmentModel(Model):
 class TestGEBTSmallGrid(TestCase):
 
     def setUp(self):
-        self.environment = GEEnvironmentModel(10, 100, 100, 10, 123)
+        self.environment = GEEnvironmentModel(100, 100, 100, 10, 123)
 
-        for i in range(2):
+        for i in range(20):
             self.environment.step()
+            print (i, [(a.location, a.individual[0].fitness) for a in self.environment.agents[:10]])
             # Compute beta
             #self.environment.agent.beta = self.environment.agent.food_collected / self.environment.num_agents
 
@@ -210,4 +215,5 @@ class TestGEBTSmallGrid(TestCase):
     #    self.assertEqual('<?xml version="1.0" encoding="UTF-8"?><Sequence><Sequence><Sequence><cond>IsMoveable</cond><cond>IsMupltipleCarry</cond><act>RandomWalk</act></Sequence> <Sequence><cond>IsMotionTrue</cond><cond>IsMoveable</cond><cond>IsMotionTrue</cond><act>SingleCarry</act></Sequence></Sequence> <Selector><cond>IsMotionTrue</cond><cond>IsCarryable</cond><cond>IsMupltipleCarry</cond><act>GoTo</act></Selector></Sequence>', self.target_phenotype)
 
     def test_one_traget(self):
-        self.assertEqual(14.285714285714285, self.environment.schedule.agents[0].individual[0].fitness)
+        #self.assertEqual(14.285714285714285, self.environment.schedule.agents[0].individual[0].fitness)
+        self.assertEqual(8, 9)

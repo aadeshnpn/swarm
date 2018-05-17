@@ -12,7 +12,7 @@ from swarms.sbehaviors import (
     InitiateMultipleCarry, IsEnoughStrengthToCarry,
     Move, GoTo, IsMotionTrue, RandomWalk, IsMoveable,
     MultipleCarry, Away, Towards,
-    DoNotMove
+    DoNotMove, IsDropable, Drop, IsCarrying
     )
 
 

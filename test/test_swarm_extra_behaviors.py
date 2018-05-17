@@ -1,4 +1,3 @@
-
 from unittest import TestCase
 from lib.agent import Agent
 from lib.model import Model
@@ -18,7 +17,7 @@ import numpy as np
 
 # Class to test accleration and velocity models
 class SwarmAgentGoTo(Agent):
-    """ An minimalistic behavior tree for swarm agent implementing goto 
+    """ An minimalistic behavior tree for swarm agent implementing goto
     behavior using accleration and velocity
     """
     def __init__(self, name, model):
