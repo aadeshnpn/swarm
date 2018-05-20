@@ -75,30 +75,45 @@ class GEBTAgent(Agent):
         self.bt.xmlstring = self.individual[0].phenotype
         self.bt.construct()
 
+        # Location history
+        self.location_history = set()
+        self.timestamp = 0
+
     def step(self):
         #py_trees.logging.level = py_trees.logging.Level.DEBUG
         #output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
         #print ('bt tree', output, self.individual[0].phenotype, self.individual[0].fitness)
         # Get the value of food from hub before ticking the behavior
-        food_in_hub_before = self.get_food_in_hub()
+        self.timestamp += 1
+        self.location_history.add(self.location)
+        #food_in_hub_before = self.get_food_in_hub()
         self.bt.behaviour_tree.tick()
-        food_in_hub_after = self.get_food_in_hub()
-        self.food_collected = food_in_hub_before - food_in_hub_after
+        #food_in_hub_after = self.get_food_in_hub()
+        #self.food_collected = food_in_hub_before - food_in_hub_after
+        self.food_collected = self.get_food_in_hub()
         # Computes additional value for fitness. In this case foodcollected
         self.overall_fitness()
 
         cellmates = self.model.grid.get_objects_from_grid(
             'GEBTAgent', self.location)
         # print (cellmates)
-        if (len(self.genome_storage) >= self.operation_threshold) and (self.food_collected > 0):
-            self.exchange_chromosome(cellmates)
-            self.bt.xmlstring = self.individual[0].phenotype
-            self.bt.construct()
-            self.food_collected = 0
+        if (len(self.genome_storage) >= self.model.num_agents/25) and (self.exploration_fitness() > 10):
+            #print ('genetic', self.name)
+            self.genetic_step()
+
+        elif self.timestamp > 20 and self.exploration_fitness() < 2:
+            # This is the case of the agent not moving and staying dormant. Need to use genetic 
+            # operation to change its genome
+            individual = initialisation(self.parameter, 100)
+            #print (len(set([ind.phenotype for ind in individual])))
+            #print ()
+            individual = evaluate_fitness(individual, self.parameter)
+            self.genome_storage = individual
+            self.genetic_step()
 
         if len(cellmates) > 1:
             self.store_genome(cellmates)
-            self.beta = self.food_collected / 10
+            self.beta = self.food_collected / 1000
 
     def advance(self):
         pass
@@ -114,17 +129,18 @@ class GEBTAgent(Agent):
         self.direction = direction
 
     def get_food_in_hub(self):
-        grids = self.model.grid.get_neighborhood(
-            self.model.hub.location, self.model.hub.radius)
-        no_food_in_hub = self.model.grid.get_objects_from_list_of_grid(
-            'Food', grids)
-        return len(no_food_in_hub)
+        #grids = self.model.grid.get_neighborhood(
+        #    self.model.hub.location, self.model.hub.radius)
+        #no_food_in_hub = self.model.grid.get_objects_from_list_of_grid(
+        #    'Food', grids)
+        return len(self.attached_objects)*1000
+        #return len(no_food_in_hub)
 
     def store_genome(self, cellmates):
         # cellmates.remove(self)
         self.genome_storage += [agent.individual[0] for agent in cellmates]
 
-    def exchange_chromosome(self, cellmates):
+    def exchange_chromosome(self,):
         # print('from exchange', self.name)
         individuals = self.genome_storage
         parents = selection(self.parameter, individuals)
@@ -134,14 +150,27 @@ class GEBTAgent(Agent):
         individuals = replacement(self.parameter, new_pop, individuals)
         individuals.sort(reverse=False)
         self.individual = [individuals[0]]
+        self.individual[0].fitness = 0
         self.genome_storage = []
+
+    def genetic_step(self):
+        self.exchange_chromosome()        
+        self.bt.xmlstring = self.individual[0].phenotype
+        self.bt.construct()
+        self.food_collected = 0
+        self.location_history = set()
+        self.timestamp = 0
 
     def overall_fitness(self):
         # Use a decyaing function to generate fitness
 
         self.individual[0].fitness = (
-            (1 - self.beta) * self.individual[0].fitness) + (
+            (1 - self.beta) * self.exploration_fitness()) + (
                 self.beta * self.food_collected)
+
+    def exploration_fitness(self):
+        # Use exploration space as fitness values
+        return len(self.location_history)
 
 
 class GEEnvironmentModel(Model):
@@ -158,7 +187,7 @@ class GEEnvironmentModel(Model):
 
         self.schedule = SimultaneousActivation(self)
 
-        self.site = Sites(id=1, location=(40, 40), radius=11, q_value=0.5)
+        self.site = Sites(id=1, location=(5, 5), radius=11, q_value=0.5)
 
         self.grid.add_object_to_grid(self.site.location, self.site)
 
@@ -187,7 +216,7 @@ class GEEnvironmentModel(Model):
 
         # Add equal number of food source
         for i in range(self.num_agents):
-            f = Food(i, location=(40, 40), radius=2)
+            f = Food(i, location=(12, 12), radius=3)
             self.grid.add_object_to_grid(f.location, f)
 
     def step(self):
@@ -197,11 +226,13 @@ class GEEnvironmentModel(Model):
 class TestGEBTSmallGrid(TestCase):
 
     def setUp(self):
-        self.environment = GEEnvironmentModel(100, 100, 100, 10, 123)
+        self.environment = GEEnvironmentModel(1000, 100, 100, 10, None)
 
-        for i in range(20):
+        for i in range(500):
             self.environment.step()
-            print (i, [(a.location, a.individual[0].fitness) for a in self.environment.agents[:10]])
+            #print (i, [(a.name, a.location, a.individual[0].fitness) for a in self.environment.agents[:10]])
+            agent = self.find_higest_performer()
+            print (i, agent.name, agent.individual[0].fitness, agent.food_collected)
             # Compute beta
             #self.environment.agent.beta = self.environment.agent.food_collected / self.environment.num_agents
 
@@ -213,6 +244,13 @@ class TestGEBTSmallGrid(TestCase):
 
     # def test_target_string(self):
     #    self.assertEqual('<?xml version="1.0" encoding="UTF-8"?><Sequence><Sequence><Sequence><cond>IsMoveable</cond><cond>IsMupltipleCarry</cond><act>RandomWalk</act></Sequence> <Sequence><cond>IsMotionTrue</cond><cond>IsMoveable</cond><cond>IsMotionTrue</cond><act>SingleCarry</act></Sequence></Sequence> <Selector><cond>IsMotionTrue</cond><cond>IsCarryable</cond><cond>IsMupltipleCarry</cond><act>GoTo</act></Selector></Sequence>', self.target_phenotype)
+    def find_higest_performer(self):
+        fitness = self.environment.agents[0].individual[0].fitness
+        fittest = self.environment.agents[0]
+        for agent in self.environment.agents:
+            if agent.individual[0].fitness > fitness:
+                fittest = agent
+        return fittest
 
     def test_one_traget(self):
         #self.assertEqual(14.285714285714285, self.environment.schedule.agents[0].individual[0].fitness)
