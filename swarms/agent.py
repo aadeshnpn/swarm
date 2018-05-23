@@ -1,4 +1,4 @@
-from lib.agent import Agent
+from swarms.lib.agent import Agent
 
 # from swarms.sbehaviors import NeighbourObjects, ShareMoney, Move, HasMoney
 import numpy as np

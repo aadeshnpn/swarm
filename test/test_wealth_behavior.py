@@ -1,8 +1,8 @@
 from unittest import TestCase
-from lib.agent import Agent
-from lib.model import Model
-from lib.time import SimultaneousActivation
-from lib.space import Grid
+from swarms.lib.agent import Agent
+from swarms.lib.model import Model
+from swarms.lib.time import SimultaneousActivation
+from swarms.lib.space import Grid
 import py_trees
 from py_trees import Behaviour, Status
 

@@ -1,6 +1,6 @@
-from lib.model import Model
-from lib.time import SimultaneousActivation  # RandomActivation, StagedActivation
-from lib.space import Grid
+from swarms.lib.model import Model
+from swarms.lib.time import SimultaneousActivation  # RandomActivation, StagedActivation
+from swarms.lib.space import Grid
 from swarms.utils.jsonhandler import JsonData
 from swarms.objects import Hub, Sites, Obstacles, Traps
 from swarms.agent import SwarmAgent

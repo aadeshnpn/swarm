@@ -1,8 +1,8 @@
-from lib.agent import Agent
+from swarms.lib.agent import Agent
 from swarms.objects import Sites, Food, Hub
-from lib.model import Model
-from lib.time import SimultaneousActivation
-from lib.space import Grid
+from swarms.lib.model import Model
+from swarms.lib.time import SimultaneousActivation
+from swarms.lib.space import Grid
 from unittest import TestCase
 from swarms.utils.bt import BTConstruct
 import py_trees

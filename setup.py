@@ -16,7 +16,7 @@ with open('__init__.py', 'r') as fd:
 
 
 setup(
-    name='swarm',
+    name='swarms',
     version=version,
     description="Swarm modeling (ABM) in Python 3+",
     long_description="testing",

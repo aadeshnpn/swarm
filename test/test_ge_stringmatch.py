@@ -1,8 +1,8 @@
 from unittest import TestCase
-from lib.agent import Agent
-from lib.model import Model
-from lib.time import SimultaneousActivation  # RandomActivation, StagedActivation
-from lib.space import Grid
+from swarms.lib.agent import Agent
+from swarms.lib.model import Model
+from swarms.lib.time import SimultaneousActivation  # RandomActivation, StagedActivation
+from swarms.lib.space import Grid
 from ponyge.operators.initialisation import initialisation
 from ponyge.fitness.evaluation import evaluate_fitness
 from ponyge.operators.crossover import crossover

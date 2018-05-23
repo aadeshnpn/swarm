@@ -3,7 +3,7 @@ Test the grid object
 '''
 import unittest
 
-from swarm.lib.space import Grid
+from swarms.lib.space import Grid
 
 """
 Simple grid for testing

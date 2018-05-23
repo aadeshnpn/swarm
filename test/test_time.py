@@ -4,10 +4,10 @@ Test the advanced schedulers.
 
 from unittest import TestCase
 from unittest.mock import patch
-from swarm.lib.model import Model
-from swarm.lib.agent import Agent
-from swarm.lib.time import (BaseScheduler, StagedActivation, RandomActivation,
-                       SimultaneousActivation)
+from swarms.lib.model import Model
+from swarms.lib.agent import Agent
+from swarms.lib.time import (
+    BaseScheduler, StagedActivation, RandomActivation, SimultaneousActivation)
 
 RANDOM = 'random'
 STAGED = 'staged'
