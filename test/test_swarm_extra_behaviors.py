@@ -7,7 +7,8 @@ from swarms.sbehaviors import (
     IsCarryable, IsSingleCarry, SingleCarry,
     NeighbourObjects, IsMultipleCarry, IsInPartialAttached,
     InitiateMultipleCarry, IsEnoughStrengthToCarry,
-    Move, GoTo, Drop, IsDropable, IsCarrying, Towards, DropPartial
+    Move, GoTo, Drop, IsDropable, IsCarrying, Towards, DropPartial,
+    IsVisitedBefore, RandomWalk
     )
 from swarms.objects import Derbis, Sites, Hub, Food
 import py_trees
@@ -899,8 +900,20 @@ class SwarmAgentRandomSingleCarryDropReturn(Agent):
         nseq.add_children([dropseq, repeatsite])
 
         # For randomwalk to work the agents shouldn't know the location of Site
-        
-        select.add_children([nseq, mseq])
+        v1 = py_trees.meta.inverter(IsVisitedBefore)('15')
+        v1.setup(0, self, 'Sites')
+
+        r1 = RandomWalk('16')
+        r1.setup(0, self, None)
+
+        m1 = Move('17')
+        m1.setup(0, self, None)
+
+        randseq = py_trees.composites.Sequence('RSequence')
+        randseq.add_children([v1, r1, m1])
+
+        #select.add_children([nseq, mseq, randseq])
+        select.add_children([randseq])
         self.behaviour_tree = py_trees.trees.BehaviourTree(select)
 
         py_trees.logging.level = py_trees.logging.Level.DEBUG        
@@ -943,8 +956,8 @@ class RandomSingleCarryDropReturnSwarmEnvironmentModel(Model):
         for i in range(self.num_agents):
             a = SwarmAgentRandomSingleCarryDropReturn(i, self)
             self.schedule.add(a)
-            x = 40
-            y = 40
+            x = 0
+            y = 0
             a.location = (x, y)
             a.direction = -2.3561944901923448
             self.grid.add_object_to_grid((x, y), a)
@@ -965,9 +978,12 @@ class TestRandomSingleCarryDropReturnSwarmSmallGrid(TestCase):
         # Testing after the food has been transported to hub and dropped. Is 
         # the location of the food dropped
         # and the hub same
-        for i in range(2):
+        for i in range(20):
             self.environment.step()
+            print (i, self.environment.agent.location)
+        self.assertEqual(8, 9)
 
+    """
         transported_food = self.environment.grid.get_objects_from_grid(
             'Food', self.environment.hub.location)[0]
         self.assertEqual(self.environment.food, transported_food)
@@ -992,7 +1008,7 @@ class TestRandomSingleCarryDropReturnSwarmSmallGrid(TestCase):
             self.environment.step()
         self.assertEqual( 
             self.environment.agent.location, self.environment.site.location)
-
+    """
 
 """
 class TestCoolMultipleCarryFunction(TestCase):

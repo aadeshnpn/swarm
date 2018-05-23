@@ -88,7 +88,7 @@ class Towards(Behaviour):
     def __init__(self, name):
         super(Towards, self).__init__(name)
 
-    def setup(self, timeout, agent, thing=None):
+    def setup(self, timeout, agent, item=None):
         self.agent = agent
 
     def initialise(self):
@@ -103,7 +103,7 @@ class Away(Behaviour):
     def __init__(self, name):
         super(Away, self).__init__(name)
 
-    def setup(self, timeout, agent, thing=None):
+    def setup(self, timeout, agent, item=None):
         self.agent = agent
 
     def initialise(self):
@@ -119,7 +119,7 @@ class RandomWalk(Behaviour):
     def __init__(self, name):
         super(RandomWalk, self).__init__(name)
 
-    def setup(self, timeout, agent, thing=None):
+    def setup(self, timeout, agent, item=None):
         self.agent = agent
 
     def initialise(self):
@@ -568,20 +568,25 @@ class IsMotionTrue(Behaviour):
 class IsVisitedBefore(Behaviour):
     def __init__(self, name):
         super(IsVisitedBefore, self).__init__(name)
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()        
         # self.blackboard = Blackboard()
 
-    def setup(self, timeout, agent, thing):
+    def setup(self, timeout, agent, item):
         self.agent = agent
-        self.thing = thing
+        self.item = item
 
     def initialise(self):
         pass
 
     def update(self):
         # objects = self.blackboard.shared_content[self.thing][0]
-        objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.item)[0]
         try:
-            return Status.SUCCESS
+            objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.item)[0]
+            if len(objects) > 0:
+                return Status.SUCCESS
+            else:
+                return Status.FAILURE
         except (AttributeError, IndexError):
             return Status.FAILURE
 
