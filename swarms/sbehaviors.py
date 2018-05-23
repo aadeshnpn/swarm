@@ -544,11 +544,12 @@ class IsEnoughStrengthToCarry(Behaviour):
 class IsMotionTrue(Behaviour):
     def __init__(self, name):
         super(IsMotionTrue, self).__init__(name)
-        # self.blackboard = Blackboard()
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
 
-    def setup(self, timeout, agent, thing):
+    def setup(self, timeout, agent, item):
         self.agent = agent
-        self.thing = thing
+        self.item = item
 
     def initialise(self):
         pass
@@ -560,6 +561,27 @@ class IsMotionTrue(Behaviour):
                 return Status.SUCCESS
             else:
                 return Status.FAILURE
+        except (AttributeError, IndexError):
+            return Status.FAILURE
+
+
+class IsVisitedBefore(Behaviour):
+    def __init__(self, name):
+        super(IsVisitedBefore, self).__init__(name)
+        # self.blackboard = Blackboard()
+
+    def setup(self, timeout, agent, thing):
+        self.agent = agent
+        self.thing = thing
+
+    def initialise(self):
+        pass
+
+    def update(self):
+        # objects = self.blackboard.shared_content[self.thing][0]
+        objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.item)[0]
+        try:
+            return Status.SUCCESS
         except (AttributeError, IndexError):
             return Status.FAILURE
 
