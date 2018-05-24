@@ -8,9 +8,33 @@ Core Objects: Agent
 
 
 class Agent:
-    """ Base class for a agent. """
+    """Base class for a agent."""
+
     def __init__(self, name, model):
-        """ Create a new agent. """
+        """Create a new agent.
+
+        Overload this method to define diverse agents.
+        Args:
+            name: a unique name for the agent. It helps to
+                  distingush between different agents in the environment.
+
+            model: model class which gives the agent access to environmental
+                    variables like sites, hub, food and others
+
+        Attributes:
+            weight: agent's weight
+
+            capacity: agent's capacity to do some work in the environment
+
+            attached_objects: a list which stores the objects attached
+                               to the agent. Useful for carrying and droping
+                               objects
+
+            partial_attached_objects: a list which stores the objects
+                                    partially attached to the agent. Useful
+                                    for multi-carry behaviors
+
+        """
         self.name = name
         self.model = model
         self.weight = 5
@@ -20,13 +44,21 @@ class Agent:
         self.partial_attached_objects = []
 
     def step(self):
-        """ A single step of the agent. """
+        """Represent a single step of the agent."""
         pass
 
     def advance(self):
+        """Actions to do after a step of the agent."""
         pass
 
     def get_weight(self):
+        """Compute the weight of the agent.
+
+        The weight of the agent changes based on the objects it
+        carries. We take the weight of partially attached objects as well
+        as fully carrying objects while computing the weight of the
+        agent.
+        """
         relative_weight = self.weight
         for item in self.attached_objects:
             try:
@@ -36,53 +68,21 @@ class Agent:
         try:
             relative_weight += self.partial_attached_objects[0].weight
         except (AttributeError, IndexError):
-            pass              
+            pass
 
         return relative_weight
 
-    """
-    def bound_capacity(self, rc, weight):
-        if rc - weight >= 0:
-            rc -= weight
-        else:
-            rc = 0
-        return rc
-
     def get_capacity(self):
+        """Compute the capacity of the agent.
+
+        The capacity of the agent is fixed. Based on the objects it is
+        carrying we need to adjust/reflect on the capacity of the agent.
+        """
         relative_capacity = self.capacity
         for item in self.attached_objects:
-            try:
-                if relative_capacity > 0:
-                    relative_capacity = self.bound_capacity(
-                        relative_capacity, item.weight)
-                else:
-                    item.agents.remove(self)
-                    self.attached_objects.remove(item)
-            except AttributeError:
-                pass
-
-        for item in self.partial_attached_objects:
-            try:
-                if relative_capacity > 0:
-                    relative_capacity = self.bound_capacity(
-                        relative_capacity, item.weight)
-                else:
-                    item.agents.remove(self)
-                    self.partial_attached_objects.remove(item)
-            except AttributeError:
-                pass                
-            print ('get capacity', relative_capacity, item.weight)                
-        return relative_capacity
-    """
-
-    def get_capacity(self):
-        relative_capacity = self.capacity
-        for item in self.attached_objects:
-            # indx = item.agents.index(self)
             relative_capacity -= item.agents[self]
 
         for item in self.partial_attached_objects:
-            # indx = item.agents.index(self)
             relative_capacity -= item.agents[self]
 
         if relative_capacity < 0:

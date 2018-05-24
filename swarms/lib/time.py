@@ -21,31 +21,29 @@ Key concepts:
     steps. However, by default, the Time is equal to the number of steps the
     model has taken.
 
-
-TODO: Have the schedulers use the model's randomizer, to keep random number
-seeds consistent and allow for replication.
-
 """
 
 
 class BaseScheduler:
-    """ Simplest scheduler; activates agents one at a time, in the order
+    """Simplest scheduler.
+
+    Activates agents one at a time, in the order
     they were added.
 
     Assumes that each agent added has a *step* method which takes no arguments.
 
     (This is explicitly meant to replicate the scheduler in MASON).
-
     """
+
     def __init__(self, model):
-        """ Create a new, empty BaseScheduler. """
+        """Create a new, empty BaseScheduler."""
         self.model = model
         self.steps = 0
         self.time = 0
         self.agents = []
 
     def add(self, agent):
-        """ Add an Agent object to the schedule.
+        """Add an Agent object to the schedule.
 
         Args:
             agent: An Agent to be added to the schedule. NOTE: The agent must
@@ -55,7 +53,7 @@ class BaseScheduler:
         self.agents.append(agent)
 
     def remove(self, agent):
-        """ Remove all instances of a given agent from the schedule.
+        """Remove all instances of a given agent from the schedule.
 
         Args:
             agent: An agent object.
@@ -65,20 +63,21 @@ class BaseScheduler:
             self.agents.remove(agent)
 
     def step(self):
-        """ Execute the step of all the agents, one at a time. """
+        """Execute the step of all the agents, one at a time."""
         for agent in self.agents[:]:
             agent.step()
         self.steps += 1
         self.time += 1
 
     def get_agent_count(self):
-        """ Returns the current number of agents in the queue. """
+        """Return the current number of agents in the queue."""
         return len(self.agents)
 
 
 class RandomActivation(BaseScheduler):
-    """ A scheduler which activates each agent once per step, in random order,
-    with the order reshuffled every step.
+    """A scheduler which activates each agent once per step.
+
+    In random order, with the order reshuffled every step.
 
     This is equivalent to the NetLogo 'ask agents...' and is generally the
     default behavior for an ABM.
@@ -86,11 +85,9 @@ class RandomActivation(BaseScheduler):
     Assumes that all agents have a step(model) method.
 
     """
-    def step(self):
-        """ Executes the step of all agents, one at a time, in
-        random order.
 
-        """
+    def step(self):
+        """Execute the step of all agents, one at a time, in random order."""
         self.model.random.shuffle(self.agents)
         for agent in self.agents[:]:
             agent.step()
@@ -99,15 +96,16 @@ class RandomActivation(BaseScheduler):
 
 
 class SimultaneousActivation(BaseScheduler):
-    """ A scheduler to simulate the simultaneous activation of all the agents.
+    """A scheduler to simulate the simultaneous activation of all the agents.
 
     This scheduler requires that each agent have two methods: step and advance.
     step() activates the agent and stages any necessary changes, but does not
     apply them yet. advance() then applies the changes.
 
     """
+
     def step(self):
-        """ Step all agents, then advance them. """
+        """Step all agents, then advance them."""
         for agent in self.agents[:]:
             agent.step()
         for agent in self.agents[:]:
@@ -117,7 +115,9 @@ class SimultaneousActivation(BaseScheduler):
 
 
 class StagedActivation(BaseScheduler):
-    """ A scheduler which allows agent activation to be divided into several
+    """Dividing agent activation into stages.
+
+    A scheduler which allows agent activation to be divided into several
     stages instead of a single `step` method. All agents execute one stage
     before moving on to the next.
 
@@ -128,9 +128,10 @@ class StagedActivation(BaseScheduler):
     increments of 1 / (# of stages), meaning that 1 step = 1 unit of time.
 
     """
+
     def __init__(self, model, stage_list=None, shuffle=False,
                  shuffle_between_stages=False):
-        """ Create an empty Staged Activation schedule.
+        """Create an empty Staged Activation schedule.
 
         Args:
             model: Model object associated with the schedule.
@@ -149,7 +150,7 @@ class StagedActivation(BaseScheduler):
         self.stage_time = 1 / len(self.stage_list)
 
     def step(self):
-        """ Executes all the stages for all agents. """
+        """Execute all the stages for all agents."""
         if self.shuffle:
             self.model.random.shuffle(self.agents)
         for stage in self.stage_list:

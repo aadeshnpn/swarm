@@ -10,9 +10,12 @@ import numpy
 
 
 class Model:
-    """ Base class for models. """
+    """Base class for models."""
+
     def __init__(self, seed=None):
-        """ Create a new model. Overload this method with the actual code to
+        """Create a new model.
+
+        Overload this method with the actual code to
         start the model.
 
         Args:
@@ -25,7 +28,8 @@ class Model:
         """
         # seed both the numpy and Python random number generators
         if seed is None:
-            self.seed = int(dt.datetime.timestamp(dt.datetime.now())) % 39916801
+            self.seed = int(dt.datetime.timestamp(
+                dt.datetime.now())) % 39916801
         else:
             self.seed = seed
         self.random = numpy.random.RandomState(seed)
@@ -34,13 +38,13 @@ class Model:
         self.schedule = None
 
     def run_model(self):
-        """ Run the model until the end condition is reached. Overload as
-        needed.
+        """Run the model until the end condition is reached.
 
+        Overload as needed.
         """
         while self.running:
             self.step()
 
     def step(self):
-        """ A single step. Fill in here. """
+        """Single step. Fill in here."""
         pass

@@ -1014,8 +1014,6 @@ class SwarmAgentRandomWalk(Agent):
         randseq = py_trees.composites.Sequence('RSequence')
         randseq.add_children([r1, m1])
         self.behaviour_tree = py_trees.trees.BehaviourTree(randseq)
-        #py_trees.logging.level = py_trees.logging.Level.DEBUG
-        py_trees.display.print_ascii_tree(randseq)
 
     def step(self):
         self.behaviour_tree.tick()
