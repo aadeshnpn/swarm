@@ -64,11 +64,11 @@ class GoTo(Behaviour):
     def __init__(self, name):
         super(GoTo, self).__init__(name)
         self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()        
 
     def setup(self, timeout, agent, item):
         self.agent = agent
         self.item = item
-        self.blackboard.shared_content = dict()        
 
     def initialise(self):
         pass
@@ -383,6 +383,7 @@ class Drop(Behaviour):
             objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.thing)[0]            
             self.agent.model.grid.add_object_to_grid(objects.location, objects)
             self.agent.attached_objects.remove(objects)
+            self.blackboard.shared_content['Food'].remove(objects)
             return Status.SUCCESS
         except (AttributeError, IndexError):
             return Status.FAILURE
@@ -569,8 +570,6 @@ class IsVisitedBefore(Behaviour):
     def __init__(self, name):
         super(IsVisitedBefore, self).__init__(name)
         self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()        
-        # self.blackboard = Blackboard()
 
     def setup(self, timeout, agent, item):
         self.agent = agent
@@ -580,10 +579,9 @@ class IsVisitedBefore(Behaviour):
         pass
 
     def update(self):
-        # objects = self.blackboard.shared_content[self.thing][0]
         try:
             objects = ObjectsStore.find(self.blackboard.shared_content, self.agent.shared_content, self.item)[0]
-            if len(objects) > 0:
+            if objects:
                 return Status.SUCCESS
             else:
                 return Status.FAILURE

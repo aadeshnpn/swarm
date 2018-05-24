@@ -830,7 +830,7 @@ class SwarmAgentRandomSingleCarryDropReturn(Agent):
         
         # self.shared_content['Hub'] = model.hub
         # self.shared_content['Sites'] = model.site
-
+        self.shared_content['Hub'] = [model.hub]
         # root = py_trees.composites.Sequence("Sequence")
         # root = py_trees.composites.Selector('Selector')
         mseq = py_trees.composites.Sequence('MSequence')
@@ -838,7 +838,13 @@ class SwarmAgentRandomSingleCarryDropReturn(Agent):
         select = py_trees.composites.Selector('RSelector')
         carryseq = py_trees.composites.Sequence('CSequence')
         dropseq = py_trees.composites.Sequence('DSequence')
-        
+
+        lowest1 = py_trees.meta.inverter(NeighbourObjects)('00')
+        lowest1.setup(0, self, 'Hub')
+
+        lowest11 = NeighbourObjects('0')
+        lowest11.setup(0, self, 'Sites')
+
         lowest = NeighbourObjects('0')
         lowest.setup(0, self, 'Food')
 
@@ -851,17 +857,16 @@ class SwarmAgentRandomSingleCarryDropReturn(Agent):
         high = SingleCarry('3')
         high.setup(0, self, 'Food')        
 
-        carryseq.add_children([lowest, low, medium, high])
+        carryseq.add_children([lowest1, lowest11, lowest, low, medium, high])
 
         repeathub = RepeatUntilFalse("RepeatSeqHub")
         repeatsite = RepeatUntilFalse("RepeatSeqSite")
-        
+
         high1 = py_trees.meta.inverter(NeighbourObjects)('4')
         # high1 = NeighbourObjects('4')
         high1.setup(0, self, 'Hub')   
 
-        med1 = py_trees.meta.inverter(GoTo)('5')     
-        # med1 = GoTo('5')
+        med1 = GoTo('5')
         med1.setup(0, self, 'Hub')
 
         # low1 = py_trees.meta.inverter(Move)('6')
@@ -912,13 +917,9 @@ class SwarmAgentRandomSingleCarryDropReturn(Agent):
         randseq = py_trees.composites.Sequence('RSequence')
         randseq.add_children([v1, r1, m1])
 
-        #select.add_children([nseq, mseq, randseq])
-        select.add_children([randseq])
-        self.behaviour_tree = py_trees.trees.BehaviourTree(select)
+        select.add_children([nseq, mseq, randseq])
 
-        py_trees.logging.level = py_trees.logging.Level.DEBUG        
-        py_trees.display.print_ascii_tree(select)
-        self.shared_content['Hub'] = [model.hub]
+        self.behaviour_tree = py_trees.trees.BehaviourTree(select)
 
     def step(self):
         self.behaviour_tree.tick()
@@ -945,13 +946,12 @@ class RandomSingleCarryDropReturnSwarmEnvironmentModel(Model):
 
         self.hub = Hub(id=2, location=(0, 0), radius=5)
         self.grid.add_object_to_grid(self.hub.location, self.hub)
-        self.site = Sites(id=3, location=(40, 40), radius=5)
+        self.site = Sites(id=3, location=(-35, -5), radius=10)
         self.grid.add_object_to_grid(self.site.location, self.site)
 
-        for i in range(self.num_agents):
-            f = Food(i, location=(40, 40), radius=2)
+        for i in range(self.num_agents * 5):
+            f = Food(i, location=(-35, -5), radius=2)
             self.grid.add_object_to_grid(f.location, f)
-            self.food = f
 
         for i in range(self.num_agents):
             a = SwarmAgentRandomSingleCarryDropReturn(i, self)
@@ -972,66 +972,18 @@ class TestRandomSingleCarryDropReturnSwarmSmallGrid(TestCase):
 
     def setUp(self):
         self.environment = RandomSingleCarryDropReturnSwarmEnvironmentModel(
-            1, 100, 100, 10, 123)
+            1, 100, 100, 10, 123456)
 
     def test_agent_food(self):
-        # Testing after the food has been transported to hub and dropped. Is 
-        # the location of the food dropped
-        # and the hub same
-        for i in range(20):
+        # Testing after the food has been transported to hub and dropped. Is
+        # the total number of food is transported to hub
+        for i in range(40):
             self.environment.step()
-            print (i, self.environment.agent.location)
-        self.assertEqual(8, 9)
-
-    """
         transported_food = self.environment.grid.get_objects_from_grid(
-            'Food', self.environment.hub.location)[0]
-        self.assertEqual(self.environment.food, transported_food)
-
-    def test_agent_reach_hub(self):
-        # Testing is the agent has reached near to the hub. The agent 
-        # won't exactly land on the hub
-        for i in range(1):
-            self.environment.step()
-        self.assertEqual(self.environment.agent.location, (8, 8))        
-
-    def test_agent_drop(self):
-        # Testing if the food has been dropped or not. The agent 
-        # attached_objects should be empty is this case
-        for i in range(2):
-            self.environment.step()
-        self.assertEqual([], self.environment.agent.attached_objects)  
-
-    def test_agent_reach_site(self):
-        # Testing if the agent has reached site after dropping food in hub
-        for i in range(2):
-            self.environment.step()
-        self.assertEqual( 
-            self.environment.agent.location, self.environment.site.location)
-    """
-
-"""
-class TestCoolMultipleCarryFunction(TestCase):
-
-    def setUp(self):
-        self.environment = MultipleCarrySwarmEnvironmentModel(
-            4, 100, 100, 10, 123)
-
-        for agent in self.environment.agent:
-            agent.used_capacity = self.environment.random.randint(0, 8)
-
-    def test_distribute_weight(self):
-        agents = [(
-            agent.name, agent.capacity - agent.used_capacity
-            ) for agent in self.environment.agent]
-        
-        print(agents)
-        for i in range(1):
-            self.environment.step()
-        self.assertEqual(5, 4)
+            'Food', self.environment.hub.location)
+        self.assertEqual(5, len(transported_food))
 
 
-"""
 """
 # Behavior defined to move using accleration. It doesn't 
 # work that well in this context
