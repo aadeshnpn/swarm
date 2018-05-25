@@ -1,5 +1,8 @@
+"""Inherited model class."""
+
 from swarms.lib.model import Model
-from swarms.lib.time import SimultaneousActivation  # RandomActivation, StagedActivation
+from swarms.lib.time import SimultaneousActivation
+# RandomActivation, StagedActivation
 from swarms.lib.space import Grid
 from swarms.utils.jsonhandler import JsonData
 from swarms.objects import Hub, Sites, Obstacles, Traps
@@ -9,9 +12,10 @@ filename = "swarms/utils/world.json"
 
 
 class EnvironmentModel(Model):
-    """ A environemnt to model swarms """
-    def __init__(self, N, width, height, grid=10, seed=None):
+    """A environemnt to model swarms."""
 
+    def __init__(self, N, width, height, grid=10, seed=None):
+        """Initialize the attributes."""
         if seed is None:
             super(EnvironmentModel, self).__init__(seed=None)
         else:
@@ -30,14 +34,17 @@ class EnvironmentModel(Model):
             self.schedule.add(a)
 
             # Add the agent to a random grid cell
-            x = self.random.randint(-self.grid.width / 2, self.grid.width / 2)
-            y = self.random.randint(-self.grid.height / 2, self.grid.height / 2)
+            x = self.random.randint(
+                -self.grid.width / 2, self.grid.width / 2)
+            y = self.random.randint(
+                -self.grid.height / 2, self.grid.height / 2)
 
             a.location = (x, y)
 
             self.grid.add_object_to_grid((x, y), a)
 
     def create_environment_object(self, jsondata, obj):
+        """Create env from jsondata."""
         name = obj.__name__.lower()
         temp_list = []
         i = 0
@@ -54,9 +61,11 @@ class EnvironmentModel(Model):
         return temp_list
 
     def build_environment_from_json(self):
+        """Build env from jsondata."""
         jsondata = JsonData.load_json_file(filename)
 
-        # Create a instance of JsonData to store object that needs to be sent to UI
+        # Create a instance of JsonData to store object that
+        # needs to be sent to UI
         self.render_jsondata = JsonData()
         self.render_jsondata.objects = {}
 
@@ -65,4 +74,5 @@ class EnvironmentModel(Model):
             self.render_jsondata.objects[name] = self.create_environment_object(jsondata, obj)
 
     def step(self):
+        """Step through the environment."""
         self.schedule.step()

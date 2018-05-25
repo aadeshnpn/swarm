@@ -1,14 +1,20 @@
+"""Json data I/O handler."""
+
 import json
 
 
 class JsonData:
+    """Static class to hadel jsondata."""
+
     @staticmethod
     def load_json_file(filename):
+        """Load json file."""
         json_data = open(filename).read()
         return json.loads(json_data)
 
     @staticmethod
     def environment_object_to_json(objects):
+        """Convert env objects to json object."""
         objects = []
         for i in objects:
             object_temp = {}
@@ -25,6 +31,7 @@ class JsonData:
 
     @staticmethod
     def agent_to_json(agent):
+        """Agent object to json."""
         agent_dict = {}
         agent_dict["x"] = agent.location[0]
         agent_dict["y"] = agent.location[1]
@@ -42,7 +49,9 @@ class JsonData:
         return agent_dict
 
     @staticmethod
-    def to_json(width, height, hub, sites, obstacles, traps, cues, food, derbis, agents):
+    def to_json(width, height, hub, sites, obstacles, traps,
+                cues, food, derbis, agents):
+        """Convert simulation to json."""
         print(
             json.dumps(
                 {
@@ -51,14 +60,15 @@ class JsonData:
                     {
                         "x_limit": width / 2,
                         "y_limit": height / 2,
-                        "hub": JsonData.environment_objects_to_json(hub),
-                        "sites": JsonData.environment_objects_to_json(sites),
-                        "obstacles": JsonData.environment_objects_to_json(obstacles),
-                        "traps": JsonData.environment_objects_to_json(traps),
-                        "cues": JsonData.environment_objects_to_json(cues),
-                        "food": JsonData.environment_objects_to_json(hub),
-                        "derbis": JsonData.environment_objects_to_json(hub),
-                        "agents": JsonData.environment_objects_to_json(hub),
+                        "hub": JsonData.environment_object_to_json(hub),
+                        "sites": JsonData.environment_object_to_json(sites),
+                        "obstacles": JsonData.environment_object_to_json(
+                            obstacles),
+                        "traps": JsonData.environment_object_to_json(traps),
+                        "cues": JsonData.environment_object_to_json(cues),
+                        "food": JsonData.environment_object_to_json(hub),
+                        "derbis": JsonData.environment_object_to_json(hub),
+                        "agents": JsonData.environment_object_to_json(hub),
                     }
                 })
         )

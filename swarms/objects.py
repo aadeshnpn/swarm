@@ -1,9 +1,13 @@
+"""Base class for all the objects that can be defined in the environment."""
+
 import numpy as np
 
 
-# Base class for all the objects that can be defined in the environment
 class EnvironmentObject:
+    """Base environment object."""
+
     def __init__(self, id=1, location=(0, 0), radius=20):
+        """Initialize."""
         self.id = id
         self.location = location
         self.radius = radius
@@ -11,7 +15,10 @@ class EnvironmentObject:
 
 # Class to define hub object
 class Hub(EnvironmentObject):
+    """Hub object."""
+
     def __init__(self, id=1, location=(0, 0), radius=20):
+        """Initialize."""
         super().__init__(id, location, radius)
         self.carryable = False
         self.dropable = True
@@ -19,7 +26,13 @@ class Hub(EnvironmentObject):
 
 # Class to define site object
 class Sites(EnvironmentObject):
+    """Site object."""
+
     def __init__(self, id=1, location=(0, 0), radius=20, q_value=0.5):
+        """Initialize.
+
+        Site contains food unit but is not carryable.
+        """
         super().__init__(id, location, radius)
         self.q_value = q_value
         self.food_unit = self.q_value * 1000
@@ -28,7 +41,10 @@ class Sites(EnvironmentObject):
 
 # Class to define obstacle
 class Obstacles(EnvironmentObject):
+    """Obstacle object."""
+
     def __init__(self, id=1, location=(0, 0), radius=20):
+        """Initialize."""
         super().__init__(id, location, radius)
         self.potential_field = None
         self.carrable = False
@@ -37,7 +53,14 @@ class Obstacles(EnvironmentObject):
 
 # Class to define carryable property
 class Carryable(EnvironmentObject):
+    """Carryable class of object."""
+
     def __init__(self, id=1, location=(0, 0), radius=20):
+        """Initialize.
+
+        Carrable object can be carried by agents. So attributes are
+        added to make that happen.
+        """
         super().__init__(id, location, radius)
         # Carryable boolen value
         self.carryable = True
@@ -47,6 +70,7 @@ class Carryable(EnvironmentObject):
         self.direction = 0
 
     def calc_relative_weight(self):
+        """Compute relative weight of the object."""
         relative_weight = self.weight
         for agent in self.agents:
             if relative_weight > 0:
@@ -54,6 +78,7 @@ class Carryable(EnvironmentObject):
         return relative_weight
 
     def normalize_weights_on_agents(self):
+        """Normamlize the weights."""
         average_weight = self.weight
         if len(self.agents) > 1:
             average_weight = self.weight / len(self.agents)
@@ -72,27 +97,34 @@ class Carryable(EnvironmentObject):
         return average_weight
 
     def redistribute_weights(self):
+        """Redistribute the weight."""
         average_weight = self.weight / (len(self.agents) + 1)
         for agent in self.agents:
             self.agents[agent] = average_weight
         return average_weight
 
     def calc_totalforces(self):
+        """Compute total force."""
         total_force = 0
         for agent in self.agents:
             total_force += agent.force
         return total_force
 
     def calc_direction(self):
+        """Compute direction."""
         average_direction = 0
         for agent in self.agents:
             average_direction += agent.direction
-        return average_direction % (2*np.pi)
+        return average_direction % (2 * np.pi)
 
 
 # Class to define communication
 class Communication(EnvironmentObject):
-    def __init__(self, id=1, location=(0, 0), radius=20, object_to_communicate=None):
+    """Base class for communication."""
+
+    def __init__(self, id=1, location=(
+            0, 0), radius=20, object_to_communicate=None):
+        """Initialize."""
         super().__init__(id, location, radius)
         # Communication parameters for signal
         self.communicated_object = object_to_communicate
@@ -101,87 +133,48 @@ class Communication(EnvironmentObject):
 
 # Class to define signal
 class Signal(Communication):
-    def __init__(self, id=1, location=(0, 0), radius=20, object_to_communicate=None):
+    """Signal object which broadcasts information."""
+
+    def __init__(self, id=1, location=(
+            0, 0), radius=20, object_to_communicate=None):
+        """Initialize."""
         super().__init__(id, None, radius, object_to_communicate)
 
 
 # Class to define Cue
 class Cue(Communication):
-    def __init__(self, id=1, location=(0, 0), radius=20, object_to_communicate=None):
+    """Cue object with provides stationary information."""
+
+    def __init__(self, id=1, location=(
+            0, 0), radius=20, object_to_communicate=None):
+        """Initialize."""
         super().__init__(id, location, radius, object_to_communicate)
 
 
 # Class to define Traps
 class Traps(EnvironmentObject):
+    """Trap object which kills the agents."""
+
     def __init__(self, id=1, location=(0, 0), radius=20):
+        """Initialize."""
         super().__init__(id, location, radius)
         self.carryable = False
 
 
 # Class to define Food
 class Food(Carryable):
+    """Food object which is carried by agents."""
+
     def __init__(self, id=1, location=(0, 0), radius=2):
+        """Initialize."""
         super().__init__(id, location, radius)
 
 
 # Class to define Derbis
 class Derbis(Carryable):
+    """Derbis object."""
+
     def __init__(self, id=1, location=(0, 0), radius=2, weight=5):
+        """Initialize."""
         super().__init__(id, location, radius)
 
-
-# Class to define Rules
-class Rules:
-    def __init__(self, id=1, json_data=None):
-        self.id = id
-        # self.currstate = Cu(id,json_data[0]['currstate'])
-        self.currstate = Currstate(id, json_data[0]['currstate'])
-        self.luggage = Luggage(id, json_data[1]['luggage'])
-        self.movement = Movement(id, json_data[2]['movement'])
-        self.communicate = None
-
-
-# Class to define current state
-class Currstate:
-    def __init__(self, id=id, state_data=None):
-        self.currstate_data = state_data
-        self.curr_carry = self.currstate_data['carry']
-        self.curr_drop = self.currstate_data['drop']
-        self.curr_move = self.currstate_data['move']
-
-
-# Class to define Luggage
-class Luggage:
-    def __init__(self, id=id, luggage_data=None):
-        self.luggage_data = luggage_data
-        self.carry = Carry(id, self.luggage_data['carry'])
-        self.drop = Drop(id, self.luggage_data['drop'])
-
-
-# Class to define Movement
-class Movement:
-    def __init__(self, id=id, movement_data=None):
-        self.movement_data = movement_data
-        self.conditions = self.movement_data['conditions']
-        self.move = self.movement_data['move']
-        self.orientation = self.movement_data['orientation']
-
-        # self.carry = Carry(id,self.movement_data['carry'])
-        # self.drop = Drop(id,self.movement_data['drop'])
-        # print (self.conditions,self.move,self.orientation)
-
-
-# Class to define Carry
-class Carry:
-    def __init__(self, id=id, carry_data=None):
-        self.carry_data = carry_data
-        self.conditions = self.carry_data[0]
-        self.action = self.carry_data[1]
-
-
-# Class to define Drop
-class Drop:
-    def __init__(self, id=id, drop_data=None):
-        self.drop_data = drop_data
-        self.conditions = self.drop_data[0]
-        self.action = self.drop_data[1]

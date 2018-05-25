@@ -1,3 +1,5 @@
+""" Defines all the behaviors for the agents."""
+
 from py_trees import Behaviour, Status, Blackboard
 import numpy as np
 from swarms.utils.distangle import get_direction
@@ -140,64 +142,91 @@ class GoTo(Behaviour):
 
 # Behavior defined to move towards something
 class Towards(Behaviour):
+    """Towards behaviors.
+
+    Changes the direction to go towards the object.
+    """
+
     def __init__(self, name):
+        """Initialize."""
         super(Towards, self).__init__(name)
 
     def setup(self, timeout, agent, item=None):
+        """Setup."""
         self.agent = agent
 
     def initialise(self):
+        """Pass."""
         pass
 
     def update(self):
+        """Nothing much to do."""
         return Status.SUCCESS
 
 
 # Behavior defined to move away from something
 class Away(Behaviour):
+    """Away behavior."""
+
     def __init__(self, name):
+        """Initialize."""
         super(Away, self).__init__(name)
 
     def setup(self, timeout, agent, item=None):
+        """Setup."""
         self.agent = agent
 
     def initialise(self):
+        """Pass."""
         pass
 
     def update(self):
+        """Compute direction and negate it."""
         self.agent.direction = (self.agent.direction + np.pi) % (2 * np.pi)
         return Status.SUCCESS
 
 
 # Behavior defined for Randomwalk
 class RandomWalk(Behaviour):
+    """Random walk behaviors."""
+
     def __init__(self, name):
+        """Initialize."""
         super(RandomWalk, self).__init__(name)
 
     def setup(self, timeout, agent, item=None):
+        """Setup."""
         self.agent = agent
 
     def initialise(self):
+        """Pass."""
         pass
 
     def update(self):
+        """Compute random direction and set it to agent direction."""
         delta_d = self.agent.model.random.normal(0, .1)
         self.agent.direction = (self.agent.direction + delta_d) % (2 * np.pi)
         return Status.SUCCESS
 
 
 class IsMoveable(Behaviour):
+    """Check is the item is moveable."""
+
     def __init__(self, name):
+        """Initialize."""
         super(IsMoveable, self).__init__(name)
         self.blackboard = Blackboard()
 
     def setup(self, timeout, agent, item):
+        """Setup."""
         self.item = item
 
     def initialise(self):
+        """Pass."""
         pass
 
     def update(self):
+        """Get the object and check its movelable property."""
         try:
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
@@ -212,17 +241,27 @@ class IsMoveable(Behaviour):
 
 # Behavior defined to move
 class Move(Behaviour):
+    """Actually move the agent.
+
+    Move the agent with any other object fully attached or
+    partially attached to the agent.
+    """
+
     def __init__(self, name):
+        """Initialize."""
         super(Move, self).__init__(name)
 
     def setup(self, timeout, agent, item=None):
+        """Setup."""
         self.agent = agent
         self.dt = 1.1
 
     def initialise(self):
+        """Pass."""
         pass
 
     def update_partial_attached_objects(self):
+        """Move logic for partially attached objects."""
         try:
             for item in self.agent.partial_attached_objects:
                 accleration = self.agent.force / item.weight
@@ -243,6 +282,7 @@ class Move(Behaviour):
             return False
 
     def update(self):
+        """Move logic for agent and fully carried object."""
         # Partially carried object
         if not self.update_partial_attached_objects():
             self.agent.accleration = self.agent.force / self.agent.get_weight()
@@ -275,36 +315,47 @@ class Move(Behaviour):
 
 # Behavior define for donot move
 class DoNotMove(Behaviour):
+    """Stand still behaviors."""
+
     def __init__(self, name):
+        """Initialize."""
         super(DoNotMove, self).__init__(name)
 
     def setup(self, timeout, agent, item=None):
+        """Setup."""
         self.agent = agent
 
     def initialise(self):
+        """Pass."""
         pass
 
     def update(self):
+        """Update agent moveable property."""
         self.agent.moveable = False
         return Status.SUCCESS
 
 
 # Behavior to check carryable attribute of an object
 class IsCarryable(Behaviour):
+    """Check carryable attribute of the item."""
+
     def __init__(self, name):
+        """Initialize."""
         super(IsCarryable, self).__init__(name)
         self.blackboard = Blackboard()
 
     def setup(self, timeout, agent, thing):
+        """Setup."""
         self.agent = agent
         self.thing = thing
 
     def initialise(self):
+        """Pass."""
         pass
 
     def update(self):
+        """Check carryable property."""
         try:
-            # objects = self.blackboard.shared_content[self.thing].pop()
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
                 self.thing)[0]
@@ -318,19 +369,25 @@ class IsCarryable(Behaviour):
 
 # Behavior to check carryable attribute of an object
 class IsDropable(Behaviour):
+    """Check dropable property."""
+
     def __init__(self, name):
+        """Initialize."""
         super(IsDropable, self).__init__(name)
         self.blackboard = Blackboard()
         self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, thing):
+        """Setup."""
         self.agent = agent
         self.thing = thing
 
     def initialise(self):
+        """Pass."""
         pass
 
     def update(self):
+        """Check the dropable attribute."""
         try:
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
@@ -345,19 +402,25 @@ class IsDropable(Behaviour):
 
 # Behavior define to check is the item is carrable on its own
 class IsSingleCarry(Behaviour):
+    """Single carry behavior."""
+
     def __init__(self, name):
+        """Initialize."""
         super(IsSingleCarry, self).__init__(name)
         self.blackboard = Blackboard()
         self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, thing):
+        """Setup."""
         self.agent = agent
         self.thing = thing
 
     def initialise(self):
+        """Pass."""
         pass
 
     def update(self):
+        """Logic to check if the object can be carried by single agent."""
         # Logic to carry
         try:
             # objects = self.blackboard.shared_content[self.thing].pop()
@@ -375,19 +438,25 @@ class IsSingleCarry(Behaviour):
 
 # Behavior define to check is the item is carrable on its own or not
 class IsMultipleCarry(Behaviour):
+    """Multiple carry behaviour."""
+
     def __init__(self, name):
+        """Initialize."""
         super(IsMultipleCarry, self).__init__(name)
         self.blackboard = Blackboard()
         self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, thing):
+        """Setup."""
         self.agent = agent
         self.thing = thing
 
     def initialise(self):
+        """Pass."""
         pass
 
     def update(self):
+        """Logic for multiple carry by checking the weights."""
         try:
             # Logic to carry
             # objects = self.blackboard.shared_content[self.thing].pop()
@@ -404,19 +473,25 @@ class IsMultipleCarry(Behaviour):
 
 
 class IsCarrying(Behaviour):
+    """Condition check if the agent is carrying something."""
+
     def __init__(self, name):
+        """Initialize."""
         super(IsCarrying, self).__init__(name)
         self.blackboard = Blackboard()
         self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, thing):
+        """Setup."""
         self.agent = agent
         self.thing = thing
 
     def initialise(self):
+        """Pass."""
         pass
 
     def update(self):
+        """Logic for object carrying check."""
         try:
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
@@ -431,19 +506,25 @@ class IsCarrying(Behaviour):
 
 # Behavior defined to drop the items currently carrying
 class Drop(Behaviour):
+    """Drop behavior to drop items which is being carried."""
+
     def __init__(self, name):
+        """Initialize."""
         super(Drop, self).__init__(name)
         self.blackboard = Blackboard()
         self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, thing):
+        """Setup."""
         self.agent = agent
         self.thing = thing
 
     def initialise(self):
+        """Pass."""
         pass
 
     def update(self):
+        """Logic to drop the item."""
         try:
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
@@ -457,19 +538,25 @@ class Drop(Behaviour):
 
 
 class DropPartial(Behaviour):
+    """Drop behavior for partially attached object."""
+
     def __init__(self, name):
+        """Initialize."""
         super(DropPartial, self).__init__(name)
         self.blackboard = Blackboard()
         self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, thing):
+        """Setup."""
         self.agent = agent
         self.thing = thing
 
     def initialise(self):
+        """Pass."""
         pass
 
     def update(self):
+        """Logic to drop partially attached object."""
         try:
             objects = self.agent.partial_attached_objects[0]
             objects.agents.pop(self.agent)
@@ -483,19 +570,25 @@ class DropPartial(Behaviour):
 
 # Behavior defined to carry the items found
 class SingleCarry(Behaviour):
+    """Carry behavior."""
+
     def __init__(self, name):
+        """Initialize."""
         super(SingleCarry, self).__init__(name)
         self.blackboard = Blackboard()
         self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, thing):
+        """Setup."""
         self.agent = agent
         self.thing = thing
 
     def initialise(self):
+        """Pass."""
         pass
 
     def update(self):
+        """Carry logic to carry the object by the agent."""
         try:
             # objects = self.blackboard.shared_content[self.thing].pop()
             objects = ObjectsStore.find(
@@ -510,19 +603,25 @@ class SingleCarry(Behaviour):
 
 
 class InitiateMultipleCarry(Behaviour):
+    """Behavior to initiate multiple carry process."""
+
     def __init__(self, name):
+        """Initialize."""
         super(InitiateMultipleCarry, self).__init__(name)
         self.blackboard = Blackboard()
         self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
+        """Setup."""
         self.agent = agent
         self.item = item
 
     def initialise(self):
+        """Pass."""
         pass
 
     def update(self):
+        """Logic to initiaite multiple carry process."""
         try:
             # objects = self.blackboard.shared_content[self.thing].pop()
             objects = ObjectsStore.find(
@@ -557,19 +656,25 @@ class InitiateMultipleCarry(Behaviour):
 
 
 class IsInPartialAttached(Behaviour):
+    """Condition to check if the object is in partially attached list."""
+
     def __init__(self, name):
+        """Initialize."""
         super(IsInPartialAttached, self).__init__(name)
         self.blackboard = Blackboard()
         self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
+        """Setup."""
         self.agent = agent
         self.item = item
 
     def initialise(self):
+        """Pass."""
         pass
 
     def update(self):
+        """Logic to check if the object is in partially attached list."""
         # objects = self.blackboard.shared_content[self.thing].pop()
         objects = ObjectsStore.find(
             self.blackboard.shared_content, self.agent.shared_content,
@@ -587,19 +692,25 @@ class IsInPartialAttached(Behaviour):
 
 
 class IsEnoughStrengthToCarry(Behaviour):
+    """Condition to check if the agent has enough strength to carry."""
+
     def __init__(self, name):
+        """Initialize."""
         super(IsEnoughStrengthToCarry, self).__init__(name)
         self.blackboard = Blackboard()
         self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
+        """Setup."""
         self.agent = agent
         self.item = item
 
     def initialise(self):
+        """Pass."""
         pass
 
     def update(self):
+        """Logic to check if the agent has enough strength to carry."""
         objects = ObjectsStore.find(
             self.blackboard.shared_content, self.agent.shared_content,
             self.item)[0]
@@ -613,19 +724,25 @@ class IsEnoughStrengthToCarry(Behaviour):
 
 
 class IsMotionTrue(Behaviour):
+    """Condition to check is the object is moving."""
+
     def __init__(self, name):
+        """Initialize."""
         super(IsMotionTrue, self).__init__(name)
         self.blackboard = Blackboard()
         self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
+        """Setup."""
         self.agent = agent
         self.item = item
 
     def initialise(self):
+        """Pass."""
         pass
 
     def update(self):
+        """Logic to check if the object is moving."""
         try:
             if self.agent.partial_attached_objects[0].motion is True:
                 return Status.SUCCESS
@@ -636,18 +753,24 @@ class IsMotionTrue(Behaviour):
 
 
 class IsVisitedBefore(Behaviour):
+    """Condition to check is the object is visited before."""
+
     def __init__(self, name):
+        """Initialize."""
         super(IsVisitedBefore, self).__init__(name)
         self.blackboard = Blackboard()
 
     def setup(self, timeout, agent, item):
+        """Setup."""
         self.agent = agent
         self.item = item
 
     def initialise(self):
+        """Pass."""
         pass
 
     def update(self):
+        """Logic to check is the object is visited before."""
         try:
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
@@ -661,19 +784,25 @@ class IsVisitedBefore(Behaviour):
 
 
 class MultipleCarry(Behaviour):
+    """Multiple carry behavior."""
+
     def __init__(self, name):
+        """Initialize."""
         super(MultipleCarry, self).__init__(name)
         self.blackboard = Blackboard()
         self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
+        """Setup."""
         self.agent = agent
         self.item = item
 
     def initialise(self):
+        """Pass."""
         pass
 
     def update(self):
+        """Logic for multiple carry."""
         objects = ObjectsStore.find(
             self.blackboard.shared_content, self.agent.shared_content,
             self.item)[0]
