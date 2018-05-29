@@ -21,6 +21,7 @@ class SwarmAgent(Agent):
         self.moveable = True
         self.weight = 5
         self.shared_contents = dict()
+        self.signals = []
 
     # New Agent methods for behavior based robotics
     def sense(self):

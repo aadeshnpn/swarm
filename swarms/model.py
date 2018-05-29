@@ -5,7 +5,6 @@ from swarms.lib.time import SimultaneousActivation
 # RandomActivation, StagedActivation
 from swarms.lib.space import Grid
 from swarms.utils.jsonhandler import JsonData
-from swarms.objects import Hub, Sites, Obstacles, Traps
 from swarms.agent import SwarmAgent
 
 filename = "swarms/utils/world.json"

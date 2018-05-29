@@ -3,6 +3,7 @@
 from py_trees import Behaviour, Status, Blackboard
 import numpy as np
 from swarms.utils.distangle import get_direction
+from swarms.objects import Signal
 
 
 class ObjectsStore:
@@ -61,6 +62,15 @@ class NeighbourObjects(Behaviour):
     def initialise(self):
         """Everytime initialization. Not required for now."""
         pass
+
+    def receive_signals(self):
+        """Receive signals from other agents.
+
+        Since this is the primary behavior for the agents to sense
+        the environment, we include the receive signal method here.
+        The agents will be able to sense the environment and check if
+        it receives any signals from other agents.
+        """
 
     def update(self):
         """
@@ -811,4 +821,45 @@ class MultipleCarry(Behaviour):
                 objects.location, objects)
             return Status.SUCCESS
         except IndexError:
+            return Status.FAILURE
+
+
+# Lets start some communication behaviors
+class SendSignal(Behaviour):
+    """Signalling behavior.
+
+    This behavior enables agents to send signals about the information they
+    have gathered. The information could be about location of site, hub, food,
+    obstacles and others.
+    """
+
+    def __init__(self, name):
+        """Initialize."""
+        super(SendSignal, self).__init__(name)
+        self.blackboard = Blackboard()
+
+    def setup(self, timeout, agent, item):
+        """Setup."""
+        self.agent = agent
+        self.item = item
+
+    def initialise(self):
+        """Pass."""
+        pass
+
+    def update(self):
+        """Logic for sending signal."""
+        try:
+            objects = ObjectsStore.find(
+                self.blackboard.shared_content, self.agent.shared_content,
+                self.item)[0]
+
+            # Initialize the signal object
+            self.agent.signals.append(
+                Signal(
+                    id=self.agent.id, location=self.agent.location,
+                    radius=self.agent.radius, object_to_communicate=objects))
+
+            return Status.SUCCESS
+        except (IndexError, AttributeError):
             return Status.FAILURE
