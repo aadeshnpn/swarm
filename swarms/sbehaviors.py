@@ -270,6 +270,22 @@ class Move(Behaviour):
         """Pass."""
         pass
 
+    def update_signals(self):
+        """Signal also move along with agents.
+
+        Signal is created by the agent. It has certain broadcast radius. It
+        moves along with the agent. So this move behavior should also be
+        responsible to move the signals.
+        """
+        try:
+            for signal in self.agent.signals:
+                old_location = signal.location
+                signal.location = self.agent.location
+                self.agent.model.grid.move_object(
+                    old_location, self.agent, signal.location)
+        except IndexError:
+            pass
+
     def update_partial_attached_objects(self):
         """Move logic for partially attached objects."""
         try:
@@ -319,6 +335,9 @@ class Move(Behaviour):
                 self.agent.partial_attached_objects[0].location)
 
             self.agent.location = self.agent.partial_attached_objects[0].location
+
+        # Now the agent location has been updated, update the signal grids
+        self.update_signals()
 
         return Status.SUCCESS
 
@@ -825,6 +844,49 @@ class MultipleCarry(Behaviour):
 
 
 # Lets start some communication behaviors
+class SignalDoesNotExists(Behaviour):
+    """Signal exists behavior.
+
+    This behavior enables agents to check it that signal already exists.
+    """
+
+    def __init__(self, name):
+        """Initialize."""
+        super(SignalDoesNotExists, self).__init__(name)
+        self.blackboard = Blackboard()
+
+    def setup(self, timeout, agent, item):
+        """Setup."""
+        self.agent = agent
+        self.item = item
+
+    def initialise(self):
+        """Pass."""
+        pass
+
+    def update(self):
+        """Logic for sending signal."""
+        try:
+            # Find the object the agent is trying to signal
+            objects = ObjectsStore.find(
+                self.blackboard.shared_content, self.agent.shared_content,
+                self.item)[0]
+
+            if len(self.agent.singnals) > 0:
+                # Check the agetns signals array for its exitance
+                signal_objects = [
+                    signal.object_to_communicate for signal in self.agent.signals]
+                if objects not in signal_objects:
+                    return Status.SUCCESS
+                else:
+                    return Status.FAILURE
+            else:
+                return Status.FAILURE
+
+        except (IndexError, AttributeError):
+            return Status.FAILURE
+
+
 class SendSignal(Behaviour):
     """Signalling behavior.
 
@@ -855,10 +917,16 @@ class SendSignal(Behaviour):
                 self.item)[0]
 
             # Initialize the signal object
-            self.agent.signals.append(
-                Signal(
-                    id=self.agent.id, location=self.agent.location,
-                    radius=self.agent.radius, object_to_communicate=objects))
+            signal = Signal(
+                id=self.agent.id, location=self.agent.location,
+                radius=self.agent.radius, object_to_communicate=objects)
+
+            # Add the signal to the grids so it could be sensed by
+            # other agents
+            self.agent.model.grid.add_object_to_grid(signal.location, signal)
+
+            # Append the signal object to the agent signal list
+            self.agent.signals.append(signal)
 
             return Status.SUCCESS
         except (IndexError, AttributeError):

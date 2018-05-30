@@ -42,6 +42,7 @@ class Agent:
         self.force = 10.0
         self.attached_objects = []
         self.partial_attached_objects = []
+        self.signals = []
 
     def step(self):
         """Represent a single step of the agent."""
