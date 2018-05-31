@@ -270,7 +270,7 @@ class Move(Behaviour):
         """Pass."""
         pass
 
-    def update_signals(self):
+    def update_signals(self, old_loc, new_loc):
         """Signal also move along with agents.
 
         Signal is created by the agent. It has certain broadcast radius. It
@@ -279,10 +279,8 @@ class Move(Behaviour):
         """
         try:
             for signal in self.agent.signals:
-                old_location = signal.location
-                signal.location = self.agent.location
                 self.agent.model.grid.move_object(
-                    old_location, self.agent, signal.location)
+                    old_loc, signal, new_loc)
         except IndexError:
             pass
 
@@ -322,6 +320,10 @@ class Move(Behaviour):
                 (x, y), self.agent.direction)
             self.agent.model.grid.move_object(
                 self.agent.location, self.agent, new_location)
+
+            # Now the agent location has been updated, update the signal grids
+            self.update_signals(self.agent.location, new_location)
+
             self.agent.location = new_location
             self.agent.direction = direction
 
@@ -330,14 +332,14 @@ class Move(Behaviour):
                 item.location = self.agent.location
 
         else:
+            new_location = self.agent.partial_attached_objects[0].location
             self.agent.model.grid.move_object(
-                self.agent.location, self.agent,
-                self.agent.partial_attached_objects[0].location)
+                self.agent.location, self.agent, new_location)
 
-            self.agent.location = self.agent.partial_attached_objects[0].location
+            # Now the agent location has been updated, update the signal grids
+            self.update_signals(self.agent.location, new_location)
 
-        # Now the agent location has been updated, update the signal grids
-        self.update_signals()
+            self.agent.location = new_location
 
         return Status.SUCCESS
 
@@ -854,6 +856,7 @@ class SignalDoesNotExists(Behaviour):
         """Initialize."""
         super(SignalDoesNotExists, self).__init__(name)
         self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
         """Setup."""
@@ -872,7 +875,7 @@ class SignalDoesNotExists(Behaviour):
                 self.blackboard.shared_content, self.agent.shared_content,
                 self.item)[0]
 
-            if len(self.agent.singnals) > 0:
+            if len(self.agent.signals) > 0:
                 # Check the agetns signals array for its exitance
                 signal_objects = [
                     signal.object_to_communicate for signal in self.agent.signals]
@@ -881,7 +884,7 @@ class SignalDoesNotExists(Behaviour):
                 else:
                     return Status.FAILURE
             else:
-                return Status.FAILURE
+                return Status.SUCCESS
 
         except (IndexError, AttributeError):
             return Status.FAILURE
@@ -899,6 +902,7 @@ class SendSignal(Behaviour):
         """Initialize."""
         super(SendSignal, self).__init__(name)
         self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
         """Setup."""
@@ -918,12 +922,13 @@ class SendSignal(Behaviour):
 
             # Initialize the signal object
             signal = Signal(
-                id=self.agent.id, location=self.agent.location,
+                id=self.agent.name, location=self.agent.location,
                 radius=self.agent.radius, object_to_communicate=objects)
 
             # Add the signal to the grids so it could be sensed by
             # other agents
-            self.agent.model.grid.add_object_to_grid(signal.location, signal)
+            self.agent.model.grid.add_object_to_grid(
+                self.agent.location, signal)
 
             # Append the signal object to the agent signal list
             self.agent.signals.append(signal)

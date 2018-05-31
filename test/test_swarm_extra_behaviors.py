@@ -8,7 +8,7 @@ from swarms.sbehaviors import (
     NeighbourObjects, IsMultipleCarry, IsInPartialAttached,
     InitiateMultipleCarry, IsEnoughStrengthToCarry,
     Move, GoTo, Drop, IsDropable, IsCarrying, Towards, DropPartial,
-    IsVisitedBefore, RandomWalk
+    IsVisitedBefore, RandomWalk, SignalDoesNotExists, SendSignal
     )
 from swarms.objects import Derbis, Sites, Hub, Food
 import py_trees
@@ -1063,7 +1063,7 @@ class TestRandomWalkSwarmSmallGrid(TestCase):
         self.environment = RandomWalkSwarmEnvironmentModel(
             50, 100, 100, 10, 123)
 
-    def test_agent_food(self):
+    def test_agent_exploration(self):
         # Testing is the agents cover the whole environment by randomly
         # move over it
         grid_visited = set()
@@ -1091,7 +1091,7 @@ class SwarmSignal(Agent):
         self.shared_content = dict()
 
         self.shared_content['Hub'] = [model.hub]
-
+        self.shared_content['Food'] = [model.food]
         # Just checking the Signal behaviors using the behaviors defined
         # below which moves the agent towards the hub.
         n1 = py_trees.meta.inverter(NeighbourObjects)('1')
@@ -1103,9 +1103,25 @@ class SwarmSignal(Agent):
         m1 = Move('3')
         m1.setup(0, self, None)
 
-        randseq = py_trees.composites.Sequence('Sequence')
-        randseq.add_children([n1, g1, m1])
-        self.behaviour_tree = py_trees.trees.BehaviourTree(randseq)
+        sense = py_trees.composites.Sequence('Sequence')
+        sense.add_children([n1, g1, m1])
+
+        s1 = SignalDoesNotExists('4')
+        s1.setup(0, self, 'Food')
+
+        s2 = SendSignal('5')
+        s2.setup(0, self, 'Food')
+
+        signal = py_trees.composites.Sequence('SequenceSignal')
+        signal.add_children([s1, s2])
+
+        select = py_trees.composites.Selector('Selector')
+        select.add_children([signal, sense])
+
+        self.behaviour_tree = py_trees.trees.BehaviourTree(select)
+
+        py_trees.logging.level = py_trees.logging.Level.DEBUG
+        py_trees.display.print_ascii_tree(select)
 
     def step(self):
         self.behaviour_tree.tick()
@@ -1133,6 +1149,9 @@ class SignalModel(Model):
         self.hub = Hub(id=2, location=(0, 0), radius=5)
         self.grid.add_object_to_grid(self.hub.location, self.hub)
 
+        self.food = Food(id=9, location=(-45, -45), radius=3)
+        self.grid.add_object_to_grid(self.food.location, self.food)
+
         self.agents = []
         for i in range(self.num_agents):
             a = SwarmSignal(i, self)
@@ -1154,16 +1173,23 @@ class TestSignalSwarmSmallGrid(TestCase):
         self.environment = SignalModel(
             1, 100, 100, 10, 123)
 
-    def test_agent_food(self):
-        # Testing is the agents cover the whole environment by randomly
-        # move over it
-        grid_visited = set()
-        for i in range(130):
+    def test_agent_signal_movement(self):
+        # Testing the functionality of signal. Signal needs to
+        # broadcast information and move along with the agent. The
+        # broadcasted information is about any object. Signal object
+        # attaches the object for information transfer
+        for i in range(20):
             self.environment.step()
-            for a in self.environment.agents:
-                _, grid_val = self.environment.grid.find_grid(a.location)
-                grid_visited.add(grid_val)
-        self.assertEqual(100, len(grid_visited))
+            agent = self.environment.agents[0]
+            agent_loc = agent.location
+            _, grid_val = self.environment.grid.find_grid(agent_loc)
+            signal = self.environment.grid.get_objects('Signal', grid_val)
+
+        # Checking if the agent has reached the hub
+        self.assertEqual(agent.location, (9, 9))
+
+        # Checking is the signal is moving along with the agent
+        self.assertEqual(signal, agent.signals)
 
 
 """
