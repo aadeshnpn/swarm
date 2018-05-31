@@ -177,4 +177,3 @@ class Derbis(Carryable):
     def __init__(self, id=1, location=(0, 0), radius=2, weight=5):
         """Initialize."""
         super().__init__(id, location, radius)
-

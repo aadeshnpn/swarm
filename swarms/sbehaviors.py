@@ -3,7 +3,7 @@
 from py_trees import Behaviour, Status, Blackboard
 import numpy as np
 from swarms.utils.distangle import get_direction
-from swarms.objects import Signal
+from swarms.objects import Signal, Cue
 
 
 class ObjectsStore:
@@ -973,6 +973,97 @@ class ReceiveSignal(Behaviour):
             object_name = type(objects.object_to_communicate).__name__
             self.agent.shared_content[object_name] = [
                 objects.object_to_communicate]
+            return Status.SUCCESS
+        except (IndexError, AttributeError):
+            return Status.FAILURE
+
+
+# Communication behaviors related to cue
+class DropCue(Behaviour):
+    """Drop cue in the environment.
+
+    This is a communication behavior where a physical object
+    is placed in the environment which gives a particular information
+    to the agents sensing this cue.
+    """
+
+    def __init__(self, name):
+        """Initialize."""
+        super(DropCue, self).__init__(name)
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+
+    def setup(self, timeout, agent, item):
+        """Setup."""
+        self.agent = agent
+        self.item = item
+
+    def initialise(self):
+        """Pass."""
+        pass
+
+    def update(self):
+        """Logic for dropping cue."""
+        try:
+            objects = ObjectsStore.find(
+                self.blackboard.shared_content, self.agent.shared_content,
+                self.item)[0]
+
+            # Initialize the cue object
+            cue = Cue(
+                id=self.agent.name, location=self.agent.location,
+                radius=self.agent.radius, object_to_communicate=objects)
+
+            # Add the cue to the grids so it could be sensed by
+            # other agents
+            self.agent.model.grid.add_object_to_grid(
+                cue.location, cue)
+
+            # We just drop the cue on the environment and don't keep track
+            # of it. Instead of using cue here we can derive a class from cue
+            # and call it pheromonone
+            return Status.SUCCESS
+        except (IndexError, AttributeError):
+            return Status.FAILURE
+
+
+class PickCue(Behaviour):
+    """Pick cue in the environment.
+
+    This is a communication behavior where the information from the cue
+    object in the environment is pickedup.
+    """
+
+    def __init__(self, name):
+        """Initialize."""
+        super(PickCue, self).__init__(name)
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+
+    def setup(self, timeout, agent, item='Cue'):
+        """Setup."""
+        self.agent = agent
+        self.item = item
+
+    def initialise(self):
+        """Pass."""
+        pass
+
+    def update(self):
+        """Logic for dropping cue."""
+        try:
+            objects = ObjectsStore.find(
+                self.blackboard.shared_content, self.agent.shared_content,
+                self.item)[0]
+
+            # Get information from the cue. For now, the agents orients
+            # its direction towards the object that is communicated
+            self.agent.direction = get_direction(
+                objects.communicated_location, self.agent.location)
+
+            # We just drop the cue on the environment and don't keep track
+            # of it. Instead of using cue here we can derive a class from cue
+            # and call it pheromonone
             return Status.SUCCESS
         except (IndexError, AttributeError):
             return Status.FAILURE
