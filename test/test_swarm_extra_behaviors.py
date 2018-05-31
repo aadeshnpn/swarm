@@ -8,7 +8,8 @@ from swarms.sbehaviors import (
     NeighbourObjects, IsMultipleCarry, IsInPartialAttached,
     InitiateMultipleCarry, IsEnoughStrengthToCarry,
     Move, GoTo, Drop, IsDropable, IsCarrying, Towards, DropPartial,
-    IsVisitedBefore, RandomWalk, SignalDoesNotExists, SendSignal
+    IsVisitedBefore, RandomWalk, SignalDoesNotExists, SendSignal,
+    ReceiveSignal
     )
 from swarms.objects import Derbis, Sites, Hub, Food
 import py_trees
@@ -1168,28 +1169,241 @@ class SignalModel(Model):
 
 
 class TestSignalSwarmSmallGrid(TestCase):
+    # Testing the functionality of signal. Signal needs to
+    # broadcast information and move along with the agent. The
+    # broadcasted information is about any object. Signal object
+    # attaches the object for information transfer
 
     def setUp(self):
         self.environment = SignalModel(
             1, 100, 100, 10, 123)
 
     def test_agent_signal_movement(self):
-        # Testing the functionality of signal. Signal needs to
-        # broadcast information and move along with the agent. The
-        # broadcasted information is about any object. Signal object
-        # attaches the object for information transfer
+
         for i in range(20):
             self.environment.step()
-            agent = self.environment.agents[0]
-            agent_loc = agent.location
-            _, grid_val = self.environment.grid.find_grid(agent_loc)
-            signal = self.environment.grid.get_objects('Signal', grid_val)
+
+        agent = self.environment.agents[0]
+        agent_loc = agent.location
+        _, grid_val = self.environment.grid.find_grid(agent_loc)
+        signal = self.environment.grid.get_objects('Signal', grid_val)
+
+        # Checking is the signal is moving along with the agent
+        self.assertEqual(signal, agent.signals)
+
+    def test_agent_signal_send(self):
+
+        for i in range(20):
+            self.environment.step()
+
+        agent = self.environment.agents[0]
 
         # Checking if the agent has reached the hub
         self.assertEqual(agent.location, (9, 9))
 
+
+class SwarmSignalRec1(Agent):
+    """ An minimalistic behavior tree for swarm agent
+    implementing signal behavior with both send and receive
+    """
+    def __init__(self, name, model):
+        super().__init__(name, model)
+        self.location = ()
+
+        self.direction = model.random.rand() * (2 * np.pi)
+        self.speed = 2
+        self.radius = 3
+
+        self.moveable = True
+        self.shared_content = dict()
+
+        # Just checking the Signal behaviors using the behaviors defined
+        # below which moves the agent towards the site after receiving signal
+        # from other agents about a site.
+        n1 = py_trees.meta.inverter(NeighbourObjects)('1')
+        n1.setup(0, self, 'Sites')
+
+        g1 = GoTo('1')
+        g1.setup(0, self, 'Sites')
+
+        m1 = Move('3')
+        m1.setup(0, self, None)
+
+        sense = py_trees.composites.Sequence('Sequence')
+        sense.add_children([n1, g1, m1])
+
+        r1 = ReceiveSignal('4')
+        r1.setup(0, self, 'Signal')
+
+        # s2 = SendSignal('5')
+        # s2.setup(0, self, 'Food')
+
+        signal = py_trees.composites.Selector('Signal')
+        signal.add_children([r1])
+
+        select = py_trees.composites.Selector('Selector')
+        select.add_children([signal, sense])
+
+        self.behaviour_tree = py_trees.trees.BehaviourTree(select)
+
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # py_trees.display.print_ascii_tree(select)
+
+    def step(self):
+        self.behaviour_tree.tick()
+
+    def advance(self):
+        pass
+
+
+class SwarmSignalRec2(Agent):
+    """ An minimalistic behavior tree for swarm agent
+    implementing signal behavior
+    """
+    def __init__(self, name, model):
+        super().__init__(name, model)
+        self.location = ()
+
+        self.direction = model.random.rand() * (2 * np.pi)
+        self.speed = 2
+        self.radius = 3
+
+        self.moveable = True
+        self.shared_content = dict()
+
+        self.shared_content['Hub'] = [model.hub]
+        # Just checking the Signal behaviors using the behaviors defined
+        # below which moves the agent towards the hub. When its finds
+        # sites, its starts to signal
+        n1 = py_trees.meta.inverter(NeighbourObjects)('1')
+        n1.setup(0, self, 'Hub')
+
+        g1 = GoTo('2')
+        g1.setup(0, self, 'Hub')
+
+        m1 = Move('3')
+        m1.setup(0, self, None)
+
+        sense = py_trees.composites.Sequence('Sequence')
+        sense.add_children([n1, g1, m1])
+
+        s1 = SignalDoesNotExists('4')
+        s1.setup(0, self, 'Sites')
+
+        s2 = SendSignal('5')
+        s2.setup(0, self, 'Sites')
+
+        s3 = NeighbourObjects('6')
+        s3.setup(0, self, 'Sites')
+
+        signal = py_trees.composites.Sequence('SequenceSignal')
+        signal.add_children([s3, s1, s2])
+
+        select = py_trees.composites.Selector('Selector')
+        select.add_children([signal, sense])
+
+        self.behaviour_tree = py_trees.trees.BehaviourTree(select)
+
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # py_trees.display.print_ascii_tree(select)
+
+    def step(self):
+        self.behaviour_tree.tick()
+
+    def advance(self):
+        pass
+
+
+class SignalModelRec(Model):
+    """ A environment to model swarms """
+    def __init__(self, N, width, height, grid=10, seed=None):
+        if seed is None:
+            super(SignalModelRec, self).__init__(
+                seed=None)
+        else:
+            super(SignalModelRec, self).__init__(
+                seed)
+
+        self.num_agents = N
+
+        self.grid = Grid(width, height, grid)
+
+        self.schedule = SimultaneousActivation(self)
+
+        self.hub = Hub(id=2, location=(0, 0), radius=5)
+        self.grid.add_object_to_grid(self.hub.location, self.hub)
+
+        self.site = Sites(id=5, location=(20, 20), radius=5)
+        self.grid.add_object_to_grid(self.site.location, self.site)
+
+        self.agents = []
+
+        # Define agent which is going to send the signal
+        for i in range(self.num_agents):
+            a = SwarmSignalRec2(i, self)
+            self.schedule.add(a)
+            x = 45
+            y = 45
+            a.location = (x, y)
+            a.direction = -2.3561944901923448
+            self.grid.add_object_to_grid((x, y), a)
+            self.agents.append(a)
+
+        # Define agent which is going to receive the signal
+        for i in range(self.num_agents):
+            a = SwarmSignalRec1(i, self)
+            self.schedule.add(a)
+            x = 0
+            y = 0
+            a.location = (x, y)
+            a.direction = -2.3561944901923448
+            self.grid.add_object_to_grid((x, y), a)
+            self.agents.append(a)
+
+    def step(self):
+        self.schedule.step()
+
+
+class TestSignalRecSwarmSmallGrid(TestCase):
+    # Testing the functionality of signal. Signal needs to
+    # broadcast information and move along with the agent. The
+    # broadcasted information is about any object. Signal object
+    # attaches the object for information transfer
+
+    def setUp(self):
+        self.environment = SignalModelRec(
+            1, 100, 100, 10, 123)
+
+    def test_agent_signal_send(self):
+
+        for i in range(20):
+            self.environment.step()
+
+        agent = self.environment.agents[0]
+
+        # Checking if the signal sending agent has reached the hub
+        self.assertEqual(agent.location, (9, 9))
+
+    def test_agent_signal_movement(self):
+
+        for i in range(20):
+            self.environment.step()
+
+        agent = self.environment.agents[0]
+        agent_loc = agent.location
+        _, grid_val = self.environment.grid.find_grid(agent_loc)
+        signal = self.environment.grid.get_objects('Signal', grid_val)
+
         # Checking is the signal is moving along with the agent
         self.assertEqual(signal, agent.signals)
+
+    def test_agent_signal_receive(self):
+
+        for i in range(30):
+            self.environment.step()
+
+        # Checking if the signal receiving agent has reached the site
+        self.assertEqual(self.environment.agents[1].location, (20, 20))
 
 
 """

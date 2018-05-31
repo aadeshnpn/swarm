@@ -936,3 +936,43 @@ class SendSignal(Behaviour):
             return Status.SUCCESS
         except (IndexError, AttributeError):
             return Status.FAILURE
+
+
+class ReceiveSignal(Behaviour):
+    """Receive signals from other agents.
+
+    Since this is the primary behavior for the agents to sense
+    the environment, we include the receive signal method here.
+    The agents will be able to sense the environment and check if
+    it receives any signals from other agents.
+    """
+
+    def __init__(self, name):
+        """Initialize."""
+        super(ReceiveSignal, self).__init__(name)
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+
+    def setup(self, timeout, agent, item='Signal'):
+        """Setup."""
+        self.agent = agent
+        self.item = item
+
+    def initialise(self):
+        """Pass."""
+        pass
+
+    def update(self):
+        """Logic for receiving signal."""
+        try:
+            objects = ObjectsStore.find(
+                self.blackboard.shared_content, self.agent.shared_content,
+                self.item)[0]
+            # Extract the information from the signal object and
+            # store into the agent memory
+            object_name = type(objects.object_to_communicate).__name__
+            self.agent.shared_content[object_name] = [
+                objects.object_to_communicate]
+            return Status.SUCCESS
+        except (IndexError, AttributeError):
+            return Status.FAILURE
