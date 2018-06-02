@@ -15,19 +15,22 @@ class JsonData:
     @staticmethod
     def environment_object_to_json(objects):
         """Convert env objects to json object."""
-        objects = []
-        for i in objects:
-            object_temp = {}
-            object_temp["x"] = objects[i].location[0]
-            object_temp["y"] = objects[i].location[1]
-            object_temp["radius"] = objects[i].radius
-            try:
-                object_temp["q_value"] = objects[i].q_value
-            except KeyError:
-                pass
+        json_objects = []
+        if objects is not None:
+            for i in range(len(objects)):
+                object_temp = {}
+                object_temp["x"] = objects[i].location[0]
+                object_temp["y"] = objects[i].location[1]
+                object_temp["radius"] = objects[i].radius
+                try:
+                    object_temp["q_value"] = objects[i].q_value
+                except (KeyError, AttributeError):
+                    pass
 
-            objects.append(object_temp)
-        return objects
+                json_objects.append(object_temp)
+            return json_objects
+        else:
+            return []
 
     @staticmethod
     def agent_to_json(agent):
@@ -39,20 +42,21 @@ class JsonData:
         agent_dict["direction"] = agent.direction
         agent_dict["state"] = ""
 
+        """
         if agent.signal.grid:
             agent_dict["signal"] = 1
             agent_dict["signal_radius"] = 40
         else:
             agent_dict["signal"] = 0
             agent_dict["signal_radius"] = 0
-
+        """
         return agent_dict
 
     @staticmethod
     def to_json(width, height, hub, sites, obstacles, traps,
                 cues, food, derbis, agents):
         """Convert simulation to json."""
-        print(
+        return(
             json.dumps(
                 {
                     "type": "update",
@@ -65,10 +69,10 @@ class JsonData:
                         "obstacles": JsonData.environment_object_to_json(
                             obstacles),
                         "traps": JsonData.environment_object_to_json(traps),
-                        "cues": JsonData.environment_object_to_json(cues),
-                        "food": JsonData.environment_object_to_json(hub),
-                        "derbis": JsonData.environment_object_to_json(hub),
-                        "agents": JsonData.environment_object_to_json(hub),
+                        #"cues": JsonData.environment_object_to_json(cues),
+                        #"food": JsonData.environment_object_to_json(food),
+                        #"derbis": JsonData.environment_object_to_json(derbis),
+                        "agents": JsonData.environment_object_to_json(agents),
                     }
                 })
         )

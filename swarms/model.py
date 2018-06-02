@@ -6,8 +6,12 @@ from swarms.lib.time import SimultaneousActivation
 from swarms.lib.space import Grid
 from swarms.utils.jsonhandler import JsonData
 from swarms.agent import SwarmAgent
+from swarms.objects import Hub, Sites, Obstacles, Traps
 
-filename = "swarms/utils/world.json"
+import os
+
+filename = os.path.join(
+    "/home/aadeshnpn/Documents/BYU/hcmi/swarm/swarms/" + "utils/world.json")
 
 
 class EnvironmentModel(Model):
@@ -28,6 +32,7 @@ class EnvironmentModel(Model):
 
         self.build_environment_from_json()
 
+        self.agents = []
         for i in range(self.num_agents):
             a = SwarmAgent(i, self)
             self.schedule.add(a)
@@ -41,6 +46,9 @@ class EnvironmentModel(Model):
             a.location = (x, y)
 
             self.grid.add_object_to_grid((x, y), a)
+            self.agents.append(a)
+
+
 
     def create_environment_object(self, jsondata, obj):
         """Create env from jsondata."""

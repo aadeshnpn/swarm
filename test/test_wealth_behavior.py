@@ -105,7 +105,7 @@ class SwarmAgent(Agent):
 
         root = py_trees.composites.Sequence("Sequence")
         low = Move('4')
-        low.setup(0, self)        
+        low.setup(0, self)
         higest = HasMoney('1')
         higest.setup(0, self)
         high = NeighbourCondition('2')
@@ -162,7 +162,7 @@ class WealthEnvironmentModel(Model):
 
 
 class TestWealthSwarmSmallGrid(TestCase):
-    
+
     def setUp(self):
         self.environment = WealthEnvironmentModel(100, 100, 100, 10, 123)
 
