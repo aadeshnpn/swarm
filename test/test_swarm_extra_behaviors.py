@@ -7,9 +7,9 @@ from swarms.sbehaviors import (
     IsCarryable, IsSingleCarry, SingleCarry,
     NeighbourObjects, IsMultipleCarry, IsInPartialAttached,
     InitiateMultipleCarry, IsEnoughStrengthToCarry,
-    Move, GoTo, Drop, IsDropable, IsCarrying, Towards, DropPartial,
+    Move, GoTo, Drop, IsDropable, IsCarrying, DropPartial,
     IsVisitedBefore, RandomWalk, SignalDoesNotExists, SendSignal,
-    ReceiveSignal
+    ReceiveSignal, DropCue, PickCue, CueDoesNotExists
     )
 from swarms.objects import Derbis, Sites, Hub, Food
 import py_trees
@@ -19,7 +19,7 @@ import numpy as np
 
 # Class to test accleration and velocity models
 class SwarmAgentGoTo(Agent):
-    """ An minimalistic behavior tree for swarm agent implementing goto
+    """An minimalistic behavior tree for swarm agent implementing goto
     behavior using accleration and velocity
     """
     def __init__(self, name, model):
@@ -1404,6 +1404,212 @@ class TestSignalRecSwarmSmallGrid(TestCase):
 
         # Checking if the signal receiving agent has reached the site
         self.assertEqual(self.environment.agents[1].location, (20, 20))
+
+
+class SwarmCuePick(Agent):
+    """ An minimalistic behavior tree for swarm agent
+    implementing cue behavior with both drop
+    """
+    def __init__(self, name, model):
+        super().__init__(name, model)
+        self.location = ()
+
+        self.direction = model.random.rand() * (2 * np.pi)
+        self.speed = 2
+        self.radius = 3
+
+        self.moveable = True
+        self.shared_content = dict()
+
+        # Just checking the cue behaviors using the behaviors defined
+        # below which moves the agent towards the site after picking up cue
+        # from other agents about a site.
+        n1 = py_trees.meta.inverter(NeighbourObjects)('21')
+        n1.setup(0, self, 'Sites')
+
+        g1 = GoTo('22')
+        g1.setup(0, self, 'Sites')
+
+        m1 = Move('23')
+        m1.setup(0, self, None)
+
+        sense = py_trees.composites.Sequence('Sequence')
+        sense.add_children([n1, g1, m1])
+
+        r1 = PickCue('24')
+        r1.setup(0, self)
+
+        cue = py_trees.composites.Selector('Cue')
+        cue.add_children([r1])
+
+        select = py_trees.composites.Selector('Selector')
+        select.add_children([cue, sense])
+
+        self.behaviour_tree = py_trees.trees.BehaviourTree(select)
+
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # py_trees.display.print_ascii_tree(select)
+
+    def step(self):
+        self.behaviour_tree.tick()
+
+    def advance(self):
+        pass
+
+
+class SwarmCueDrop(Agent):
+    """ An minimalistic behavior tree for swarm agent
+    implementing cue behavior
+    """
+    def __init__(self, name, model):
+        super().__init__(name, model)
+        self.location = ()
+
+        self.direction = model.random.rand() * (2 * np.pi)
+        self.speed = 2
+        self.radius = 3
+
+        self.moveable = True
+        self.shared_content = dict()
+
+        self.shared_content['Hub'] = [model.hub]
+        # Just checking the cue drop behaviors using the behaviors defined
+        # below which moves the agent towards the hub. When its finds
+        # sites, its drops the cue at hub
+        n1 = py_trees.meta.inverter(NeighbourObjects)('1')
+        n1.setup(0, self, 'Hub')
+
+        g1 = GoTo('2')
+        g1.setup(0, self, 'Hub')
+
+        m1 = Move('3')
+        m1.setup(0, self, None)
+
+        sense = py_trees.composites.Sequence('Sequence')
+        sense.add_children([n1, g1, m1])
+
+        s1 = IsVisitedBefore('4')
+        s1.setup(0, self, 'Sites')
+
+        s2 = DropCue('5')
+        s2.setup(0, self, 'Sites')
+
+        s3 = NeighbourObjects('6')
+        s3.setup(0, self, 'Hub')
+
+        s4 = py_trees.meta.inverter(NeighbourObjects)('7')
+        s4.setup(0, self, 'Sites')
+
+        s5 = CueDoesNotExists('8')
+        s5.setup(0, self, 'Sites')
+
+        cue = py_trees.composites.Sequence('SequenceCue')
+        cue.add_children([s4, s5, s3, s2])
+
+        select = py_trees.composites.Selector('Selector')
+        select.add_children([cue, sense])
+
+        self.behaviour_tree = py_trees.trees.BehaviourTree(select)
+
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # py_trees.display.print_ascii_tree(select)
+
+    def step(self):
+        self.behaviour_tree.tick()
+
+    def advance(self):
+        pass
+
+
+class CueModelRec(Model):
+    """ A environment to model swarms """
+    def __init__(self, N, width, height, grid=10, seed=None):
+        if seed is None:
+            super(CueModelRec, self).__init__(
+                seed=None)
+        else:
+            super(CueModelRec, self).__init__(
+                seed)
+
+        self.num_agents = N
+
+        self.grid = Grid(width, height, grid)
+
+        self.schedule = SimultaneousActivation(self)
+
+        self.hub = Hub(id=2, location=(0, 0), radius=5)
+        self.grid.add_object_to_grid(self.hub.location, self.hub)
+
+        self.site = Sites(id=5, location=(30, 30), radius=5)
+        self.grid.add_object_to_grid(self.site.location, self.site)
+
+        self.agents = []
+
+        # Define agent which is going to drop the signal
+        for i in range(self.num_agents):
+            a = SwarmCueDrop(i, self)
+            self.schedule.add(a)
+            x = 45
+            y = 45
+            a.location = (x, y)
+            a.direction = -2.3561944901923448
+            self.grid.add_object_to_grid((x, y), a)
+            self.agents.append(a)
+
+        # Define agent which is going to pick up information from the cue
+        for i in range(self.num_agents):
+            a = SwarmCuePick(i, self)
+            self.schedule.add(a)
+            x = 0
+            y = 0
+            a.location = (x, y)
+            a.direction = -2.3561944901923448
+            self.grid.add_object_to_grid((x, y), a)
+            self.agents.append(a)
+
+    def step(self):
+        self.schedule.step()
+
+
+class TestCueSwarmSmallGrid(TestCase):
+    # Testing the functionality of cue. Cue needs to
+    # dropped in a fixed location. The cue might contain
+    # information about any object.
+
+    def setUp(self):
+        self.environment = CueModelRec(
+            1, 100, 100, 10, 123)
+
+    def test_agent_agent_motion(self):
+
+        for i in range(20):
+            self.environment.step()
+
+        agent = self.environment.agents[0]
+
+        # Checking if the cue dropping agent has reached the hub
+        self.assertEqual(agent.location, (9, 9))
+
+    def test_agent_cue_drop(self):
+
+        for i in range(20):
+            self.environment.step()
+
+        hub = self.environment.hub
+        hub_loc = hub.location
+        _, grid_val = self.environment.grid.find_grid(hub_loc)
+        cue = self.environment.grid.get_objects('Cue', grid_val)
+
+        # Checking is the cue is dropped at the hub
+        self.assertEqual(type(cue[0]).__name__, 'Cue')
+
+    def test_agent_cue_pick(self):
+
+        for i in range(35):
+            self.environment.step()
+
+        # Checking if the cue receiving agent has reached the site
+        self.assertEqual(self.environment.agents[1].location, (30, 30))
 
 
 """

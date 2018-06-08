@@ -1,4 +1,4 @@
-""" Defines all the behaviors for the agents."""
+"""Defines all the behaviors for the agents."""
 
 from py_trees import Behaviour, Status, Blackboard
 import numpy as np
@@ -974,6 +974,54 @@ class ReceiveSignal(Behaviour):
             self.agent.shared_content[object_name] = [
                 objects.object_to_communicate]
             return Status.SUCCESS
+        except (IndexError, AttributeError):
+            return Status.FAILURE
+
+
+class CueDoesNotExists(Behaviour):
+    """Cue does not exists behavior.
+
+    This behavior enables agents to check if that cue already exists.
+    """
+
+    def __init__(self, name):
+        """Initialize."""
+        super(CueDoesNotExists, self).__init__(name)
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+
+    def setup(self, timeout, agent, item):
+        """Setup."""
+        self.agent = agent
+        self.item = item
+
+    def initialise(self):
+        """Pass."""
+        pass
+
+    def update(self):
+        """Logic for cue checking."""
+        try:
+            # Find the object the agent is trying to cue
+            grids = self.agent.model.grid.get_neighborhood(
+                self.agent.location, self.agent.radius)
+            cue_objects = self.agent.model.grid.get_objects_from_list_of_grid(
+                'Cue', grids)
+
+            if len(cue_objects) > 0:
+                # Check the agetns cue list for its exitance
+                objects = ObjectsStore.find(
+                    self.blackboard.shared_content, self.agent.shared_content,
+                    self.item)[0]
+                cue_in_list = [
+                    cue.object_to_communicate for cue in cue_objects]
+                if objects not in cue_in_list:
+                    return Status.SUCCESS
+                else:
+                    return Status.FAILURE
+            else:
+                return Status.SUCCESS
+
         except (IndexError, AttributeError):
             return Status.FAILURE
 
