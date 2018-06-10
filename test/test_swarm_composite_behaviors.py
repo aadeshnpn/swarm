@@ -5,7 +5,8 @@ from swarms.lib.agent import Agent
 from swarms.lib.model import Model
 from swarms.lib.time import SimultaneousActivation
 from swarms.lib.space import Grid
-from swarms.sbehaviors import MoveTowards, IsCarrying
+from swarms.scbehaviors import MoveTowards
+from swarms.sbehaviors import IsCarrying
 from swarms.objects import Sites
 import py_trees
 import numpy as np
