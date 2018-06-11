@@ -16,7 +16,7 @@ from swarms.sbehaviors import (
     GoTo, Towards, Move, Away,
     IsCarryable, IsSingleCarry, SingleCarry,
     IsMultipleCarry, IsInPartialAttached, IsEnoughStrengthToCarry,
-    InitiateMultipleCarry, MultipleCarry
+    InitiateMultipleCarry, IsCarrying, Drop
     )
 
 # Start of mid-level behaviors. These behaviors are the
@@ -244,6 +244,8 @@ class CompositeMultipleCarry(Behaviour):
         initiate_mc_b = InitiateMultipleCarry('MC_InitiateMultipleCarry')
         initiate_mc_b.setup(0, self.agent, self.item)
 
+        # Selector to select between intiate
+        # multiple carry and checking strength
         initial_mc_sel = Selector("MC_Selector")
         initial_mc_sel.add_children([partial_attached, initiate_mc_b])
 
@@ -254,8 +256,19 @@ class CompositeMultipleCarry(Behaviour):
 
         strength_seq.add_children([strength])
 
+        # Main sequence branch where all the multiple carry logic takes place
         sequence_branch = Sequence("MC_Sequence_branch")
         sequence_branch.add_children([is_mc, initial_mc_sel, strength_seq])
+
+        # Main logic behind this composite multiple carry BT
+        """
+        First check if the object is carryable or not. If the object is
+        carryable then execute the sequence branch. In the sequence branch,
+        check is the object needs multiple agents to carry. If yes, execute
+        the initiate multiple carry sequence branch only if it has not been
+        attached before. Finally, check if there are enought agents/strenght
+        to lift the object up.
+        """
         root.add_children([carryable, sequence_branch])
         self.behaviour_tree = BehaviourTree(root)
 
@@ -271,3 +284,52 @@ class CompositeMultipleCarry(Behaviour):
         self.behaviour_tree.tick()
         return self.behaviour_tree.root.status
 
+
+class CompositeDrop(Behaviour):
+    """CompositeDrop behavior for the agents.
+
+    Inherits the Behaviors class from py_trees. This
+    behavior combines the privitive behaviors to succesfully drop any
+    carrying object fon to a dropable surface. It combines IsDropable,
+    IsCarrying and Drop primitive behaviors.
+    """
+
+    def __init__(self, name):
+        """Init method for the CompositeDrop behavior."""
+        super(CompositeDrop, self).__init__(name)
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+
+    def setup(self, timeout, agent, item):
+        """Have defined the setup method.
+
+        This method defines the other objects required for the
+        behavior. Agent is the actor in the environment,
+        item is the name of the item we are trying to find in the
+        environment and timeout defines the execution time for the
+        behavior.
+        """
+        self.agent = agent
+        self.item = item
+
+        dropseq = Sequence('CD_Sequence')
+
+        iscarrying = IsCarrying('CD_IsCarrying')
+        iscarrying.setup(0, self.agent, self.item)
+
+        drop = Drop('CD_Drop')
+        drop.setup(0, self.agent, self.item)
+
+        self.behaviour_tree = BehaviourTree(dropseq)
+
+    def initialise(self):
+        """Everytime initialization. Not required for now."""
+        pass
+
+    def update(self):
+        """Just call the tick method for the sequence.
+
+        This will execute the primitive behaviors defined in the sequence
+        """
+        self.behaviour_tree.tick()
+        return self.behaviour_tree.root.status
