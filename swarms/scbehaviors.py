@@ -16,7 +16,7 @@ from swarms.sbehaviors import (
     GoTo, Towards, Move, Away,
     IsCarryable, IsSingleCarry, SingleCarry,
     IsMultipleCarry, IsInPartialAttached, IsEnoughStrengthToCarry,
-    InitiateMultipleCarry, IsCarrying, Drop
+    InitiateMultipleCarry, IsCarrying, Drop, RandomWalk
     )
 
 # Start of mid-level behaviors. These behaviors are the
@@ -333,3 +333,56 @@ class CompositeDrop(Behaviour):
         """
         self.behaviour_tree.tick()
         return self.behaviour_tree.root.status
+
+
+class Explore(Behaviour):
+    """Explore behavior for the agents.
+
+    Inherits the Behaviors class from py_trees. This
+    behavior combines the privitive behaviors to succesfully explore the
+    environment. It combines Randomwalk and Move behaviors.
+    """
+
+    def __init__(self, name):
+        """Init method for the Explore behavior."""
+        super(Explore, self).__init__(name)
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+
+    def setup(self, timeout, agent, item):
+        """Have defined the setup method.
+
+        This method defines the other objects required for the
+        behavior. Agent is the actor in the environment,
+        item is the name of the item we are trying to find in the
+        environment and timeout defines the execution time for the
+        behavior.
+        """
+        self.agent = agent
+        self.item = item
+
+        # Define the root for the BT
+        root = Sequence("Ex_Sequence")
+
+        low = RandomWalk('Ex_RandomWalk')
+        low.setup(0, self)
+
+        high = Move('Ex_Move')
+        high.setup(0, self)
+
+        root.add_children([low, high])
+
+        self.behaviour_tree = BehaviourTree(root)
+
+    def initialise(self):
+        """Everytime initialization. Not required for now."""
+        pass
+
+    def update(self):
+        """Just call the tick method for the sequence.
+
+        This will execute the primitive behaviors defined in the sequence
+        """
+        self.behaviour_tree.tick()
+        return self.behaviour_tree.root.status
+
