@@ -1,20 +1,22 @@
 """Defines all the composite behaviors for the agents.
 
-    This file name is scbehaviors coz `s` stands for swarms and
-    `c` stands for composite behaviors.
-    These composite behaviors are designed so that the algorithms
-    would find the collective behaviors with ease. Also it will help the
-    human designers to effectively design new behaviors. It provides
-    flexibility for the user to use the primitive behaviors along with
-    feature rich behaviors.
+This file name is scbehaviors coz `s` stands for swarms and
+`c` stands for composite behaviors.
+These composite behaviors are designed so that the algorithms
+would find the collective behaviors with ease. Also it will help the
+human designers to effectively design new behaviors. It provides
+flexibility for the user to use the primitive behaviors along with
+feature rich behaviors.
 """
 
 from py_trees import Behaviour, Blackboard
-from py_trees.composites import Sequence
+from py_trees.composites import Sequence, Selector
 from py_trees.trees import BehaviourTree
 from swarms.sbehaviors import (
     GoTo, Towards, Move, Away,
-    IsCarryable, IsSingleCarry, SingleCarry
+    IsCarryable, IsSingleCarry, SingleCarry,
+    IsMultipleCarry, IsInPartialAttached, IsEnoughStrengthToCarry,
+    InitiateMultipleCarry, MultipleCarry
     )
 
 # Start of mid-level behaviors. These behaviors are the
@@ -73,8 +75,8 @@ class MoveTowards(Behaviour):
         pass
 
     def update(self):
-        """
-        Just call the tick method for the sequence.
+        """Just call the tick method for the sequence.
+
         This will execute the primitive behaviors defined in the sequence
         """
         self.behaviour_tree.tick()
@@ -129,8 +131,8 @@ class MoveAway(Behaviour):
         pass
 
     def update(self):
-        """
-        Just call the tick method for the sequence.
+        """Just call the tick method for the sequence.
+
         This will execute the primitive behaviors defined in the sequence
         """
         self.behaviour_tree.tick()
@@ -187,9 +189,85 @@ class CompositeSingleCarry(Behaviour):
         pass
 
     def update(self):
-        """
-        Just call the tick method for the sequence.
+        """Just call the tick method for the sequence.
+
         This will execute the primitive behaviors defined in the sequence
         """
         self.behaviour_tree.tick()
         return self.behaviour_tree.root.status
+
+
+class CompositeMultipleCarry(Behaviour):
+    """CompositeMultipleCarry behavior for the agents.
+
+    Inherits the Behaviors class from py_trees. This
+    behavior combines the privitive behaviors to succesfully carry any heavy
+    carryable object. It combines IsCarrable, IsMultipleCarry
+    and InitiateMultipleCarry primitive behaviors.
+    """
+
+    def __init__(self, name):
+        """Init method for the CompositeSingleCarry behavior."""
+        super(CompositeMultipleCarry, self).__init__(name)
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+
+    def setup(self, timeout, agent, item):
+        """Have defined the setup method.
+
+        This method defines the other objects required for the
+        behavior. Agent is the actor in the environment,
+        item is the name of the item we are trying to find in the
+        environment and timeout defines the execution time for the
+        behavior.
+        """
+        self.agent = agent
+        self.item = item
+
+        # Root node from the multiple carry behavior tree
+        root = Sequence("MC_Sequence")
+
+        # Conditional behavior to check if the sensed object is carrable or not
+        carryable = IsCarryable('MC_IsCarryable')
+        carryable.setup(0, self.agent, self.item)
+
+        # Conditional behavior to check if the object is too heavy
+        # for single carry
+        is_mc = IsMultipleCarry('MC_IsMultipleCarry')
+        is_mc.setup(0, self.agent, self.item)
+
+        # Check if the object is alread attached to the object
+        partial_attached = IsInPartialAttached('MC_IsPartialAttached')
+        partial_attached.setup(0, self.agent, self.item)
+
+        # Initiate multiple carry process
+        initiate_mc_b = InitiateMultipleCarry('MC_InitiateMultipleCarry')
+        initiate_mc_b.setup(0, self.agent, self.item)
+
+        initial_mc_sel = Selector("MC_Selector")
+        initial_mc_sel.add_children([partial_attached, initiate_mc_b])
+
+        strength = IsEnoughStrengthToCarry('MC_EnoughStrength')
+        strength.setup(0, self.agent, self.item)
+
+        strength_seq = Sequence("MC_StrenghtSeq")
+
+        strength_seq.add_children([strength])
+
+        sequence_branch = Sequence("MC_Sequence_branch")
+        sequence_branch.add_children([is_mc, initial_mc_sel, strength_seq])
+        root.add_children([carryable, sequence_branch])
+        self.behaviour_tree = BehaviourTree(root)
+
+    def initialise(self):
+        """Everytime initialization. Not required for now."""
+        pass
+
+    def update(self):
+        """Just call the tick method for the sequence.
+
+        This will execute the primitive behaviors defined in the sequence
+        """
+        self.behaviour_tree.tick()
+        return self.behaviour_tree.root.status
+
