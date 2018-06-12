@@ -6,10 +6,10 @@ from swarms.lib.model import Model
 from swarms.lib.time import SimultaneousActivation
 from swarms.lib.space import Grid
 from swarms.scbehaviors import (
-    MoveTowards, MoveAway, Explore
+    MoveTowards, MoveAway, Explore, CompositeSingleCarry
     )
-from swarms.sbehaviors import IsCarrying
-from swarms.objects import Sites
+from swarms.sbehaviors import IsCarrying, NeighbourObjects
+from swarms.objects import Sites, Derbis
 import py_trees
 import numpy as np
 
@@ -277,3 +277,84 @@ class TestExploreSwarmSmallGrid(TestCase):
         self.assertEqual(self.trimmed_results, [
             (0, 0), (-1, -1), (-43, -26), (-44, -25), (-45, -24)])
 
+
+class SwarmSingleCarry(Agent):
+    """An minimalistic behavior tree for swarm agent implementing
+    CompositeCarry behavior
+    """
+    def __init__(self, name, model):
+        super().__init__(name, model)
+        self.location = ()
+
+        self.direction = model.random.rand() * (2 * np.pi)
+        # self.speed = 2
+        self.radius = 3
+
+        self.moveable = True
+        self.shared_content = dict()
+
+        # self.shared_content['Sites'] = [model.target]
+
+        root = py_trees.composites.Sequence("Sequence")
+        lowest = NeighbourObjects('0')
+        lowest.setup(0, self, 'Derbis')
+
+        singlecarry = CompositeSingleCarry('SingleCarry')
+
+        root.add_children([lowest, singlecarry])
+        self.behaviour_tree = py_trees.trees.BehaviourTree(root)
+
+        # Debugging stuffs for py_trees
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # py_trees.display.print_ascii_tree(root)
+
+    def step(self):
+        self.behaviour_tree.tick()
+
+
+class SingleCarryModel(Model):
+    """ A environment to model swarms """
+    def __init__(self, N, width, height, grid=10, seed=None):
+        if seed is None:
+            super(SingleCarryModel, self).__init__(seed=None)
+        else:
+            super(SingleCarryModel, self).__init__(seed)
+
+        self.num_agents = N
+
+        self.grid = Grid(width, height, grid)
+
+        self.schedule = SimultaneousActivation(self)
+
+        # self.target = Sites(id=1, location=(45, 45), radius=5, q_value=0.5)
+        self.thing = Derbis(id=1, location=(0, 0), radius=4)
+
+        self.grid.add_object_to_grid(self.thing.location, self.thing)
+
+        for i in range(self.num_agents):
+            a = SwarmSingleCarry(i, self)
+            self.schedule.add(a)
+            x = 0
+            y = 0
+            a.location = (x, y)
+            a.direction = -2.3561944901923448
+            self.grid.add_object_to_grid((x, y), a)
+
+        self.agent = a
+
+    def step(self):
+        self.schedule.step()
+
+
+class TestSingleCarry(TestCase):
+
+    def setUp(self):
+        self.environment = SingleCarryModel(
+            1, 100, 100, 10, 123)
+
+        for i in range(1):
+            self.environment.step()
+
+    def test_agent_path(self):
+        self.assertEqual(
+            self.environment.agent.attached_objects[0], self.environment.thing)
