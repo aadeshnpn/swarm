@@ -415,10 +415,10 @@ class Explore(Behaviour):
         root = Sequence("Ex_Sequence")
 
         low = RandomWalk('Ex_RandomWalk')
-        low.setup(0, self)
+        low.setup(0, self.agent)
 
         high = Move('Ex_Move')
-        high.setup(0, self)
+        high.setup(0, self.agent)
 
         root.add_children([low, high])
 

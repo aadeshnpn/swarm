@@ -5,7 +5,9 @@ from swarms.lib.agent import Agent
 from swarms.lib.model import Model
 from swarms.lib.time import SimultaneousActivation
 from swarms.lib.space import Grid
-from swarms.scbehaviors import MoveTowards, MoveAway
+from swarms.scbehaviors import (
+    MoveTowards, MoveAway, Explore
+    )
 from swarms.sbehaviors import IsCarrying
 from swarms.objects import Sites
 import py_trees
@@ -186,4 +188,92 @@ class TestGoToAwaySwarmSmallGrid(TestCase):
         # Checking if the agents reaches site or not
         self.assertEqual(self.environment.agent.location, (-42, -42))
 
+
+# class to define agent explore behavior
+class SwarmExplore(Agent):
+    """ An minimalistic behavior tree for swarm agent
+    implementing Explore
+    """
+    def __init__(self, name, model):
+        super().__init__(name, model)
+        self.wealth = 1
+        self.location = ()
+
+        self.direction = model.random.rand() * (2 * np.pi)
+        self.speed = 2
+        self.radius = 3
+
+        self.moveable = True
+        self.shared_content = dict()
+
+        # Defining the composite behavior
+        explore = Explore('Explore')
+
+        # Setup for the behavior
+        explore.setup(0, self, None)
+
+        # This behavior is just defined to check if the composite tree
+        # can be combined with other primite behaviors
+        is_carrying = IsCarrying('IsCarrying')
+        is_carrying.setup(0, self, 'Food')
+
+        seq = py_trees.composites.Sequence('Seq')
+        seq.add_children([explore, is_carrying])
+
+        # Since its root is a sequence, we can use it directly
+        self.behaviour_tree = py_trees.trees.BehaviourTree(seq)
+
+    def step(self):
+        self.behaviour_tree.tick()
+
+    def advance(self):
+        pass
+
+
+class ExploreModel(Model):
+    """ A environemnt to model swarms """
+    def __init__(self, N, width, height, grid=10, seed=None):
+        if seed is None:
+            super(ExploreModel, self).__init__(seed=None)
+        else:
+            super(ExploreModel, self).__init__(seed)
+
+        self.num_agents = N
+
+        self.grid = Grid(width, height, grid)
+
+        self.schedule = SimultaneousActivation(self)
+
+        for i in range(self.num_agents):
+            a = SwarmExplore(i, self)
+            self.schedule.add(a)
+            x = 0
+            y = 0
+            a.location = (x, y)
+            a.direction = -2.3561944901923448
+            self.grid.add_object_to_grid((x, y), a)
+
+        self.agent = a
+
+    def step(self):
+        self.schedule.step()
+
+
+class TestExploreSwarmSmallGrid(TestCase):
+
+    def setUp(self):
+        self.environment = ExploreModel(
+            1, 100, 100, 10, 123)
+
+        location_results = []
+
+        for i in range(50):
+            location_results.append(self.environment.agent.location)
+            self.environment.step()
+
+        self.trimmed_results = location_results[0:2] + location_results[47:]
+
+    def test_agent_path(self):
+        self.assertEqual(self.trimmed_results, [
+            (0, 0), (-1, -1), (-43, -26), (-44, -25), (-45, -24)])
 

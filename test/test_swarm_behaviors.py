@@ -5,18 +5,17 @@ from swarms.lib.time import SimultaneousActivation
 from swarms.lib.space import Grid
 from swarms.sbehaviors import (
     GoTo, RandomWalk, NeighbourObjects,
-    Away, Towards, DoNotMove,
-    IsMoveable, Move
+    Away, Towards, DoNotMove, Move
     )
 from swarms.objects import Sites, Hub
 import py_trees
-from py_trees import Behaviour, Status, Blackboard
+from py_trees import Blackboard
 import numpy as np
 
 
 # Class to tets NeighbourObject Behavior
 class SwarmAgentNeighbour(Agent):
-    """ An minimalistic behavior tree for swarm agent implementing goto 
+    """ An minimalistic behavior tree for swarm agent implementing goto
     behavior
     """
     def __init__(self, name, model):
@@ -29,14 +28,14 @@ class SwarmAgentNeighbour(Agent):
 
         self.moveable = True
         self.shared_content = dict()
-        
+
     def step(self):
         pass
 
 
 # Class to tets GoTo behavior for agents
 class SwarmAgentGoTo(Agent):
-    """ An minimalistic behavior tree for swarm agent implementing goto 
+    """ An minimalistic behavior tree for swarm agent implementing goto
     behavior
     """
     def __init__(self, name, model):
@@ -49,9 +48,9 @@ class SwarmAgentGoTo(Agent):
 
         self.moveable = True
         self.shared_content = dict()
-        
+
         root = py_trees.composites.Sequence("Sequence")
-        
+
         self.blackboard = Blackboard()
         self.blackboard.shared_content = dict()
 
@@ -65,12 +64,12 @@ class SwarmAgentGoTo(Agent):
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
 
     def step(self):
-        self.behaviour_tree.tick()        
+        self.behaviour_tree.tick()
 
 
 # Class to tets GoTo behavior with away for agents
 class SwarmAgentGoToAway(Agent):
-    """ An minimalistic behavior tree for swarm agent implementing goto away 
+    """ An minimalistic behavior tree for swarm agent implementing goto away
     behavior
     """
     def __init__(self, name, model):
@@ -88,9 +87,9 @@ class SwarmAgentGoToAway(Agent):
 
         self.blackboard = Blackboard()
         self.blackboard.shared_content = dict()
-              
+
         name = type(model.target).__name__
-        self.shared_content[name] = {model.target}        
+        self.shared_content[name] = {model.target}
 
         low = GoTo('1')
         low.setup(0, self, name)
@@ -101,8 +100,8 @@ class SwarmAgentGoToAway(Agent):
         high.setup(0, self)
         root.add_children([low, mid, high])
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
-        #py_trees.logging.level = py_trees.logging.Level.DEBUG
-        #py_trees.display.print_ascii_tree(root, indent=0, show_status=True)          
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # py_trees.display.print_ascii_tree(root, indent=0, show_status=True)
 
     def step(self):
         self.behaviour_tree.tick()
@@ -113,7 +112,7 @@ class SwarmAgentGoToAway(Agent):
 
 # Class to tets GoTo behavior with towards for agents
 class SwarmAgentGoToTowards(Agent):
-    """ An minimalistic behavior tree for swarm agent implementing 
+    """ An minimalistic behavior tree for swarm agent implementing
     goto away behavior
     """
     def __init__(self, name, model):
@@ -133,8 +132,9 @@ class SwarmAgentGoToTowards(Agent):
         self.blackboard.shared_content = dict()
 
         name = type(model.target).__name__
-        self.shared_content[name] = {model.target}            
-        # self.blackboard.shared_content[type(model.target).__name__] = [model.target] 
+        self.shared_content[name] = {model.target}
+        # self.blackboard.shared_content[
+        # type(model.target).__name__] = [model.target]
 
         low = GoTo('1')
         low.setup(0, self, name)
@@ -149,12 +149,12 @@ class SwarmAgentGoToTowards(Agent):
         self.behaviour_tree.tick()
 
     def advance(self):
-        pass        
+        pass
 
 
 # class to test random walk behavior
 class SwarmAgentRandomWalk(Agent):
-    """ An minimalistic behavior tree for swarm agent 
+    """ An minimalistic behavior tree for swarm agent
     implementing Random walk
     """
     def __init__(self, name, model):
@@ -186,7 +186,7 @@ class SwarmAgentRandomWalk(Agent):
 
 # class to test random walk behavior
 class SwarmAgentSenseSite(Agent):
-    """ An minimalistic behavior tree for swarm agent 
+    """ An minimalistic behavior tree for swarm agent
     implementing carry for a simple object
     """
     def __init__(self, name, model):
@@ -199,9 +199,9 @@ class SwarmAgentSenseSite(Agent):
 
         self.moveable = True
         self.shared_content = dict()
-        
+
         # name = type(model.target).__name__
-        # self.shared_content[name] = {model.target}    
+        # self.shared_content[name] = {model.target}
 
         root = py_trees.composites.Selector("Selector")
         left_sequence = py_trees.composites.Sequence("LSequence")
@@ -228,11 +228,11 @@ class SwarmAgentSenseSite(Agent):
         self.behaviour_tree.tick()
 
     def advance(self):
-        pass        
+        pass
 
 
 class SwarmAgentSenseHubSite(Agent):
-    """ An minimalistic behavior tree for swarm agent 
+    """ An minimalistic behavior tree for swarm agent
     implementing carry for a simple object
     """
     def __init__(self, name, model):
@@ -256,11 +256,12 @@ class SwarmAgentSenseHubSite(Agent):
 
         self.blackboard = Blackboard()
         self.blackboard.shared_content = dict()
-        
+
         name = type(model.hub).__name__
         self.shared_content[name] = {model.hub}
 
-        # self.blackboard.shared_content[type(model.hub).__name__] = [model.hub] 
+        # self.blackboard.shared_content[
+        # type(model.hub).__name__] = [model.hub]
 
         hub_dnm = NeighbourObjects('5')
         hub_dnm.setup(0, self, 'Hub')
@@ -283,7 +284,7 @@ class SwarmAgentSenseHubSite(Agent):
 
         highm = Move('3')
         highm.setup(0, self)
-        
+
         high1 = py_trees.meta.inverter(NeighbourObjects)('4')
         high1.setup(0, self, 'Hub')
 
@@ -295,20 +296,20 @@ class SwarmAgentSenseHubSite(Agent):
 
         right_selector.add_children([right1_sequence, right_sequence])
         root.add_children([left_sequence, right_selector])
-        
+
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
         # py_trees.display.print_ascii_tree(root, indent=0, show_status=True)
 
     def step(self):
         self.behaviour_tree.tick()
-        print (self.blackboard.shared_content)
+        # print (self.blackboard.shared_content)
 
     def advance(self):
-        pass        
+        pass
 
 
-#SwarmAgentNeighbour
+# SwarmAgentNeighbour
 class NeighbourSwarmEnvironmentModel(Model):
     """ A environemnt to model swarms """
     def __init__(self, N, width, height, grid=10, seed=None):
@@ -322,9 +323,9 @@ class NeighbourSwarmEnvironmentModel(Model):
         self.grid = Grid(width, height, grid)
 
         self.schedule = SimultaneousActivation(self)
-        
+
         self.target = Sites(id=1, location=(-45, -45), radius=5, q_value=0.5)
-        
+
         self.grid.add_object_to_grid(self.target.location, self.target)
 
         for i in range(self.num_agents):
@@ -386,7 +387,7 @@ class GoToAwaySwarmEnvironmentModel(Model):
         self.grid = Grid(width, height, grid)
 
         self.schedule = SimultaneousActivation(self)
-        
+
         self.target = Sites(id=1, location=(45, 45), radius=5, q_value=0.5)
 
         for i in range(self.num_agents):
@@ -401,7 +402,7 @@ class GoToAwaySwarmEnvironmentModel(Model):
         self.agent = a
 
     def step(self):
-        self.schedule.step()        
+        self.schedule.step()
 
 
 class GoToTowardsSwarmEnvironmentModel(Model):
@@ -432,7 +433,7 @@ class GoToTowardsSwarmEnvironmentModel(Model):
         self.agent = a
 
     def step(self):
-        self.schedule.step()                
+        self.schedule.step()
 
 
 class RandomWalkSwarmEnvironmentModel(Model):
@@ -448,7 +449,7 @@ class RandomWalkSwarmEnvironmentModel(Model):
         self.grid = Grid(width, height, grid)
 
         self.schedule = SimultaneousActivation(self)
-        
+
         for i in range(self.num_agents):
             a = SwarmAgentRandomWalk(i, self)
             self.schedule.add(a)
@@ -494,7 +495,7 @@ class SenseSiteSwarmEnvironmentModel(Model):
         self.agent = a
 
     def step(self):
-        self.schedule.step() 
+        self.schedule.step()
 
 
 class SenseHubSiteSwarmEnvironmentModel(Model):
@@ -531,27 +532,30 @@ class SenseHubSiteSwarmEnvironmentModel(Model):
         self.agent = a
 
     def step(self):
-        self.schedule.step()                
+        self.schedule.step()
 
 
-#SwarmAgentNeighbour
+# SwarmAgentNeighbour
 class TestNeighbourSwarmSmallGrid(TestCase):
-    
+
     def setUp(self):
-        self.environment = NeighbourSwarmEnvironmentModel(10, 100, 100, 10, 123)
+        self.environment = NeighbourSwarmEnvironmentModel(
+            10, 100, 100, 10, 123)
 
         for i in range(2):
             self.environment.step()
 
     def test_agent_path(self):
-        objects = self.environment.grid.get_objects_from_grid('SwarmAgentNeighbour', (-45, -45))
-        objects1 = self.environment.grid.get_objects_from_grid('Sites', (-45, -45))        
-        #print (len(objects), objects1)
-        self.assertEqual((10,1), (len(objects), len(objects1)))
+        objects = self.environment.grid.get_objects_from_grid(
+            'SwarmAgentNeighbour', (-45, -45))
+        objects1 = self.environment.grid.get_objects_from_grid(
+            'Sites', (-45, -45))
+        # print (len(objects), objects1)
+        self.assertEqual((10, 1), (len(objects), len(objects1)))
 
 
 class TestGoToSwarmSmallGrid(TestCase):
-    
+
     def setUp(self):
         self.environment = GoToSwarmEnvironmentModel(1, 100, 100, 10, 123)
 
@@ -563,7 +567,7 @@ class TestGoToSwarmSmallGrid(TestCase):
 
 
 class TestGoToAwaySwarmSmallGrid(TestCase):
-    
+
     def setUp(self):
         self.environment = GoToAwaySwarmEnvironmentModel(1, 100, 100, 10, 123)
         location_results = []
@@ -578,7 +582,7 @@ class TestGoToAwaySwarmSmallGrid(TestCase):
 
 
 class TestGoToTowardsSwarmSmallGrid(TestCase):
-    
+
     def setUp(self):
         self.environment = GoToTowardsSwarmEnvironmentModel(
             1, 100, 100, 10, 123)
@@ -590,7 +594,7 @@ class TestGoToTowardsSwarmSmallGrid(TestCase):
 
 
 class TestRandomWalkSwarmSmallGrid(TestCase):
-    
+
     def setUp(self):
         self.environment = RandomWalkSwarmEnvironmentModel(
             1, 100, 100, 10, 123)
@@ -609,7 +613,7 @@ class TestRandomWalkSwarmSmallGrid(TestCase):
 
 
 class TestSenseSiteSwarmSmallGrid(TestCase):
-    
+
     def setUp(self):
         self.environment = SenseSiteSwarmEnvironmentModel(1, 100, 100, 10, 123)
 
@@ -621,7 +625,7 @@ class TestSenseSiteSwarmSmallGrid(TestCase):
 
 
 class TestSenseHubSiteSwarmSmallGrid(TestCase):
-    
+
     def setUp(self):
         self.environment = SenseHubSiteSwarmEnvironmentModel(
             1, 100, 100, 10, 123)
