@@ -94,7 +94,6 @@ class TestGoToSwarmSmallGrid(TestCase):
 
         for i in range(68):
             self.environment.step()
-            print(i, self.environment.agent.location)
 
     def test_agent_path(self):
         # Checking if the agents reaches site or not
@@ -136,8 +135,8 @@ class SwarmMoveAway(Agent):
         self.behaviour_tree = py_trees.trees.BehaviourTree(seq)
 
         # Debugging stuffs for py_trees
-        py_trees.logging.level = py_trees.logging.Level.DEBUG
-        py_trees.display.print_ascii_tree(moveaway)
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # py_trees.display.print_ascii_tree(moveaway)
 
     def step(self):
         self.behaviour_tree.tick()
@@ -163,8 +162,8 @@ class MoveAwayModel(Model):
         for i in range(self.num_agents):
             a = SwarmMoveAway(i, self)
             self.schedule.add(a)
-            x = -45
-            y = -45
+            x = 15
+            y = 15
             a.location = (x, y)
             a.direction = -2.3561944901923448
             self.grid.add_object_to_grid((x, y), a)
@@ -180,12 +179,11 @@ class TestGoToAwaySwarmSmallGrid(TestCase):
     def setUp(self):
         self.environment = MoveAwayModel(1, 100, 100, 10, 123)
 
-        for i in range(68):
+        for i in range(50):
             self.environment.step()
-            print(i, self.environment.agent.location)
 
     def test_agent_path(self):
         # Checking if the agents reaches site or not
-        self.assertEqual(self.environment.agent.location, (45, 45))
+        self.assertEqual(self.environment.agent.location, (-42, -42))
 
 

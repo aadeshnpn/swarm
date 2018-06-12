@@ -340,8 +340,8 @@ class CompositeDropPartial(Behaviour):
 
     Inherits the Behaviors class from py_trees. This
     behavior combines the privitive behaviors to succesfully drop any
-    objects carried with cooperation to a dropable surface. It combines IsDropable,
-    IsCarrying and DropPartial primitive behaviors.
+    objects carried with cooperation to a dropable surface. It
+    combines IsDropable, IsCarrying and DropPartial primitive behaviors.
     """
 
     def __init__(self, name):
