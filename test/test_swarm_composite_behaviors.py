@@ -415,7 +415,7 @@ class MultipleCarryModel(Model):
 
         self.schedule = SimultaneousActivation(self)
 
-        self.thing = Derbis(id=1, location=(0, 0), radius=4)
+        self.thing = Derbis(id=1, location=(0, 0), radius=40)
 
         self.grid.add_object_to_grid(self.thing.location, self.thing)
 
