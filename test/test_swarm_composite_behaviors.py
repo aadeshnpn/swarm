@@ -6,9 +6,12 @@ from swarms.lib.model import Model
 from swarms.lib.time import SimultaneousActivation
 from swarms.lib.space import Grid
 from swarms.scbehaviors import (
-    MoveTowards, MoveAway, Explore, CompositeSingleCarry
+    MoveTowards, MoveAway, Explore, CompositeSingleCarry,
+    CompositeMultipleCarry
     )
-from swarms.sbehaviors import IsCarrying, NeighbourObjects
+from swarms.sbehaviors import (
+    IsCarrying, NeighbourObjects, Move
+    )
 from swarms.objects import Sites, Derbis
 import py_trees
 import numpy as np
@@ -358,3 +361,102 @@ class TestSingleCarry(TestCase):
     def test_agent_path(self):
         self.assertEqual(
             self.environment.agent.attached_objects[0], self.environment.thing)
+
+
+class SwarmMultipleCarry(Agent):
+    """An minimalistic behavior tree for swarm agent implementing
+    MultipleCarry behavior
+    """
+    def __init__(self, name, model):
+        super().__init__(name, model)
+        self.location = ()
+
+        self.direction = model.random.rand() * (2 * np.pi)
+        # self.speed = 2
+        self.radius = 3
+
+        self.moveable = True
+        self.shared_content = dict()
+
+        root = py_trees.composites.Sequence("Sequence")
+
+        sense = NeighbourObjects('Sense')
+        sense.setup(0, self, 'Derbis')
+
+        multiple_carry = CompositeMultipleCarry('MultipleCarry')
+        multiple_carry.setup(0, self, 'Derbis')
+
+        move = Move('Move')
+        move.setup(0, self)
+
+        root.add_children([sense, multiple_carry, move])
+
+        self.behaviour_tree = py_trees.trees.BehaviourTree(root)
+
+        # Debugging stuffs for py_trees
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # py_trees.display.print_ascii_tree(root)
+
+    def step(self):
+        self.behaviour_tree.tick()
+
+
+class MultipleCarryModel(Model):
+    """ A environment to model swarms """
+    def __init__(self, N, width, height, grid=10, seed=None):
+        if seed is None:
+            super(MultipleCarryModel, self).__init__(seed=None)
+        else:
+            super(MultipleCarryModel, self).__init__(seed)
+
+        self.num_agents = N
+
+        self.grid = Grid(width, height, grid)
+
+        self.schedule = SimultaneousActivation(self)
+
+        self.thing = Derbis(id=1, location=(0, 0), radius=4)
+
+        self.grid.add_object_to_grid(self.thing.location, self.thing)
+
+        self.agent = []
+        for i in range(self.num_agents):
+            a = SwarmMultipleCarry(i, self)
+            self.schedule.add(a)
+            x = 1
+            y = 1
+            a.location = (x, y)
+            a.direction = -2.3561944901923448
+            self.grid.add_object_to_grid((x, y), a)
+            self.agent.append(a)
+
+    def step(self):
+        self.schedule.step()
+
+
+class TestMultipleCarry(TestCase):
+
+    def setUp(self):
+        self.environment = MultipleCarryModel(
+            2, 100, 100, 10, 123)
+
+        for i in range(60):
+            self.environment.step()
+
+    def tuple_round(self, loc):
+        loc1 = (np.round(loc[0]), np.round(loc[1]))
+        return loc1
+
+    def test_agent_loc(self):
+        # Check if the two agents end up at same location while carrying
+        # Heavy object
+        agent1_loc = self.tuple_round(self.environment.agent[0].location)
+        agent2_loc = self.tuple_round(self.environment.agent[1].location)
+        self.assertEqual(agent1_loc, agent2_loc)
+
+    def test_agent_object_loc(self):
+        # Check if the location of heavy object and one of the agent is
+        # almost same after moving
+        item_loc = self.tuple_round(self.environment.thing.location)
+        agent_loc = self.tuple_round(self.environment.agent[0].location)
+        self.assertEqual(item_loc, agent_loc)
