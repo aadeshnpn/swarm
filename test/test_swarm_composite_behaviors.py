@@ -293,13 +293,14 @@ class SwarmSingleCarry(Agent):
         self.moveable = True
         self.shared_content = dict()
 
-        # self.shared_content['Sites'] = [model.target]
-
         root = py_trees.composites.Sequence("Sequence")
+        # Sensing the environemnt to find object to carry
         lowest = NeighbourObjects('0')
         lowest.setup(0, self, 'Derbis')
 
+        # Creating composite single carry object
         singlecarry = CompositeSingleCarry('SingleCarry')
+        singlecarry.setup(0, self, 'Derbis')
 
         root.add_children([lowest, singlecarry])
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
@@ -326,7 +327,6 @@ class SingleCarryModel(Model):
 
         self.schedule = SimultaneousActivation(self)
 
-        # self.target = Sites(id=1, location=(45, 45), radius=5, q_value=0.5)
         self.thing = Derbis(id=1, location=(0, 0), radius=4)
 
         self.grid.add_object_to_grid(self.thing.location, self.thing)
