@@ -42,8 +42,8 @@ class EnvironmentModel(Model):
             #    -self.grid.width / 2, self.grid.width / 2)
             # y = self.random.randint(
             #    -self.grid.height / 2, self.grid.height / 2)
-            x = -350 + np.random.randint(-50, 50)
-            y = -350 + np.random.randint(-50, 50)
+            x = -350 + np.random.randint(-20, 20)
+            y = -350 + np.random.randint(-20, 20)
             a.location = (x, y)
             a.direction = -2.3561944901923448
             self.grid.add_object_to_grid((x, y), a)

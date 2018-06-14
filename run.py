@@ -15,7 +15,7 @@ def main():
     env = EnvironmentModel(2, 1600, 800, 10, 123)
     for i in range(290002):
         env.step()
-        # time.sleep(0.1)
+        time.sleep(0.1)
         if UI:
             hub = env.render_jsondata.objects['hub']
             sites = env.render_jsondata.objects['sites']
