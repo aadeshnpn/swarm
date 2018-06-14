@@ -40,7 +40,7 @@ class JsonData:
         agent_dict["y"] = agent.location[1]
         agent_dict["id"] = agent.name
         agent_dict["direction"] = agent.direction
-        agent_dict["state"] = ""
+        agent_dict["state"] = "Nan"
 
         """
         if agent.signal.grid:
@@ -72,7 +72,7 @@ class JsonData:
                         #"cues": JsonData.environment_object_to_json(cues),
                         #"food": JsonData.environment_object_to_json(food),
                         #"derbis": JsonData.environment_object_to_json(derbis),
-                        "agents": JsonData.environment_object_to_json(agents),
+                        "agents": [JsonData.agent_to_json(agent) for agent in agents],
                     }
                 })
         )

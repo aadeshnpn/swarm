@@ -48,8 +48,6 @@ class EnvironmentModel(Model):
             self.grid.add_object_to_grid((x, y), a)
             self.agents.append(a)
 
-
-
     def create_environment_object(self, jsondata, obj):
         """Create env from jsondata."""
         name = obj.__name__.lower()
