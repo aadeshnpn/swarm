@@ -106,7 +106,7 @@ class SwarmAgent(Agent):
 
         behaviour_tree = py_trees.trees.BehaviourTree(root)
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
-        # py_trees.display.print_ascii_tree(randseq)
+        # py_trees.display.print_ascii_tree(root)
         return behaviour_tree
 
     # New Agent methods for behavior based robotics

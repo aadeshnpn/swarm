@@ -7,7 +7,7 @@ from swarms.lib.space import Grid
 from swarms.utils.jsonhandler import JsonData
 from swarms.agent import SwarmAgent
 from swarms.objects import Hub, Sites, Obstacles, Traps, Derbis
-
+import numpy as np
 import os
 
 filename = os.path.join(
@@ -42,12 +42,13 @@ class EnvironmentModel(Model):
             #    -self.grid.width / 2, self.grid.width / 2)
             # y = self.random.randint(
             #    -self.grid.height / 2, self.grid.height / 2)
-            x = -100
-            y = -100
+            x = -350 + np.random.randint(-50, 50)
+            y = -350 + np.random.randint(-50, 50)
             a.location = (x, y)
             a.direction = -2.3561944901923448
             self.grid.add_object_to_grid((x, y), a)
             self.agents.append(a)
+            print (i,x,y)
 
     def create_environment_object(self, jsondata, obj):
         """Create env from jsondata."""
