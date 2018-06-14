@@ -19,9 +19,10 @@ def main():
             sites = env.render_jsondata.objects['sites']
             obstacles = env.render_jsondata.objects['obstacles']
             traps = env.render_jsondata.objects['traps']
+            derbis = env.render_jsondata.objects['derbis']
             agents = env.agents
             print (JsonData.to_json(width, height, hub, sites, obstacles,
-                traps, None, None, None, agents))
+                traps, None, None, derbis, agents))
 
 
 if __name__ == '__main__':

@@ -71,7 +71,7 @@ class JsonData:
                         "traps": JsonData.environment_object_to_json(traps),
                         #"cues": JsonData.environment_object_to_json(cues),
                         #"food": JsonData.environment_object_to_json(food),
-                        #"derbis": JsonData.environment_object_to_json(derbis),
+                        "derbis": JsonData.environment_object_to_json(derbis),
                         "agents": [JsonData.agent_to_json(agent) for agent in agents],
                     }
                 })

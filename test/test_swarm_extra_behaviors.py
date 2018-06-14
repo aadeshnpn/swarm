@@ -124,15 +124,15 @@ class SwarmAgentSingleCarry(Agent):
         low.setup(0, self, 'Derbis')
         medium = IsSingleCarry('2')
         medium.setup(0, self, 'Derbis')
-        high = SingleCarry('3')
-        high.setup(0, self, 'Derbis')
+        high = SingleCarry('3')Drop
+        high.setup(0, self, 'DeDrop
 
-        root.add_children([lowest, low, medium, high])
-        self.behaviour_tree = py_trees.trees.BehaviourTree(root)
-        py_trees.display.print_ascii_tree(root)
+        root.add_children([loweDropmedium, high])
+        self.behaviour_tree = pDroprees.BehaviourTree(root)
+        py_trees.display.print_Drope(root)
 
     def step(self):
-        self.behaviour_tree.tick()
+        self.behaviour_tree.ticDrop
 
     def advance(self):
         pass
