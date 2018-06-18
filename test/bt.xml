@@ -1,28 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Sequence>
-   <Sequence>
+<Selector>
+   <Selector>
       <Selector>
-         <cond>IsSingleCarry</cond>
-         <cond>IsMotionTrue</cond>
-         <act>RandomWalk</act>
+         <Sequence>
+            <cond>NeighbourObjects_Food</cond>
+            <cond>NeighbourObjects</cond>
+            <act>CompositeSingleCarry_Food</act>
+         </Sequence>
+         <Sequence>
+            <cond>NeighbourObjects_Food_invert</cond>
+            <act>MoveAway_Food</act>
+         </Sequence>
       </Selector>
-      <Sequence>
-         <cond>IsMoveable</cond>
-         <cond>IsMotionTrue</cond>
-         <act>GoTo</act>
-      </Sequence>
-   </Sequence>
-   <Sequence>
       <Selector>
-         <cond>IsMotionTrue</cond>
-         <cond>IsMoveable</cond>
-         <cond>IsCarryable</cond>
-         <cond>IsMotionTrue</cond>
-         <act>RandomWalk</act>
+         <Selector>
+            <cond>NeighbourObjects_Hub_invert</cond>
+            <act>Explore</act>
+         </Selector>
+         <Selector>
+            <cond>NeighbourObjects</cond>
+            <act>MoveAway_Food</act>
+         </Selector>
       </Selector>
-      <Sequence>
-         <cond>IsCarryable</cond>
-         <act>MultipleCarry</act>
-      </Sequence>
+   </Selector>
+   <Sequence>
+      <cond>NeighbourObjects</cond>
+      <cond>NeighbourObjects_Sites_invert</cond>
+      <act>Explore</act>
    </Sequence>
-</Sequence>
+</Selector>

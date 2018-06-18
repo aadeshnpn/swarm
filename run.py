@@ -23,8 +23,9 @@ def main():
             traps = env.render_jsondata.objects['traps']
             derbis = env.render_jsondata.objects['derbis']
             agents = env.agents
-            print (JsonData.to_json(width, height, hub, sites, obstacles,
-                traps, None, None, derbis, agents))
+            print(JsonData.to_json(
+                width, height, hub, sites, obstacles, traps, None, None,
+                derbis, agents))
 
             # print (JsonData.to_json(width, height, hub, [], [],
             #    [], None, None, derbis, agents))

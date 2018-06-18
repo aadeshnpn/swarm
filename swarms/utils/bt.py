@@ -6,14 +6,14 @@ import py_trees
 from py_trees.composites import Sequence, Selector
 import random
 # random.seed(123)
+
+from swarms.scbehaviors import (
+    MoveTowards, MoveAway, Explore, CompositeSingleCarry,
+    CompositeMultipleCarry, CompositeDrop
+    )
 from swarms.sbehaviors import (
-    IsCarryable, IsSingleCarry, SingleCarry,
-    NeighbourObjects, IsMultipleCarry, IsInPartialAttached,
-    InitiateMultipleCarry, IsEnoughStrengthToCarry,
-    Move, GoTo, IsMotionTrue, RandomWalk, IsMoveable,
-    MultipleCarry, Away, Towards,
-    DoNotMove, IsDropable, Drop, IsCarrying
-    )  # noqa # pylint: disable=unused-import
+    IsCarrying, NeighbourObjects, Move, IsDropable
+    )
 
 
 class BTConstruct:
@@ -35,14 +35,30 @@ class BTConstruct:
         self.xmlstring = xmlstring
         self.agent = agent
 
+    def xmlfy(self):
+        self.xmlstring = self.xmlstring.replace('[', '<')
+        self.xmlstring = self.xmlstring.replace(']', '>')
+        self.xmlstring = self.xmlstring.replace('%', '"')
+
     def create_bt(self, root):
         """Recursive method to construct BT."""
         if len(list(root)) == 0:
             node_text = root.text
+            # If the behavior needs to look for specific item
             if node_text.find('_') != -1:
-                method, item = node_text.split('_')
-                behavior = eval(method)(method + str(random.randint(100, 200)))
+                nodeval = node_text.split('_')
+                # Check for behavior inversion
+                if len(nodeval) == 2:
+                    method, item = nodeval
+                    behavior = eval(method)(method + str(
+                        random.randint(100, 200)))
+                else:
+                    method, item, _ = nodeval
+                    behavior = py_trees.meta.inverter(eval(method))(
+                        method + str(random.randint(100, 200)))
+
                 behavior.setup(0, self.agent, item)
+
             else:
                 method = node_text
                 behavior = eval(method)(method + str(random.randint(100, 200)))
@@ -59,7 +75,7 @@ class BTConstruct:
                     if composits:
                         composits.add_children(list1.pop())
                         list1.append(composits)
-                except (AttributeError or IndexError):
+                except (AttributeError, IndexError, UnboundLocalError) as e:
                     pass
 
             return list1
@@ -67,8 +83,10 @@ class BTConstruct:
     def construct(self):
         """Create a tree from xml."""
         if self.xmlstring is not None:
+            self.xmlfy()
             tree = ET.fromstring(self.xmlstring)
             self.root = tree
+
         elif self.filename is not None:
             tree = ET.parse(self.filename)
             self.root = tree.getroot()
@@ -82,14 +100,3 @@ class BTConstruct:
         self.behaviour_tree = py_trees.trees.BehaviourTree(top)
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
         # py_trees.display.print_ascii_tree(top)
-
-
-def main():
-    """Execute function."""
-    bt = BTConstruct(
-        "/home/aadeshnpn/Documents/BYU/hcmi/swarm/swarms/utils/bt.xml", None)
-    bt.construct()
-
-
-if __name__ == '__main__':
-    main()

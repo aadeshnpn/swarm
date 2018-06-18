@@ -48,7 +48,7 @@ class EnvironmentModel(Model):
             a.direction = -2.3561944901923448
             self.grid.add_object_to_grid((x, y), a)
             self.agents.append(a)
-            print (i,x,y)
+            # print (i,x,y)
 
     def create_environment_object(self, jsondata, obj):
         """Create env from jsondata."""

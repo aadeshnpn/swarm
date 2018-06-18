@@ -40,9 +40,9 @@ class GEBTAgent(Agent):
         self.direction = model.random.rand() * (2 * np.pi)
         self.speed = 2
         self.radius = 3
-        
+
         # self.exchange_time = model.random.randint(2, 4)
-        # This doesn't help. Maybe only perform genetic operations when 
+        # This doesn't help. Maybe only perform genetic operations when
         # an agents meet 10% of its total population
         # """
         self.operation_threshold = 2
@@ -50,10 +50,10 @@ class GEBTAgent(Agent):
 
         # Define a BTContruct object
         self.bt = BTConstruct(None, self)
-        
+
         self.blackboard = Blackboard()
         self.blackboard.shared_content = dict()
-        
+
         self.shared_content = dict()
 
         # Grammatical Evolution part
@@ -61,8 +61,8 @@ class GEBTAgent(Agent):
         parameter = Parameters()
         parameter_list = ['--parameters', 'swarm.txt']
         # Comment when different results is desired. Else set this for testing purpose
-        parameter.params['RANDOM_SEED'] = name  # np.random.randint(1, 99999999)        
-        parameter.params['POPULATION_SIZE'] = self.operation_threshold // 2         
+        parameter.params['RANDOM_SEED'] = name  # np.random.randint(1, 99999999)
+        parameter.params['POPULATION_SIZE'] = self.operation_threshold // 2
         parameter.set_params(parameter_list)
         self.parameter = parameter
         individual = initialisation(self.parameter, 1)
@@ -70,14 +70,14 @@ class GEBTAgent(Agent):
 
         self.individual = individual
         self.bt.xmlstring = self.individual[0].phenotype
-        self.bt.construct()        
+        self.bt.construct()
 
     def step(self):
         # """
         # Doing this is equivalent of using behavior tree with four classes
         # in this order, Move, HasMoney, NeighbourCondition, ShareMoney
         # self.move()
-        # execute  BT 
+        # execute  BT
 
         py_trees.logging.level = py_trees.logging.Level.DEBUG
         # output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
@@ -120,8 +120,8 @@ class GEBTAgent(Agent):
         individuals = replacement(self.parameter, new_pop, individuals)
         individuals.sort(reverse=False)
         self.individual = [individuals[0]]
-        self.genome_storage = []    
-    
+        self.genome_storage = []
+
 
 class GEEnvironmentModel(Model):
     """ A environemnt to model swarms """
@@ -142,7 +142,7 @@ class GEEnvironmentModel(Model):
             self.schedule.add(a)
             # Add the agent to a random grid cell
             # x = self.random.randint(-self.grid.width / 2, self.grid.width / 2)
-            x = 0           
+            x = 0
             # y = self.random.randint(-self.grid.height / 2, self.grid.height / 2)
             y = 0
 
@@ -151,11 +151,11 @@ class GEEnvironmentModel(Model):
             a.operation_threshold = 2  #  self.num_agents // 10
 
     def step(self):
-        self.schedule.step()        
+        self.schedule.step()
 
 
 class TestGEBTSmallGrid(TestCase):
-    
+
     def setUp(self):
         self.environment = GEEnvironmentModel(10, 100, 100, 10, 123)
 

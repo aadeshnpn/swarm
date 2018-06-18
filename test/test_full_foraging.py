@@ -42,7 +42,7 @@ class GEBTAgent(Agent):
         self.radius = 3
 
         # self.exchange_time = model.random.randint(2, 4)
-        # This doesn't help. Maybe only perform genetic operations when 
+        # This doesn't help. Maybe only perform genetic operations when
         # an agents meet 10% of its total population
         # """
         self.operation_threshold = 2
@@ -61,9 +61,9 @@ class GEBTAgent(Agent):
         from ponyge.algorithm.parameters import Parameters
         parameter = Parameters()
         parameter_list = ['--parameters', 'swarm.txt']
-        # Comment when different results is desired. 
+        # Comment when different results is desired.
         # Else set this for testing purpose
-        # parameter.params['RANDOM_SEED'] = name  
+        # parameter.params['RANDOM_SEED'] = name
         # # np.random.randint(1, 99999999)
         parameter.params['POPULATION_SIZE'] = self.operation_threshold // 2
         parameter.set_params(parameter_list)
@@ -102,7 +102,7 @@ class GEBTAgent(Agent):
             self.genetic_step()
 
         elif self.timestamp > 20 and self.exploration_fitness() < 2:
-            # This is the case of the agent not moving and staying dormant. Need to use genetic 
+            # This is the case of the agent not moving and staying dormant. Need to use genetic
             # operation to change its genome
             individual = initialisation(self.parameter, 100)
             #print (len(set([ind.phenotype for ind in individual])))
@@ -154,7 +154,7 @@ class GEBTAgent(Agent):
         self.genome_storage = []
 
     def genetic_step(self):
-        self.exchange_chromosome()        
+        self.exchange_chromosome()
         self.bt.xmlstring = self.individual[0].phenotype
         self.bt.construct()
         self.food_collected = 0
@@ -194,7 +194,7 @@ class GEEnvironmentModel(Model):
         self.hub = Hub(id=1, location=(0, 0), radius=11)
 
         self.grid.add_object_to_grid(self.hub.location, self.hub)
-        
+
         self.agents = []
 
         # Create agents
@@ -204,7 +204,7 @@ class GEEnvironmentModel(Model):
             # Add the agent to a random grid cell
             # x = self.random.randint(
             # -self.grid.width / 2, self.grid.width / 2)
-            x = 0           
+            x = 0
             # y = self.random.randint(
             # -self.grid.height / 2, self.grid.height / 2)
             y = 0

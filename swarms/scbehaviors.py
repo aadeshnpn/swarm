@@ -399,7 +399,7 @@ class Explore(Behaviour):
         self.blackboard = Blackboard()
         self.blackboard.shared_content = dict()
 
-    def setup(self, timeout, agent, item):
+    def setup(self, timeout, agent, item=None):
         """Have defined the setup method.
 
         This method defines the other objects required for the
