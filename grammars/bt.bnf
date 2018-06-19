@@ -13,7 +13,7 @@
 #<action>::=GoTo_<objects>|RandomWalk|Move|DoNotMove|SingleCarry_<objects>|MultipleCarry_<objects>|Away|Towards
 <action>::=MoveTowards_<objects>|Explore|CompositeSingleCarry_<objects>|CompositeDrop_<objects>|MoveAway_<objects>
 #<objects>::=Hub|Sites|Obstacles|Cue|Signal|Food|Derbis|Agent
-<objects>::=Hub|Sites|Food|Derbis
+<objects>::=Hub|Sites|Food
 
 ##complex behaviors
 #MoveTowards, MoveAway, CompositeSingleCarry, CompositeMultipleCarry

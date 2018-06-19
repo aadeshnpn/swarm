@@ -5,3 +5,5 @@ rules/*
 final_rules/*
 resources/*
 results/*
+test/test_bt_xml
+test/test_bt_xml/*

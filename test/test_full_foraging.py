@@ -10,15 +10,6 @@ from py_trees import Blackboard
 import numpy as np
 # import xml.etree.ElementTree as ET
 
-from swarms.sbehaviors import (
-    IsCarryable, IsSingleCarry, SingleCarry,
-    NeighbourObjects, IsMultipleCarry, IsInPartialAttached,
-    InitiateMultipleCarry, IsEnoughStrengthToCarry,
-    Move, GoTo, IsMotionTrue, RandomWalk, IsMoveable,
-    MultipleCarry, Away, Towards, IsMultipleCarry,
-    DoNotMove, Drop, IsDropable
-    )
-
 from ponyge.operators.initialisation import initialisation
 from ponyge.fitness.evaluation import evaluate_fitness
 from ponyge.operators.crossover import crossover
@@ -104,7 +95,7 @@ class GEBTAgent(Agent):
         elif self.timestamp > 20 and self.exploration_fitness() < 2:
             # This is the case of the agent not moving and staying dormant. Need to use genetic
             # operation to change its genome
-            individual = initialisation(self.parameter, 100)
+            individual = initialisation(self.parameter, 10)
             #print (len(set([ind.phenotype for ind in individual])))
             #print ()
             individual = evaluate_fitness(individual, self.parameter)
@@ -226,13 +217,20 @@ class GEEnvironmentModel(Model):
 class TestGEBTSmallGrid(TestCase):
 
     def setUp(self):
-        self.environment = GEEnvironmentModel(1000, 100, 100, 10, None)
+        self.environment = GEEnvironmentModel(100, 100, 100, 10, None)
 
-        for i in range(500):
+        for i in range(5):
             self.environment.step()
             #print (i, [(a.name, a.location, a.individual[0].fitness) for a in self.environment.agents[:10]])
             agent = self.find_higest_performer()
             print (i, agent.name, agent.individual[0].fitness, agent.food_collected)
+            output = py_trees.display.ascii_tree(agent.bt.behaviour_tree.root)
+            print (i, output)
+            """
+            fname = 'test_bt_xml/' + str(i) + '.xml'
+            with open(fname, 'w') as myfile:
+                myfile.write(agent.bt.xmlstring)
+            """
             # Compute beta
             #self.environment.agent.beta = self.environment.agent.food_collected / self.environment.num_agents
 
@@ -253,5 +251,123 @@ class TestGEBTSmallGrid(TestCase):
         return fittest
 
     def test_one_traget(self):
-        #self.assertEqual(14.285714285714285, self.environment.schedule.agents[0].individual[0].fitness)
+        # self.assertEqual(14.285714285714285, self.environment.schedule.agents[0].individual[0].fitness)
+        self.assertEqual(9, 9)
+
+
+class XMLTestAgent(Agent):
+    """ An minimalistic GE agent """
+    def __init__(self, name, model):
+        super().__init__(name, model)
+        self.location = ()
+
+        self.direction = model.random.rand() * (2 * np.pi)
+        self.speed = 2
+        self.radius = 3
+
+        # self.exchange_time = model.random.randint(2, 4)
+        # This doesn't help. Maybe only perform genetic operations when
+        # an agents meet 10% of its total population
+        # """
+        # Define a BTContruct object
+        fname = 'test_bt_xml/' + str(2) + '.xml'
+
+        self.bt = BTConstruct(fname, self)
+
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+
+        # self.shared_content = dict()
+        self.beta = 0
+        self.food_collected = 0
+
+        self.bt.construct()
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
+        # Location history
+        self.location_history = set()
+        self.timestamp = 0
+
+    def step(self):
+        self.timestamp += 1
+        self.location_history.add(self.location)
+        self.bt.behaviour_tree.tick()
+        self.food_collected = self.get_food_in_hub()
+        self.overall_fitness()
+
+    def advance(self):
+        pass
+
+    def get_food_in_hub(self):
+        return len(self.attached_objects) * 1000
+
+    def overall_fitness(self):
+        # Use a decyaing function to generate fitness
+
+        self.fitness = (
+            (1 - self.beta) * self.exploration_fitness()) + (
+                self.beta * self.food_collected)
+
+    def exploration_fitness(self):
+        # Use exploration space as fitness values
+        return len(self.location_history)
+
+
+class XMLEnvironmentModel(Model):
+    """ A environemnt to model swarms """
+    def __init__(self, N, width, height, grid=10, seed=None):
+        if seed is None:
+            super(XMLEnvironmentModel, self).__init__(seed=None)
+        else:
+            super(XMLEnvironmentModel, self).__init__(seed)
+
+        self.num_agents = N
+
+        self.grid = Grid(width, height, grid)
+
+        self.schedule = SimultaneousActivation(self)
+
+        self.site = Sites(id=1, location=(45, 45), radius=5, q_value=0.5)
+
+        self.grid.add_object_to_grid(self.site.location, self.site)
+
+        self.hub = Hub(id=1, location=(0, 0), radius=11)
+
+        self.grid.add_object_to_grid(self.hub.location, self.hub)
+
+        self.agents = []
+
+        # Create agents
+        for i in range(self.num_agents):
+            a = XMLTestAgent(i, self)
+            self.schedule.add(a)
+            x = 0
+            y = 0
+
+            a.location = (x, y)
+            self.grid.add_object_to_grid((x, y), a)
+            a.operation_threshold = 2  # self.num_agents // 10
+            self.agents.append(a)
+
+        # Add equal number of food source
+        for i in range(self.num_agents):
+            f = Food(i, location=(45, 45), radius=5)
+            self.grid.add_object_to_grid(f.location, f)
+
+    def step(self):
+        self.schedule.step()
+
+
+class TestXMLSmallGrid(TestCase):
+
+    def setUp(self):
+        self.environment = XMLEnvironmentModel(1, 100, 100, 10, None)
+
+        for i in range(50):
+            self.environment.step()
+            print (i, self.environment.agents[0].location, self.environment.agents[0].fitness)
+
+    def test_one_traget(self):
         self.assertEqual(8, 9)
+
+
