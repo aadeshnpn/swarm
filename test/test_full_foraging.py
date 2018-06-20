@@ -1,7 +1,7 @@
 from swarms.lib.agent import Agent
 from swarms.objects import Sites, Food, Hub
 from swarms.lib.model import Model
-from swarms.lib.time import SimultaneousActivation
+from swarms.lib.time import SimultaneousActivation, RandomActivation, StagedActivation
 from swarms.lib.space import Grid
 from unittest import TestCase
 from swarms.utils.bt import BTConstruct
@@ -380,21 +380,23 @@ class XMLTestAgent(Agent):
         self.food_collected = 0
 
         # self.bt.construct()
-        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        py_trees.logging.level = py_trees.logging.Level.DEBUG
         # output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
         # Location history
         self.location_history = set()
         self.timestamp = 0
 
+    def advance(self):
+        pass
+
     def step(self):
         self.timestamp += 1
         self.location_history.add(self.location)
         self.behaviour_tree.tick()
+        # self.blackboard = Blackboard()
+        # self.blackboard.shared_content = dict()
         self.food_collected = self.get_food_in_hub()
         self.overall_fitness()
-
-    def advance(self):
-        pass
 
     def get_food_in_hub(self):
         # return len(self.attached_objects) * 1000
@@ -402,7 +404,8 @@ class XMLTestAgent(Agent):
         hub_loc = self.model.hub.location
         neighbours = grid.get_neighborhood(hub_loc, 35)
         food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
-        print ('food in the hub', food_objects, self.name)
+        # print ('food in the hub', self.name, [(food.id,food.agent_name) for food in food_objects])
+        #print (food_objects)
         return len(food_objects)
 
     def overall_fitness(self):
@@ -454,7 +457,7 @@ class XMLEnvironmentModel(Model):
             self.agents.append(a)
 
         # Add equal number of food source
-        for i in range(self.num_agents * 2):
+        for i in range(5):  #self.num_agents * 2):
             f = Food(i, location=(45, 45), radius=3)
             f.agent_name = None
             self.grid.add_object_to_grid(f.location, f)
@@ -466,9 +469,9 @@ class XMLEnvironmentModel(Model):
 class TestXMLSmallGrid(TestCase):
 
     def setUp(self):
-        self.environment = XMLEnvironmentModel(3, 100, 100, 10, None)
+        self.environment = XMLEnvironmentModel(1, 100, 100, 10, None)
 
-        for i in range(9):
+        for i in range(5):
             self.environment.step()
             fittest = self.find_higest_performer()
             #print (i, self.environment.agents[0].location, self.environment.agents[0].fitness)

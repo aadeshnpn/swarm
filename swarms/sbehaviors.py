@@ -48,6 +48,7 @@ class NeighbourObjects(Behaviour):
         """Init method for the sense behavior."""
         super(NeighbourObjects, self).__init__(name)
         self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
         """Have defined the setup method.
@@ -60,11 +61,9 @@ class NeighbourObjects(Behaviour):
         """
         self.agent = agent
         self.item = item
-        self.blackboard.shared_content = dict()
 
     def initialise(self):
         """Everytime initialization. Not required for now."""
-        pass
 
     def receive_signals(self):
         """Receive signals from other agents.
@@ -88,14 +87,22 @@ class NeighbourObjects(Behaviour):
             self.agent.location, self.agent.radius)
         objects = self.agent.model.grid.get_objects_from_list_of_grid(
             self.item, grids)
-
         if len(objects) >= 1:
             for item in objects:
-                try:
-                    name = type(item).__name__
-                    self.blackboard.shared_content[name].add(item)
-                except KeyError:
-                    self.blackboard.shared_content[name] = {item}
+                name = type(item).__name__
+                # Is the item is not carrable, its location
+                # and property doesnot change. So we can commit its
+                # information to memory
+                if item.carryable is False:
+                    try:
+                        self.agent.shared_content[name].add(item)
+                    except KeyError:
+                        self.agent.shared_content[name] = {item}
+                else:
+                    try:
+                        self.blackboard.shared_content[name].add(item)
+                    except KeyError:
+                        self.blackboard.shared_content[name] = {item}
             return Status.SUCCESS
         else:
             return Status.FAILURE
@@ -566,7 +573,7 @@ class Drop(Behaviour):
             self.agent.model.grid.add_object_to_grid(objects.location, objects)
             self.agent.attached_objects.remove(objects)
             self.blackboard.shared_content['Food'].remove(objects)
-            self.objects.agent_name = self.agent.name
+            objects.agent_name = self.agent.name
             return Status.SUCCESS
         except (AttributeError, IndexError):
             return Status.FAILURE
@@ -632,6 +639,7 @@ class SingleCarry(Behaviour):
             self.agent.attached_objects.append(objects)
             self.agent.model.grid.remove_object_from_grid(
                 objects.location, objects)
+            objects.agent_name = self.agent.name
             return Status.SUCCESS
         except (AttributeError, IndexError):
             return Status.FAILURE
@@ -1105,7 +1113,7 @@ class PickCue(Behaviour):
         pass
 
     def update(self):
-        """Logic for dropping cue."""
+        """Logic for pickup cue."""
         try:
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
@@ -1115,10 +1123,14 @@ class PickCue(Behaviour):
             # its direction towards the object that is communicated
             self.agent.direction = get_direction(
                 objects.communicated_location, self.agent.location)
+            objects = objects.communicated_object
+            name = type(objects).__name__
+            print('pick cue', objects, self.agent.shared_content)
+            try:
+                self.agent.shared_content[name].add(objects)
+            except KeyError:
+                self.agent.shared_content[name] = {objects}
 
-            # We just drop the cue on the environment and don't keep track
-            # of it. Instead of using cue here we can derive a class from cue
-            # and call it pheromonone
             return Status.SUCCESS
         except (IndexError, AttributeError):
             return Status.FAILURE

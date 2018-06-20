@@ -47,7 +47,7 @@ class Obstacles(EnvironmentObject):
         """Initialize."""
         super().__init__(id, location, radius)
         self.potential_field = None
-        self.carrable = False
+        self.carryable = False
         self.dropable = True
 
 
@@ -149,6 +149,7 @@ class Cue(Communication):
             0, 0), radius=20, object_to_communicate=None):
         """Initialize."""
         super().__init__(id, location, radius, object_to_communicate)
+        self.carryable = False
 
 
 # Class to define Traps
