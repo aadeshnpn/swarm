@@ -896,8 +896,10 @@ class SignalDoesNotExists(Behaviour):
 
             if len(self.agent.signals) > 0:
                 # Check the agetns signals array for its exitance
-                signal_objects = [
-                    signal.object_to_communicate for signal in self.agent.signals]
+                signal_objects = []
+                for signal in self.agent.signals:
+                    signal_objects.append(signal.object_to_communicate)
+
                 if objects not in signal_objects:
                     return Status.SUCCESS
                 else:

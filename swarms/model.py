@@ -6,8 +6,7 @@ from swarms.lib.time import SimultaneousActivation
 from swarms.lib.space import Grid
 from swarms.utils.jsonhandler import JsonData
 from swarms.agent import SwarmAgent
-from swarms.objects import Hub, Sites, Obstacles, Traps, Derbis
-import numpy as np
+from swarms.objects import Hub, Sites, Food
 import os
 
 filename = os.path.join(
@@ -30,24 +29,37 @@ class EnvironmentModel(Model):
 
         self.schedule = SimultaneousActivation(self)
 
-        self.build_environment_from_json()
+        self.site = Sites(id=1, location=(5, 5), radius=11, q_value=0.5)
+
+        self.grid.add_object_to_grid(self.site.location, self.site)
+
+        self.hub = Hub(id=1, location=(0, 0), radius=11)
+
+        self.grid.add_object_to_grid(self.hub.location, self.hub)
 
         self.agents = []
+
+        # Create agents
         for i in range(self.num_agents):
             a = SwarmAgent(i, self)
             self.schedule.add(a)
-
             # Add the agent to a random grid cell
             # x = self.random.randint(
-            #    -self.grid.width / 2, self.grid.width / 2)
+            # -self.grid.width / 2, self.grid.width / 2)
+            x = 0
             # y = self.random.randint(
-            #    -self.grid.height / 2, self.grid.height / 2)
-            x = -350 + np.random.randint(-20, 20)
-            y = -350 + np.random.randint(-20, 20)
+            # -self.grid.height / 2, self.grid.height / 2)
+            y = 0
+
             a.location = (x, y)
-            a.direction = -2.3561944901923448
             self.grid.add_object_to_grid((x, y), a)
+            a.operation_threshold = 2  # self.num_agents // 10
             self.agents.append(a)
+
+        # Add equal number of food source
+        for i in range(self.num_agents):
+            f = Food(i, location=(12, 12), radius=3)
+            self.grid.add_object_to_grid(f.location, f)
             # print (i,x,y)
 
     def create_environment_object(self, jsondata, obj):
@@ -58,7 +70,9 @@ class EnvironmentModel(Model):
         for json_object in jsondata[name]:
             location = (json_object["x"], json_object["y"])
             if "q_value" in json_object:
-                temp_obj = obj(i, location, json_object["radius"], q_value=json_object["q_value"])
+                temp_obj = obj(
+                    i, location, json_object["radius"], q_value=json_object[
+                        "q_value"])
             else:
                 temp_obj = obj(i, location, json_object["radius"])
 
@@ -72,15 +86,25 @@ class EnvironmentModel(Model):
         jsondata = JsonData.load_json_file(filename)
         # Create a instance of JsonData to store object that
         # needs to be sent to UI
-        self.render_jsondata = JsonData()
-        self.render_jsondata.objects = {}
+        self.render = JsonData()
+        self.render.objects = {}
 
         for name in jsondata.keys():
             obj = eval(name.capitalize())
-            self.render_jsondata.objects[name] = self.create_environment_object(jsondata, obj)
+            self.render.objects[name] = self.create_environment_object(
+                jsondata, obj)
 
-        self.hub = self.render_jsondata.objects['hub'][0]
+        self.hub = self.render.objects['hub'][0]
 
     def step(self):
         """Step through the environment."""
         self.schedule.step()
+
+    def find_higest_performer(self):
+        """Find the best agent."""
+        fitness = self.agents[0].individual[0].fitness
+        fittest = self.agents[0]
+        for agent in self.agents:
+            if agent.individual[0].fitness > fitness:
+                fittest = agent
+        return fittest

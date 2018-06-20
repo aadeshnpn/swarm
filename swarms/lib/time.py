@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
-"""
-Swarm Time Module
-================
+"""Swarm Time Module.
 
+================
 Objects for handling the time component of a model. In particular, this module
 contains Schedulers, which handle agent activation. A Scheduler is an object
 which controls when agents are called upon to act, and when.

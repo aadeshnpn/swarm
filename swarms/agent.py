@@ -2,13 +2,14 @@
 
 from swarms.lib.agent import Agent
 import numpy as np
-import py_trees
-from swarms.sbehaviors import (
-    NeighbourObjects, IsCarryable,
-    IsMultipleCarry, IsInPartialAttached,
-    InitiateMultipleCarry, IsEnoughStrengthToCarry,
-    GoTo, Move, IsDropable, DropPartial
-    )
+from swarms.utils.bt import BTConstruct
+
+from ponyge.operators.initialisation import initialisation
+from ponyge.fitness.evaluation import evaluate_fitness
+from ponyge.operators.crossover import crossover
+from ponyge.operators.mutation import mutation
+from ponyge.operators.replacement import replacement
+from ponyge.operators.selection import selection
 
 
 class SwarmAgent(Agent):
@@ -20,94 +21,102 @@ class SwarmAgent(Agent):
         self.location = ()
 
         self.direction = model.random.rand() * (2 * np.pi)
-
-        # This variable was used for move function. Since we are adopting
-        # accleration based method this
-        # variable is only kept for the tests to pass
         self.speed = 2
         self.radius = 3
-        self.moveable = True
-        # self.weight = 5
+
+        # self.exchange_time = model.random.randint(2, 4)
+        # This doesn't help. Maybe only perform genetic operations when
+        # an agents meet 10% of its total population
+        # """
+        self.operation_threshold = 2
+        self.genome_storage = []
+
+        # Define a BTContruct object
+        self.bt = BTConstruct(None, self)
+
+        # self.blackboard = Blackboard()
+        # self.blackboard.shared_content = dict()
+
         self.shared_content = dict()
-        self.signals = []
+        self.carryable = False
+        self.beta = 0
+        self.food_collected = 0
+        # Grammatical Evolution part
+        from ponyge.algorithm.parameters import Parameters
+        parameter = Parameters()
+        parameter_list = ['--parameters', 'swarm.txt']
+        # Comment when different results is desired.
+        # Else set this for testing purpose
+        # parameter.params['RANDOM_SEED'] = name
+        # # np.random.randint(1, 99999999)
+        parameter.params['POPULATION_SIZE'] = self.operation_threshold // 2
+        parameter.set_params(parameter_list)
+        self.parameter = parameter
+        individual = initialisation(self.parameter, 1)
+        individual = evaluate_fitness(individual, self.parameter)
 
-        # Initialize the behavior trees with a Behavior tree
-        self.behaviour_tree = self.create_bt()
+        self.individual = individual
+        self.bt.xmlstring = self.individual[0].phenotype
+        self.bt.construct()
 
-    def create_bt(self):
-        """Create behaviors tree."""
-        self.shared_content['Hub'] = [self.model.hub]
+        # Location history
+        self.location_history = set()
+        self.timestamp = 0
 
-        carryroot = py_trees.composites.Sequence("Sequence")
-        lowest = NeighbourObjects('0')
-        lowest.setup(0, self, 'Derbis')
+    def get_food_in_hub(self):
+        """Get the amount of food deposited in the hub."""
+        # grids = self.model.grid.get_neighborhood(
+        #    self.model.hub.location, self.model.hub.radius)
+        # no_food_in_hub = self.model.grid.get_objects_from_list_of_grid(
+        #    'Food', grids)
+        return len(self.attached_objects) * 1000
+        # return len(no_food_in_hub)
 
-        low = IsCarryable('1')
-        low.setup(0, self, 'Derbis')
+    def store_genome(self, cellmates):
+        """Store the genome from neighbours."""
+        # cellmates.remove(self)
+        self.genome_storage += [agent.individual[0] for agent in cellmates]
 
-        medium = IsMultipleCarry('2')
-        medium.setup(0, self, 'Derbis')
+    def exchange_chromosome(self,):
+        """Perform genetic operations."""
+        # print('from exchange', self.name)
+        individuals = self.genome_storage
+        parents = selection(self.parameter, individuals)
+        cross_pop = crossover(self.parameter, parents)
+        new_pop = mutation(self.parameter, cross_pop)
+        new_pop = evaluate_fitness(new_pop, self.parameter)
+        individuals = replacement(self.parameter, new_pop, individuals)
+        individuals.sort(reverse=False)
+        self.individual = [individuals[0]]
+        self.individual[0].fitness = 0
+        self.genome_storage = []
 
-        r1Sequence = py_trees.composites.Sequence("R1Sequence")
-        r1Selector = py_trees.composites.Selector("R1Selector")
-        mainSelector = py_trees.composites.Selector("MainSelector")
+    def genetic_step(self):
+        """Additional procedures called after genecti step."""
+        self.exchange_chromosome()
+        self.bt.xmlstring = self.individual[0].phenotype
+        self.bt.construct()
+        self.food_collected = 0
+        self.location_history = set()
+        self.timestamp = 0
 
-        high1 = IsInPartialAttached('3')
-        high1.setup(0, self, 'Derbis')
+    def overall_fitness(self):
+        """Compute complete fitness.
 
-        high2 = InitiateMultipleCarry('4')
-        high2.setup(0, self, 'Derbis')
+        Goals are represented by objective function. We use combination of
+        objective function to define overall fitness of the agents
+        performance.
+        """
+        # Use a decyaing function to generate fitness
 
-        high3 = IsEnoughStrengthToCarry('5')
-        high3.setup(0, self, 'Derbis')
+        self.individual[0].fitness = (
+            (1 - self.beta) * self.exploration_fitness()) + (
+                self.beta * self.food_collected)
 
-        high4 = GoTo('6')
-        high4.setup(0, self, 'Hub')
-
-        high5 = Move('7')
-        high5.setup(0, self)
-
-        nearHub1 = NeighbourObjects('13')
-        nearHub1.setup(0, self, 'Hub')
-
-        r1Selector.add_children([high1, high2])
-        r1Sequence.add_children([medium, r1Selector])
-
-        carryroot.add_children([lowest, low, r1Sequence])
-        mainSelector.add_children([nearHub1, carryroot])
-
-        # Adding new sub-tree for drop logic for multiple carry
-        droproot = py_trees.composites.Selector("DropSelector")
-        moveSequence = py_trees.composites.Sequence("MoveSequence")
-        dropSequence = py_trees.composites.Sequence("DropSequence")
-
-        nearHub = py_trees.meta.inverter(NeighbourObjects)('8')
-        nearHub.setup(0, self, 'Hub')
-
-        moveSequence.add_children([nearHub, high3, high4, high5])
-
-        high6 = NeighbourObjects('9')
-        high6.setup(0, self, 'Hub')
-
-        high7 = IsDropable('10')
-        high7.setup(0, self, 'Hub')
-
-        high8 = IsInPartialAttached('11')
-        high8.setup(0, self, 'Derbis')
-
-        high9 = DropPartial('12')
-        high9.setup(0, self, 'Derbis')
-
-        dropSequence.add_children([high6, high7, high8, high9])
-        droproot.add_children([moveSequence, dropSequence])
-
-        root = py_trees.composites.Sequence("Root")
-        root.add_children([mainSelector, droproot])
-
-        behaviour_tree = py_trees.trees.BehaviourTree(root)
-        # py_trees.logging.level = py_trees.logging.Level.DEBUG
-        # py_trees.display.print_ascii_tree(root)
-        return behaviour_tree
+    def exploration_fitness(self):
+        """Compute the exploration fitness."""
+        # Use exploration space as fitness values
+        return len(self.location_history)
 
     # New Agent methods for behavior based robotics
     def sense(self):
@@ -118,7 +127,45 @@ class SwarmAgent(Agent):
         """Plan not required for now."""
         pass
 
-    # Make necessary Changes
     def step(self):
-        """Need to change."""
-        self.behaviour_tree.tick()
+        """Agent action at a single time step."""
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
+        # print ('bt tree', output, self.individual[0].phenotype,
+        # self.individual[0].fitness)
+        # Get the value of food from hub before ticking the behavior
+        self.timestamp += 1
+        self.location_history.add(self.location)
+        # food_in_hub_before = self.get_food_in_hub()
+        self.bt.behaviour_tree.tick()
+        # food_in_hub_after = self.get_food_in_hub()
+        # self.food_collected = food_in_hub_before - food_in_hub_after
+        self.food_collected = self.get_food_in_hub()
+        # Computes additional value for fitness. In this case foodcollected
+        self.overall_fitness()
+
+        cellmates = self.model.grid.get_objects_from_grid(
+            'GEBTAgent', self.location)
+        # print (cellmates)
+        if (len(self.genome_storage) >= self.model.num_agents / 25) \
+                and (self.exploration_fitness() > 10):
+                    # print ('genetic', self.name)
+                    self.genetic_step()
+
+        elif self.timestamp > 20 and self.exploration_fitness() < 2:
+            # This is the case of the agent not moving and staying dormant.
+            # Need to use genetic operation to change its genome
+            individual = initialisation(self.parameter, 10)
+            # print (len(set([ind.phenotype for ind in individual])))
+            # print ()
+            individual = evaluate_fitness(individual, self.parameter)
+            self.genome_storage = individual
+            self.genetic_step()
+
+        if len(cellmates) > 1:
+            self.store_genome(cellmates)
+            self.beta = self.food_collected / 1000
+
+    def advance(self):
+        """Require for staged activation."""
+        pass
