@@ -47,10 +47,11 @@ class GEBTAgent(Agent):
         # Define a BTContruct object
         self.bt = BTConstruct(None, self)
 
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
+        # self.blackboard = Blackboard()
+        # self.blackboard.shared_content = dict()
 
-        # self.shared_content = dict()
+        self.shared_content = dict()
+        self.carryable = False
         self.beta = 0
         self.food_collected = 0
         # Grammatical Evolution part
@@ -284,7 +285,7 @@ class XMLTestAgent(Agent):
         # self.blackboard = Blackboard()
         # self.blackboard.shared_content = dict()
 
-        self.shared_content['Hub'] = [model.hub]
+        self.shared_content['Hub'] = {model.hub}
         # root = py_trees.composites.Sequence("Sequence")
         # root = py_trees.composites.Selector('Selector')
         mseq = py_trees.composites.Sequence('MSequence')
@@ -380,7 +381,7 @@ class XMLTestAgent(Agent):
         self.food_collected = 0
 
         # self.bt.construct()
-        py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
         # output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
         # Location history
         self.location_history = set()
@@ -404,7 +405,7 @@ class XMLTestAgent(Agent):
         hub_loc = self.model.hub.location
         neighbours = grid.get_neighborhood(hub_loc, 35)
         food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
-        # print ('food in the hub', self.name, [(food.id,food.agent_name) for food in food_objects])
+        print ('food in the hub', self.name, [(food.id,food.agent_name) for food in food_objects])
         #print (food_objects)
         return len(food_objects)
 
@@ -469,7 +470,7 @@ class XMLEnvironmentModel(Model):
 class TestXMLSmallGrid(TestCase):
 
     def setUp(self):
-        self.environment = XMLEnvironmentModel(1, 100, 100, 10, None)
+        self.environment = XMLEnvironmentModel(4, 100, 100, 10, None)
 
         for i in range(5):
             self.environment.step()

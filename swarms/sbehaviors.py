@@ -64,6 +64,7 @@ class NeighbourObjects(Behaviour):
 
     def initialise(self):
         """Everytime initialization. Not required for now."""
+        pass
 
     def receive_signals(self):
         """Receive signals from other agents.
