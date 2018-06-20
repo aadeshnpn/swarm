@@ -566,6 +566,7 @@ class Drop(Behaviour):
             self.agent.model.grid.add_object_to_grid(objects.location, objects)
             self.agent.attached_objects.remove(objects)
             self.blackboard.shared_content['Food'].remove(objects)
+            self.objects.agent_name = self.agent.name
             return Status.SUCCESS
         except (AttributeError, IndexError):
             return Status.FAILURE
