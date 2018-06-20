@@ -1231,17 +1231,26 @@ class SwarmSignalRec1(Agent):
         sense = py_trees.composites.Sequence('Sequence')
         sense.add_children([n1, g1, m1])
 
-        r1 = ReceiveSignal('4')
+        r11 = NeighbourObjects('4')
+        r11.setup(0, self, 'Signal')
+
+        r1 = ReceiveSignal('5')
         r1.setup(0, self, 'Signal')
+
+        signal = py_trees.composites.Sequence('6')
+        signal.add_children([r11, r1, m1])
+
+        signal_sel = py_trees.composites.Selector('7')
+        signal_sel.add_children([signal])
 
         # s2 = SendSignal('5')
         # s2.setup(0, self, 'Food')
 
-        signal = py_trees.composites.Selector('Signal')
-        signal.add_children([r1])
+        #signal = py_trees.composites.Selector('Signal')
+        #signal.add_children([r1])
 
         select = py_trees.composites.Selector('Selector')
-        select.add_children([signal, sense])
+        select.add_children([signal_sel, sense])
 
         self.behaviour_tree = py_trees.trees.BehaviourTree(select)
 
@@ -1395,15 +1404,14 @@ class TestSignalRecSwarmSmallGrid(TestCase):
 
         # Checking is the signal is moving along with the agent
         self.assertEqual(signal, agent.signals)
-    """
+
     def test_agent_signal_receive(self):
 
-        for i in range(30):
+        for i in range(40):
             self.environment.step()
 
         # Checking if the signal receiving agent has reached the site
         self.assertEqual(self.environment.agents[1].location, (20, 20))
-    """
 
 
 class SwarmCuePick(Agent):
@@ -1453,8 +1461,8 @@ class SwarmCuePick(Agent):
 
         self.behaviour_tree = py_trees.trees.BehaviourTree(select)
 
-        py_trees.logging.level = py_trees.logging.Level.DEBUG
-        py_trees.display.print_ascii_tree(select)
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # py_trees.display.print_ascii_tree(select)
 
     def step(self):
         self.behaviour_tree.tick()

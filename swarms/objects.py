@@ -129,6 +129,7 @@ class Communication(EnvironmentObject):
         # Communication parameters for signal
         self.communicated_object = object_to_communicate
         self.communicated_location = self.communicated_object.location
+        self.carryable = False
 
 
 # Class to define signal
@@ -149,7 +150,6 @@ class Cue(Communication):
             0, 0), radius=20, object_to_communicate=None):
         """Initialize."""
         super().__init__(id, location, radius, object_to_communicate)
-        self.carryable = False
 
 
 # Class to define Traps

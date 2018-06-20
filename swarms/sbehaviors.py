@@ -985,9 +985,12 @@ class ReceiveSignal(Behaviour):
                 self.item)[0]
             # Extract the information from the signal object and
             # store into the agent memory
-            object_name = type(objects.object_to_communicate).__name__
-            self.agent.shared_content[object_name] = [
-                objects.object_to_communicate]
+            objects = objects.communicated_object
+            name = type(objects).__name__
+            try:
+                self.agent.shared_content[name].add(objects)
+            except KeyError:
+                self.agent.shared_content[name] = {objects}
             return Status.SUCCESS
         except (IndexError, AttributeError):
             return Status.FAILURE
