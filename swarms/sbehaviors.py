@@ -17,7 +17,7 @@ class ObjectsStore:
     """
 
     @staticmethod
-    def find(blackboard_content, agent_content, name):
+    def find(blackboard_content, agent_content, name, agent_name):
         """Let this method implement search.
 
         This method find implements a search through
@@ -25,7 +25,7 @@ class ObjectsStore:
         in blackboard, then agent content is searched.
         """
         try:
-            objects = blackboard_content[name]
+            objects = blackboard_content[name + str(agent_name)]
             return list(objects)
         except KeyError:
             try:
@@ -100,6 +100,7 @@ class NeighbourObjects(Behaviour):
                     except KeyError:
                         self.agent.shared_content[name] = {item}
                 else:
+                    name = name + str(self.agent.name)
                     try:
                         self.blackboard.shared_content[name].add(item)
                     except KeyError:
@@ -153,7 +154,7 @@ class GoTo(Behaviour):
         try:
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
-                self.item)[0]
+                self.item, self.agent.name)[0]
             self.agent.direction = get_direction(
                 objects.location, self.agent.location)
             return Status.SUCCESS
@@ -240,6 +241,7 @@ class IsMoveable(Behaviour):
 
     def setup(self, timeout, agent, item):
         """Setup."""
+        self.agent = agent
         self.item = item
 
     def initialise(self):
@@ -251,7 +253,7 @@ class IsMoveable(Behaviour):
         try:
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
-                self.item)[0]
+                self.item, self.agent.name)[0]
             if objects.moveable:
                 return Status.SUCCESS
             else:
@@ -400,7 +402,7 @@ class IsCarryable(Behaviour):
         try:
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
-                self.thing)[0]
+                self.thing, self.agent.name)[0]
             if objects.carryable:
                 return Status.SUCCESS
             else:
@@ -433,7 +435,7 @@ class IsDropable(Behaviour):
         try:
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
-                self.thing)[0]
+                self.thing, self.agent.name)[0]
             if objects.dropable:
                 return Status.SUCCESS
             else:
@@ -468,7 +470,7 @@ class IsSingleCarry(Behaviour):
             # objects = self.blackboard.shared_content[self.thing].pop()
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
-                self.thing)[0]
+                self.thing, self.agent.name)[0]
             if objects.weight:
                 if self.agent.get_capacity() > objects.calc_relative_weight():
                     return Status.SUCCESS
@@ -504,7 +506,7 @@ class IsMultipleCarry(Behaviour):
             # objects = self.blackboard.shared_content[self.thing].pop()
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
-                self.thing)[0]
+                self.thing, self.agent.name)[0]
             if objects.weight:
                 if self.agent.get_capacity() < objects.weight:
                     return Status.SUCCESS
@@ -537,7 +539,7 @@ class IsCarrying(Behaviour):
         try:
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
-                self.thing)[0]
+                self.thing, self.agent.name)[0]
             if objects in self.agent.attached_objects:
                 return Status.SUCCESS
             else:
@@ -570,10 +572,11 @@ class Drop(Behaviour):
         try:
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
-                self.thing)[0]
+                self.thing, self.agent.name)[0]
             self.agent.model.grid.add_object_to_grid(objects.location, objects)
             self.agent.attached_objects.remove(objects)
-            self.blackboard.shared_content['Food'].remove(objects)
+            self.blackboard.shared_content['Food' + str(
+                self.agent.name)].remove(objects)
             objects.agent_name = self.agent.name
             return Status.SUCCESS
         except (AttributeError, IndexError):
@@ -636,7 +639,7 @@ class SingleCarry(Behaviour):
             # objects = self.blackboard.shared_content[self.thing].pop()
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
-                self.thing)[0]
+                self.thing, self.agent.name)[0]
             self.agent.attached_objects.append(objects)
             self.agent.model.grid.remove_object_from_grid(
                 objects.location, objects)
@@ -673,7 +676,7 @@ class InitiateMultipleCarry(Behaviour):
             # objects = self.blackboard.shared_content[self.thing].pop()
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
-                self.item)[0]
+                self.item, self.agent.name)[0]
             relative_weight = objects.calc_relative_weight()
             if relative_weight > 0:
                 if relative_weight - self.agent.get_capacity() >= 0:
@@ -725,7 +728,7 @@ class IsInPartialAttached(Behaviour):
         # objects = self.blackboard.shared_content[self.thing].pop()
         objects = ObjectsStore.find(
             self.blackboard.shared_content, self.agent.shared_content,
-            self.item)[0]
+            self.item, self.agent.name)[0]
         # print (self.agent, objects,
         #  self.agent.partial_attached_objects, objects.agents)
         try:
@@ -760,7 +763,7 @@ class IsEnoughStrengthToCarry(Behaviour):
         """Logic to check if the agent has enough strength to carry."""
         objects = ObjectsStore.find(
             self.blackboard.shared_content, self.agent.shared_content,
-            self.item)[0]
+            self.item, self.agent.name)[0]
         try:
             if self.agent.get_capacity() >= objects.calc_relative_weight():
                 return Status.SUCCESS
@@ -821,7 +824,7 @@ class IsVisitedBefore(Behaviour):
         try:
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
-                self.item)[0]
+                self.item, self.agent.name)[0]
             if objects:
                 return Status.SUCCESS
             else:
@@ -852,7 +855,7 @@ class MultipleCarry(Behaviour):
         """Logic for multiple carry."""
         objects = ObjectsStore.find(
             self.blackboard.shared_content, self.agent.shared_content,
-            self.item)[0]
+            self.item, self.agent.name)[0]
         try:
             self.agent.model.grid.remove_object_from_grid(
                 objects.location, objects)
@@ -889,7 +892,7 @@ class SignalDoesNotExists(Behaviour):
             # Find the object the agent is trying to signal
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
-                self.item)[0]
+                self.item, self.agent.name)[0]
 
             if len(self.agent.signals) > 0:
                 # Check the agetns signals array for its exitance
@@ -934,7 +937,7 @@ class SendSignal(Behaviour):
         try:
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
-                self.item)[0]
+                self.item, self.agent.name)[0]
 
             # Initialize the signal object
             signal = Signal(
@@ -983,7 +986,7 @@ class ReceiveSignal(Behaviour):
         try:
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
-                self.item)[0]
+                self.item, self.agent.name)[0]
             # Extract the information from the signal object and
             # store into the agent memory
             objects = objects.communicated_object
@@ -1031,7 +1034,7 @@ class CueDoesNotExists(Behaviour):
                 # Check the agetns cue list for its exitance
                 objects = ObjectsStore.find(
                     self.blackboard.shared_content, self.agent.shared_content,
-                    self.item)[0]
+                    self.item, self.agent.name)[0]
                 cue_in_list = [
                     cue.object_to_communicate for cue in cue_objects]
                 if objects not in cue_in_list:
@@ -1074,7 +1077,7 @@ class DropCue(Behaviour):
         try:
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
-                self.item)[0]
+                self.item, self.agent.name)[0]
 
             # Initialize the cue object
             cue = Cue(
@@ -1121,7 +1124,7 @@ class PickCue(Behaviour):
         try:
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
-                self.item)[0]
+                self.item, self.agent.name)[0]
 
             # Get information from the cue. For now, the agents orients
             # its direction towards the object that is communicated
@@ -1129,7 +1132,6 @@ class PickCue(Behaviour):
                 objects.communicated_location, self.agent.location)
             objects = objects.communicated_object
             name = type(objects).__name__
-            print('pick cue', objects, self.agent.shared_content)
             try:
                 self.agent.shared_content[name].add(objects)
             except KeyError:

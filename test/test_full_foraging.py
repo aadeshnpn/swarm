@@ -126,12 +126,12 @@ class GEBTAgent(Agent):
         self.direction = direction
 
     def get_food_in_hub(self):
-        #grids = self.model.grid.get_neighborhood(
+        # grids = self.model.grid.get_neighborhood(
         #    self.model.hub.location, self.model.hub.radius)
-        #no_food_in_hub = self.model.grid.get_objects_from_list_of_grid(
+        # no_food_in_hub = self.model.grid.get_objects_from_list_of_grid(
         #    'Food', grids)
         return len(self.attached_objects)*1000
-        #return len(no_food_in_hub)
+        # return len(no_food_in_hub)
 
     def store_genome(self, cellmates):
         # cellmates.remove(self)
@@ -227,11 +227,11 @@ class TestGEBTSmallGrid(TestCase):
 
         for i in range(5):
             self.environment.step()
-            #print (i, [(a.name, a.location, a.individual[0].fitness) for a in self.environment.agents[:10]])
+            # print (i, [(a.name, a.location, a.individual[0].fitness) for a in self.environment.agents[:10]])
             agent = self.find_higest_performer()
-            print (i, agent.name, agent.individual[0].fitness, agent.food_collected)
+            print(i, agent.name, agent.individual[0].fitness, agent.food_collected)
             output = py_trees.display.ascii_tree(agent.bt.behaviour_tree.root)
-            print (i, output)
+            print(i, output)
             """
             fname = 'test_bt_xml/' + str(i) + '.xml'
             with open(fname, 'w') as myfile:
@@ -246,8 +246,6 @@ class TestGEBTSmallGrid(TestCase):
             #  self.target_fitness = agent.individual[0].fitness
             #    print('Step', i, agent.name, agent.individual[0].fitness, agent.location)
 
-    # def test_target_string(self):
-    #    self.assertEqual('<?xml version="1.0" encoding="UTF-8"?><Sequence><Sequence><Sequence><cond>IsMoveable</cond><cond>IsMupltipleCarry</cond><act>RandomWalk</act></Sequence> <Sequence><cond>IsMotionTrue</cond><cond>IsMoveable</cond><cond>IsMotionTrue</cond><act>SingleCarry</act></Sequence></Sequence> <Selector><cond>IsMotionTrue</cond><cond>IsCarryable</cond><cond>IsMupltipleCarry</cond><act>GoTo</act></Selector></Sequence>', self.target_phenotype)
     def find_higest_performer(self):
         fitness = self.environment.agents[0].individual[0].fitness
         fittest = self.environment.agents[0]
@@ -257,7 +255,6 @@ class TestGEBTSmallGrid(TestCase):
         return fittest
 
     def test_one_traget(self):
-        # self.assertEqual(14.285714285714285, self.environment.schedule.agents[0].individual[0].fitness)
         self.assertEqual(9, 9)
 
 
@@ -396,7 +393,7 @@ class XMLTestAgent(Agent):
         self.behaviour_tree.tick()
         # self.blackboard = Blackboard()
         # self.blackboard.shared_content = dict()
-        self.food_collected = self.get_food_in_hub()
+        self.food_collected = len(self.get_food_in_hub())
         self.overall_fitness()
 
     def get_food_in_hub(self):
@@ -405,9 +402,9 @@ class XMLTestAgent(Agent):
         hub_loc = self.model.hub.location
         neighbours = grid.get_neighborhood(hub_loc, 35)
         food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
-        print ('food in the hub', self.name, [(food.id,food.agent_name) for food in food_objects])
-        #print (food_objects)
-        return len(food_objects)
+
+        # print (food_objects)
+        return food_objects
 
     def overall_fitness(self):
         # Use a decyaing function to generate fitness
@@ -449,8 +446,8 @@ class XMLEnvironmentModel(Model):
         for i in range(self.num_agents):
             a = XMLTestAgent(i, self)
             self.schedule.add(a)
-            x = 45
-            y = 45
+            x = 25
+            y = 25
 
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)
@@ -458,7 +455,7 @@ class XMLEnvironmentModel(Model):
             self.agents.append(a)
 
         # Add equal number of food source
-        for i in range(5):  #self.num_agents * 2):
+        for i in range(5):  # self.num_agents * 2):
             f = Food(i, location=(45, 45), radius=3)
             f.agent_name = None
             self.grid.add_object_to_grid(f.location, f)
@@ -470,21 +467,13 @@ class XMLEnvironmentModel(Model):
 class TestXMLSmallGrid(TestCase):
 
     def setUp(self):
-        self.environment = XMLEnvironmentModel(4, 100, 100, 10, None)
+        self.environment = XMLEnvironmentModel(50, 100, 100, 10, 102)
 
-        for i in range(5):
+        for i in range(20):
             self.environment.step()
-            fittest = self.find_higest_performer()
-            #print (i, self.environment.agents[0].location, self.environment.agents[0].fitness)
-            print(i, fittest.name, fittest.fitness)
+            self.food_objects = self.environment.agents[0].get_food_in_hub()
+            print('food in the hub', i, [(
+                food.id, food.agent_name) for food in self.food_objects])
 
     def test_one_traget(self):
-        self.assertEqual(8, 9)
-
-    def find_higest_performer(self):
-        fitness = self.environment.agents[0].fitness
-        fittest = self.environment.agents[0]
-        for agent in self.environment.agents:
-            if agent.fitness > fitness:
-                fittest = agent
-        return fittest
+        self.assertEqual(5, len(self.food_objects))

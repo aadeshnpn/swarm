@@ -49,7 +49,7 @@ class SwarmAgentGoTo(Agent):
         root.add_children([higest, low, high])
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
-        py_trees.display.print_ascii_tree(root)
+        # py_trees.display.print_ascii_tree(root)
 
     def step(self):
         self.behaviour_tree.tick()
@@ -115,7 +115,7 @@ class SwarmAgentSingleCarry(Agent):
 
         self.moveable = True
         self.shared_content = dict()
-        py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
         root = py_trees.composites.Sequence("Sequence")
         lowest = NeighbourObjects('0')
         lowest.setup(0, self, 'Derbis')
@@ -254,8 +254,8 @@ class SwarmAgentSingleCarryDrop(Agent):
 
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
 
-        py_trees.logging.level = py_trees.logging.Level.DEBUG
-        py_trees.display.print_ascii_tree(root)
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # py_trees.display.print_ascii_tree(root)
 
     def step(self):
         self.behaviour_tree.tick()
@@ -421,8 +421,8 @@ class SwarmAgentSingleCarryDropReturn(Agent):
         select.add_children([nseq, mseq])
         self.behaviour_tree = py_trees.trees.BehaviourTree(select)
 
-        py_trees.logging.level = py_trees.logging.Level.DEBUG
-        py_trees.display.print_ascii_tree(select)
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # py_trees.display.print_ascii_tree(select)
         self.shared_content['Sites'] = {model.site}
 
     def step(self):
@@ -921,6 +921,8 @@ class SwarmAgentRandomSingleCarryDropReturn(Agent):
         select.add_children([nseq, mseq, randseq])
 
         self.behaviour_tree = py_trees.trees.BehaviourTree(select)
+        #py_trees.logging.level = py_trees.logging.Level.DEBUG
+        #py_trees.display.print_ascii_tree(select)
 
     def step(self):
         self.behaviour_tree.tick()
@@ -948,18 +950,18 @@ class RandomSingleCarryDropReturnSwarmModel(Model):
 
         self.hub = Hub(id=2, location=(0, 0), radius=5)
         self.grid.add_object_to_grid(self.hub.location, self.hub)
-        self.site = Sites(id=3, location=(-35, -5), radius=10)
+        self.site = Sites(id=3, location=(-35, -5), radius=5)
         self.grid.add_object_to_grid(self.site.location, self.site)
 
-        for i in range(self.num_agents * 5):
-            f = Food(i, location=(-35, -5), radius=2)
+        for i in range(5):
+            f = Food(i, location=(-35, -5), radius=5)
             self.grid.add_object_to_grid(f.location, f)
 
         for i in range(self.num_agents):
             a = SwarmAgentRandomSingleCarryDropReturn(i, self)
             self.schedule.add(a)
-            x = 0
-            y = 0
+            x = -35
+            y = -5
             a.location = (x, y)
             a.direction = -2.3561944901923448
             self.grid.add_object_to_grid((x, y), a)
@@ -979,11 +981,16 @@ class TestRandomSingleCarryDropReturnSwarmSmallGrid(TestCase):
     def test_agent_food(self):
         # Testing after the food has been transported to hub and dropped. Is
         # the total number of food is transported to hub
-        for i in range(40):
+        for i in range(7):
             self.environment.step()
-        transported_food = self.environment.grid.get_objects_from_grid(
-            'Food', self.environment.hub.location)
-        self.assertEqual(5, len(transported_food))
+            # print (self.environment.agent.location)
+        neighbours = self.environment.grid.get_neighborhood(
+            (0, 0), 5)
+        trans_objects = self.environment.grid.get_objects_from_list_of_grid(
+            'Food', neighbours)
+        # transported_food = self.environment.grid.get_objects_from_grid(
+        #    'Food', self.environment.hub.location)
+        self.assertEqual(5, len(trans_objects))
 
 
 class SwarmAgentRandomWalk(Agent):
@@ -1120,8 +1127,8 @@ class SwarmSignal(Agent):
 
         self.behaviour_tree = py_trees.trees.BehaviourTree(select)
 
-        py_trees.logging.level = py_trees.logging.Level.DEBUG
-        py_trees.display.print_ascii_tree(select)
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # py_trees.display.print_ascii_tree(select)
 
     def step(self):
         self.behaviour_tree.tick()
