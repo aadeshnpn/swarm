@@ -9,7 +9,12 @@ import py_trees
 from py_trees import Blackboard
 import numpy as np
 # import xml.etree.ElementTree as ET
-
+from py_trees.composites import RepeatUntilFalse
+from swarms.sbehaviors import (
+    NeighbourObjects, IsCarryable, IsSingleCarry,
+    SingleCarry, GoTo, Move, IsDropable, IsCarrying, Drop,
+    IsVisitedBefore, RandomWalk
+)
 from ponyge.operators.initialisation import initialisation
 from ponyge.fitness.evaluation import evaluate_fitness
 from ponyge.operators.crossover import crossover
@@ -265,24 +270,117 @@ class XMLTestAgent(Agent):
         self.speed = 2
         self.radius = 3
 
+        self.moveable = True
+        self.shared_content = dict()
         # self.exchange_time = model.random.randint(2, 4)
         # This doesn't help. Maybe only perform genetic operations when
         # an agents meet 10% of its total population
         # """
         # Define a BTContruct object
-        fname = 'test_bt_xml/' + str(2) + '.xml'
+        # fname = 'test_bt_xml/' + str(2) + '.xml'
 
-        self.bt = BTConstruct(fname, self)
+        # self.bt = BTConstruct(fname, self)
 
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
+        # self.blackboard = Blackboard()
+        # self.blackboard.shared_content = dict()
+
+        self.shared_content['Hub'] = [model.hub]
+        # root = py_trees.composites.Sequence("Sequence")
+        # root = py_trees.composites.Selector('Selector')
+        mseq = py_trees.composites.Sequence('MSequence')
+        nseq = py_trees.composites.Sequence('NSequence')
+        select = py_trees.composites.Selector('RSelector')
+        carryseq = py_trees.composites.Sequence('CSequence')
+        dropseq = py_trees.composites.Sequence('DSequence')
+
+        lowest1 = py_trees.meta.inverter(NeighbourObjects)('00')
+        lowest1.setup(0, self, 'Hub')
+
+        lowest11 = NeighbourObjects('0')
+        lowest11.setup(0, self, 'Sites')
+
+        lowest = NeighbourObjects('0')
+        lowest.setup(0, self, 'Food')
+
+        low = IsCarryable('1')
+        low.setup(0, self, 'Food')
+
+        medium = IsSingleCarry('2')
+        medium.setup(0, self, 'Food')
+
+        high = SingleCarry('3')
+        high.setup(0, self, 'Food')
+
+        carryseq.add_children([lowest1, lowest11, lowest, low, medium, high])
+
+        repeathub = RepeatUntilFalse("RepeatSeqHub")
+        repeatsite = RepeatUntilFalse("RepeatSeqSite")
+
+        high1 = py_trees.meta.inverter(NeighbourObjects)('4')
+        # high1 = NeighbourObjects('4')
+        high1.setup(0, self, 'Hub')
+
+        med1 = GoTo('5')
+        med1.setup(0, self, 'Hub')
+
+        # low1 = py_trees.meta.inverter(Move)('6')
+        low1 = Move('6')
+        low1.setup(0, self, None)
+
+        high2 = py_trees.meta.inverter(NeighbourObjects)('12')
+        # high2 = NeighbourObjects('12')
+        high2.setup(0, self, 'Sites')
+
+        # med2 = py_trees.meta.inverter(GoTo)('13')
+        med2 = GoTo('13')
+        med2.setup(0, self, 'Sites')
+
+        # low1 = py_trees.meta.inverter(Move)('6')
+        low2 = Move('14')
+        low2.setup(0, self, None)
+
+        # Drop
+        dropseq = py_trees.composites.Sequence('DSequence')
+        c1 = IsCarrying('7')
+        c1.setup(0, self, 'Food')
+
+        d1 = IsDropable('8')
+        d1.setup(0, self, 'Hub')
+
+        d2 = Drop('9')
+        d2.setup(0, self, 'Food')
+
+        dropseq.add_children([c1, d1, d2])
+
+        repeathub.add_children([high1, med1, low1])
+        repeatsite.add_children([high2, med2, low2])
+
+        mseq.add_children([carryseq, repeathub])
+        nseq.add_children([dropseq, repeatsite])
+
+        # For randomwalk to work the agents shouldn't know the location of Site
+        v1 = py_trees.meta.inverter(IsVisitedBefore)('15')
+        v1.setup(0, self, 'Sites')
+
+        r1 = RandomWalk('16')
+        r1.setup(0, self, None)
+
+        m1 = Move('17')
+        m1.setup(0, self, None)
+
+        randseq = py_trees.composites.Sequence('RSequence')
+        randseq.add_children([v1, r1, m1])
+
+        select.add_children([nseq, mseq, randseq])
+
+        self.behaviour_tree = py_trees.trees.BehaviourTree(select)
 
         # self.shared_content = dict()
-        self.beta = 0
+        self.beta = 1
         self.food_collected = 0
 
-        self.bt.construct()
-        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # self.bt.construct()
+        py_trees.logging.level = py_trees.logging.Level.DEBUG
         # output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
         # Location history
         self.location_history = set()
@@ -291,7 +389,7 @@ class XMLTestAgent(Agent):
     def step(self):
         self.timestamp += 1
         self.location_history.add(self.location)
-        self.bt.behaviour_tree.tick()
+        self.behaviour_tree.tick()
         self.food_collected = self.get_food_in_hub()
         self.overall_fitness()
 
@@ -299,7 +397,12 @@ class XMLTestAgent(Agent):
         pass
 
     def get_food_in_hub(self):
-        return len(self.attached_objects) * 1000
+        # return len(self.attached_objects) * 1000
+        grid = self.model.grid
+        hub_loc = self.model.hub.location
+        food_objects = grid.get_objects_from_grid('Food', hub_loc)
+        print ('food in the hub',food_objects)
+        return len(food_objects)
 
     def overall_fitness(self):
         # Use a decyaing function to generate fitness
@@ -341,8 +444,8 @@ class XMLEnvironmentModel(Model):
         for i in range(self.num_agents):
             a = XMLTestAgent(i, self)
             self.schedule.add(a)
-            x = 0
-            y = 0
+            x = 45
+            y = 45
 
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)
@@ -350,8 +453,8 @@ class XMLEnvironmentModel(Model):
             self.agents.append(a)
 
         # Add equal number of food source
-        for i in range(self.num_agents):
-            f = Food(i, location=(45, 45), radius=5)
+        for i in range(self.num_agents * 5):
+            f = Food(i, location=(45, 45), radius=3)
             self.grid.add_object_to_grid(f.location, f)
 
     def step(self):
@@ -363,11 +466,19 @@ class TestXMLSmallGrid(TestCase):
     def setUp(self):
         self.environment = XMLEnvironmentModel(1, 100, 100, 10, None)
 
-        for i in range(50):
+        for i in range(4):
             self.environment.step()
-            print (i, self.environment.agents[0].location, self.environment.agents[0].fitness)
+            fittest = self.find_higest_performer()
+            #print (i, self.environment.agents[0].location, self.environment.agents[0].fitness)
+            print(i, fittest.name, fittest.fitness)
 
     def test_one_traget(self):
         self.assertEqual(8, 9)
 
-
+    def find_higest_performer(self):
+        fitness = self.environment.agents[0].fitness
+        fittest = self.environment.agents[0]
+        for agent in self.environment.agents:
+            if agent.fitness > fitness:
+                fittest = agent
+        return fittest

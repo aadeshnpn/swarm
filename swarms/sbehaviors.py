@@ -634,6 +634,9 @@ class SingleCarry(Behaviour):
             return Status.SUCCESS
         except (AttributeError, IndexError):
             return Status.FAILURE
+        except ValueError:
+            self.agent.attached_objects.remove(objects)
+            return Status.FAILURE
 
 
 class InitiateMultipleCarry(Behaviour):
