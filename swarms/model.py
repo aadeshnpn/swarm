@@ -6,7 +6,7 @@ from swarms.lib.time import SimultaneousActivation
 from swarms.lib.space import Grid
 from swarms.utils.jsonhandler import JsonData
 from swarms.agent import SwarmAgent
-from swarms.objects import Hub, Sites, Food
+from swarms.objects import Hub, Sites, Food, Derbis, Obstacles
 import os
 
 filename = os.path.join(
@@ -29,13 +29,13 @@ class EnvironmentModel(Model):
 
         self.schedule = SimultaneousActivation(self)
 
-        self.site = Sites(id=1, location=(5, 5), radius=11, q_value=0.5)
+        # self.site = Sites(id=1, location=(5, 5), radius=11, q_value=0.5)
 
-        self.grid.add_object_to_grid(self.site.location, self.site)
+        # self.grid.add_object_to_grid(self.site.location, self.site)
 
-        self.hub = Hub(id=1, location=(0, 0), radius=11)
+        # self.hub = Hub(id=1, location=(0, 0), radius=11)
 
-        self.grid.add_object_to_grid(self.hub.location, self.hub)
+        # self.grid.add_object_to_grid(self.hub.location, self.hub)
 
         self.agents = []
 
@@ -95,6 +95,14 @@ class EnvironmentModel(Model):
                 jsondata, obj)
 
         self.hub = self.render.objects['hub'][0]
+        try:
+            self.site = self.render.objects['sites'][0]
+            for i in range(50):
+                f = Food(i, location=self.site.location, radius=self.site.radius)
+                f.agent_name = None
+                self.grid.add_object_to_grid(f.location, f)
+        except KeyError:
+            pass
 
     def step(self):
         """Step through the environment."""

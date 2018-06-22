@@ -44,7 +44,7 @@ class SwarmAgent(Agent):
         # Grammatical Evolution part
         from ponyge.algorithm.parameters import Parameters
         parameter = Parameters()
-        parameter_list = ['--parameters', 'swarm.txt']
+        parameter_list = ['--parameters', ',swarm.txt']
         # Comment when different results is desired.
         # Else set this for testing purpose
         # parameter.params['RANDOM_SEED'] = name
@@ -64,13 +64,14 @@ class SwarmAgent(Agent):
         self.timestamp = 0
 
     def get_food_in_hub(self):
-        """Get the amount of food deposited in the hub."""
-        # grids = self.model.grid.get_neighborhood(
-        #    self.model.hub.location, self.model.hub.radius)
-        # no_food_in_hub = self.model.grid.get_objects_from_list_of_grid(
-        #    'Food', grids)
-        return len(self.attached_objects) * 1000
-        # return len(no_food_in_hub)
+        # return len(self.attached_objects) * 1000
+        grid = self.model.grid
+        hub_loc = self.model.hub.location
+        neighbours = grid.get_neighborhood(hub_loc, 35)
+        food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+
+        # print (food_objects)
+        return food_objects
 
     def store_genome(self, cellmates):
         """Store the genome from neighbours."""
@@ -140,12 +141,12 @@ class SwarmAgent(Agent):
         self.bt.behaviour_tree.tick()
         # food_in_hub_after = self.get_food_in_hub()
         # self.food_collected = food_in_hub_before - food_in_hub_after
-        self.food_collected = self.get_food_in_hub()
+        self.food_collected = len(self.get_food_in_hub())
         # Computes additional value for fitness. In this case foodcollected
         self.overall_fitness()
-
+        # print('agent', self.name, self.food_collected)
         cellmates = self.model.grid.get_objects_from_grid(
-            'GEBTAgent', self.location)
+            'SwarmAgent', self.location)
         # print (cellmates)
         if (len(self.genome_storage) >= self.model.num_agents / 25) \
                 and (self.exploration_fitness() > 10):

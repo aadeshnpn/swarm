@@ -921,8 +921,8 @@ class SwarmAgentRandomSingleCarryDropReturn(Agent):
         select.add_children([nseq, mseq, randseq])
 
         self.behaviour_tree = py_trees.trees.BehaviourTree(select)
-        #py_trees.logging.level = py_trees.logging.Level.DEBUG
-        #py_trees.display.print_ascii_tree(select)
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # py_trees.display.print_ascii_tree(select)
 
     def step(self):
         self.behaviour_tree.tick()
