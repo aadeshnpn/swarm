@@ -44,12 +44,12 @@ class EnvironmentModel(Model):
             a = SwarmAgent(i, self)
             self.schedule.add(a)
             # Add the agent to a random grid cell
-            # x = self.random.randint(
-            # -self.grid.width / 2, self.grid.width / 2)
-            x = 0
-            # y = self.random.randint(
-            # -self.grid.height / 2, self.grid.height / 2)
-            y = 0
+            x = self.random.randint(
+                -self.grid.width / 2, self.grid.width / 2)
+            # x = 0
+            y = self.random.randint(
+                -self.grid.height / 2, self.grid.height / 2)
+            # y = 0
 
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)
@@ -58,7 +58,7 @@ class EnvironmentModel(Model):
 
         # Add equal number of food source
         for i in range(self.num_agents):
-            f = Food(i, location=(12, 12), radius=3)
+            f = Food(i, location=(-29, -29), radius=5)
             self.grid.add_object_to_grid(f.location, f)
             # print (i,x,y)
 

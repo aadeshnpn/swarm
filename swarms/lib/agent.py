@@ -81,10 +81,16 @@ class Agent:
         """
         relative_capacity = self.capacity
         for item in self.attached_objects:
-            relative_capacity -= item.agents[self]
+            try:
+                relative_capacity -= item.agents[self]
+            except KeyError:
+                self.attached_objects.remove(item)
 
         for item in self.partial_attached_objects:
-            relative_capacity -= item.agents[self]
+            try:
+                relative_capacity -= item.agents[self]
+            except KeyError:
+                self.partial_attached_objects.remove(item)
 
         if relative_capacity < 0:
             return 0

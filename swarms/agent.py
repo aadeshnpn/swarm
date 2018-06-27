@@ -39,7 +39,7 @@ class SwarmAgent(Agent):
 
         self.shared_content = dict()
         self.carryable = False
-        self.beta = 0
+        self.beta = 0.4
         self.food_collected = 0
         # Grammatical Evolution part
         from ponyge.algorithm.parameters import Parameters
@@ -148,17 +148,17 @@ class SwarmAgent(Agent):
         cellmates = self.model.grid.get_objects_from_grid(
             'SwarmAgent', self.location)
         # print (cellmates)
-        if (len(self.genome_storage) >= self.model.num_agents / 25) \
+        if (len(self.genome_storage) >= self.model.num_agents / 4) \
                 and (self.exploration_fitness() > 10):
                     # print ('genetic', self.name)
                     self.genetic_step()
-
-        elif self.timestamp > 20 and self.exploration_fitness() < 2:
+                    # print ('Exchange program', self.name)
+        elif self.timestamp > 100 and self.exploration_fitness() < 2:
             # This is the case of the agent not moving and staying dormant.
             # Need to use genetic operation to change its genome
             individual = initialisation(self.parameter, 10)
             # print (len(set([ind.phenotype for ind in individual])))
-            # print ()
+            # print ('Resetting the genome', self.name)
             individual = evaluate_fitness(individual, self.parameter)
             self.genome_storage = individual
             self.genetic_step()

@@ -51,11 +51,12 @@ class BTConstruct:
                 if len(nodeval) == 2:
                     method, item = nodeval
                     behavior = eval(method)(method + str(
-                        random.randint(100, 200)))
+                        random.randint(100, 200)) + '_' + item)
                 else:
                     method, item, _ = nodeval
                     behavior = py_trees.meta.inverter(eval(method))(
-                        method + str(random.randint(100, 200)))
+                        method + str(
+                            random.randint(100, 200)) + '_' + item + '_inv')
 
                 behavior.setup(0, self.agent, item)
 
