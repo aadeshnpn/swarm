@@ -12,7 +12,7 @@ from swarms.scbehaviors import (
 from swarms.sbehaviors import (
     IsCarrying, NeighbourObjects, Move
     )
-from swarms.objects import Sites, Derbis
+from swarms.objects import Sites, Derbis, Food
 import py_trees
 import numpy as np
 
@@ -53,8 +53,8 @@ class SwarmMoveTowards(Agent):
         self.behaviour_tree = py_trees.trees.BehaviourTree(seq)
 
         # Debugging stuffs for py_trees
-        py_trees.logging.level = py_trees.logging.Level.DEBUG
-        py_trees.display.print_ascii_tree(movetowards)
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # py_trees.display.print_ascii_tree(movetowards)
 
     def step(self):
         self.behaviour_tree.tick()
@@ -460,3 +460,95 @@ class TestMultipleCarry(TestCase):
         item_loc = self.tuple_round(self.environment.thing.location)
         agent_loc = self.tuple_round(self.environment.agent[0].location)
         self.assertEqual(item_loc, agent_loc)
+
+
+class SwarmSingleCarryFood(Agent):
+    """An minimalistic behavior tree for swarm agent implementing
+    CompositeCarry behavior
+    """
+    def __init__(self, name, model):
+        super().__init__(name, model)
+        self.location = ()
+
+        self.direction = model.random.rand() * (2 * np.pi)
+        # self.speed = 2
+        self.radius = 3
+
+        self.moveable = True
+        self.shared_content = dict()
+
+        root = py_trees.composites.Sequence("Sequence")
+        # Sensing the environemnt to find object to carry
+        lowest = NeighbourObjects('0')
+        lowest.setup(0, self, 'Food')
+
+        # Creating composite single carry object
+        singlecarry = CompositeSingleCarry('SingleCarry')
+        singlecarry.setup(0, self, 'Food')
+
+        high = Explore('Explore')
+        high.setup(0, self)
+
+        root.add_children([lowest, singlecarry, high])
+        self.behaviour_tree = py_trees.trees.BehaviourTree(root)
+
+        # Debugging stuffs for py_trees
+        py_trees.logging.level = py_trees.logging.Level.DEBUG
+        py_trees.display.print_ascii_tree(root)
+
+    def step(self):
+        self.behaviour_tree.tick()
+
+
+class SingleCarryFoodModel(Model):
+    """ A environment to model swarms """
+    def __init__(self, N, width, height, grid=10, seed=None):
+        if seed is None:
+            super(SingleCarryFoodModel, self).__init__(seed=None)
+        else:
+            super(SingleCarryFoodModel, self).__init__(seed)
+
+        self.num_agents = N
+
+        self.grid = Grid(width, height, grid)
+
+        self.schedule = SimultaneousActivation(self)
+
+        for a in range(5):
+            self.thing = Food(id=a, location=(0, 0), radius=8)
+
+            self.grid.add_object_to_grid(self.thing.location, self.thing)
+
+        for i in range(self.num_agents):
+            a = SwarmSingleCarryFood(i, self)
+            self.schedule.add(a)
+            x = 0
+            y = 0
+            a.location = (x, y)
+            a.direction = -2.3561944901923448
+            self.grid.add_object_to_grid((x, y), a)
+
+        self.agent = a
+
+    def step(self):
+        self.schedule.step()
+
+
+class TestSingleCarryFood(TestCase):
+
+    def setUp(self):
+        self.environment = SingleCarryFoodModel(
+            1, 100, 100, 10, 123)
+
+        for i in range(10):
+            grid = self.environment.grid
+            food_loc = (0, 0)
+            neighbours = grid.get_neighborhood(food_loc, 60)
+            food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+            print ('TOtal Food', len(food_objects))
+            self.environment.step()
+
+    def test_agent_path(self):
+        self.assertEqual(1, 1)
+        #self.assertEqual(
+        #    self.environment.agent.attached_objects[0], self.environment.thing)

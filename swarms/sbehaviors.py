@@ -71,7 +71,8 @@ class NeighbourObjects(Behaviour):
 
         Since this is the primary behavior for the agents to sense
         the environment, we include the receive signal method here.
-        The agents will be able to sense the environment and check if
+        The agents will be able to
+        sense the environment and check if
         it receives any signals from other agents.
         """
 
@@ -88,6 +89,9 @@ class NeighbourObjects(Behaviour):
             self.agent.location, self.agent.radius)
         objects = self.agent.model.grid.get_objects_from_list_of_grid(
             self.item, grids)
+        # Need to reset blackboard contents after each sense
+        self.blackboard.shared_content = dict()
+
         if len(objects) >= 1:
             for item in objects:
                 name = type(item).__name__
@@ -387,6 +391,7 @@ class IsCarryable(Behaviour):
         """Initialize."""
         super(IsCarryable, self).__init__(name)
         self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, thing):
         """Setup."""
@@ -574,7 +579,6 @@ class Drop(Behaviour):
                 self.blackboard.shared_content, self.agent.shared_content,
                 self.thing, self.agent.name)[0]
             self.agent.model.grid.add_object_to_grid(objects.location, objects)
-            print ('Drop SB',self.agent.name, objects, objects.location)
             self.agent.attached_objects.remove(objects)
             self.blackboard.shared_content['Food' + str(
                 self.agent.name)].remove(objects)

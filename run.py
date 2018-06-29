@@ -43,7 +43,7 @@ def main():
         # print (i, best.name, best.individual[0].fitness, output)
 
         # time.sleep(0.1)
-    print ('food moved', i, env.detect_food_moved())
+    print ('food remaining in site', i, len(env.detect_food_moved()))
 
     grid = env.grid
     food_loc = (0, 0)
