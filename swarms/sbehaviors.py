@@ -1,6 +1,6 @@
 """Defines all the primitive behaviors for the agents.
 
-    This file name is sbehaviors coz `s` stands for swarms.
+This file name is sbehaviors coz `s` stands for swarms.
 """
 
 from py_trees import Behaviour, Status, Blackboard
@@ -530,10 +530,10 @@ class IsCarrying(Behaviour):
         self.blackboard = Blackboard()
         self.blackboard.shared_content = dict()
 
-    def setup(self, timeout, agent, thing):
+    def setup(self, timeout, agent, item):
         """Setup."""
         self.agent = agent
-        self.thing = thing
+        self.item = item
 
     def initialise(self):
         """Pass."""
@@ -542,10 +542,11 @@ class IsCarrying(Behaviour):
     def update(self):
         """Logic for object carrying check."""
         try:
-            objects = ObjectsStore.find(
-                self.blackboard.shared_content, self.agent.shared_content,
-                self.thing, self.agent.name)[0]
-            if objects in self.agent.attached_objects:
+            things = []
+            for item in self.agent.attached_objects:
+                things.append(type(item).__name__)
+
+            if self.item in set(things):
                 return Status.SUCCESS
             else:
                 return Status.FAILURE
@@ -563,10 +564,10 @@ class Drop(Behaviour):
         self.blackboard = Blackboard()
         self.blackboard.shared_content = dict()
 
-    def setup(self, timeout, agent, thing):
+    def setup(self, timeout, agent, item):
         """Setup."""
         self.agent = agent
-        self.thing = thing
+        self.item = item
 
     def initialise(self):
         """Pass."""
@@ -575,13 +576,13 @@ class Drop(Behaviour):
     def update(self):
         """Logic to drop the item."""
         try:
-            objects = ObjectsStore.find(
-                self.blackboard.shared_content, self.agent.shared_content,
-                self.thing, self.agent.name)[0]
+            # Get the objects from the actuators
+            objects = list(filter(
+                lambda x: type(x).__name__ == self.item,
+                self.agent.attached_objects))[0]
+
             self.agent.model.grid.add_object_to_grid(objects.location, objects)
             self.agent.attached_objects.remove(objects)
-            self.blackboard.shared_content['Food' + str(
-                self.agent.name)].remove(objects)
             objects.agent_name = self.agent.name
             return Status.SUCCESS
         except (AttributeError, IndexError):
@@ -597,10 +598,10 @@ class DropPartial(Behaviour):
         self.blackboard = Blackboard()
         self.blackboard.shared_content = dict()
 
-    def setup(self, timeout, agent, thing):
+    def setup(self, timeout, agent, item):
         """Setup."""
         self.agent = agent
-        self.thing = thing
+        self.item = item
 
     def initialise(self):
         """Pass."""
@@ -609,7 +610,11 @@ class DropPartial(Behaviour):
     def update(self):
         """Logic to drop partially attached object."""
         try:
-            objects = self.agent.partial_attached_objects[0]
+            objects = list(filter(
+                lambda x: type(x).__name__ == self.item,
+                self.agent.partial_attached_objects))[0]
+
+            # objects = self.agent.partial_attached_objects[0]
             objects.agents.pop(self.agent)
             self.agent.model.grid.add_object_to_grid(objects.location, objects)
             self.agent.partial_attached_objects.remove(objects)
@@ -629,10 +634,10 @@ class SingleCarry(Behaviour):
         self.blackboard = Blackboard()
         self.blackboard.shared_content = dict()
 
-    def setup(self, timeout, agent, thing):
+    def setup(self, timeout, agent, item):
         """Setup."""
         self.agent = agent
-        self.thing = thing
+        self.item = item
 
     def initialise(self):
         """Pass."""
@@ -641,10 +646,9 @@ class SingleCarry(Behaviour):
     def update(self):
         """Carry logic to carry the object by the agent."""
         try:
-            # objects = self.blackboard.shared_content[self.thing].pop()
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
-                self.thing, self.agent.name)[0]
+                self.item, self.agent.name)[0]
             self.agent.attached_objects.append(objects)
             self.agent.model.grid.remove_object_from_grid(
                 objects.location, objects)
@@ -731,13 +735,17 @@ class IsInPartialAttached(Behaviour):
     def update(self):
         """Logic to check if the object is in partially attached list."""
         # objects = self.blackboard.shared_content[self.thing].pop()
-        objects = ObjectsStore.find(
-            self.blackboard.shared_content, self.agent.shared_content,
-            self.item, self.agent.name)[0]
-        # print (self.agent, objects,
-        #  self.agent.partial_attached_objects, objects.agents)
         try:
-            if objects in self.agent.partial_attached_objects and \
+            things = []
+
+            for item in self.agent.partial_attached_objects:
+                things.append(type(item).__name__)
+
+            objects = list(filter(
+                lambda x: type(x).__name__ == self.item,
+                self.agent.partial_attached_objects))[0]
+
+            if self.item in set(things) and \
                     self.agent in objects.agents:
                 return Status.SUCCESS
             else:
@@ -766,10 +774,11 @@ class IsEnoughStrengthToCarry(Behaviour):
 
     def update(self):
         """Logic to check if the agent has enough strength to carry."""
-        objects = ObjectsStore.find(
-            self.blackboard.shared_content, self.agent.shared_content,
-            self.item, self.agent.name)[0]
         try:
+            objects = ObjectsStore.find(
+                self.blackboard.shared_content, self.agent.shared_content,
+                self.item, self.agent.name)[0]
+
             if self.agent.get_capacity() >= objects.calc_relative_weight():
                 return Status.SUCCESS
             else:
@@ -858,10 +867,11 @@ class MultipleCarry(Behaviour):
 
     def update(self):
         """Logic for multiple carry."""
-        objects = ObjectsStore.find(
-            self.blackboard.shared_content, self.agent.shared_content,
-            self.item, self.agent.name)[0]
         try:
+            objects = ObjectsStore.find(
+                self.blackboard.shared_content, self.agent.shared_content,
+                self.item, self.agent.name)[0]
+
             self.agent.model.grid.remove_object_from_grid(
                 objects.location, objects)
             return Status.SUCCESS
