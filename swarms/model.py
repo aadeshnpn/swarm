@@ -57,9 +57,9 @@ class EnvironmentModel(Model):
             self.agents.append(a)
 
         # Add equal number of food source
-        for i in range(self.num_agents):
-            f = Food(i, location=(-29, -29), radius=5)
-            self.grid.add_object_to_grid(f.location, f)
+        # for i in range(20):
+        #    f = Food(i, location=(-29, -29), radius=5)
+        #    self.grid.add_object_to_grid(f.location, f)
             # print (i,x,y)
 
     def create_environment_object(self, jsondata, obj):
@@ -116,3 +116,20 @@ class EnvironmentModel(Model):
             if agent.individual[0].fitness > fitness:
                 fittest = agent
         return fittest
+
+    def find_higest_food_collector(self):
+        fitness = self.agents[0].food_collected
+        fittest = self.agents[0]
+        for agent in self.agents:
+            if agent.food_collected > fitness:
+                fittest = agent
+        return fittest
+
+    def detect_food_moved(self):
+        grid = self.grid
+        food_loc = self.site.location
+        neighbours = grid.get_neighborhood(food_loc, 10)
+        food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+
+        # print (food_objects)
+        return food_objects

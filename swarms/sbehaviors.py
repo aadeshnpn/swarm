@@ -574,6 +574,7 @@ class Drop(Behaviour):
                 self.blackboard.shared_content, self.agent.shared_content,
                 self.thing, self.agent.name)[0]
             self.agent.model.grid.add_object_to_grid(objects.location, objects)
+            print ('Drop SB',self.agent.name, objects, objects.location)
             self.agent.attached_objects.remove(objects)
             self.blackboard.shared_content['Food' + str(
                 self.agent.name)].remove(objects)

@@ -11,6 +11,7 @@ from ponyge.operators.mutation import mutation
 from ponyge.operators.replacement import replacement
 from ponyge.operators.selection import selection
 
+import py_trees
 
 class SwarmAgent(Agent):
     """An minimalistic swarm agent."""
@@ -38,8 +39,9 @@ class SwarmAgent(Agent):
         # self.blackboard.shared_content = dict()
 
         self.shared_content = dict()
+        # self.shared_content = dict(
         self.carryable = False
-        self.beta = 0.4
+        self.beta = 0.0001
         self.food_collected = 0
         # Grammatical Evolution part
         from ponyge.algorithm.parameters import Parameters
@@ -62,16 +64,26 @@ class SwarmAgent(Agent):
         # Location history
         self.location_history = set()
         self.timestamp = 0
+        self.step_count = 0
 
     def get_food_in_hub(self):
         # return len(self.attached_objects) * 1000
         grid = self.model.grid
         hub_loc = self.model.hub.location
-        neighbours = grid.get_neighborhood(hub_loc, 35)
+        neighbours = grid.get_neighborhood(hub_loc, 10)
         food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
-
+        agent_food_objects = []
+        for food in food_objects:
+            if food.agent_name == self.name:
+                agent_food_objects.append(food)
         # print (food_objects)
-        return food_objects
+        return agent_food_objects
+
+    def detect_food_carrying(self):
+        if len(self.attached_objects) > 0:
+            print('Food carying', self.name, self.attached_objects)
+            output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
+            print (output)
 
     def store_genome(self, cellmates):
         """Store the genome from neighbours."""
@@ -111,8 +123,17 @@ class SwarmAgent(Agent):
         # Use a decyaing function to generate fitness
 
         self.individual[0].fitness = (
-            (1 - self.beta) * self.exploration_fitness()) + (
-                self.beta * self.food_collected)
+            (1 - self.beta) * self.exploration_fitness(
+            ) + 20 * self.carrying_fitness() + (
+                self.beta * self.food_collected))
+
+    def carrying_fitness(self):
+        """Compute carrying fitness.
+
+        This fitness supports the carrying behavior of
+        the agents.
+        """
+        return len(self.attached_objects)
 
     def exploration_fitness(self):
         """Compute the exploration fitness."""
@@ -136,6 +157,10 @@ class SwarmAgent(Agent):
         # self.individual[0].fitness)
         # Get the value of food from hub before ticking the behavior
         self.timestamp += 1
+        self.step_count += 1
+        # Increase beta
+        self.beta = self.step_count / 10000.0
+
         self.location_history.add(self.location)
         # food_in_hub_before = self.get_food_in_hub()
         self.bt.behaviour_tree.tick()
@@ -148,12 +173,12 @@ class SwarmAgent(Agent):
         cellmates = self.model.grid.get_objects_from_grid(
             'SwarmAgent', self.location)
         # print (cellmates)
-        if (len(self.genome_storage) >= self.model.num_agents / 4) \
-                and (self.exploration_fitness() > 10):
-                    # print ('genetic', self.name)
+        if (len(self.genome_storage) >= self.model.num_agents / 1.4) \
+                and (self.exploration_fitness() >= 10):
+                    # print('genetic', self.name, self.timestamp, len(self.genome_storage), self.food_collected)
                     self.genetic_step()
                     # print ('Exchange program', self.name)
-        elif self.timestamp > 100 and self.exploration_fitness() < 2:
+        elif self.timestamp > 600 and self.exploration_fitness() < 10:
             # This is the case of the agent not moving and staying dormant.
             # Need to use genetic operation to change its genome
             individual = initialisation(self.parameter, 10)
@@ -165,7 +190,9 @@ class SwarmAgent(Agent):
 
         if len(cellmates) > 1:
             self.store_genome(cellmates)
-            self.beta = self.food_collected / 1000
+            # self.beta = self.food_collected / 1000
+
+        # self.detect_food_carrying()
 
     def advance(self):
         """Require for staged activation."""
