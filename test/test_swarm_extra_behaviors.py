@@ -566,7 +566,7 @@ class SwarmAgentMultipleCarry(Agent):
         high5 = Move('7')
         high5.setup(0, self)
 
-        r2Sequence.add_children([high3, high4, high5])
+        r2Sequence.add_children([lowest, high3, high4, high5])
 
         r1Selector.add_children([high1, high2])
 
@@ -605,7 +605,7 @@ class MultipleCarrySwarmEnvironmentModel(Model):
         self.hub = Hub(id=0, location=(25, 25), radius=10)
         self.grid.add_object_to_grid(self.hub.location, self.hub)
 
-        self.thing = Derbis(id=1, location=(0, 0), radius=40)
+        self.thing = Derbis(id=1, location=(0, 0), radius=36)
         self.grid.add_object_to_grid(self.thing.location, self.thing)
 
         self.agent = []
@@ -630,7 +630,7 @@ class TestMultipleCarrySameLocationSwarmSmallGrid(TestCase):
         self.environment = MultipleCarrySwarmEnvironmentModel(
             2, 100, 100, 10, 123)
 
-        for i in range(60):
+        for i in range(15):
             agent = self.environment.agent
             self.environment.step()
             print(agent[0].location, agent[1].location)
@@ -645,7 +645,6 @@ class TestMultipleCarrySameLocationSwarmSmallGrid(TestCase):
         agent1_loc = self.tuple_round(self.environment.agent[0].location)
         agent2_loc = self.tuple_round(self.environment.agent[1].location)
         self.assertEqual(agent1_loc, agent2_loc)
-        self.assertEqual(9, 8)
 
     def test_agent_object_loc(self):
         # Check if the location of heavy object and one of the agent is
@@ -724,7 +723,7 @@ class SwarmAgentMultipleCarryDrop(Agent):
         nearHub = py_trees.meta.inverter(NeighbourObjects)('8')
         nearHub.setup(0, self, 'Hub')
 
-        moveSequence.add_children([nearHub, high3, high4, high5])
+        moveSequence.add_children([nearHub, lowest, high3, high4, high5])
 
         high6 = NeighbourObjects('9')
         high6.setup(0, self, 'Hub')
@@ -803,10 +802,7 @@ class TestMultipleCarryDropSameLocationSwarmSmallGrid(TestCase):
 
         for i in range(28):
             self.environment.step()
-            agent = self.environment.agent
-            print (i, agent[0].location, agent[1].location)
 
-    """
     def tuple_round(self, loc):
         loc1 = (np.round(loc[0]), np.round(loc[1]))
         return loc1
@@ -826,10 +822,9 @@ class TestMultipleCarryDropSameLocationSwarmSmallGrid(TestCase):
         agent2_attached = self.environment.agent[1].partial_attached_objects
         item_attached = self.environment.thing.agents
 
-        print ('Agent1_2', agent1_attached, agent2_attached)
         self.assertEqual(agent1_attached, agent2_attached)
         self.assertEqual(dict(), item_attached)
-    """
+
 
 class SwarmAgentRandomSingleCarryDropReturn(Agent):
     """ An minimalistic behavior tree for swarm agent
@@ -995,7 +990,6 @@ class TestRandomSingleCarryDropReturnSwarmSmallGrid(TestCase):
         self.environment = RandomSingleCarryDropReturnSwarmModel(
             1, 100, 100, 10, 123456)
 
-    """
     def test_agent_food(self):
         # Testing after the food has been transported to hub and dropped. Is
         # the total number of food is transported to hub
@@ -1009,7 +1003,7 @@ class TestRandomSingleCarryDropReturnSwarmSmallGrid(TestCase):
         # transported_food = self.environment.grid.get_objects_from_grid(
         #    'Food', self.environment.hub.location)
         self.assertEqual(5, len(trans_objects))
-    """
+
 
 class SwarmAgentRandomWalk(Agent):
     """ An minimalistic behavior tree for swarm agent
