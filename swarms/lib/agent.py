@@ -82,7 +82,7 @@ class Agent:
         relative_capacity = self.capacity
         for item in self.attached_objects:
             try:
-                relative_capacity -= item.agents[self]
+                relative_capacity -= item.capacity
             except KeyError:
                 self.attached_objects.remove(item)
 

@@ -159,7 +159,7 @@ class SwarmAgent(Agent):
         self.timestamp += 1
         self.step_count += 1
         # Increase beta
-        self.beta = self.step_count / 10000.0
+        self.beta = self.step_count / 10000000.0
 
         self.location_history.add(self.location)
         # food_in_hub_before = self.get_food_in_hub()

@@ -10,7 +10,8 @@ from swarms.scbehaviors import (
     CompositeMultipleCarry
     )
 from swarms.sbehaviors import (
-    IsCarrying, NeighbourObjects, Move
+    IsCarrying, NeighbourObjects, Move, IsCarryable,
+    SingleCarry, IsSingleCarry
     )
 from swarms.objects import Sites, Derbis, Food
 import py_trees
@@ -482,19 +483,35 @@ class SwarmSingleCarryFood(Agent):
         lowest = NeighbourObjects('0')
         lowest.setup(0, self, 'Food')
 
-        # Creating composite single carry object
-        singlecarry = CompositeSingleCarry('SingleCarry')
+        # First check if the item is carrable?
+        carryable = IsCarryable('SC_IsCarryable_1')
+        carryable.setup(0, self, 'Food')
+
+        # Then check if the item can be carried by a single agent
+        issinglecarry = IsSingleCarry('SC_IsSingleCarry_2')
+        issinglecarry.setup(0, self, 'Food')
+
+        # Finally, carry the object
+        singlecarry = SingleCarry('SC_SingleCarry_3')
         singlecarry.setup(0, self, 'Food')
+
+        # Define a sequence to combine the primitive behavior
+        sc_sequence = py_trees.composites.Sequence('SC_SEQUENCE')
+        sc_sequence.add_children([carryable, issinglecarry, singlecarry])
+
+        # Creating composite single carry object
+        # singlecarry = CompositeSingleCarry('SingleCarry')
+        # singlecarry.setup(0, self, 'Food')
 
         high = Explore('Explore')
         high.setup(0, self)
 
-        root.add_children([lowest, singlecarry, high])
+        root.add_children([lowest, sc_sequence, high])
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
 
         # Debugging stuffs for py_trees
-        py_trees.logging.level = py_trees.logging.Level.DEBUG
-        py_trees.display.print_ascii_tree(root)
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # py_trees.display.print_ascii_tree(root)
 
     def step(self):
         self.behaviour_tree.tick()
@@ -541,14 +558,16 @@ class TestSingleCarryFood(TestCase):
             1, 100, 100, 10, 123)
 
         for i in range(10):
-            grid = self.environment.grid
-            food_loc = (0, 0)
-            neighbours = grid.get_neighborhood(food_loc, 60)
-            food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
-            print ('TOtal Food', len(food_objects))
+            # grid = self.environment.grid
+            # food_loc = (0, 0)
+            # neighbours = grid.get_neighborhood(food_loc, 60)
+            # food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+            # print (i, 'TOtal Food', len(food_objects))
+
             self.environment.step()
+            print (i, 'attached objects', self.environment.agent.attached_objects)
 
     def test_agent_path(self):
-        self.assertEqual(1, 1)
+        self.assertEqual(1, 2)
         #self.assertEqual(
         #    self.environment.agent.attached_objects[0], self.environment.thing)

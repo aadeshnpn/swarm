@@ -472,7 +472,6 @@ class IsSingleCarry(Behaviour):
         """Logic to check if the object can be carried by single agent."""
         # Logic to carry
         try:
-            # objects = self.blackboard.shared_content[self.thing].pop()
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
                 self.thing, self.agent.name)[0]
@@ -584,6 +583,7 @@ class Drop(Behaviour):
             self.agent.model.grid.add_object_to_grid(objects.location, objects)
             self.agent.attached_objects.remove(objects)
             objects.agent_name = self.agent.name
+            # objects.agents.remove(self.agent)
             return Status.SUCCESS
         except (AttributeError, IndexError):
             return Status.FAILURE
@@ -653,6 +653,8 @@ class SingleCarry(Behaviour):
             self.agent.model.grid.remove_object_from_grid(
                 objects.location, objects)
             objects.agent_name = self.agent.name
+            # Add the agent to the object dict
+            # objects.agents[self.agent] = self.agent.get_capacity()
             return Status.SUCCESS
         except (AttributeError, IndexError):
             return Status.FAILURE
