@@ -121,11 +121,19 @@ class SwarmAgent(Agent):
         performance.
         """
         # Use a decyaing function to generate fitness
+        # Use two step decaying function
+        # First block gives importance to exploration and when as soon
+        # food has been found, the next block will focus on dropping
+        # the food on hub
+        if self.carrying_fitness() <= 0 and self.food_collected <= 0:
+            self.individual[0].fitness = (
+                (1 - self.beta) * self.exploration_fitness(
+                ) + self.beta * self.carrying_fitness())
 
-        self.individual[0].fitness = (
-            (1 - self.beta) * self.exploration_fitness(
-            ) + 20 * self.carrying_fitness() + (
-                self.beta * self.food_collected))
+        elif self.food_collected > 0 or self.carrying_fitness() > 0:
+            self.individual[0].fitness = (
+                1 - self.beta) * self.carrying_fitness() + (
+                    self.beta * self.food_collected)
 
     def carrying_fitness(self):
         """Compute carrying fitness.
@@ -159,7 +167,7 @@ class SwarmAgent(Agent):
         self.timestamp += 1
         self.step_count += 1
         # Increase beta
-        self.beta = self.step_count / 10000000.0
+        self.beta = self.step_count / 1000000.0
 
         self.location_history.add(self.location)
         # food_in_hub_before = self.get_food_in_hub()

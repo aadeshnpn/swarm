@@ -24,7 +24,7 @@ def main():
     food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
     # print ('TOtal Food prev', len(food_objects))
 
-    for i in range(10000000):
+    for i in range(1000000):
         env.step()
         # best = env.find_higest_performer()
         best = env.find_higest_food_collector()
