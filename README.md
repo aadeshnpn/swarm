@@ -74,6 +74,13 @@ agent.py contains the description for the agents.
 model.py contains the description for the environment.
 run.py contains the experiment to run along with UI module exposure.
 
+### UI
+Just run node server.js from ui/viewer folder to run the experiments and view the results in browser.
+Then open your favourite browser and go to
+```
+localhost:3000
+```
+
 ## Authors
 
 * **Aadesh Neupane** - *Initial work* - [Aadeshnpn](https://github.com/aadeshnpn)
