@@ -4,7 +4,7 @@ A simple swarm simulator to simulate collective behaviors using grammatical evol
 * Notable primitive behaviors already coded
 * Easy to use and visualize
 * Uses behaviors trees
-* Grammatical evolution for evolving collective behaviors 
+* Grammatical evolution for evolving collective behaviors
 
 ## Getting Started
 
@@ -40,24 +40,39 @@ pip install .
 
 Now all the dependencies are installed
 
-clone the swarm repo 
+clone the swarm repo
 ```
 git clone https://github.com/aadeshnpn/swarm
 cd swarm
 pip install .
 ```
-Now you have the swarm framework installed. 
+Now you have the swarm framework installed.
 
 ## Running the tests
 
 All the tests files are located under test folder. Just traverse to the folder and run
 ```
-nosetest *.py
+nosetest test_swarm_behaviors.py
 ```
+to test is the swarms related modules are working or not. But there are lots of
+test files to test other modules
 
 ## Contributing
 
-Just submit the pull requests to us.
+Just submit the pull requests to us. The code should be properly formatted and validated using all PEP8 rules and flask rules excluding ignore=F403,E501,E123,E128.  If you are using visual studio code you can add following to your setting files
+```
+"python.linting.flake8Enabled": true,
+"python.linting.flake8Args": ["--ignore=F403,E501,E123,E128","--exclude=docs,build"]
+```
+
+
+## Experiment
+There is an examples folder. You can see cool experiments done with swarms. If you want to add
+new experiment. Follow the structure of the experiments under example folder.
+The main scripts for a good experiment is agent.py, model.py and run.py
+agent.py contains the description for the agents.
+model.py contains the description for the environment.
+run.py contains the experiment to run along with UI module exposure.
 
 ## Authors
 
