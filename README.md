@@ -42,7 +42,7 @@ Now all the dependencies are installed
 
 clone the swarm repo
 ```
-git clone https://github.com/aadeshnpn/swarm
+git clone --recursive https://github.com/aadeshnpn/swarm
 cd swarm
 pip install .
 ```
