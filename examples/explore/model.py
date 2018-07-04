@@ -5,7 +5,7 @@ from swarms.lib.model import Model
 from swarms.lib.time import SimultaneousActivation
 from swarms.lib.space import Grid
 
-from swarms.objects import Sites, Hub
+from swarms.lib.objects import Sites, Hub
 
 
 class RandomWalkSwarmEnvironmentModel(Model):

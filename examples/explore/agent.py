@@ -1,7 +1,7 @@
 """Agent that implements explore behavior."""
 
 from swarms.lib.agent import Agent
-from swarms.sbehaviors import (
+from swarms.behaviors.sbehaviors import (
     RandomWalk, Move
     )
 

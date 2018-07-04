@@ -4,14 +4,14 @@
 import xml.etree.ElementTree as ET
 import py_trees
 from py_trees.composites import Sequence, Selector
-import random
+# import random
 # random.seed(123)
 
-from swarms.scbehaviors import (
+from swarms.behaviors.scbehaviors import (
     MoveTowards, MoveAway, Explore, CompositeSingleCarry,
     CompositeMultipleCarry, CompositeDrop
     )
-from swarms.sbehaviors import (
+from swarms.behaviors.sbehaviors import (
     IsCarrying, NeighbourObjects, Move, IsDropable
     )
 
@@ -51,18 +51,18 @@ class BTConstruct:
                 if len(nodeval) == 2:
                     method, item = nodeval
                     behavior = eval(method)(method + str(
-                        random.randint(100, 200)) + '_' + item)
+                        self.agent.model.random.randint(100, 200)) + '_' + item)
                 else:
                     method, item, _ = nodeval
                     behavior = py_trees.meta.inverter(eval(method))(
                         method + str(
-                            random.randint(100, 200)) + '_' + item + '_inv')
+                            self.agent.model.random.randint(100, 200)) + '_' + item + '_inv')
 
                 behavior.setup(0, self.agent, item)
 
             else:
                 method = node_text
-                behavior = eval(method)(method + str(random.randint(100, 200)))
+                behavior = eval(method)(method + str(self.agent.model.random.randint(100, 200)))
                 behavior.setup(0, self.agent, None)
             return behavior
         else:
@@ -70,7 +70,7 @@ class BTConstruct:
             for node in list(root):
                 if node.tag not in ['cond', 'act']:
                     composits = eval(node.tag)(node.tag + str(
-                        random.randint(10, 90)))
+                        self.agent.model.random.randint(10, 90)))
                 list1.append(self.create_bt(node))
                 try:
                     if composits:

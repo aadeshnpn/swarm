@@ -13,13 +13,6 @@ def point_distance(u, v):
     """Compute distance."""
     return distance(u[0], u[1], v[0], v[1])
 
-
-def safe_angle(a, b):
-    """Compute safe angle."""
-    angle = np.arctan2(b[1], b[0]) - np.arctan2(a[1], a[0])
-    return angle
-
-
 def get_direction(x, y):
     """Compute direction between two points."""
     dx = x[0] - y[0]
