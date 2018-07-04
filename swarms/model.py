@@ -7,11 +7,11 @@ from swarms.lib.space import Grid
 from swarms.utils.jsonhandler import JsonData
 from swarms.agent import SwarmAgent
 from swarms.objects import Hub, Sites, Food, Derbis, Obstacles
-import os
+import os, imp
 
-filename = os.path.join(
-    "/home/aadeshnpn/Documents/BYU/hcmi/swarm/swarms/" + "utils/world.json")
-
+#filename = os.path.join(
+#    "/home/aadeshnpn/Documents/BYU/hcmi/swarm/swarms/" + "utils/world.json")
+filename = os.path.join(imp.find_module("swarms")[1] + "/utils/world.json")
 
 class EnvironmentModel(Model):
     """A environemnt to model swarms."""

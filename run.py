@@ -24,16 +24,16 @@ def main():
     food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
     # print ('TOtal Food prev', len(food_objects))
 
-    for i in range(1000000):
+    for i in range(1000):
         env.step()
         # best = env.find_higest_performer()
         best = env.find_higest_food_collector()
         # print ('-----------', i)
 
-        if best.food_collected > 0:
-            print (i, best.name, best.individual[0].fitness, best.food_collected, best.bt.behaviour_tree)
-            output = py_trees.display.ascii_tree(best.bt.behaviour_tree.root)
-            print (output)
+        #if best.food_collected > 0:
+        print (i, best.name, best.individual[0].fitness, best.food_collected, best.bt.behaviour_tree)
+        output = py_trees.display.ascii_tree(best.bt.behaviour_tree.root)
+        print (output)
 
     # for agent in env.agents:
     #     print (agent.name, agent.attached_objects)
