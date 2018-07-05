@@ -72,7 +72,10 @@ new experiment. Follow the structure of the experiments under example folder.
 The main scripts for a good experiment is agent.py, model.py and run.py
 agent.py contains the description for the agents.
 model.py contains the description for the environment.
-run.py contains the experiment to run along with UI module exposure.
+run.py contains the experiment to run along with UI module exposure. Got to the experiment folder you want to run and then execute it using
+```
+./viewer
+```
 
 ### UI
 Just run node server.js from ui/viewer folder to run the experiments and view the results in browser.
