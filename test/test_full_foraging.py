@@ -1,5 +1,5 @@
 from swarms.lib.agent import Agent
-from swarms.objects import Sites, Food, Hub
+from swarms.lib.objects import Sites, Food, Hub
 from swarms.lib.model import Model
 from swarms.lib.time import SimultaneousActivation
 from swarms.lib.space import Grid
@@ -9,7 +9,7 @@ import py_trees
 import numpy as np
 # import xml.etree.ElementTree as ET
 from py_trees.composites import RepeatUntilFalse
-from swarms.sbehaviors import (
+from swarms.behaviors.sbehaviors import (
     NeighbourObjects, IsCarryable, IsSingleCarry,
     SingleCarry, GoTo, Move, IsDropable, IsCarrying, Drop,
     IsVisitedBefore, RandomWalk

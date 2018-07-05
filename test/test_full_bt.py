@@ -1,8 +1,8 @@
-from lib.agent import Agent
+from swarms.lib.agent import Agent
 # from swarms.objects import Sites
-from lib.model import Model
-from lib.time import SimultaneousActivation
-from lib.space import Grid
+from swarms.lib.model import Model
+from swarms.lib.time import SimultaneousActivation
+from swarms.lib.space import Grid
 from unittest import TestCase
 from swarms.utils.bt import BTConstruct
 import py_trees
@@ -10,7 +10,7 @@ from py_trees import Blackboard
 import numpy as np
 # import xml.etree.ElementTree as ET
 
-from swarms.sbehaviors import (
+from swarms.behaviors.sbehaviors import (
     IsCarryable, IsSingleCarry, SingleCarry,
     NeighbourObjects, IsMultipleCarry, IsInPartialAttached,
     InitiateMultipleCarry, IsEnoughStrengthToCarry,

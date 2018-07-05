@@ -6,7 +6,7 @@ from unittest import TestCase
 import numpy as np
 import xml.etree.ElementTree as ET
 
-from swarms.sbehaviors import (
+from swarms.behaviors.sbehaviors import (
     IsCarryable, IsSingleCarry, SingleCarry,
     NeighbourObjects, IsMultipleCarry, IsInPartialAttached,
     InitiateMultipleCarry, IsEnoughStrengthToCarry,

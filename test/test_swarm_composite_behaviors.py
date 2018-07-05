@@ -5,15 +5,15 @@ from swarms.lib.agent import Agent
 from swarms.lib.model import Model
 from swarms.lib.time import SimultaneousActivation
 from swarms.lib.space import Grid
-from swarms.scbehaviors import (
+from swarms.behaviors.scbehaviors import (
     MoveTowards, MoveAway, Explore, CompositeSingleCarry,
     CompositeMultipleCarry
     )
-from swarms.sbehaviors import (
+from swarms.behaviors.sbehaviors import (
     IsCarrying, NeighbourObjects, Move, IsCarryable,
     SingleCarry, IsSingleCarry
     )
-from swarms.objects import Sites, Derbis, Food
+from swarms.lib.objects import Sites, Derbis, Food
 import py_trees
 import numpy as np
 
@@ -561,13 +561,16 @@ class TestSingleCarryFood(TestCase):
             # grid = self.environment.grid
             # food_loc = (0, 0)
             # neighbours = grid.get_neighborhood(food_loc, 60)
-            # food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+            # food_objects = grid.get_objects_from_list_of_grid(
+            # 'Food', neighbours)
             # print (i, 'TOtal Food', len(food_objects))
 
             self.environment.step()
-            print (i, 'attached objects', self.environment.agent.attached_objects)
+            # print (i, 'attached objects',
+            # self.environment.agent.attached_objects)
 
     def test_agent_path(self):
         self.assertEqual(1, 2)
-        #self.assertEqual(
-        #    self.environment.agent.attached_objects[0], self.environment.thing)
+        # self.assertEqual(
+        #    self.environment.agent.attached_objects[0],
+        #  self.environment.thing)

@@ -1,7 +1,7 @@
 from unittest import TestCase
 from swarms.lib.agent import Agent
 from swarms.lib.model import Model
-from swarms.lib.time import SimultaneousActivation  # RandomActivation, StagedActivation
+from swarms.lib.time import SimultaneousActivation
 from swarms.lib.space import Grid
 
 import numpy as np
@@ -34,13 +34,15 @@ class SwarmAgent(Agent):
         new_location = ()
         x = int(self.location[0] + np.cos(self.direction) * self.speed)
         y = int(self.location[1] + np.sin(self.direction) * self.speed)
-        new_location, direction = self.model.grid.check_limits((x, y), self.direction)
+        new_location, direction = self.model.grid.check_limits(
+            (x, y), self.direction)
         self.model.grid.move_object(self.location, self, new_location)
         self.location = new_location
         self.direction = direction
 
     def give_money(self):
-        cellmates = self.model.grid.get_objects_from_grid('SwarmAgent', self.location)
+        cellmates = self.model.grid.get_objects_from_grid(
+            'SwarmAgent', self.location)
 
         if len(cellmates) > 1:
             other = self.model.random.choice(cellmates)
@@ -67,8 +69,10 @@ class EnvironmentModel(Model):
             self.schedule.add(a)
 
             # Add the agent to a random grid cell
-            x = self.random.randint(-self.grid.width / 2, self.grid.width / 2)
-            y = self.random.randint(-self.grid.height / 2, self.grid.height / 2)
+            x = self.random.randint(
+                -self.grid.width / 2, self.grid.width / 2)
+            y = self.random.randint(
+                -self.grid.height / 2, self.grid.height / 2)
 
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)

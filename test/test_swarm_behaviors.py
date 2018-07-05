@@ -3,11 +3,11 @@ from swarms.lib.agent import Agent
 from swarms.lib.model import Model
 from swarms.lib.time import SimultaneousActivation
 from swarms.lib.space import Grid
-from swarms.sbehaviors import (
+from swarms.behaviors.sbehaviors import (
     GoTo, RandomWalk, NeighbourObjects,
     Away, Towards, DoNotMove, Move
     )
-from swarms.objects import Sites, Hub
+from swarms.lib.objects import Sites, Hub
 import py_trees
 from py_trees import Blackboard
 import numpy as np

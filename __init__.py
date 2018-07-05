@@ -9,12 +9,15 @@ from .swarms.lib.space import Grid
 from .swarms.lib.time import (
     SimultaneousActivation, RandomActivation, StagedActivation
     )
-from .swarms.agent import SwarmAgent
-from .swarms.model import EnvironmentModel
 from .swarms.utils.jsonhandler import JsonData
+from .swarms.lib.agent import Agent
+from .swarms.lib.model import Model
+from .swarms.lib.objects import Hub, Sites
 
-
-__all__ = ["Grid", "SwarmAgent", "EnvironmentModel", "SimultaneousActivation", "RandomActivation", "StagedActivation", "JsonData"]
+__all__ = [
+    "Grid", "Agent", "Model", "SimultaneousActivation",
+    "RandomActivation", "StagedActivation", "JsonData",
+    "Hub", "Sites"]
 
 __title__ = 'swarms'
 __version__ = '0.0.1'
