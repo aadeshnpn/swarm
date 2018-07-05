@@ -13,6 +13,7 @@ from ponyge.operators.selection import selection
 
 import py_trees
 
+
 class SwarmAgent(Agent):
     """An minimalistic swarm agent."""
 

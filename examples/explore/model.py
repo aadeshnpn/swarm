@@ -6,12 +6,13 @@ from swarms.lib.time import SimultaneousActivation
 from swarms.lib.space import Grid
 
 from swarms.lib.objects import Sites, Hub
+from swarms.utils.ui import UI
 
 
 class RandomWalkSwarmEnvironmentModel(Model):
     """A environment to model swarms."""
 
-    def __init__(self, N, width, height, grid=10, seed=None):
+    def __init__(self, N, width, height, grid=10, seed=None, viewer=False):
         """Initialize the environment methods."""
         if seed is None:
             super(RandomWalkSwarmEnvironmentModel, self).__init__(
@@ -23,6 +24,8 @@ class RandomWalkSwarmEnvironmentModel(Model):
         self.num_agents = N
 
         self.grid = Grid(width, height, grid)
+
+        self.viewer = viewer
 
         self.schedule = SimultaneousActivation(self)
 
@@ -43,6 +46,11 @@ class RandomWalkSwarmEnvironmentModel(Model):
             self.grid.add_object_to_grid((x, y), a)
             self.agents.append(a)
 
+        if self.viewer:
+            self.ui = UI((width, height), [self.hub], self.agents, [self.site])
+
     def step(self):
         """Execute."""
         self.schedule.step()
+        if self.viewer:
+            self.ui.step()

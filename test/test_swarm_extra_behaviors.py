@@ -3,7 +3,7 @@ from swarms.lib.agent import Agent
 from swarms.lib.model import Model
 from swarms.lib.time import SimultaneousActivation
 from swarms.lib.space import Grid
-from swarms.sbehaviors import (
+from swarms.behaviors.sbehaviors import (
     IsCarryable, IsSingleCarry, SingleCarry,
     NeighbourObjects, IsMultipleCarry, IsInPartialAttached,
     InitiateMultipleCarry, IsEnoughStrengthToCarry,
@@ -11,7 +11,7 @@ from swarms.sbehaviors import (
     IsVisitedBefore, RandomWalk, SignalDoesNotExists, SendSignal,
     ReceiveSignal, DropCue, PickCue, CueDoesNotExists
     )
-from swarms.objects import Derbis, Sites, Hub, Food
+from swarms.lib.objects import Derbis, Sites, Hub, Food
 import py_trees
 from py_trees.composites import RepeatUntilFalse
 import numpy as np
