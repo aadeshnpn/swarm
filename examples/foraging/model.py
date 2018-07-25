@@ -1,5 +1,8 @@
 """Model class for single source foraging."""
-from agent import SwarmAgentRandomSingleCarryDropReturn
+from agent import (
+    SwarmAgentRandomSingleCarryDropReturn,
+    SwarmAgentHandCodedForaging
+    )
 from swarms.lib.model import Model
 from swarms.lib.time import SimultaneousActivation
 from swarms.lib.space import Grid
@@ -40,7 +43,8 @@ class SingleCarryDropReturnSwarmEnvironmentModel(Model):
             self.foods.append(f)
 
         for i in range(self.num_agents):
-            a = SwarmAgentRandomSingleCarryDropReturn(i, self)
+            # a = SwarmAgentRandomSingleCarryDropReturn(i, self)
+            a = SwarmAgentHandCodedForaging(i, self)
             self.schedule.add(a)
             x = -45
             y = -45

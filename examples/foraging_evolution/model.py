@@ -13,6 +13,7 @@ import os, imp
 #    "/home/aadeshnpn/Documents/BYU/hcmi/swarm/swarms/" + "utils/world.json")
 filename = os.path.join(imp.find_module("swarms")[1] + "/utils/world.json")
 
+
 class EnvironmentModel(Model):
     """A environemnt to model swarms."""
 

@@ -320,6 +320,8 @@ class CompositeDrop(Behaviour):
         drop = Drop('CD_Drop')
         drop.setup(0, self.agent, self.item)
 
+        dropseq.add_children([iscarrying, drop])
+
         self.behaviour_tree = BehaviourTree(dropseq)
 
     def initialise(self):

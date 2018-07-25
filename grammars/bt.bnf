@@ -1,20 +1,11 @@
 <s> ::= [?xml version=%1.0% encoding=%UTF-8%?]<cf>
-#<rootnode> ::= <cf>
 <cf> ::= <sequence> | <selector>
-#| <decorator>
 <sequence> ::= [Sequence]<execution>[/Sequence] | [Sequence]<cf><cf>[/Sequence] | [Sequence]<sequence> <cf>[/Sequence]
 <selector> ::= [Selector]<execution>[/Selector] | [Selector]<cf><cf>[/Selector] | [Selector]<selector> <cf>[/Selector]
-#<decorator> ::= [Decorator]<execution>[/Decorator]
-#<parallel> ::= [parallel]<execution>[/parallel] | [parallel]<parallel> <cf>[/parallel] | [parallel]<cf>[/parallel]
 <execution>::=<conditions>[act]<action>[/act]
 <conditions>::=[cond]<condition>[/cond]<conditions>|[cond]<condition>[/cond]
-#<condition>::=NeighbourObjects|IsMoveable_<objects>|IsCarryable_<objects>|IsSingleCarry_<objects>|IsMultipleCarry_<objects>|IsMotionTrue_<objects>
-<condition>::=NeighbourObjects|IsDropable_<objects>|NeighbourObjects_<objects>|NeighbourObjects_<objects>_invert
-#<action>::=GoTo_<objects>|RandomWalk|Move|DoNotMove|SingleCarry_<objects>|MultipleCarry_<objects>|Away|Towards
-<action>::=MoveTowards_<objects>|Explore|CompositeSingleCarry_<objects>|CompositeDrop_<objects>|MoveAway_<objects>
-#<objects>::=Hub|Sites|Obstacles|Cue|Signal|Food|Derbis|Agent
-<objects>::=Hub|Sites|Food
-
-##complex behaviors
-#MoveTowards, MoveAway, CompositeSingleCarry, CompositeMultipleCarry
-#CompositeDrop, CompositeDropPartial, Explore
+<condition>::=NeighbourObjects|IsDropable_<sobjects>|NeighbourObjects_<objects>|NeighbourObjects_<objects>_invert
+<action>::=MoveTowards_<sobjects>|Explore|CompositeSingleCarry_<dobjects>|CompositeDrop_<dobjects>|MoveAway_<sobjects>
+<sobjects>::=Hub|Sites
+<dobjects>::=Food
+<objects>::=<sobjects>|<dobjects>

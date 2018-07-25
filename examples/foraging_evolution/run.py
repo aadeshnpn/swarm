@@ -24,17 +24,20 @@ def main():
     food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
     # print ('TOtal Food prev', len(food_objects))
 
-    for i in range(1000):
+    for i in range(100000):
         env.step()
         # best = env.find_higest_performer()
-        best = env.find_higest_food_collector()
+        # best = env.find_higest_food_collector()
         # print ('-----------', i)
 
-        #if best.food_collected > 0:
-        print (i, best.name, best.individual[0].fitness, best.food_collected, best.bt.behaviour_tree)
-        output = py_trees.display.ascii_tree(best.bt.behaviour_tree.root)
-        print (output)
-
+        # if best.food_collected > 0:
+        # print (i, best.name, best.individual[0].fitness, best.food_collected, best.bt.behaviour_tree)
+        # output = py_trees.display.ascii_tree(best.bt.behaviour_tree.root)
+        # print (output)
+    for agent in env.agents:
+        if len(agent.attached_objects) > 0:
+            output = py_trees.display.ascii_tree(agent.bt.behaviour_tree.root)
+            print(agent.name, agent.attached_objects, output)
     # for agent in env.agents:
     #     print (agent.name, agent.attached_objects)
         #if len(env.detect_food_moved()) < 50 and len(env.detect_food_moved()) != 0:
@@ -49,7 +52,8 @@ def main():
     food_loc = (0, 0)
     neighbours = grid.get_neighborhood(food_loc, 60)
     food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
-    #print ('TOtal Food', len(food_objects))
+    for food in food_objects:
+        print('food', food.id, food.location)
 
     """
     for agent in env.agents:

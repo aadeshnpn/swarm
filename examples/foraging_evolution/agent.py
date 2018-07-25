@@ -84,7 +84,7 @@ class SwarmAgent(Agent):
         if len(self.attached_objects) > 0:
             print('Food carying', self.name, self.attached_objects)
             output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
-            print (output)
+            print(output)
 
     def store_genome(self, cellmates):
         """Store the genome from neighbours."""
@@ -184,7 +184,8 @@ class SwarmAgent(Agent):
         # print (cellmates)
         if (len(self.genome_storage) >= self.model.num_agents / 1.4) \
                 and (self.exploration_fitness() >= 10):
-                    # print('genetic', self.name, self.timestamp, len(self.genome_storage), self.food_collected)
+                    # print('genetic', self.name, self.timestamp,
+                    # len(self.genome_storage), self.food_collected)
                     self.genetic_step()
                     # print ('Exchange program', self.name)
         elif self.timestamp > 600 and self.exploration_fitness() < 10:
