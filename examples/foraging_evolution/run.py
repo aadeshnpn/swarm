@@ -50,7 +50,7 @@ def main():
 
     grid = env.grid
     food_loc = (0, 0)
-    neighbours = grid.get_neighborhood(food_loc, 60)
+    neighbours = grid.get_neighborhood(food_loc, 5)
     food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
     for food in food_objects:
         print('food', food.id, food.location)
