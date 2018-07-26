@@ -9,7 +9,8 @@ from py_trees.composites import Sequence, Selector
 
 from swarms.behaviors.scbehaviors import (
     MoveTowards, MoveAway, Explore, CompositeSingleCarry,
-    CompositeMultipleCarry, CompositeDrop
+    CompositeMultipleCarry, CompositeDrop, CompositeDropCue,
+    CompositePickCue, CompositeSendSignal, CompositeReceiveSignal
     )
 from swarms.behaviors.sbehaviors import (
     IsCarrying, NeighbourObjects, Move, IsDropable
