@@ -7,5 +7,6 @@
 <condition>::=NeighbourObjects|IsDropable_<sobjects>|NeighbourObjects_<objects>|NeighbourObjects_<objects>_invert
 <action>::=MoveTowards_<sobjects>|Explore|CompositeSingleCarry_<dobjects>|CompositeDrop_<dobjects>|MoveAway_<sobjects>|CompositeDropCue_<sobjects>|CompositePickCue_Cue|CompositeSendSignal_<sobjects>|CompositeReceiveSignal_Signal
 <sobjects>::=Hub|Sites
-<dobjects>::=Food|Signal|Cue
+<dobjects>::=Food
+<cobjects>::=Signal|Cue
 <objects>::=<sobjects>|<dobjects>
