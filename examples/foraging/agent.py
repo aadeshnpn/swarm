@@ -3,7 +3,7 @@
 from swarms.lib.agent import Agent
 from swarms.behaviors.sbehaviors import (
     Move, NeighbourObjects, IsCarryable,
-    IsSingleCarry, SingleCarry, IsCarrying,
+    IsSingleCarry, SingleCarry,
     IsDropable, Drop, GoTo, IsVisitedBefore, RandomWalk,
     IsCarrying
     )
@@ -155,9 +155,6 @@ class SwarmAgentHandCodedForaging(Agent):
         iscarrying.setup(0, self, 'Food')
 
         neighhub = NeighbourObjects('2')
-        neighhub.setup(0, self, 'Hub')
-
-        dropable = IsDropable('3')
         neighhub.setup(0, self, 'Hub')
 
         drop = CompositeDrop('4')

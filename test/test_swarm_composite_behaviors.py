@@ -558,19 +558,9 @@ class TestSingleCarryFood(TestCase):
             1, 100, 100, 10, 123)
 
         for i in range(10):
-            # grid = self.environment.grid
-            # food_loc = (0, 0)
-            # neighbours = grid.get_neighborhood(food_loc, 60)
-            # food_objects = grid.get_objects_from_list_of_grid(
-            # 'Food', neighbours)
-            # print (i, 'TOtal Food', len(food_objects))
-
             self.environment.step()
-            # print (i, 'attached objects',
-            # self.environment.agent.attached_objects)
 
     def test_agent_path(self):
-        self.assertEqual(1, 2)
-        # self.assertEqual(
-        #    self.environment.agent.attached_objects[0],
-        #  self.environment.thing)
+        self.assertEqual(1, len(
+            self.environment.agent.attached_objects))
+
