@@ -34,13 +34,14 @@ def main():
         # print (i, best.name, best.individual[0].fitness, best.food_collected, best.bt.behaviour_tree)
         # output = py_trees.display.ascii_tree(best.bt.behaviour_tree.root)
         # print (output)
+
     for agent in env.agents:
         if len(agent.attached_objects) > 0:
             output = py_trees.display.ascii_tree(agent.bt.behaviour_tree.root)
             print(agent.name, agent.attached_objects, output)
     # for agent in env.agents:
     #     print (agent.name, agent.attached_objects)
-        #if len(env.detect_food_moved()) < 50 and len(env.detect_food_moved()) != 0:
+        # if len(env.detect_food_moved()) < 50 and len(env.detect_food_moved()) != 0:
         #    print ('food moved', i, len(env.detect_food_moved()))
         # output = py_trees.display.ascii_tree(best.bt.behaviour_tree.root)
         # print (i, best.name, best.individual[0].fitness, output)
