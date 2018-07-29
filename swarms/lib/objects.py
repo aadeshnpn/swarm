@@ -31,11 +31,25 @@ class Sites(EnvironmentObject):
     def __init__(self, id=1, location=(0, 0), radius=20, q_value=0.5):
         """Initialize.
 
-        Site contains food unit but is not carryable.
+        Sites will be the agents new hub
         """
         super().__init__(id, location, radius)
         self.q_value = q_value
-        self.food_unit = self.q_value * 1000
+        self.carryable = False
+
+
+# Class to define source object
+class Source(EnvironmentObject):
+    """Source object."""
+
+    def __init__(self, id=1, location=(0, 0), radius=20, food_units=0.5):
+        """Initialize.
+
+        Source contains food unit but is not carryable.
+        """
+        super().__init__(id, location, radius)
+        # self.food_units = self.q_value * 1000
+        self.food_units = food_units
         self.carryable = False
 
 
