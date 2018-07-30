@@ -64,6 +64,8 @@ class SwarmAgent(Agent):
         self.bt.xmlstring = self.individual[0].phenotype
         self.bt.construct()
 
+        self.diversity_fitness = self.individual[0].fitness
+
         # Location history
         self.location_history = set()
         self.timestamp = 0
@@ -115,6 +117,7 @@ class SwarmAgent(Agent):
         self.food_collected = 0
         self.location_history = set()
         self.timestamp = 0
+        self.diversity_fitness = self.individual[0].fitness
 
     def overall_fitness(self):
         """Compute complete fitness.
@@ -164,51 +167,60 @@ class SwarmAgent(Agent):
         """Agent action at a single time step."""
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
         # output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
-        # print ('bt tree', output, self.individual[0].phenotype,
-        # self.individual[0].fitness)
-        # Get the value of food from hub before ticking the behavior
 
-        ## Create a results instance and save it to a file
-        # self.diversity_fitness
-        self.results = Results(self.model.pname, self.name, self.step_count, self.beta, self.individual[0].fitness, )
+        # Couting variables
         self.timestamp += 1
         self.step_count += 1
+
         # Increase beta
         self.beta = self.step_count / 10000.0
 
+        # Maintain the location history of the agent
         self.location_history.add(self.location)
-        # food_in_hub_before = self.get_food_in_hub()
+
+        # Compute the behavior tree
         self.bt.behaviour_tree.tick()
-        # food_in_hub_after = self.get_food_in_hub()
-        # self.food_collected = food_in_hub_before - food_in_hub_after
+
+        # Find the no.of food collected from the BT execution
         self.food_collected = len(self.get_food_in_hub())
-        # Computes additional value for fitness. In this case foodcollected
+
+        # Computes overall fitness using Beta function
         self.overall_fitness()
-        # print('agent', self.name, self.food_collected)
+
+        # Find the nearby agents
         cellmates = self.model.grid.get_objects_from_grid(
             'SwarmAgent', self.location)
-        # print (cellmates)
+
+        # Create a results instance and save it to a file
+        self.results = Results(
+            self.model.pname, self.name, self.step_count, self.timestamp,
+            self.beta, self.individual[0].fitness, self.diversity_fitness,
+            self.exploration_fitness(), self.food_collected, len(cellmates),
+            self.individual[0].genome, self.individual[0].phenotype, self.bt
+            )
+
+        # Save the results to a file
+        self.results.save_to_file()
+
+        # Logic for gentic operations.
+        # If the genome storage has enough genomes and agents has done some
+        # exploration then compute the genetic step OR
+        # 600 time step has passed and the agent has not done anything useful
+        # then also perform genetic step
         if (len(self.genome_storage) >= self.model.num_agents / 1.4) \
                 and (self.exploration_fitness() >= 10):
-                    # print('genetic', self.name, self.timestamp,
-                    # len(self.genome_storage), self.food_collected)
                     self.genetic_step()
-                    # print ('Exchange program', self.name)
         elif self.timestamp > 600 and self.exploration_fitness() < 10:
             # This is the case of the agent not moving and staying dormant.
             # Need to use genetic operation to change its genome
             individual = initialisation(self.parameter, 10)
-            # print (len(set([ind.phenotype for ind in individual])))
-            # print ('Resetting the genome', self.name)
             individual = evaluate_fitness(individual, self.parameter)
             self.genome_storage = individual
             self.genetic_step()
 
+        # If neighbours found, store the genome
         if len(cellmates) > 1:
             self.store_genome(cellmates)
-            # self.beta = self.food_collected / 1000
-
-        # self.detect_food_carrying()
 
     def advance(self):
         """Require for staged activation."""
