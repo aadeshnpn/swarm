@@ -7,3 +7,4 @@ resources/*
 results/*
 test/test_bt_xml
 test/test_bt_xml/*
+examples/*/[0-9]+[A-Za-z]*

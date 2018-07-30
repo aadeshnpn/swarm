@@ -3,6 +3,7 @@
 from swarms.lib.agent import Agent
 import numpy as np
 from swarms.utils.bt import BTConstruct
+from swarms.utils.results import Results
 
 from ponyge.operators.initialisation import initialisation
 from ponyge.fitness.evaluation import evaluate_fitness
@@ -25,6 +26,7 @@ class SwarmAgent(Agent):
         self.direction = model.random.rand() * (2 * np.pi)
         self.speed = 2
         self.radius = 3
+        self.results = "db"  # This can take 2 values. db or file
 
         # self.exchange_time = model.random.randint(2, 4)
         # This doesn't help. Maybe only perform genetic operations when
@@ -165,6 +167,10 @@ class SwarmAgent(Agent):
         # print ('bt tree', output, self.individual[0].phenotype,
         # self.individual[0].fitness)
         # Get the value of food from hub before ticking the behavior
+
+        ## Create a results instance and save it to a file
+        # self.diversity_fitness
+        self.results = Results(self.model.pname, self.name, self.step_count, self.beta, self.individual[0].fitness, )
         self.timestamp += 1
         self.step_count += 1
         # Increase beta

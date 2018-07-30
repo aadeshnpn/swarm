@@ -8,7 +8,7 @@ from swarms.utils.jsonhandler import JsonData
 from agent import SwarmAgent
 from swarms.lib.objects import Hub, Sites, Food, Derbis, Obstacles
 import os, imp
-
+import datetime
 #filename = os.path.join(
 #    "/home/aadeshnpn/Documents/BYU/hcmi/swarm/swarms/" + "utils/world.json")
 filename = os.path.join(imp.find_module("swarms")[1] + "/utils/world.json")
@@ -23,6 +23,11 @@ class EnvironmentModel(Model):
             super(EnvironmentModel, self).__init__(seed=None)
         else:
             super(EnvironmentModel, self).__init__(seed)
+
+        self.pname = os.getcwd() + '/' + datetime.datetime.now().strftime("%s") + "SForaging"
+
+        # Create a folder to store results
+        os.mkdir(self.pname)
 
         self.num_agents = N
 
