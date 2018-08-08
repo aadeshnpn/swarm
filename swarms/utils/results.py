@@ -35,12 +35,11 @@ class Results:
         # self.template = """
         # Id, Agent Name, Step, Beta, Fitness, Diversity, Explore, Foraging,\
         # Neighbours, Genotype, Phenotype, BT
-        self.template = """{id}| {name}| {step}| {timestep}| {beta}|\
-         {fitness}| {diversity}| {explore}| {foraging}| {neighbour}|\
-         {genotype}| {phenotype}| {bt}
+        self.template = """{id}|{name}|{step}|{timestep}|{beta}|{fitness}|{diversity}|{explore}|{foraging}|{neighbour}|{genotype}|{phenotype}|{bt}
         """
         # Write a header to the file for pandas dataframe
-        self.header = """id|name|step|timestep|beta|fitness|diversity|explore|foraging|neighbour|genotype|phenotype|bt\n"""
+        self.header = """id|name|step|timestep|beta|fitness|diversity|explore|foraging|neighbour|genotype|phenotype|bt\n
+        """
 
     def save_to_file(self):
         """Save results to a flat file."""
@@ -55,6 +54,7 @@ class Results:
         else:
             with open(filename, 'a') as statsfile:
                 statsfile.write(self.header)
+                statsfile.write(self.template.format(**self.context))
 
     def save_to_db(self):
         """Save results to a database."""
@@ -87,11 +87,11 @@ class Best:
             "phenotype": phenotype
         }
 
-        self.template = """{id}| {header}| {name}| {step}| {beta}| {fitness}| {diversity}| {explore}| \
-        {foraging}| {phenotype}
+        self.template = """{id}|{header}|{name}|{step}|{beta}|{fitness}|{diversity}|{explore}|{foraging}|{phenotype}
         """
         # Write a header to the file for pandas dataframe
-        self.header = """id|header|name|step|beta|fitness|diversity|explore|foraging|phenotype\n"""
+        self.header = """id|header|name|step|beta|fitness|diversity|explore|foraging|phenotype\n
+        """
 
     def save_to_file(self):
         """Save results to a flat file."""
@@ -105,6 +105,7 @@ class Best:
         else:
             with open(filename, 'a') as statsfile:
                 statsfile.write(self.header)
+                statsfile.write(self.template.format(**self.context))
 
     def save_to_db(self):
         """Save results to a database."""
