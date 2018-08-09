@@ -19,7 +19,7 @@ filename = os.path.join(imp.find_module("swarms")[1] + "/utils/world.json")
 class EnvironmentModel(Model):
     """A environemnt to model swarms."""
 
-    def __init__(self, N, width, height, grid=10, seed=None):
+    def __init__(self, N, width, height, grid=10, iter=100000, seed=None):
         """Initialize the attributes."""
         if seed is None:
             super(EnvironmentModel, self).__init__(seed=None)
@@ -30,7 +30,7 @@ class EnvironmentModel(Model):
             "%s") + "SForaging"
 
         self.stepcnt = 1
-
+        self.iter = iter
         # Create a folder to store results
         os.mkdir(self.pname)
 

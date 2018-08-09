@@ -173,7 +173,7 @@ class SwarmAgent(Agent):
         self.step_count += 1
 
         # Increase beta
-        self.beta = self.step_count / 10000.0
+        self.beta = self.step_count / self.model.iter
 
         # Maintain the location history of the agent
         self.location_history.add(self.location)
