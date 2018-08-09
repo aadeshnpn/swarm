@@ -5,12 +5,14 @@ from swarms.lib.time import SimultaneousActivation
 # RandomActivation, StagedActivation
 from swarms.lib.space import Grid
 from swarms.utils.jsonhandler import JsonData
+from swarms.utils.results import Best
 from agent import SwarmAgent
 from swarms.lib.objects import Hub, Sites, Food, Derbis, Obstacles
-import os, imp
+import os
+import imp
+import datetime
+import numpy as np
 
-#filename = os.path.join(
-#    "/home/aadeshnpn/Documents/BYU/hcmi/swarm/swarms/" + "utils/world.json")
 filename = os.path.join(imp.find_module("swarms")[1] + "/utils/world.json")
 
 
@@ -23,6 +25,14 @@ class EnvironmentModel(Model):
             super(EnvironmentModel, self).__init__(seed=None)
         else:
             super(EnvironmentModel, self).__init__(seed)
+
+        self.pname = os.getcwd() + '/' + datetime.datetime.now().strftime(
+            "%s") + "SForaging"
+
+        self.stepcnt = 1
+
+        # Create a folder to store results
+        os.mkdir(self.pname)
 
         self.num_agents = N
 
@@ -107,7 +117,60 @@ class EnvironmentModel(Model):
 
     def step(self):
         """Step through the environment."""
+        # Gather info from all the agents
+        self.gather_info()
+        # Next step
         self.schedule.step()
+        # Increment the step count
+        self.stepcnt += 1
+
+    def gather_info(self):
+        """Gather information from all the agents."""
+        diversity = np.ones(len(self.agents))
+        exploration = np.ones(len(self.agents))
+        foraging = np.ones(len(self.agents))
+        fittest = np.ones(len(self.agents))
+        for id in range(len(self.agents)):
+            diversity[id] = self.agents[id].diversity_fitness
+            exploration[id] = self.agents[id].exploration_fitness()
+            foraging[id] = self.agents[id].food_collected
+            fittest[id] = self.agents[id].individual[0].fitness
+        beta = self.agents[-1].beta
+
+        mean = Best(
+            self.pname, "", 'MEAN', self.stepcnt, beta, np.mean(fittest),
+            np.mean(diversity), np.mean(exploration), np.mean(foraging),
+            ""
+            )
+        mean.save_to_file()
+
+        std = Best(
+            self.pname, "", 'STD', self.stepcnt, beta, np.std(fittest),
+            np.std(diversity), np.std(exploration), np.std(foraging), ""
+            )
+        std.save_to_file()
+
+        # Compute best agent for each fitness
+        self.best_agents(diversity, beta, "DIVERSE")
+        self.best_agents(exploration, beta, "EXPLORE")
+        self.best_agents(foraging, beta, "FORGE")
+        self.best_agents(fittest, beta, "OVERALL")
+
+    def best_agents(self, data, beta, header):
+        """Find the best agents in each category."""
+        idx = np.argmax(data)
+        dfitness = self.agents[idx].diversity_fitness
+        ofitness = self.agents[idx].individual[0].fitness
+        ffitness = self.agents[idx].food_collected
+        efitness = self.agents[idx].exploration_fitness()
+        phenotype = self.agents[idx].individual[0].phenotype
+
+        best_agent = Best(
+            self.pname, idx, header, self.stepcnt, beta, ofitness,
+            dfitness, efitness, ffitness, phenotype
+        )
+
+        best_agent.save_to_file()
 
     def find_higest_performer(self):
         """Find the best agent."""

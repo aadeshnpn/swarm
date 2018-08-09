@@ -30,6 +30,7 @@ class EnvironmentModel(Model):
             "%s") + "SForaging"
 
         self.stepcnt = 1
+
         # Create a folder to store results
         os.mkdir(self.pname)
 

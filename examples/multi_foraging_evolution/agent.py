@@ -3,6 +3,7 @@
 from swarms.lib.agent import Agent
 import numpy as np
 from swarms.utils.bt import BTConstruct
+from swarms.utils.results import Results
 
 from ponyge.operators.initialisation import initialisation
 from ponyge.fitness.evaluation import evaluate_fitness
@@ -25,6 +26,7 @@ class SwarmAgent(Agent):
         self.direction = model.random.rand() * (2 * np.pi)
         self.speed = 2
         self.radius = 3
+        self.results = "db"  # This can take 2 values. db or file
 
         # self.exchange_time = model.random.randint(2, 4)
         # This doesn't help. Maybe only perform genetic operations when
@@ -61,6 +63,8 @@ class SwarmAgent(Agent):
         self.individual = individual
         self.bt.xmlstring = self.individual[0].phenotype
         self.bt.construct()
+
+        self.diversity_fitness = self.individual[0].fitness
 
         # Location history
         self.location_history = set()
@@ -113,6 +117,7 @@ class SwarmAgent(Agent):
         self.food_collected = 0
         self.location_history = set()
         self.timestamp = 0
+        self.diversity_fitness = self.individual[0].fitness
 
     def overall_fitness(self):
         """Compute complete fitness.
@@ -167,42 +172,50 @@ class SwarmAgent(Agent):
         # Get the value of food from hub before ticking the behavior
         self.timestamp += 1
         self.step_count += 1
+
         # Increase beta
         self.beta = self.step_count / 10000.0
 
+        # Maintain the location history of the agent
         self.location_history.add(self.location)
-        # food_in_hub_before = self.get_food_in_hub()
+
+        # Compute the behavior tree
         self.bt.behaviour_tree.tick()
-        # food_in_hub_after = self.get_food_in_hub()
-        # self.food_collected = food_in_hub_before - food_in_hub_after
+
+        # Find the no.of food collected from the BT execution
         self.food_collected = len(self.get_food_in_hub())
-        # Computes additional value for fitness. In this case foodcollected
+
+        # Compute overall fitness using Beta function
         self.overall_fitness()
-        # print('agent', self.name, self.food_collected)
+
+        # Find the nearby agents
         cellmates = self.model.grid.get_objects_from_grid(
             'SwarmAgent', self.location)
-        # print (cellmates)
+
+        # Create a results instance and save it to a file
+        self.results = Results(
+            self.model.pname, self.name, self.step_count, self.timestamp,
+            self.beta, self.individual[0].fitness, self.diversity_fitness,
+            self.exploration_fitness(), self.food_collected, len(cellmates),
+            self.individual[0].genome, self.individual[0].phenotype, self.bt
+            )
+
+        # Save the results to a file
+        self.results.save_to_file()
+
         if (len(self.genome_storage) >= self.model.num_agents / 1.4) \
                 and (self.exploration_fitness() >= 10):
-                    # print('genetic', self.name, self.timestamp,
-                    # len(self.genome_storage), self.food_collected)
                     self.genetic_step()
-                    # print ('Exchange program', self.name)
         elif self.timestamp > 600 and self.exploration_fitness() < 10:
             # This is the case of the agent not moving and staying dormant.
             # Need to use genetic operation to change its genome
             individual = initialisation(self.parameter, 10)
-            # print (len(set([ind.phenotype for ind in individual])))
-            # print ('Resetting the genome', self.name)
             individual = evaluate_fitness(individual, self.parameter)
             self.genome_storage = individual
             self.genetic_step()
 
         if len(cellmates) > 1:
             self.store_genome(cellmates)
-            # self.beta = self.food_collected / 1000
-
-        # self.detect_food_carrying()
 
     def advance(self):
         """Require for staged activation."""

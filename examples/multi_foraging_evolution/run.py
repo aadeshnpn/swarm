@@ -4,6 +4,7 @@ from model import EnvironmentModel
 # from swarms.utils.jsonhandler import JsonData
 # import time
 import py_trees
+from swarms.utils.graph import Graph
 # Global variables for width and height
 width = 100
 height = 100
@@ -24,7 +25,7 @@ def main():
     food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
     # print ('TOtal Food prev', len(food_objects))
 
-    for i in range(100000):
+    for i in range(10):
         env.step()
         # best = env.find_higest_performer()
         # best = env.find_higest_food_collector()
@@ -54,6 +55,9 @@ def main():
     food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
     for food in food_objects:
         print('food', food.id, food.location)
+
+    graph = Graph(env.pname, 'best.csv', ['diversity', 'explore'])
+    graph.gen_best_plots()
 
     """
     for agent in env.agents:
