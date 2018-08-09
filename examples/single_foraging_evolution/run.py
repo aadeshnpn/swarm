@@ -4,6 +4,7 @@ from model import EnvironmentModel
 # from swarms.utils.jsonhandler import JsonData
 # import time
 import py_trees
+from swarms.utils.graph import Graph
 # Global variables for width and height
 width = 100
 height = 100
@@ -56,6 +57,8 @@ def main():
     for food in food_objects:
         print('food', food.id, food.location)
 
+    graph = Graph(env.pname, 'best.csv', ['diversity', 'explore'])
+    graph.gen_best_plots()
     """
     for agent in env.agents:
         print(agent.name, agent.food_collected)

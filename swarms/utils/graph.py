@@ -8,8 +8,9 @@ plt.style.use('fivethirtyeight')
 
 class Graph:
 
-    def __init__(self, filename, fields):
-        self.filename = filename
+    def __init__(self, directory, fname, fields):
+        self.directory = directory
+        self.fname = fname
         self.fields = fields
         self.data = self.load_file()
         self.mean = self.data[self.data['header'] == 'MEAN']
@@ -28,7 +29,7 @@ class Graph:
             field_max = mean + std
             field_min = mean - std
             xvalues = range(1, len(mean) + 1)
-            ax1 = fig.add_subplot(2, i, 1)
+            ax1 = fig.add_subplot(2, 1, i)
             i += 1
             # Plotting mean and standard deviation
             ax1.plot(xvalues, mean, color='blue', label='Mean ' + field)
@@ -44,10 +45,10 @@ class Graph:
             ax1.set_xlabel('Fitness')
             ax1.set_title('Fitness function')
 
-        fig.savefig('best.pdf')
+        fig.savefig(self.directory + '/best.pdf')
 
     def load_file(self):
-        data = pd.read_csv(self.filename, sep='|')
+        data = pd.read_csv(self.directory + '/' + self.fname, sep='|')
         return data
 
     def save_step_graph(filename, fields):
