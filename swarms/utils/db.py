@@ -109,7 +109,7 @@ class Execute():
             # logger.info("Procedure arguments:"+proc_args)
             self.cursor.callproc(procname, proc_args)
         except:
-            print "Procedure error"
+            print ("Procedure error")
             return False
         else:
             self.con.commit()

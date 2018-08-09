@@ -1,6 +1,5 @@
-'''
-Test the grid object
-'''
+"""Test the grid object."""
+
 import unittest
 
 from swarms.lib.space import Grid
