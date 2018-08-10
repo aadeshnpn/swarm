@@ -12,9 +12,9 @@ UI = False
 
 
 def main():
-    iteration = 2
+    iteration = 100
 
-    env = EnvironmentModel(2, 100, 100, 10, iter=iteration)
+    env = EnvironmentModel(100, 100, 100, 10, iter=iteration)
     env.build_environment_from_json()
 
     # for all agents store the information about hub
@@ -27,6 +27,8 @@ def main():
     # Iterate and execute each step in the environment
     for i in range(iteration):
         env.step()
+
+    env.experiment.update_experiment()
 
     # Find if food has been deposited in the hub
     grid = env.grid

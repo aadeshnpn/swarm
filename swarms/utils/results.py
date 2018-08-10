@@ -2,6 +2,7 @@
 
 from pathlib import Path
 from swarms.utils.db import Dbexecute
+from collections import OrderedDict
 
 
 class Experiment:
@@ -46,21 +47,21 @@ class Results:
         """Initialize the attributes."""
         self.foldername = foldername
         self.connect = connect
-        self.context = {
-            "id": id,
-            "name": agent_name,
-            "step": step,
-            "timestep": timestep,
-            "beta": beta,
-            "fitness": fitness,
-            "diversity": diversity,
-            "explore": explore,
-            "foraging": foraging,
-            "neighbour": neighbour,
-            "genotype": genotype,
-            "phenotype": phenotype,
-            "bt": "bt"
-        }
+        self.context = OrderedDict([
+            ("id", id),
+            ("name", int(agent_name)),
+            ("step", step),
+            ("timestep", timestep),
+            ("beta", float(beta)),
+            ("fitness", float(fitness)),
+            ("diversity", float(diversity)),
+            ("explore", float(explore)),
+            ("foraging", float(foraging)),
+            ("neighbour", int(neighbour)),
+            ("genotype", genotype),
+            ("phenotype", phenotype),
+            ("bt", "Nan")
+        ])
         # self.template = """
         # Id, Agent Name, Step, Beta, Fitness, Diversity, Explore, Foraging,\
         # Neighbours, Genotype, Phenotype, BT
@@ -89,9 +90,8 @@ class Results:
         """Save results to a database."""
         # First check if the id is present
         data = list(self.context.values())
-        print('exp details data', data)
         dbexec = Dbexecute(self.connect)
-        dbexec.insert_experiment_best(data)
+        dbexec.insert_experiment_details(data)
 
 
 class Best:
@@ -109,18 +109,18 @@ class Best:
         self.foldername = foldername
         self.connect = connect
 
-        self.context = {
-            "id": id,
-            "name": agent_name,
-            "header": header,
-            "step": step,
-            "beta": beta,
-            "fitness": fitness,
-            "diversity": diversity,
-            "explore": explore,
-            "foraging": foraging,
-            "phenotype": phenotype
-        }
+        self.context = OrderedDict([
+            ("id", id),
+            ("name", int(agent_name)),
+            ("header", header),
+            ("step", step),
+            ("beta", float(beta)),
+            ("fitness", float(fitness)),
+            ("diversity", float(diversity)),
+            ("explore", float(explore)),
+            ("foraging", float(foraging)),
+            ("phenotype", phenotype)
+        ])
 
         self.template = """{id}|{header}|{name}|{step}|{beta}|{fitness}|{diversity}|{explore}|{foraging}|{phenotype}
         """
@@ -150,6 +150,5 @@ class Best:
     def save_to_db(self):
         """Save results to a database."""
         data = list(self.context.values())
-        print('best data', data, self.context.keys())
         dbexec = Dbexecute(self.connect)
         dbexec.insert_experiment_best(data)

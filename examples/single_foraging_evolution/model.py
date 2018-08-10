@@ -150,16 +150,16 @@ class EnvironmentModel(Model):
         beta = self.agents[-1].beta
 
         mean = Best(
-            self.pname, self.connect, self.sn, "", 'MEAN', self.stepcnt,
+            self.pname, self.connect, self.sn, 1, 'MEAN', self.stepcnt,
             beta, np.mean(fittest), np.mean(diversity), np.mean(exploration),
-            np.mean(foraging), ""
+            np.mean(foraging), "None"
             )
         mean.save()
 
         std = Best(
-            self.pname, self.connect, self.sn, "", 'STD', self.stepcnt, beta,
+            self.pname, self.connect, self.sn, 1, 'STD', self.stepcnt, beta,
             np.std(fittest), np.std(diversity), np.std(exploration),
-            np.std(foraging), ""
+            np.std(foraging), "None"
             )
         std.save()
 
