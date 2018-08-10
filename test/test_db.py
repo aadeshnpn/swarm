@@ -1,7 +1,7 @@
 """Test class for database."""
 
 import unittest
-from swarms.utils.db import Connect
+from swarms.utils.db import Connect, Dbexecute
 
 
 class TestGrid(unittest.TestCase):
@@ -40,6 +40,9 @@ class TestGrid(unittest.TestCase):
 
         self.assertDictEqual(tns_parms, tnsconnect.get_dsn_parameters())
 
-    def test_insert(self):
+    def test_insert_experiment(self):
         """Test insert statement to db."""
-        pass
+        tnsconnect = self.connect.tns_connect()
+        dbexec = Dbexecute(tnsconnect)
+        id = dbexec.insert_experiment(20150101011)
+        self.assertEqual(9, id)

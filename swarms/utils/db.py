@@ -21,6 +21,7 @@ class Connect():
         self.hostname = hostname
         self.sport = sport
         self.racflag = racflag
+        self.__name__ = 'Connect'
 
     def tns_connect(self):
         """Connect with tnscon string."""
@@ -28,8 +29,8 @@ class Connect():
             connect = pgsql.connect(
                 database=self.dbname, user=self.username, password=self.passwd,
                 host=self.hostname, port=self.sport)
-        except:
-            print (
+        except pgsql.DatabaseError:
+            print(
                 "Unexpected error:", sys.exc_info(), "Function name:",
                 self.__name__)
         else:
@@ -50,9 +51,9 @@ class Execute():
             self.cursor.execute(statement)
         except pgsql.Error as e:
             # error,=e.args
-            print ("Code:", e.pgcode)
-            print ("Message:", e.pgerror)
-            print (sys.exc_info(), "Function name:execute_statement")
+            print("Code:", e.pgcode)
+            print("Message:", e.pgerror)
+            print(sys.exc_info(), "Function name:execute_statement")
             self.con.rollback()
         else:
             self.con.commit()
@@ -64,9 +65,9 @@ class Execute():
             self.cursor.execute(statement, bindvars)
         except pgsql.Error as e:
             # error,= e.args
-            print ("Code:", e.pgcode)
-            print ("Message:", e.pgerror)
-            print (sys.exc_info(), "Function name:execute_statement_bind")
+            print("Code:", e.pgcode)
+            print("Message:", e.pgerror)
+            print(sys.exc_info(), "Function name:execute_statement_bind")
             self.con.rollback()
         else:
             self.con.commit()
@@ -78,17 +79,17 @@ class Execute():
         for a in args:
             # print a
             funct_args.append(a)
-        for k, v in kwargs.iteritems():
-            print ("%s =%s" % (k, v))
+        for k, v in kwargs.items():
+            print("%s =%s" % (k, v))
             if k == "function_name":
                 functname = v
         try:
-            print ("Function name:", functname, "Function Args:", funct_args)
+            print("Function name:", functname, "Function Args:", funct_args)
             # logger.info("Procedure arguments:"+proc_args)
             output = self.cursor.callproc(functname, funct_args)
             # output = output.fetchall()
-        except:
-            print ("Function error", sys.exc_info())
+        except pgsql.DatabaseError:
+            print("Function error", sys.exc_info())
             return False
         else:
             self.con.commit()
@@ -98,18 +99,18 @@ class Execute():
         """Execute a pl/sql procedure with variable args."""
         proc_args = []
         for a in args:
-            print (a)
+            print(a)
             proc_args.append(a)
-        for k, v in kwargs.iteritems():
-            print ("%s =%s" % (k, v))
+        for k, v in kwargs.items():
+            print("%s =%s" % (k, v))
             if k == "proc_name":
                 procname = v
         try:
-            print ("Proc Args:", proc_args)
+            print("Proc Args:", proc_args)
             # logger.info("Procedure arguments:"+proc_args)
             self.cursor.callproc(procname, proc_args)
-        except:
-            print ("Procedure error")
+        except pgsql.DatabaseError:
+            print("Procedure error")
             return False
         else:
             self.con.commit()
@@ -117,7 +118,7 @@ class Execute():
 
     def excute_spool(self, **kwargs):
         """Execute pl/sql spool."""
-        for k, v in kwargs.iteritems():
+        for k, v in kwargs.items():
             if k == "bulkid":
                 # bulkid = v
                 pass
@@ -160,48 +161,69 @@ class Dbexecute():
         self.conn = conn
         self.trimstrobj = Trimstrdb()
 
-    def insertInfo(self, session_id, server_ip, location, client, machine):
-        """Insert info."""
+    def insert_experiment(self, id):
+        """Insert into experiment table."""
         exestat = Execute(self.conn)
-        # funct_name='public.f_insert_session_info'
         output = 0
         try:
-            exestat.cursor.execute("""INSERT INTO session_info(id,serverip,
-                request_location,request_client,machine_type) VALUES (
-                    %s,%s,%s,%s,%s);""", (
-                session_id, server_ip, location, client, machine))
+            exestat.cursor.execute("""INSERT INTO experiment(id) VALUES (
+                    %s);""", ([id]))
             output = exestat.cursor.execute(
-                "SELECT sn from session_info where id=" + "'" + session_id +
+                "SELECT sn from experiment where id=" + "'" + str(id) +
                 "'")
             output = exestat.cursor.fetchall()
             self.conn.commit()
             exestat.close()
-        except:
-            print ("Unexpected error function insertInfo:", sys.exc_info())
+        except pgsql.Error:
+            print("Unexpected error function insert_experiment:", sys.exc_info())
             return False
         else:
             return int(output[0][0])
 
-    def insertDetails(
-            self, session_sn, query, response, timetaken, training_flag,
-            verified):
-        """Insert details into db."""
+    def insert_experiment_details(self, data_list):
+        """Insert into experiment_details table."""
         exestat = Execute(self.conn)
+        data = data_list
         try:
-            exestat.cursor.execute(
-                """INSERT INTO session_details(
-                    session_info_sn, query, response, timetaken, training_flag,
-                    verified) VALUES (%s,%s,%s,%s,%s,%s);""", (
-                    session_sn, query, response, timetaken, training_flag,
-                    verified)
+            exestat.cursor.execute("""INSERT INTO experiment_details(exp_id,
+            step, time_step, agent_name, beta, fitness, diversity, explore,
+            forage, neighbours, genotype, phenotype, bt) VALUES (
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);""", (
+                data[0], data[1], data[2], data[3], data[4], data[5],
+                data[6], data[7], data[8], data[9], data[10], data[11])
                 )
+            # output = exestat.cursor.execute(
+            #    "SELECT sn from session_info where id=" + "'" + session_id +
+            #    "'")
+            # output = exestat.cursor.fetchall()
             self.conn.commit()
             exestat.close()
-        except:
-            print ("Unexpected error function insertDetails:", sys.exc_info())
+        except pgsql.Error:
+            print("Unexpected error function insert_experiment_details:", sys.exc_info())
             return False
-        else:
-            return True
+        # else:
+        #    return int(output[0][0])
+
+    def insert_experiment_best(self, data_list):
+        """Insert into experiment_best table."""
+        exestat = Execute(self.conn)
+        data = data_list
+        try:
+            exestat.cursor.execute("""INSERT INTO experiment_best(exp_id,
+            step, heading, agent_name, beta, fitness, diversity, explore,
+            forage, phenotype) VALUES (
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);""", (
+                data[0], data[1], data[2], data[3], data[4], data[5],
+                data[6], data[7], data[8], data[9])
+                )
+
+            self.conn.commit()
+            exestat.close()
+        except pgsql.Error:
+            print("Unexpected error function insert_experiment_best:", sys.exc_info())
+            return False
+        # else:
+        #    return int(output[0][0])
 
     def retrieve_info(self, query):
         """Reterive info from the db."""
@@ -212,8 +234,8 @@ class Dbexecute():
             self.conn.commit()
             self.conn.close()
             return data
-        except:
-            print ("Unexptected error function:", sys.exc_info())
+        except pgsql.Error:
+            print("Unexptected error function:", sys.exc_info())
             return False
 
     def update_table_info(self, query):
@@ -223,8 +245,8 @@ class Dbexecute():
             exestat.cursor.execute(query)
             self.conn.commit()
             exestat.close()
-        except:
-            print ("Unexpected error function update info:", sys.exc_info())
+        except pgsql.Error:
+            print("Unexpected error function update info:", sys.exc_info())
             return False
         else:
             return True
@@ -236,8 +258,8 @@ class Dbexecute():
             exestat.cursor.execute(query)
             self.conn.commit()
             exestat.close()
-        except:
-            print ("Unexpected error function execute query:", sys.exc_info())
+        except pgsql.Error:
+            print("Unexpected error function execute query:", sys.exc_info())
             return False
         else:
             return True
