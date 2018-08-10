@@ -188,9 +188,9 @@ class Dbexecute():
             exestat.cursor.execute("""INSERT INTO experiment_details(exp_id,
             step, time_step, agent_name, beta, fitness, diversity, explore,
             forage, neighbours, genotype, phenotype, bt) VALUES (
-                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);""", (
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);""", (
                 data[0], data[1], data[2], data[3], data[4], data[5],
-                data[6], data[7], data[8], data[9], data[10], data[11])
+                data[6], data[7], data[8], data[9], data[10], data[11], data[12])
                 )
             # output = exestat.cursor.execute(
             #    "SELECT sn from session_info where id=" + "'" + session_id +
@@ -198,6 +198,7 @@ class Dbexecute():
             # output = exestat.cursor.fetchall()
             self.conn.commit()
             exestat.close()
+            return True
         except pgsql.Error:
             print("Unexpected error function insert_experiment_details:", sys.exc_info())
             return False
@@ -219,6 +220,7 @@ class Dbexecute():
 
             self.conn.commit()
             exestat.close()
+            return True
         except pgsql.Error:
             print("Unexpected error function insert_experiment_best:", sys.exc_info())
             return False
