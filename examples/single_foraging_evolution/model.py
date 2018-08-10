@@ -5,7 +5,8 @@ from swarms.lib.time import SimultaneousActivation
 # RandomActivation, StagedActivation
 from swarms.lib.space import Grid
 from swarms.utils.jsonhandler import JsonData
-from swarms.utils.results import Best
+from swarms.utils.results import Best, Experiment
+from swarms.utils.db import Connect
 from agent import SwarmAgent
 from swarms.lib.objects import Hub, Sites, Food, Derbis, Obstacles
 import os
@@ -26,11 +27,21 @@ class EnvironmentModel(Model):
         else:
             super(EnvironmentModel, self).__init__(seed)
 
-        self.pname = os.getcwd() + '/' + datetime.datetime.now().strftime(
-            "%s") + "SForaging"
+        self.runid = datetime.datetime.now().strftime("%s")
+        self.pname = os.getcwd() + '/' + self.runid + "SForaging"
 
         self.stepcnt = 1
         self.iter = iter
+
+        # Create db connection
+        connect = Connect('swarm', 'swarm', 'swarm', 'localhost')
+        self.connect = connect.tns_connect()
+
+        self.experiment = Experiment(self.connect, self.runid)
+        self.experiment.insert_experiment()
+
+        self.sn = self.experiment.sn
+
         # Create a folder to store results
         os.mkdir(self.pname)
 
@@ -139,17 +150,18 @@ class EnvironmentModel(Model):
         beta = self.agents[-1].beta
 
         mean = Best(
-            self.pname, "", 'MEAN', self.stepcnt, beta, np.mean(fittest),
-            np.mean(diversity), np.mean(exploration), np.mean(foraging),
-            ""
+            self.pname, self.connect, self.sn, "", 'MEAN', self.stepcnt,
+            beta, np.mean(fittest), np.mean(diversity), np.mean(exploration),
+            np.mean(foraging), ""
             )
-        mean.save_to_file()
+        mean.save()
 
         std = Best(
-            self.pname, "", 'STD', self.stepcnt, beta, np.std(fittest),
-            np.std(diversity), np.std(exploration), np.std(foraging), ""
+            self.pname, self.connect, self.sn, "", 'STD', self.stepcnt, beta,
+            np.std(fittest), np.std(diversity), np.std(exploration),
+            np.std(foraging), ""
             )
-        std.save_to_file()
+        std.save()
 
         # Compute best agent for each fitness
         self.best_agents(diversity, beta, "DIVERSE")
@@ -167,11 +179,11 @@ class EnvironmentModel(Model):
         phenotype = self.agents[idx].individual[0].phenotype
 
         best_agent = Best(
-            self.pname, idx, header, self.stepcnt, beta, ofitness,
+            self.pname, self.connect, self.sn, idx, header, self.stepcnt, beta, ofitness,
             dfitness, efitness, ffitness, phenotype
         )
 
-        best_agent.save_to_file()
+        best_agent.save()
 
     def find_higest_performer(self):
         """Find the best agent."""

@@ -1,7 +1,35 @@
 """Store the information from the experiments."""
 
-import datetime
 from pathlib import Path
+from swarms.utils.db import Dbexecute
+
+
+class Experiment:
+    """Experiment class.
+
+    This class corresponds to the experiment table in db.
+    """
+
+    def __init__(self, connect, runid):
+        """Constructor."""
+
+        self.connect = connect
+        self.runid = runid
+        self.sn = None
+
+    def insert_experiment(self):
+        """Call db function to insert record into db."""
+        dbexec = Dbexecute(self.connect)
+        self.sn = dbexec.insert_experiment(self.runid)
+
+    def update_experiment(self):
+        """Update enddate column."""
+        dbexec = Dbexecute(self.connect)
+
+        # Update end time
+        dbexec.execute_query(
+            "UPDATE experiment \
+            set end_date=timezone('utc'::text, now()) where sn=" + str(self.sn))
 
 
 class Results:
@@ -12,13 +40,14 @@ class Results:
     """
 
     def __init__(
-        self, foldername, agent_name, step, timestep, beta, fitness, diversity,
+        self, foldername, connect, id, agent_name, step, timestep, beta, fitness, diversity,
         explore, foraging, neighbour, genotype, phenotype, bt
             ):
         """Initialize the attributes."""
         self.foldername = foldername
+        self.connect = connect
         self.context = {
-            "id": datetime.datetime.now().strftime("%s"),
+            "id": id,
             "name": agent_name,
             "step": step,
             "timestep": timestep,
@@ -30,7 +59,7 @@ class Results:
             "neighbour": neighbour,
             "genotype": genotype,
             "phenotype": phenotype,
-            "bt": bt
+            "bt": "bt"
         }
         # self.template = """
         # Id, Agent Name, Step, Beta, Fitness, Diversity, Explore, Foraging,\
@@ -58,7 +87,11 @@ class Results:
 
     def save_to_db(self):
         """Save results to a database."""
-        pass
+        # First check if the id is present
+        data = list(self.context.values())
+        print('exp details data', data)
+        dbexec = Dbexecute(self.connect)
+        dbexec.insert_experiment_best(data)
 
 
 class Best:
@@ -69,13 +102,15 @@ class Best:
     """
 
     def __init__(
-        self, foldername, agent_name, header, step, beta, fitness, diversity,
+        self, foldername, connect, id, agent_name, header, step, beta, fitness, diversity,
         explore, foraging, phenotype
             ):
         """Initialize the attributes."""
         self.foldername = foldername
+        self.connect = connect
+
         self.context = {
-            "id": datetime.datetime.now().strftime("%s"),
+            "id": id,
             "name": agent_name,
             "header": header,
             "step": step,
@@ -93,6 +128,11 @@ class Best:
         self.header = """id|header|name|step|beta|fitness|diversity|explore|foraging|phenotype\n
         """
 
+    def save(self):
+        """Save to both medium."""
+        self.save_to_file()
+        self.save_to_db()
+
     def save_to_file(self):
         """Save results to a flat file."""
         filename = self.foldername + '/' + 'best.csv'
@@ -109,4 +149,7 @@ class Best:
 
     def save_to_db(self):
         """Save results to a database."""
-        pass
+        data = list(self.context.values())
+        print('best data', data, self.context.keys())
+        dbexec = Dbexecute(self.connect)
+        dbexec.insert_experiment_best(data)
