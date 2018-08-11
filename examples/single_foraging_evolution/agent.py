@@ -194,7 +194,8 @@ class SwarmAgent(Agent):
         # Create a results instance and save it to a file
         self.results = Results(
             self.model.pname, self.model.connect, self.model.sn, self.name,
-            self.step_count, self.timestamp, self.beta, self.individual[0].fitness,
+            self.step_count, self.timestamp, self.beta,
+            self.individual[0].fitness,
             self.diversity_fitness, self.exploration_fitness(),
             self.food_collected, len(cellmates), self.individual[0].genome,
             self.individual[0].phenotype, self.bt

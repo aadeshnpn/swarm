@@ -12,7 +12,7 @@ UI = False
 
 
 def main():
-    iteration = 100
+    iteration = 100000
 
     env = EnvironmentModel(100, 100, 100, 10, iter=iteration)
     env.build_environment_from_json()

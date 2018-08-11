@@ -11,7 +11,7 @@ UI = False
 
 
 def main():
-    iteration = 10
+    iteration = 100000
     # Build the environment
     env = EnvironmentModel(100, 100, 100, 10, iter=iteration)
     env.build_environment_from_json()
@@ -19,11 +19,16 @@ def main():
     # For all agents register hub
     for agent in env.agents:
         agent.shared_content['Hub'] = {env.hub}
+
+    # Hub and site object
     print(env.hub, env.site)
 
     # Move the simulation forward
     for i in range(iteration):
         env.step()
+
+    # Update the end time of the experiment
+    env.experiment.update_experiment()
 
     # Find if food has been deposited in the hub
     grid = env.grid
