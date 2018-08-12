@@ -161,13 +161,17 @@ class Dbexecute():
         self.conn = conn
         self.trimstrobj = Trimstrdb()
 
-    def insert_experiment(self, id):
+    def insert_experiment(
+            self, id, N, seed, expname, iter, width, height, grid):
         """Insert into experiment table."""
         exestat = Execute(self.conn)
         output = 0
         try:
-            exestat.cursor.execute("""INSERT INTO experiment(id) VALUES (
-                    %s);""", ([id]))
+            exestat.cursor.execute("""INSERT INTO experiment(id, agent_size,
+            randomseed, experiment_name, iteration, width, height,
+            grid_size) VALUES (
+                    %s, %s, %s, %s, %s, %s, %s,
+                    %s);""", (id, N, seed, expname, iter, width, height, grid))
             output = exestat.cursor.execute(
                 "SELECT sn from experiment where id=" + "'" + str(id) +
                 "'")
@@ -175,7 +179,8 @@ class Dbexecute():
             self.conn.commit()
             exestat.close()
         except pgsql.Error:
-            print("Unexpected error function insert_experiment:", sys.exc_info())
+            print(
+                "Unexpected error function insert_experiment:", sys.exc_info())
             return False
         else:
             return int(output[0][0])
@@ -202,7 +207,9 @@ class Dbexecute():
             exestat.close()
             return True
         except pgsql.Error:
-            print("Unexpected error function insert_experiment_details:", sys.exc_info())
+            print(
+                "Unexpected error function insert_experiment_details:",
+                sys.exc_info())
             return False
         # else:
         #    return int(output[0][0])
@@ -224,7 +231,9 @@ class Dbexecute():
             exestat.close()
             return True
         except pgsql.Error:
-            print("Unexpected error function insert_experiment_best:", sys.exc_info())
+            print(
+                "Unexpected error function insert_experiment_best:",
+                sys.exc_info())
             return False
         # else:
         #    return int(output[0][0])

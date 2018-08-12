@@ -11,17 +11,26 @@ class Experiment:
     This class corresponds to the experiment table in db.
     """
 
-    def __init__(self, connect, runid):
+    def __init__(
+            self, connect, runid, N, seed, expname, iter, width, height, grid):
         """Constructor."""
-
         self.connect = connect
         self.runid = runid
         self.sn = None
+        self.N = N
+        self.seed = seed
+        self.expname = expname
+        self.iter = iter
+        self.width = width
+        self.height = height
+        self.grid = grid
 
     def insert_experiment(self):
         """Call db function to insert record into db."""
         dbexec = Dbexecute(self.connect)
-        self.sn = dbexec.insert_experiment(self.runid)
+        self.sn = dbexec.insert_experiment(
+            self.runid, self.N, self.seed, self.expname, self.iter, self.width,
+            self.height, self.grid)
 
     def update_experiment(self):
         """Update enddate column."""
@@ -30,7 +39,8 @@ class Experiment:
         # Update end time
         dbexec.execute_query(
             "UPDATE experiment \
-            set end_date=timezone('utc'::text, now()) where sn=" + str(self.sn))
+            set end_date=timezone('utc'::text, now()) where sn=" + str(
+                self.sn))
 
 
 class Results:

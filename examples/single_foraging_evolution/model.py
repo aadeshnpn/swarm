@@ -37,7 +37,10 @@ class EnvironmentModel(Model):
         connect = Connect('swarm', 'swarm', 'swarm', 'localhost')
         self.connect = connect.tns_connect()
 
-        self.experiment = Experiment(self.connect, self.runid)
+        # Fill out the experiment table
+        self.experiment = Experiment(
+            self.connect, self.runid, N, seed, 'Single Foraging',
+            iter, width, height, grid)
         self.experiment.insert_experiment()
 
         self.sn = self.experiment.sn
@@ -179,8 +182,8 @@ class EnvironmentModel(Model):
         phenotype = self.agents[idx].individual[0].phenotype
 
         best_agent = Best(
-            self.pname, self.connect, self.sn, idx, header, self.stepcnt, beta, ofitness,
-            dfitness, efitness, ffitness, phenotype
+            self.pname, self.connect, self.sn, idx, header, self.stepcnt, beta,
+            ofitness, dfitness, efitness, ffitness, phenotype
         )
 
         best_agent.save()

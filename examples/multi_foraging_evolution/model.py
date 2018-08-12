@@ -37,7 +37,9 @@ class EnvironmentModel(Model):
         connect = Connect('swarm', 'swarm', 'swarm', 'localhost')
         self.connect = connect.tns_connect()
 
-        self.experiment = Experiment(self.connect, self.runid)
+        self.experiment = Experiment(
+            self.connect, self.runid, N, seed, 'Multi Foraging', iter, width,
+            height, grid)
         self.experiment.insert_experiment()
 
         self.sn = self.experiment.sn

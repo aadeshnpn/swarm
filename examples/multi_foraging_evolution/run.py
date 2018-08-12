@@ -11,9 +11,9 @@ UI = False
 
 
 def main():
-    iteration = 100000
+    iteration = 10
     # Build the environment
-    env = EnvironmentModel(100, 100, 100, 10, iter=iteration)
+    env = EnvironmentModel(1, 100, 100, 10, iter=iteration)
     env.build_environment_from_json()
 
     # For all agents register hub
