@@ -202,7 +202,7 @@ class SwarmAgent(Agent):
             )
 
         # Save the results to a file
-        self.results.save_to_file()
+        self.results.save_to_db()
 
         if (len(self.genome_storage) >= self.model.num_agents / 1.4) \
                 and (self.exploration_fitness() >= 10):

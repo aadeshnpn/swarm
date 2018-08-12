@@ -159,14 +159,14 @@ class EnvironmentModel(Model):
             np.mean(exploration), np.mean(foraging),
             "None"
             )
-        mean.save_to_file()
+        mean.save()
 
         std = Best(
             self.pname, self.connect, self.sn, 2, 'STD', self.stepcnt,
             beta, np.std(fittest), np.std(diversity),
             np.std(exploration), np.std(foraging), "None"
             )
-        std.save_to_file()
+        std.save()
 
         # Compute best agent for each fitness
         self.best_agents(diversity, beta, "DIVERSE")
@@ -188,7 +188,7 @@ class EnvironmentModel(Model):
             ofitness, dfitness, efitness, ffitness, phenotype
         )
 
-        best_agent.save_to_file()
+        best_agent.save()
 
     def find_higest_performer(self):
         """Find the best agent."""
