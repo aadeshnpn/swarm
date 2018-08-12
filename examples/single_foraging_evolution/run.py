@@ -3,6 +3,7 @@
 from model import EnvironmentModel
 # from swarms.utils.jsonhandler import JsonData
 from swarms.utils.graph import Graph
+from joblib import Parallel, delayed
 
 # Global variables for width and height
 width = 100
@@ -60,4 +61,6 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    # Running 50 experiments in parallel
+    Parallel(n_jobs=8)(delayed(main)() for i in range(1, 50))
+    # main()

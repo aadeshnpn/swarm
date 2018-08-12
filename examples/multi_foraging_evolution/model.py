@@ -27,8 +27,10 @@ class EnvironmentModel(Model):
         else:
             super(EnvironmentModel, self).__init__(seed)
 
-        self.runid = datetime.datetime.now().strftime("%s")
-        self.pname = os.getcwd() + '/' + self.runid + "SForaging"
+        self.runid = datetime.datetime.now().strftime(
+            "%s") + str(self.random.randint(1, 1000, 1)[0])
+
+        self.pname = os.getcwd() + '/' + self.runid + "MForaging"
 
         self.stepcnt = 1
         self.iter = iter
