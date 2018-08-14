@@ -7,7 +7,7 @@ from swarms.lib.space import Grid
 from swarms.utils.jsonhandler import JsonData
 from swarms.utils.results import Best, Experiment
 from swarms.utils.db import Connect
-from agent import SwarmAgent
+from agent import SwarmAgent, RunSwarmAgent
 from swarms.lib.objects import Hub, Sites, Food, Derbis, Obstacles
 import os
 import imp
@@ -33,7 +33,7 @@ class EnvironmentModel(Model):
 
         self.stepcnt = 1
         self.iter = iter
-
+        self.top = None
         # Create db connection
         connect = Connect('swarm', 'swarm', 'swarm', 'localhost')
         self.connect = connect.tns_connect()
@@ -134,7 +134,7 @@ class EnvironmentModel(Model):
     def step(self):
         """Step through the environment."""
         # Gather info from all the agents
-        self.gather_info()
+        self.top = self.gather_info()
         # Next step
         self.schedule.step()
         # Increment the step count
@@ -172,6 +172,7 @@ class EnvironmentModel(Model):
         self.best_agents(exploration, beta, "EXPLORE")
         self.best_agents(foraging, beta, "FORGE")
         self.best_agents(fittest, beta, "OVERALL")
+        return np.argmax(foraging)
 
     def best_agents(self, data, beta, header):
         """Find the best agents in each category."""
@@ -221,7 +222,9 @@ class EnvironmentModel(Model):
 class RunEnvironmentModel(Model):
     """A environemnt to model swarms."""
 
-    def __init__(self, N, width, height, grid=10, iter=100000, seed=None):
+    def __init__(
+            self, N, width, height, grid=10, iter=100000,
+            xmlstring=None, seed=None):
         """Initialize the attributes."""
         if seed is None:
             super(RunEnvironmentModel, self).__init__(seed=None)
@@ -230,10 +233,11 @@ class RunEnvironmentModel(Model):
 
         self.runid = datetime.datetime.now().strftime(
             "%s") + str(self.random.randint(1, 1000, 1)[0])
-        self.pname = os.getcwd() + '/' + self.runid + "SForaging"
+        self.pname = os.getcwd() + '/' + self.runid + "SForagingSimulation"
 
         self.stepcnt = 1
         self.iter = iter
+        self.xmlstring = xmlstring
 
         # Create db connection
         connect = Connect('swarm', 'swarm', 'swarm', 'localhost')
@@ -241,7 +245,7 @@ class RunEnvironmentModel(Model):
 
         # Fill out the experiment table
         self.experiment = Experiment(
-            self.connect, self.runid, N, seed, 'Single Foraging',
+            self.connect, self.runid, N, seed, 'Simuation Single Foraging',
             iter, width, height, grid)
         self.experiment.insert_experiment()
 
@@ -268,7 +272,7 @@ class RunEnvironmentModel(Model):
 
         # Create agents
         for i in range(self.num_agents):
-            a = SwarmAgent(i, self)
+            a = RunSwarmAgent(i, self)
             self.schedule.add(a)
             # Add the agent to a random grid cell
             x = self.random.randint(
@@ -335,60 +339,11 @@ class RunEnvironmentModel(Model):
     def step(self):
         """Step through the environment."""
         # Gather info from all the agents
-        self.gather_info()
+        # self.gather_info()
         # Next step
         self.schedule.step()
         # Increment the step count
         self.stepcnt += 1
-
-    def gather_info(self):
-        """Gather information from all the agents."""
-        diversity = np.ones(len(self.agents))
-        exploration = np.ones(len(self.agents))
-        foraging = np.ones(len(self.agents))
-        fittest = np.ones(len(self.agents))
-        for id in range(len(self.agents)):
-            diversity[id] = self.agents[id].diversity_fitness
-            exploration[id] = self.agents[id].exploration_fitness()
-            foraging[id] = self.agents[id].food_collected
-            fittest[id] = self.agents[id].individual[0].fitness
-        beta = self.agents[-1].beta
-
-        mean = Best(
-            self.pname, self.connect, self.sn, 1, 'MEAN', self.stepcnt,
-            beta, np.mean(fittest), np.mean(diversity), np.mean(exploration),
-            np.mean(foraging), "None"
-            )
-        mean.save()
-
-        std = Best(
-            self.pname, self.connect, self.sn, 1, 'STD', self.stepcnt, beta,
-            np.std(fittest), np.std(diversity), np.std(exploration),
-            np.std(foraging), "None"
-            )
-        std.save()
-
-        # Compute best agent for each fitness
-        self.best_agents(diversity, beta, "DIVERSE")
-        self.best_agents(exploration, beta, "EXPLORE")
-        self.best_agents(foraging, beta, "FORGE")
-        self.best_agents(fittest, beta, "OVERALL")
-
-    def best_agents(self, data, beta, header):
-        """Find the best agents in each category."""
-        idx = np.argmax(data)
-        dfitness = self.agents[idx].diversity_fitness
-        ofitness = self.agents[idx].individual[0].fitness
-        ffitness = self.agents[idx].food_collected
-        efitness = self.agents[idx].exploration_fitness()
-        phenotype = self.agents[idx].individual[0].phenotype
-
-        best_agent = Best(
-            self.pname, self.connect, self.sn, idx, header, self.stepcnt, beta,
-            ofitness, dfitness, efitness, ffitness, phenotype
-        )
-
-        best_agent.save()
 
     def find_higest_performer(self):
         """Find the best agent."""

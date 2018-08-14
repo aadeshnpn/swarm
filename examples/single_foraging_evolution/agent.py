@@ -243,6 +243,7 @@ class RunSwarmAgent(Agent):
         self.direction = model.random.rand() * (2 * np.pi)
         self.speed = 2
         self.radius = 3
+        self.carryable = False
 
         # Define a BTContruct object
         self.bt = BTConstruct(None, self)
@@ -251,10 +252,10 @@ class RunSwarmAgent(Agent):
 
         self.food_collected = 0
 
-        self.bt.xmlstring = self.individual[0].phenotype
+        self.bt.xmlstring = model.xmlstring
         self.bt.construct()
 
-        self.diversity_fitness = self.individual[0].fitness
+        # self.diversity_fitness = model.fitness
 
         # Location history
         self.location_history = set()
@@ -306,13 +307,13 @@ class RunSwarmAgent(Agent):
         """Agent action at a single time step."""
 
         # Maintain the location history of the agent
-        self.location_history.add(self.location)
+        # self.location_history.add(self.location)
 
         # Compute the behavior tree
         self.bt.behaviour_tree.tick()
 
         # Find the no.of food collected from the BT execution
-        self.food_collected = len(self.get_food_in_hub())
+        # self.food_collected = len(self.get_food_in_hub())
 
     def advance(self):
         """Require for staged activation."""
