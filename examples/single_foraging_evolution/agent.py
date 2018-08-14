@@ -49,7 +49,7 @@ class SwarmAgent(Agent):
         # Grammatical Evolution part
         from ponyge.algorithm.parameters import Parameters
         parameter = Parameters()
-        parameter_list = ['--parameters', '../..,swarm.txt']
+        parameter_list = ['--parameters', '../..,swarm_comm.txt']
         # Comment when different results is desired.
         # Else set this for testing purpose
         # parameter.params['RANDOM_SEED'] = name
@@ -202,7 +202,7 @@ class SwarmAgent(Agent):
             )
 
         # Save the results to a db
-        self.results.save_to_db()
+        self.results.save_to_file()
 
         # Logic for gentic operations.
         # If the genome storage has enough genomes and agents has done some
@@ -223,6 +223,96 @@ class SwarmAgent(Agent):
         # If neighbours found, store the genome
         if len(cellmates) > 1:
             self.store_genome(cellmates)
+
+    def advance(self):
+        """Require for staged activation."""
+        pass
+
+
+class RunSwarmAgent(Agent):
+    """A swarm agent.
+
+    This agent will run the behaviors evolved.
+    """
+
+    def __init__(self, name, model):
+        """Initialize the agent."""
+        super().__init__(name, model)
+        self.location = ()
+
+        self.direction = model.random.rand() * (2 * np.pi)
+        self.speed = 2
+        self.radius = 3
+
+        # Define a BTContruct object
+        self.bt = BTConstruct(None, self)
+
+        self.shared_content = dict()
+
+        self.food_collected = 0
+
+        self.bt.xmlstring = self.individual[0].phenotype
+        self.bt.construct()
+
+        self.diversity_fitness = self.individual[0].fitness
+
+        # Location history
+        self.location_history = set()
+        self.timestamp = 0
+        self.step_count = 0
+
+    def get_food_in_hub(self):
+        # return len(self.attached_objects) * 1000
+        grid = self.model.grid
+        hub_loc = self.model.hub.location
+        neighbours = grid.get_neighborhood(hub_loc, 10)
+        food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+        agent_food_objects = []
+        for food in food_objects:
+            if food.agent_name == self.name:
+                agent_food_objects.append(food)
+        # print (food_objects)
+        return agent_food_objects
+
+    def detect_food_carrying(self):
+        if len(self.attached_objects) > 0:
+            print('Food carying', self.name, self.attached_objects)
+            output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
+            print(output)
+
+    def carrying_fitness(self):
+        """Compute carrying fitness.
+
+        This fitness supports the carrying behavior of
+        the agents.
+        """
+        return len(self.attached_objects)
+
+    def exploration_fitness(self):
+        """Compute the exploration fitness."""
+        # Use exploration space as fitness values
+        return len(self.location_history)
+
+    # New Agent methods for behavior based robotics
+    def sense(self):
+        """Sense included in behavior tree."""
+        pass
+
+    def plan(self):
+        """Plan not required for now."""
+        pass
+
+    def step(self):
+        """Agent action at a single time step."""
+
+        # Maintain the location history of the agent
+        self.location_history.add(self.location)
+
+        # Compute the behavior tree
+        self.bt.behaviour_tree.tick()
+
+        # Find the no.of food collected from the BT execution
+        self.food_collected = len(self.get_food_in_hub())
 
     def advance(self):
         """Require for staged activation."""

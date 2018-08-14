@@ -13,9 +13,9 @@ UI = False
 
 
 def main():
-    iteration = 10
+    iteration = 100
 
-    env = EnvironmentModel(1, 100, 100, 10, iter=iteration)
+    env = EnvironmentModel(100, 100, 100, 10, iter=iteration)
     env.build_environment_from_json()
 
     # for all agents store the information about hub
@@ -62,5 +62,5 @@ def main():
 
 if __name__ == '__main__':
     # Running 50 experiments in parallel
-    Parallel(n_jobs=8)(delayed(main)() for i in range(1, 50))
-    # main()
+    # Parallel(n_jobs=4)(delayed(main)() for i in range(1, 50))
+    main()

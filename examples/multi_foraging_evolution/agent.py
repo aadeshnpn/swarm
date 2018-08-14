@@ -49,7 +49,7 @@ class SwarmAgent(Agent):
         # Grammatical Evolution part
         from ponyge.algorithm.parameters import Parameters
         parameter = Parameters()
-        parameter_list = ['--parameters', '../..,swarm.txt']
+        parameter_list = ['--parameters', '../..,swarm_comm.txt']
         # Comment when different results is desired.
         # Else set this for testing purpose
         # parameter.params['RANDOM_SEED'] = name
@@ -202,7 +202,7 @@ class SwarmAgent(Agent):
             )
 
         # Save the results to a file
-        self.results.save_to_db()
+        self.results.save_to_file()
 
         if (len(self.genome_storage) >= self.model.num_agents / 1.4) \
                 and (self.exploration_fitness() >= 10):

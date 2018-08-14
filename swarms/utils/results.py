@@ -83,8 +83,7 @@ class Results:
 
     def save_to_file(self):
         """Save results to a flat file."""
-        filename = self.foldername + '/' + str(
-            self.context['step']) + '.csv'  # + '_' + str(self.context['name'])
+        filename = self.foldername + '/' + 'results.csv'
         # Create a path to the filename
         result_file = Path(filename)
         # Check if the file exists
@@ -141,7 +140,7 @@ class Best:
     def save(self):
         """Save to both medium."""
         self.save_to_file()
-        self.save_to_db()
+        # self.save_to_db()
 
     def save_to_file(self):
         """Save results to a flat file."""
