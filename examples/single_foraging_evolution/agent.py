@@ -49,7 +49,7 @@ class SwarmAgent(Agent):
         # Grammatical Evolution part
         from ponyge.algorithm.parameters import Parameters
         parameter = Parameters()
-        parameter_list = ['--parameters', '../..,swarm_comm.txt']
+        parameter_list = ['--parameters', '../..,swarm.txt']
         # Comment when different results is desired.
         # Else set this for testing purpose
         # parameter.params['RANDOM_SEED'] = name
