@@ -185,6 +185,31 @@ class Dbexecute():
         else:
             return int(output[0][0])
 
+    def insert_experiment_simulation(
+            self, id, N, seed, expname, iter, width, height, grid, phenotype):
+        """Insert into experiment table."""
+        exestat = Execute(self.conn)
+        output = 0
+        try:
+            exestat.cursor.execute("""INSERT INTO experiment(id, agent_size,
+            randomseed, experiment_name, iteration, width, height,
+            grid_size, phenotype) VALUES (
+            %s, %s, %s, %s, %s, %s, %s, %s, %s);""", (
+                id, N, seed, expname, iter, width, height, grid, phenotype)
+                )
+            output = exestat.cursor.execute(
+                "SELECT sn from experiment where id=" + "'" + str(id) +
+                "'")
+            output = exestat.cursor.fetchall()
+            self.conn.commit()
+            exestat.close()
+        except pgsql.Error:
+            print(
+                "Unexpected error function insert_experiment:", sys.exc_info())
+            return False
+        else:
+            return int(output[0][0])
+
     def insert_experiment_details(self, data_list):
         """Insert into experiment_details table."""
         exestat = Execute(self.conn)

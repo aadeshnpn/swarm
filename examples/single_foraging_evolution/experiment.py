@@ -1,7 +1,8 @@
 from model import EnvironmentModel, RunEnvironmentModel
 # from swarms.utils.jsonhandler import JsonData
-from swarms.utils.graph import Graph
+from swarms.utils.graph import Graph, GraphACC
 from joblib import Parallel, delayed
+from swarms.utils.results import SimulationResults
 
 # Global variables for width and height
 width = 100
@@ -13,32 +14,51 @@ UI = False
 def simulate(agent, iteration):
     # Testing the performane of evolved behavior
     phenotype = agent.individual[0].phenotype
-    iteration = 10000
-
-    sim = RunEnvironmentModel(100, 100, 100, 10, iter=iteration, xmlstring=phenotype)
+    # iteration = 10000
+    threshold = 75.0
+    sim = RunEnvironmentModel(
+        100, 100, 100, 10, iter=iteration, xmlstring=phenotype)
     sim.build_environment_from_json()
 
     # for all agents store the information about hub
     for agent in sim.agents:
         agent.shared_content['Hub'] = {sim.hub}
 
+    simresults = SimulationResults(
+        sim.pname, sim.connect, sim.sn, sim.stepcnt, sim.food_in_hub(),
+        phenotype
+        )
+    simresults.save_phenotype()
+    simresults.save_to_file()
+
     # Iterate and execute each step in the environment
     for i in range(iteration):
+        # For every iteration we need to store the results
+        # Save them into db or a file
         sim.step()
+        simresults = SimulationResults(
+            sim.pname, sim.connect, sim.sn, sim.stepcnt, sim.food_in_hub(),
+            phenotype
+            )
+        simresults.save_to_file()
 
-    sim.experiment.update_experiment()
+    # print("Total food in the hub", len(food_objects))
+    value = sim.food_in_hub()
 
-    # Find if food has been deposited in the hub
-    grid = sim.grid
-    food_loc = (0, 0)
-    neighbours = grid.get_neighborhood(food_loc, 10)
-    food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
-    print("Total food in the hub", len(food_objects))
     foraging_percent = (
-        len(food_objects) * 100.0) / (sim.num_agents * 2.0)
+        value * 100.0) / (sim.num_agents * 2.0)
 
-    if foraging_percent >= 75.0:
+    sucess = False
+    if foraging_percent >= threshold:
         print('Foraging success')
+        sucess = True
+
+    # sim.experiment.update_experiment_simulation(value, sucess)
+    sim.experiment.update_experiment_simulation(value, sucess)
+
+    # Plot the fitness in the graph
+    graph = GraphACC(sim.pname, 'simulation.csv')
+    graph.gen_plot()
 
 
 def evolve(iteration):
@@ -87,6 +107,6 @@ def main(iter):
 if __name__ == '__main__':
     # Running 50 experiments in parallel
 
-    Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 900000, 2000))
-    # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 8000, 2000))
-    # main()
+    # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 900000, 2000))
+    Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 8000, 2000))
+    # main(100)

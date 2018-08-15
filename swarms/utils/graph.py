@@ -51,5 +51,34 @@ class Graph:
         data = pd.read_csv(self.directory + '/' + self.fname, sep='|')
         return data
 
-    def save_step_graph(filename, fields):
+    def save_step_graph(self, filename, fields):
+        pass
+
+
+class GraphACC:
+
+    def __init__(self, directory, fname):
+        self.directory = directory
+        self.fname = fname
+        self.data = self.load_file()
+        self.step = self.data['step'].values
+        self.performance = self.data['fitness'].values
+
+    def gen_plot(self):
+        fig = plt.figure()
+        xvalues = self.step
+        ax1 = fig.add_subplot(2, 1, 1)
+        ax1.plot(xvalues, self.performance, color='red', label='Values')
+        ax1.set_xlabel('Steps')
+        ax1.set_xlabel('Performance')
+
+        ax1.set_title('ACC Graph')
+
+        fig.savefig(self.directory + '/acc.pdf')
+
+    def load_file(self):
+        data = pd.read_csv(self.directory + '/' + self.fname, sep='|')
+        return data
+
+    def save_step_graph(self, filename, fields):
         pass

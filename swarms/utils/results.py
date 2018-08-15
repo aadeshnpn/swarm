@@ -12,7 +12,8 @@ class Experiment:
     """
 
     def __init__(
-            self, connect, runid, N, seed, expname, iter, width, height, grid):
+            self, connect, runid, N, seed, expname, iter, width, height, grid,
+            phenotype=None):
         """Constructor."""
         self.connect = connect
         self.runid = runid
@@ -24,6 +25,7 @@ class Experiment:
         self.width = width
         self.height = height
         self.grid = grid
+        self.phenotype = phenotype
 
     def insert_experiment(self):
         """Call db function to insert record into db."""
@@ -31,6 +33,13 @@ class Experiment:
         self.sn = dbexec.insert_experiment(
             self.runid, self.N, self.seed, self.expname, self.iter, self.width,
             self.height, self.grid)
+
+    def insert_experiment_simulation(self):
+        """Call db function to insert record into db."""
+        dbexec = Dbexecute(self.connect)
+        self.sn = dbexec.insert_experiment_simulation(
+            self.runid, self.N, self.seed, self.expname, self.iter, self.width,
+            self.height, self.grid, self.phenotype)
 
     def update_experiment(self):
         """Update enddate column."""
@@ -42,6 +51,17 @@ class Experiment:
             set end_date=timezone('utc'::text, now()) where sn=" + str(
                 self.sn))
 
+    def update_experiment_simulation(self, value, sucess):
+        """Update enddate column."""
+        dbexec = Dbexecute(self.connect)
+
+        # Update end time
+        dbexec.execute_query(
+            "UPDATE experiment \
+            set end_date=timezone('utc'::text, now()), total_value=\
+            " + str(value) + ", sucess=" + str(sucess) + "\
+            where sn=" + str(self.sn))
+
 
 class Results:
     """Define the results atrributes.
@@ -51,9 +71,9 @@ class Results:
     """
 
     def __init__(
-        self, foldername, connect, id, agent_name, step, timestep, beta, fitness, diversity,
-        explore, foraging, neighbour, genotype, phenotype, bt
-            ):
+        self, foldername, connect, id, agent_name, step, timestep, beta,
+        fitness, diversity, explore, foraging, neighbour, genotype,
+            phenotype, bt):
         """Initialize the attributes."""
         self.foldername = foldername
         self.connect = connect
@@ -111,8 +131,8 @@ class Best:
     """
 
     def __init__(
-        self, foldername, connect, id, agent_name, header, step, beta, fitness, diversity,
-        explore, foraging, phenotype
+        self, foldername, connect, id, agent_name, header, step, beta, fitness,
+        diversity, explore, foraging, phenotype
             ):
         """Initialize the attributes."""
         self.foldername = foldername
@@ -147,6 +167,66 @@ class Best:
         filename = self.foldername + '/' + 'best.csv'
         # Create a path to the filename
         result_file = Path(filename)
+        # Check if the file exists
+        if result_file.is_file():
+            with open(filename, 'a') as statsfile:
+                statsfile.write(self.template.format(**self.context))
+        else:
+            with open(filename, 'a') as statsfile:
+                statsfile.write(self.header)
+                statsfile.write(self.template.format(**self.context))
+
+    def save_to_db(self):
+        """Save results to a database."""
+        data = list(self.context.values())
+        dbexec = Dbexecute(self.connect)
+        dbexec.insert_experiment_best(data)
+
+
+class SimulationResults:
+    """Define the simluation results atrributes.
+
+    This class defines the best attributes for each experiments for all
+    agents.
+    """
+
+    def __init__(
+        self, foldername, connect, id, step, fitness, phenotype
+            ):
+        """Initialize the attributes."""
+        self.foldername = foldername
+        self.connect = connect
+        self.phenotype = phenotype
+
+        self.context = OrderedDict([
+            ("id", id),
+            ("step", step),
+            ("fitness", float(fitness))
+        ])
+
+        self.template = """{id}|{step}|{fitness}
+        """
+        # Write a header to the file for pandas dataframe
+        self.header = """id|step|fitness\n
+        """
+
+    def save(self):
+        """Save to both medium."""
+        self.save_to_file()
+        # self.save_to_db()
+
+    def save_phenotype(self):
+        """Save the phenotype to a separate file."""
+        fname = self.foldername + '/' + 'phenotype.txt'
+        with open(fname, 'w') as pfile:
+            pfile.write(self.phenotype)
+
+    def save_to_file(self):
+        """Save results to a flat file."""
+        filename = self.foldername + '/' + 'simulation.csv'
+        # Create a path to the filename
+        result_file = Path(filename)
+
         # Check if the file exists
         if result_file.is_file():
             with open(filename, 'a') as statsfile:
