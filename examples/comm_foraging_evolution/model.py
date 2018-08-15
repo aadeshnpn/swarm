@@ -40,7 +40,7 @@ class EnvironmentModel(Model):
 
         # Fill out the experiment table
         self.experiment = Experiment(
-            self.connect, self.runid, N, seed, 'Single Foraging Communicate',
+            self.connect, self.runid, N, seed, 'SForaging Communication',
             iter, width, height, grid)
         self.experiment.insert_experiment()
 
@@ -233,7 +233,7 @@ class RunEnvironmentModel(Model):
 
         self.runid = datetime.datetime.now().strftime(
             "%s") + str(self.random.randint(1, 1000, 1)[0])
-        self.pname = os.getcwd() + '/' + self.runid + "SForagingCommSimulation"
+        self.pname = os.getcwd() + '/' + self.runid + "SFCommSimulation"
 
         self.stepcnt = 1
         self.iter = iter
@@ -245,9 +245,9 @@ class RunEnvironmentModel(Model):
 
         # Fill out the experiment table
         self.experiment = Experiment(
-            self.connect, self.runid, N, seed, 'Simuation SF comm',
-            iter, width, height, grid)
-        self.experiment.insert_experiment()
+            self.connect, self.runid, N, seed, 'Simuation SFComm',
+            iter, width, height, grid, phenotype=xmlstring)
+        self.experiment.insert_experiment_simulation()
 
         self.sn = self.experiment.sn
 
@@ -372,3 +372,11 @@ class RunEnvironmentModel(Model):
 
         # print (food_objects)
         return food_objects
+
+    def food_in_hub(self):
+        """Find amount of food in hub."""
+        grid = self.grid
+        food_loc = self.hub.location
+        neighbours = grid.get_neighborhood(food_loc, 10)
+        food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+        return len(food_objects)
