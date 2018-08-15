@@ -192,6 +192,7 @@ class SwarmAgent(Agent):
             'SwarmAgent', self.location)
 
         # Create a results instance and save it to a file
+        """
         self.results = Results(
             self.model.pname, self.model.connect, self.model.sn, self.name,
             self.step_count, self.timestamp, self.beta,
@@ -200,9 +201,9 @@ class SwarmAgent(Agent):
             self.food_collected, len(cellmates), self.individual[0].genome,
             self.individual[0].phenotype, self.bt
             )
-
+        """
         # Save the results to a db
-        self.results.save_to_file()
+        # self.results.save_to_file()
 
         # Logic for gentic operations.
         # If the genome storage has enough genomes and agents has done some
