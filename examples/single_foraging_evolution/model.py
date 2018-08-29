@@ -275,7 +275,7 @@ class RunEnvironmentModel(Model):
         j = 0
         # Create agents
         for i in range(self.num_agents):
-            print (i, j, self.xmlstrings[j])
+            # print (i, j, self.xmlstrings[j])
             a = RunSwarmAgent(i, self, xmlstring=self.xmlstrings[j])
             self.schedule.add(a)
             # Add the agent to a random grid cell

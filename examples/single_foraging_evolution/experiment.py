@@ -3,7 +3,7 @@
 from model import EnvironmentModel, RunEnvironmentModel
 # from swarms.utils.jsonhandler import JsonData
 from swarms.utils.graph import Graph, GraphACC
-# from joblib import Parallel, delayed
+from joblib import Parallel, delayed
 from swarms.utils.results import SimulationResults
 
 # Global variables for width and height
@@ -39,9 +39,9 @@ def simulate(agents, iteration):
     # phenotype = agent.individual[0].phenotype
     phenotypes = extract_phenotype(agents)
     # iteration = 10000
-    threshold = 75.0
+    threshold = 1.0
     sim = RunEnvironmentModel(
-        50, 100, 100, 10, iter=iteration, xmlstrings=phenotypes)
+        400, 100, 100, 10, iter=iteration, xmlstrings=phenotypes)
     sim.build_environment_from_json()
 
     # for all agents store the information about hub
@@ -74,6 +74,8 @@ def simulate(agents, iteration):
         value * 100.0) / (sim.num_agents * 2.0)
 
     sucess = False
+    print ('Foraging percent', value)
+
     if foraging_percent >= threshold:
         print('Foraging success')
         sucess = True
@@ -136,6 +138,6 @@ def main(iter):
 if __name__ == '__main__':
     # Running 50 experiments in parallel
 
-    # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 900000, 2000))
+    Parallel(n_jobs=8)(delayed(main)(i) for i in range(1000, 60000, 2000))
     # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 8000, 2000))
-    main(200)
+    # main(200)
