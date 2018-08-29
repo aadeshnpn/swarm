@@ -136,10 +136,10 @@ class SwarmAgent(Agent):
                 (1 - self.beta) * self.exploration_fitness(
                 ) + self.beta * self.carrying_fitness())
 
-        elif self.food_collected > 0 or self.carrying_fitness() > 0:
+        elif self.carrying_fitness() > 0:
             self.individual[0].fitness = (
                 1 - self.beta) * self.carrying_fitness() + (
-                    self.beta * self.food_collected)
+                    self.beta * self.food_collected * self.timestamp)
 
     def carrying_fitness(self):
         """Compute carrying fitness.
@@ -147,7 +147,7 @@ class SwarmAgent(Agent):
         This fitness supports the carrying behavior of
         the agents.
         """
-        return len(self.attached_objects)
+        return len(self.attached_objects) * self.timestamp
 
     def exploration_fitness(self):
         """Compute the exploration fitness."""
@@ -213,7 +213,7 @@ class SwarmAgent(Agent):
         if (len(self.genome_storage) >= self.model.num_agents / 1.4) \
                 and (self.exploration_fitness() >= 10):
                     self.genetic_step()
-        elif self.timestamp > 600 and self.exploration_fitness() < 10:
+        elif self.timestamp > 800 and self.exploration_fitness() < 10:
             # This is the case of the agent not moving and staying dormant.
             # Need to use genetic operation to change its genome
             individual = initialisation(self.parameter, 10)
