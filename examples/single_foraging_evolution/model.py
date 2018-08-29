@@ -224,7 +224,7 @@ class RunEnvironmentModel(Model):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            xmlstring=None, seed=None):
+            xmlstrings=None, seed=None):
         """Initialize the attributes."""
         if seed is None:
             super(RunEnvironmentModel, self).__init__(seed=None)
@@ -237,7 +237,7 @@ class RunEnvironmentModel(Model):
 
         self.stepcnt = 1
         self.iter = iter
-        self.xmlstring = xmlstring
+        self.xmlstrings = xmlstrings
 
         # Create db connection
         connect = Connect('swarm', 'swarm', 'swarm', 'localhost')
@@ -246,7 +246,7 @@ class RunEnvironmentModel(Model):
         # Fill out the experiment table
         self.experiment = Experiment(
             self.connect, self.runid, N, seed, 'Simuation Single Foraging',
-            iter, width, height, grid, phenotype=xmlstring)
+            iter, width, height, grid, phenotype=xmlstrings[0])
         self.experiment.insert_experiment_simulation()
 
         self.sn = self.experiment.sn
@@ -270,9 +270,13 @@ class RunEnvironmentModel(Model):
 
         self.agents = []
 
+        bound = np.ceil((self.num_agents * 1.0) / len(self.xmlstrings))
+
+        j = 0
         # Create agents
         for i in range(self.num_agents):
-            a = RunSwarmAgent(i, self)
+            print (i, j, self.xmlstrings[j])
+            a = RunSwarmAgent(i, self, xmlstring=self.xmlstrings[j])
             self.schedule.add(a)
             # Add the agent to a random grid cell
             x = self.random.randint(
@@ -286,6 +290,9 @@ class RunEnvironmentModel(Model):
             self.grid.add_object_to_grid((x, y), a)
             a.operation_threshold = 2  # self.num_agents // 10
             self.agents.append(a)
+
+            if (i + 1) % bound == 0:
+                j += 1
 
         # Add equal number of food source
         # for i in range(20):

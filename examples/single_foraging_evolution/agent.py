@@ -236,7 +236,7 @@ class RunSwarmAgent(Agent):
     This agent will run the behaviors evolved.
     """
 
-    def __init__(self, name, model):
+    def __init__(self, name, model, xmlstring=None):
         """Initialize the agent."""
         super().__init__(name, model)
         self.location = ()
@@ -253,7 +253,7 @@ class RunSwarmAgent(Agent):
 
         self.food_collected = 0
 
-        self.bt.xmlstring = model.xmlstring
+        self.bt.xmlstring = xmlstring
         self.bt.construct()
 
         # self.diversity_fitness = model.fitness

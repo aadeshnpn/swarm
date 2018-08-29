@@ -107,6 +107,6 @@ def main(iter):
 if __name__ == '__main__':
     # Running 50 experiments in parallel
 
-    # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 900000, 2000))
-    Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 8000, 2000))
+    Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 900000, 2000))
+    # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 8000, 2000))
     # main(100)
