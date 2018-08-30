@@ -95,7 +95,14 @@ class SwarmAgent(Agent):
     def store_genome(self, cellmates):
         """Store the genome from neighbours."""
         # cellmates.remove(self)
-        self.genome_storage += [agent.individual[0] for agent in cellmates]
+        # self.genome_storage += [agent.individual[0] for agent in cellmates]
+        for agent in cellmates:
+            if agent.food_collected > 0:
+                self.genome_storage += agent.individual
+            elif len(agent.attached_objects) > 0:
+                self.genome_storage += agent.individual
+            elif agent.exploration_fitness() > 10:
+                self.genome_storage += agent.individual
 
     def exchange_chromosome(self,):
         """Perform genetic operations."""
@@ -164,7 +171,7 @@ class SwarmAgent(Agent):
         This fitness supports the carrying behavior of
         the agents.
         """
-        return len(self.attached_objects) * (1.0 / self.timestamp)
+        return len(self.attached_objects) * (self.timestamp)
 
     def exploration_fitness(self):
         """Compute the exploration fitness."""
@@ -205,7 +212,7 @@ class SwarmAgent(Agent):
         self.overall_fitness()
         if self.fitness_name != 'EXP':
             print (self.step_count, self.name, np.round(self.individual[0].fitness,2),
-            self.exploration_fitness(), self.timestamp, np.round(self.beta,2), self.fitness_name, self.shared_content, )
+            np.round(self.carrying_fitness(),2), self.timestamp, np.round(self.beta,2) )
         # Find the nearby agents
         cellmates = self.model.grid.get_objects_from_grid(
             'SwarmAgent', self.location)
@@ -229,10 +236,11 @@ class SwarmAgent(Agent):
         # exploration then compute the genetic step OR
         # 600 time step has passed and the agent has not done anything useful
         # then also perform genetic step
-        if (len(self.genome_storage) >= self.model.num_agents / 1.4) \
-                and (self.exploration_fitness() >= 10):
-                    self.genetic_step()
-        elif (self.timestamp > 100 and self.exploration_fitness() < 10):
+        storage_threshold = len(
+            self.genome_storage) >= (self.model.num_agents / 1.4)
+        if storage_threshold:
+            self.genetic_step()
+        elif (storage_threshold is False and self.timestamp > 300 and self.exploration_fitness() < 10):
             # This is the case of the agent not moving and staying dormant.
             # Need to use genetic operation to change its genome
             individual = initialisation(self.parameter, 10)
