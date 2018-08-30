@@ -18,3 +18,4 @@ SELECTION:              truncation
 TARGET:                 Hello
 VERBOSE:                False
 SILENT:                 True
+COMMUNICATION:          False

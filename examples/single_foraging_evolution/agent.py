@@ -71,6 +71,8 @@ class SwarmAgent(Agent):
         self.timestamp = 0
         self.step_count = 0
 
+        self.fitness_name = True
+
     def get_food_in_hub(self):
         # return len(self.attached_objects) * 1000
         grid = self.model.grid
@@ -131,15 +133,30 @@ class SwarmAgent(Agent):
         # First block gives importance to exploration and when as soon
         # food has been found, the next block will focus on dropping
         # the food on hub
+        """
         if self.carrying_fitness() <= 0 and self.food_collected <= 0:
             self.individual[0].fitness = (
                 (1 - self.beta) * self.exploration_fitness(
                 ) + self.beta * self.carrying_fitness())
+            self.fitness_name = True
 
         elif self.carrying_fitness() > 0:
             self.individual[0].fitness = (
                 1 - self.beta) * self.carrying_fitness() + (
                     self.beta * self.food_collected * self.timestamp)
+            self.fitness_name = False
+        """
+        if 'Sites' not in self.shared_content.keys():
+            self.individual[0].fitness = self.exploration_fitness()
+            self.fitness_name = 'EXP'
+        elif 'Sites' in self.shared_content.keys():
+            self.individual[0].fitness = (
+                (1 - self.beta) * self.exploration_fitness(
+                ) + self.beta * self.carrying_fitness())
+            self.fitness_name = 'CAR'
+        elif 'Sites' in self.shared_content.keys() and self.carrying_fitness() > 0:
+            self.individual[0].fitness = (self.beta * self.food_collected * self.timestamp)
+            self.fitness_name = 'DRP'
 
     def carrying_fitness(self):
         """Compute carrying fitness.
@@ -147,7 +164,7 @@ class SwarmAgent(Agent):
         This fitness supports the carrying behavior of
         the agents.
         """
-        return len(self.attached_objects) * self.timestamp
+        return len(self.attached_objects) * (1.0 / self.timestamp)
 
     def exploration_fitness(self):
         """Compute the exploration fitness."""
@@ -186,7 +203,9 @@ class SwarmAgent(Agent):
 
         # Computes overall fitness using Beta function
         self.overall_fitness()
-
+        if self.fitness_name != 'EXP':
+            print (self.step_count, self.name, np.round(self.individual[0].fitness,2),
+            self.exploration_fitness(), self.timestamp, np.round(self.beta,2), self.fitness_name, self.shared_content, )
         # Find the nearby agents
         cellmates = self.model.grid.get_objects_from_grid(
             'SwarmAgent', self.location)
@@ -213,7 +232,7 @@ class SwarmAgent(Agent):
         if (len(self.genome_storage) >= self.model.num_agents / 1.4) \
                 and (self.exploration_fitness() >= 10):
                     self.genetic_step()
-        elif self.timestamp > 800 and self.exploration_fitness() < 10:
+        elif (self.timestamp > 100 and self.exploration_fitness() < 10):
             # This is the case of the agent not moving and staying dormant.
             # Need to use genetic operation to change its genome
             individual = initialisation(self.parameter, 10)

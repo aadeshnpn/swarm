@@ -92,7 +92,7 @@ def evolve(iteration):
     """Learning Algorithm block."""
     # iteration = 10000
 
-    env = EnvironmentModel(100, 100, 100, 10, iter=iteration)
+    env = EnvironmentModel(10, 100, 100, 10, iter=iteration)
     env.build_environment_from_json()
 
     # for all agents store the information about hub
@@ -132,12 +132,12 @@ def evolve(iteration):
 def main(iter):
     """Block for the main function."""
     agents = evolve(iter)
-    simulate(agents, iter)
+    # simulate(agents, iter)
 
 
 if __name__ == '__main__':
     # Running 50 experiments in parallel
 
-    Parallel(n_jobs=8)(delayed(main)(i) for i in range(1000, 60000, 2000))
+    # Parallel(n_jobs=8)(delayed(main)(i) for i in range(1000, 60000, 2000))
     # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 8000, 2000))
-    # main(200)
+    main(2000)
