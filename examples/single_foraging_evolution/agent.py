@@ -140,7 +140,7 @@ class SwarmAgent(Agent):
         # First block gives importance to exploration and when as soon
         # food has been found, the next block will focus on dropping
         # the food on hub
-        """
+        #"""
         if self.carrying_fitness() <= 0 and self.food_collected <= 0:
             self.individual[0].fitness = (
                 (1 - self.beta) * self.exploration_fitness(
@@ -152,19 +152,24 @@ class SwarmAgent(Agent):
                 1 - self.beta) * self.carrying_fitness() + (
                     self.beta * self.food_collected * self.timestamp)
             self.fitness_name = False
+        #"""
         """
         if 'Sites' not in self.shared_content.keys():
             self.individual[0].fitness = self.exploration_fitness()
             self.fitness_name = 'EXP'
         elif 'Sites' in self.shared_content.keys():
+            # self.individual[0].fitness = self.carrying_fitness()
+            #self.individual[0].fitness = (
+            #    (1 - self.beta) * self.exploration_fitness(
+            #    ) + self.beta * self.carrying_fitness())
+            #self.fitness_name = 'CAR'
+        #elif ('Sites' in self.shared_content.keys() and len(self.attached_objects) > 0):
             self.individual[0].fitness = (
                 (1 - self.beta) * self.exploration_fitness(
-                ) + self.beta * self.carrying_fitness())
-            self.fitness_name = 'CAR'
-        elif 'Sites' in self.shared_content.keys() and self.carrying_fitness() > 0:
-            self.individual[0].fitness = (self.beta * self.food_collected * self.timestamp)
-            self.fitness_name = 'DRP'
 
+                ) + self.beta * self.food_collected * self.timestamp)
+            self.fitness_name = 'DRP'
+        """
     def carrying_fitness(self):
         """Compute carrying fitness.
 
@@ -199,7 +204,8 @@ class SwarmAgent(Agent):
         # Increase beta
         self.beta = self.step_count / self.model.iter
 
-        # Maintain the location history of the agent
+        #if self.fitness_name == 'EXP':
+            # Maintain the location history of the agent
         self.location_history.add(self.location)
 
         # Compute the behavior tree
@@ -210,9 +216,9 @@ class SwarmAgent(Agent):
 
         # Computes overall fitness using Beta function
         self.overall_fitness()
-        if self.fitness_name != 'EXP':
-            print (self.step_count, self.name, np.round(self.individual[0].fitness,2),
-            np.round(self.carrying_fitness(),2), self.timestamp, np.round(self.beta,2) )
+        # if self.fitness_name != 'EXP':
+        #print (self.step_count, self.name, np.round(self.individual[0].fitness,2),
+        #np.round(self.carrying_fitness(),2), self.timestamp, np.round(self.beta,2), len(self.genome_storage), self.attached_objects, self.fitness_name )
         # Find the nearby agents
         cellmates = self.model.grid.get_objects_from_grid(
             'SwarmAgent', self.location)
@@ -240,13 +246,19 @@ class SwarmAgent(Agent):
             self.genome_storage) >= (self.model.num_agents / 1.4)
         if storage_threshold:
             self.genetic_step()
-        elif (storage_threshold is False and self.timestamp > 300 and self.exploration_fitness() < 10):
-            # This is the case of the agent not moving and staying dormant.
-            # Need to use genetic operation to change its genome
+        elif (storage_threshold is False and self.timestamp > 50 and self.exploration_fitness() < 10):
             individual = initialisation(self.parameter, 10)
             individual = evaluate_fitness(individual, self.parameter)
             self.genome_storage = individual
             self.genetic_step()
+
+        #elif (storage_threshold is False and self.timestamp > 400 and self.food_collected < 1):
+            # This is the case of the agent not moving and staying dormant.
+            # Need to use genetic operation to change its genome
+        #    individual = initialisation(self.parameter, 10)
+        #    individual = evaluate_fitness(individual, self.parameter)
+        #    self.genome_storage = individual
+        #    self.genetic_step()
 
         # If neighbours found, store the genome
         if len(cellmates) > 1:

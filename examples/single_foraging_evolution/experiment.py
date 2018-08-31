@@ -37,17 +37,19 @@ def extract_phenotype(agents, method='ratio'):
 def simulate(agents, iteration):
     """Test the performane of evolved behavior."""
     # phenotype = agent.individual[0].phenotype
-    phenotypes = extract_phenotype(agents)
+    # phenotypes = extract_phenotype(agents)
+    phenotypes = agents
     # iteration = 10000
     threshold = 1.0
     sim = RunEnvironmentModel(
-        400, 100, 100, 10, iter=iteration, xmlstrings=phenotypes)
+        100, 100, 100, 10, iter=iteration, xmlstrings=phenotypes)
     sim.build_environment_from_json()
 
     # for all agents store the information about hub
     # Also
     for agent in sim.agents:
         agent.shared_content['Hub'] = {sim.hub}
+        agent.shared_content['Sites'] = {sim.site}
 
     simresults = SimulationResults(
         sim.pname, sim.connect, sim.sn, sim.stepcnt, sim.food_in_hub(),
@@ -92,7 +94,7 @@ def evolve(iteration):
     """Learning Algorithm block."""
     # iteration = 10000
 
-    env = EnvironmentModel(10, 100, 100, 10, iter=iteration)
+    env = EnvironmentModel(50, 100, 100, 10, iter=iteration)
     env.build_environment_from_json()
 
     # for all agents store the information about hub
@@ -118,6 +120,7 @@ def evolve(iteration):
     print ('Total food in the hub', len(food_objects))
 
     for food in food_objects:
+        print (food.phenotype)
         if food.agent_name == best_agent:
             print('Foraging success', food.id, food.location)
 
@@ -131,13 +134,15 @@ def evolve(iteration):
 
 def main(iter):
     """Block for the main function."""
-    agents = evolve(iter)
+    # agents = evolve(iter)
     # simulate(agents, iter)
+    phenotype = ['<?xml version=\"1.0\" encoding=\"UTF-8\"?><Sequence><Sequence><Sequence><Selector><cond>NeighbourObjects</cond><act>CompositeSingleCarry_Food</act></Selector><Sequence><cond>NeighbourObjects</cond><act>Explore</act></Sequence></Sequence> <Selector><cond>NeighbourObjects</cond><cond>NeighbourObjects</cond><act>MoveTowards_Hub</act></Selector></Sequence><Sequence><Sequence><Sequence><cond>IsDropable_Hub</cond><act>CompositeDrop_Food</act></Sequence> <Sequence><cond>NeighbourObjects</cond><act>CompositeSingleCarry_Food</act></Sequence></Sequence> <Selector><cond>IsDropable_Hub</cond><act>MoveAway_Sites</act></Selector></Sequence></Sequence>']
+    simulate(phenotype, iter)
 
 
 if __name__ == '__main__':
     # Running 50 experiments in parallel
 
-    # Parallel(n_jobs=8)(delayed(main)(i) for i in range(1000, 60000, 2000))
+    # Parallel(n_jobs=8)(delayed(main)(i) for i in range(1000, 100000, 2000))
     # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 8000, 2000))
-    main(20000)
+    main(1800)

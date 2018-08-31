@@ -583,6 +583,11 @@ class Drop(Behaviour):
             self.agent.model.grid.add_object_to_grid(objects.location, objects)
             self.agent.attached_objects.remove(objects)
             objects.agent_name = self.agent.name
+
+            # Temporary fix
+            # Store the genome which activated the single carry
+            objects.phenotype['drop'] = self.agent.individual[0].phenotype
+
             # objects.agents.remove(self.agent)
             return Status.SUCCESS
         except (AttributeError, IndexError):
@@ -655,6 +660,10 @@ class SingleCarry(Behaviour):
             objects.agent_name = self.agent.name
             # Add the agent to the object dict
             # objects.agents[self.agent] = self.agent.get_capacity()
+
+            # Temporary fix
+            # Store the genome which activated the single carry
+            objects.phenotype = {'carry': self.agent.individual[0].phenotype}
             return Status.SUCCESS
         except (AttributeError, IndexError):
             return Status.FAILURE
