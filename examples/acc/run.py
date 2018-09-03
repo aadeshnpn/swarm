@@ -1,19 +1,17 @@
 """Main script that is called from UI."""
 
-from model import EnvironmentModel
+from simmodel import SimModel
 
 
 # Global variables for width and height
 width = 100
 height = 100
 
-UI = False
-
 
 def main():
-    iteration = 100000
+    iteration = 1500
 
-    env = EnvironmentModel(100, 100, 100, 10, iter=iteration)
+    env = SimModel(100, width, height, 10, iter=iteration, viewer=False)
     env.build_environment_from_json()
 
     # for all agents store the information about hub
@@ -25,7 +23,7 @@ def main():
     for i in range(iteration):
         env.step()
 
-    print (len(env.food_in_loc(env.hub.location)))
+    print(len(env.food_in_loc(env.hub.location)))
 
 
 if __name__ == '__main__':

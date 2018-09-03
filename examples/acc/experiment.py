@@ -1,6 +1,8 @@
 """Experiment script to run Single source foraging simulation."""
 
-from model import EnvironmentModel, RunEnvironmentModel
+from simmodel import SimModel
+from evolmodel import EvolModel
+
 # from swarms.utils.jsonhandler import JsonData
 from swarms.utils.graph import Graph, GraphACC
 from joblib import Parallel, delayed
@@ -39,16 +41,13 @@ def simulate(agents, iteration):
     # phenotype = agent.individual[0].phenotype
     # phenotypes = extract_phenotype(agents)
     phenotypes = agents
-    # phenotypes = ['<?xml version=\"1.0\" encoding=\"UTF-8\"?><Sequence><Sequence><Sequence><cond>IsDropable_Hub</cond><cond>NeighbourObjects</cond><act>Explore</act></Sequence><Selector><Sequence><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Sequence><Sequence><cond>NeighbourObjects</cond><act>CompositeSingleCarry_Food</act></Sequence></Selector></Sequence> <Sequence><Sequence><Selector><cond>NeighbourObjects</cond><act>MoveAway_Hub</act></Selector><Selector><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Selector></Sequence> <Selector><cond>NeighbourObjects</cond><cond>NeighbourObjects</cond><act>MoveTowards_Sites</act></Selector></Sequence></Sequence>']
-    # iteration = 10000
     threshold = 1.0
-    sim = RunEnvironmentModel(
-        200, 100, 100, 10, iter=iteration, xmlstrings=phenotypes)
+
+    sim = SimModel(
+        100, 100, 100, 10, iter=iteration, xmlstrings=phenotypes)
     sim.build_environment_from_json()
 
-
     # for all agents store the information about hub
-    # Also
     for agent in sim.agents:
         agent.shared_content['Hub'] = {sim.hub}
         # agent.shared_content['Sites'] = {sim.site}
@@ -57,6 +56,7 @@ def simulate(agents, iteration):
         sim.pname, sim.connect, sim.sn, sim.stepcnt, sim.food_in_hub(),
         phenotypes[0]
         )
+
     simresults.save_phenotype()
     simresults.save_to_file()
 
@@ -86,7 +86,6 @@ def simulate(agents, iteration):
         print('Foraging success')
         sucess = True
 
-    # sim.experiment.update_experiment_simulation(value, sucess)
     sim.experiment.update_experiment_simulation(value, sucess)
 
     # Plot the fitness in the graph
@@ -98,7 +97,7 @@ def evolve(iteration):
     """Learning Algorithm block."""
     # iteration = 10000
 
-    env = EnvironmentModel(100, 100, 100, 10, iter=iteration)
+    env = EvolModel(100, 100, 100, 10, iter=iteration)
     env.build_environment_from_json()
 
     # for all agents store the information about hub
@@ -112,49 +111,37 @@ def evolve(iteration):
     for i in range(iteration):
         env.step()
 
-    # env.experiment.update_experiment()
-
-    # best_agent = env.top
+    env.experiment.update_experiment()
 
     # Find if food has been deposited in the hub
-    # env.food_at_loc((0, 0))
-    #grid = env.grid
-    #food_loc = (0, 0)
-    #neighbours = grid.get_neighborhood(food_loc, 10)
-    #food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
-    food_objects = env.food_in_loc((0, 0))
-    # print ('Total food in the hub', len(food_objects))
+    food_objects = env.food_in_loc(env.hub.location)
+    print('Total food in the hub evolution:', len(food_objects))
     phenotypes = []
     for food in food_objects:
-        print (food.phenotype)
+        print(food.phenotype)
         phenotypes += list(food.phenotype.values())
-        #if food.agent_name == best_agent:
-        #    print('Foraging success', food.id, food.location)
 
     # Plot the fitness in the graph
-    # graph = Graph(env.pname, 'best.csv', ['explore', 'foraging'])
-    # graph.gen_best_plots()
+    graph = Graph(env.pname, 'best.csv', ['explore', 'foraging'])
+    graph.gen_best_plots()
 
     # Test the evolved behavior
-    #return env.agents  # [best_agent]
-    print ('Food collected in the hub', len(phenotypes)/2.0)
     return phenotypes
 
 
 def main(iter):
     """Block for the main function."""
-    print ('=======Start=========')
+    print('=======Start=========')
     phenotypes = evolve(iter)
-    # simulate(agents, iter)
-    # phenotype = ['<?xml version=\"1.0\" encoding=\"UTF-8\"?><Sequence><Sequence><Sequence><Selector><cond>NeighbourObjects</cond><act>CompositeSingleCarry_Food</act></Selector><Sequence><cond>NeighbourObjects</cond><act>Explore</act></Sequence></Sequence> <Selector><cond>NeighbourObjects</cond><cond>NeighbourObjects</cond><act>MoveTowards_Hub</act></Selector></Sequence><Sequence><Sequence><Sequence><cond>IsDropable_Hub</cond><act>CompositeDrop_Food</act></Sequence> <Sequence><cond>NeighbourObjects</cond><act>CompositeSingleCarry_Food</act></Sequence></Sequence> <Selector><cond>IsDropable_Hub</cond><act>MoveAway_Sites</act></Selector></Sequence></Sequence>']
+    # simulate(phenotypes, iter)
     if len(phenotypes) > 1:
-        simulate(phenotypes, 10000)
-    print ('=======End=========')
+        simulate(phenotypes, 8000)
+    print('=======End=========')
 
 
 if __name__ == '__main__':
     # Running 50 experiments in parallel
-    steps = [80000 for i in range(50)]
+    steps = [90000 for i in range(50)]
     Parallel(n_jobs=8)(delayed(main)(i) for i in steps)
     # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 8000, 2000))
-    # main(10000)
+    # main(20000)
