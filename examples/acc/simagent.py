@@ -42,6 +42,14 @@ class SimAgent(Agent):
         self.carryable = False
         # Define a BTContruct object
         self.bt = BTConstruct(None, self)
+
+        class DummyIndividual:
+            def __init__(self):
+                self.phenotype = None
+        dummyind = DummyIndividual()
+        self.individual = [dummyind]
+        self.individual[0].phenotype = xmlstring
+
         self.bt.xmlstring = xmlstring
         self.bt.construct()
         """

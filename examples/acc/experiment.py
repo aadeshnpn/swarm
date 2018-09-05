@@ -41,6 +41,7 @@ def simulate(agents, iteration):
     # phenotype = agent.individual[0].phenotype
     # phenotypes = extract_phenotype(agents)
     phenotypes = agents
+    phenotypes = ['<?xml version=\"1.0\" encoding=\"UTF-8\"?><Sequence><Sequence><Sequence><Selector><cond>IsDropable_Sites</cond><act>Explore</act></Selector><Sequence><cond>NeighbourObjects</cond><act>CompositeSingleCarry_Food</act></Sequence></Sequence> <Sequence><Sequence><cond>NeighbourObjects</cond><act>Explore</act></Sequence> <Sequence><cond>NeighbourObjects</cond><act>MoveTowards_Hub</act></Sequence></Sequence></Sequence> <Sequence><Selector><cond>NeighbourObjects</cond><act>MoveAway_Sites</act></Selector><Sequence><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Sequence></Sequence></Sequence>', '<?xml version=\"1.0\" encoding=\"UTF-8\"?><Sequence><Sequence><Sequence><Selector><cond>IsDropable_Sites</cond><act>Explore</act></Selector><Sequence><cond>NeighbourObjects</cond><act>CompositeSingleCarry_Food</act></Sequence></Sequence> <Sequence><Sequence><cond>NeighbourObjects</cond><act>Explore</act></Sequence> <Sequence><cond>NeighbourObjects</cond><act>MoveTowards_Hub</act></Sequence></Sequence></Sequence> <Sequence><Selector><cond>NeighbourObjects</cond><act>MoveAway_Sites</act></Selector><Sequence><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Sequence></Sequence></Sequence>','<?xml version=\"1.0\" encoding=\"UTF-8\"?><Sequence><Sequence><Sequence><Selector><cond>IsDropable_Sites</cond><act>Explore</act></Selector><Sequence><cond>NeighbourObjects</cond><act>CompositeSingleCarry_Food</act></Sequence></Sequence> <Sequence><Sequence><cond>NeighbourObjects</cond><act>Explore</act></Sequence> <Sequence><cond>NeighbourObjects</cond><act>MoveTowards_Hub</act></Sequence></Sequence></Sequence> <Sequence><Selector><cond>NeighbourObjects</cond><act>MoveAway_Sites</act></Selector><Sequence><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Sequence></Sequence></Sequence>','<?xml version=\"1.0\" encoding=\"UTF-8\"?><Sequence><Sequence><Sequence><Selector><cond>IsDropable_Sites</cond><act>Explore</act></Selector><Sequence><cond>NeighbourObjects</cond><act>CompositeSingleCarry_Food</act></Sequence></Sequence> <Sequence><Sequence><cond>NeighbourObjects</cond><act>Explore</act></Sequence> <Sequence><cond>NeighbourObjects</cond><act>MoveTowards_Hub</act></Sequence></Sequence></Sequence> <Sequence><Selector><cond>NeighbourObjects</cond><act>MoveAway_Sites</act></Selector><Sequence><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Sequence></Sequence></Sequence>','<?xml version=\"1.0\" encoding=\"UTF-8\"?><Sequence><Sequence><Sequence><Sequence><Sequence><cond>NeighbourObjects</cond><act>Explore</act></Sequence> <Sequence><cond>NeighbourObjects</cond><act>CompositeSingleCarry_Food</act></Sequence></Sequence> <Sequence><cond>IsDropable_Hub</cond><act>CompositeDrop_Food</act></Sequence></Sequence> <Sequence><cond>IsDropable_Hub</cond><cond>IsDropable_Hub</cond><act>CompositeDrop_Food</act></Sequence></Sequence> <Selector><Selector><cond>IsDropable_Hub</cond><act>MoveTowards_Hub</act></Selector> <Selector><cond>IsDropable_Hub</cond><cond>NeighbourObjects</cond><act>MoveTowards_Sites</act></Selector></Selector></Sequence>','<?xml version=\"1.0\" encoding=\"UTF-8\"?><Sequence><Sequence><Sequence><Sequence><Sequence><cond>NeighbourObjects</cond><act>Explore</act></Sequence> <Sequence><cond>NeighbourObjects</cond><act>CompositeSingleCarry_Food</act></Sequence></Sequence> <Sequence><cond>IsDropable_Hub</cond><act>CompositeDrop_Food</act></Sequence></Sequence> <Sequence><cond>IsDropable_Hub</cond><cond>IsDropable_Hub</cond><act>CompositeDrop_Food</act></Sequence></Sequence> <Selector><Selector><cond>IsDropable_Hub</cond><act>MoveTowards_Hub</act></Selector> <Selector><cond>IsDropable_Hub</cond><cond>NeighbourObjects</cond><act>MoveTowards_Sites</act></Selector></Selector></Sequence>','<?xml version=\"1.0\" encoding=\"UTF-8\"?><Selector><Selector><Sequence><Sequence><cond>IsDropable_Hub</cond><act>Explore</act></Sequence> <Sequence><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Sequence></Sequence><Sequence><Sequence><cond>IsDropable_Hub</cond><act>CompositeSingleCarry_Food</act></Sequence> <Selector><cond>NeighbourObjects</cond><act>MoveTowards_Sites</act></Selector></Sequence></Selector> <Selector><Selector><cond>IsDropable_Sites</cond><cond>IsDropable_Hub</cond><act>CompositeSingleCarry_Food</act></Selector> <Selector><cond>IsDropable_Hub</cond><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Selector></Selector></Selector>','<?xml version=\"1.0\" encoding=\"UTF-8\"?><Selector><Selector><Sequence><Sequence><cond>IsDropable_Hub</cond><act>Explore</act></Sequence> <Sequence><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Sequence></Sequence><Sequence><Sequence><cond>IsDropable_Hub</cond><act>CompositeSingleCarry_Food</act></Sequence> <Selector><cond>NeighbourObjects</cond><act>MoveTowards_Sites</act></Selector></Sequence></Selector> <Selector><Selector><cond>IsDropable_Sites</cond><cond>IsDropable_Hub</cond><act>CompositeSingleCarry_Food</act></Selector> <Selector><cond>IsDropable_Hub</cond><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Selector></Selector></Selector>','<?xml version=\"1.0\" encoding=\"UTF-8\"?><Selector><Selector><Sequence><Sequence><cond>IsDropable_Hub</cond><act>Explore</act></Sequence> <Sequence><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Sequence></Sequence><Sequence><Sequence><cond>IsDropable_Hub</cond><act>CompositeSingleCarry_Food</act></Sequence> <Selector><cond>NeighbourObjects</cond><act>MoveTowards_Sites</act></Selector></Sequence></Selector> <Selector><Selector><cond>IsDropable_Sites</cond><cond>IsDropable_Hub</cond><act>CompositeSingleCarry_Food</act></Selector> <Selector><cond>IsDropable_Hub</cond><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Selector></Selector></Selector>','<?xml version=\"1.0\" encoding=\"UTF-8\"?><Selector><Selector><Sequence><Sequence><cond>IsDropable_Hub</cond><act>Explore</act></Sequence> <Sequence><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Sequence></Sequence><Sequence><Sequence><cond>IsDropable_Hub</cond><act>CompositeSingleCarry_Food</act></Sequence> <Selector><cond>NeighbourObjects</cond><act>MoveTowards_Sites</act></Selector></Sequence></Selector> <Selector><Selector><cond>IsDropable_Sites</cond><cond>IsDropable_Hub</cond><act>CompositeSingleCarry_Food</act></Selector> <Selector><cond>IsDropable_Hub</cond><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Selector></Selector></Selector>']
     threshold = 1.0
 
     sim = SimModel(
@@ -74,6 +75,10 @@ def simulate(agents, iteration):
     print ('food at site', len(sim.food_in_loc(sim.site.location)))
     print ('food at hub', len(sim.food_in_loc(sim.hub.location)))
     # print("Total food in the hub", len(food_objects))
+    food_objects = sim.food_in_loc(sim.hub.location)
+
+    for food in food_objects:
+        print ('simulate phenotye:', dir(food))
     value = sim.food_in_hub()
 
     foraging_percent = (
@@ -132,16 +137,16 @@ def evolve(iteration):
 def main(iter):
     """Block for the main function."""
     print('=======Start=========')
-    phenotypes = evolve(iter)
-    # simulate(phenotypes, iter)
-    if len(phenotypes) > 1:
-        simulate(phenotypes, 8000)
+    # phenotypes = evolve(iter)
+    simulate(None, iter)
+    #if len(phenotypes) > 1:
+    #    simulate(phenotypes, 10000)
     print('=======End=========')
 
 
 if __name__ == '__main__':
     # Running 50 experiments in parallel
-    steps = [90000 for i in range(50)]
-    Parallel(n_jobs=8)(delayed(main)(i) for i in steps)
+    #steps = [100000 for i in range(50)]
+    #Parallel(n_jobs=8)(delayed(main)(i) for i in steps)
     # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 8000, 2000))
-    # main(20000)
+    main(5000)
