@@ -77,3 +77,24 @@ class JsonData:
                     }
                 })
         )
+
+
+class JsonPhenotypeData:
+    """Static class to hadel jsondata.
+
+    Handles phenotype data.
+    """
+
+    @staticmethod
+    def load_json_file(filename):
+        """Load json file."""
+        json_data = open(filename).read()
+        return json.loads(json_data)
+
+    @staticmethod
+    def to_json(phenotypes, filename):
+        """Convert phenotype data to json."""
+        data = json.dumps({'phenotypes': phenotypes})
+
+        with open(filename, 'w') as f:
+            json.dump(data, f)
