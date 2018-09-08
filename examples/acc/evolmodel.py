@@ -240,7 +240,7 @@ class EvolModelComm(Model):
         self.runid = datetime.datetime.now().strftime(
             "%s") + str(self.random.randint(1, 1000, 1)[0])
 
-        self.pname = os.getcwd() + '/' + self.runid + "SFComm"
+        self.pname = '/'.join(os.getcwd().split('/')[:-2]) + '/results/' + self.runid + "SFComm"
 
         self.stepcnt = 1
         self.iter = iter
