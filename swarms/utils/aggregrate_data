@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# Script to collect all the simulation data for the graph
+
+results='/home/aadeshnpn/Documents/BYU/hcmi/swarm/results'
+main_folder_regex='SFComm'
+normal='ForagingSimulation'
+res1='ResComm1'
+res2='ResComm2'
+fname='simulation.csv'
+best='best.csv'
+
+# Aggregate for the normal
+compute()
+{
+    mainsimulation=($(find ${results}/${1} -type d | grep $2))
+    # Get the iteration number
+    iter=$(awk  'END{printf "%d", (NR-3)/6}' "${results}/${1}/${best}")
+
+    for sim in ${mainsimulation[@]}
+    do
+        awk -F'|' '{if(NR>2 && length($3)>1){printf "%s|",$3}}END{print}' ${sim}/${fname} >> "${results}/${1}/${3}_${iter}.csv"
+    done
+}
+
+draw()
+{
+names=($(ls "${results}/$1" | grep "normal\|res"))
+python - <<EOF
+from graph import ResMinMaxACC;
+res1=ResMinMaxACC("${results}/$1",["${names[0]}", "${names[0]}", "${names[0]}"]);
+res1.gen_plot()
+EOF
+}
+
+# Get all the experiment folders
+experiments=($(ls $results))
+
+for folder in ${experiments[@]}
+do
+    echo "$folder $normal"
+    compute $folder ${normal} 'normal'
+    compute $folder ${res1} 'res1'
+    compute $folder ${res2} 'res2'
+    draw "$folder"
+done
+
