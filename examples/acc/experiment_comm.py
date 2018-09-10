@@ -248,20 +248,20 @@ def evolve(iteration):
 
     # Collecting phenotypes on the basis of food collected
     # Find if food has been deposited in the hub
-    """
+
     food_objects = env.food_in_loc(env.hub.location)
     # print('Total food in the hub evolution:', len(food_objects))
     env.phenotypes = []
     for food in food_objects:
         print(food.phenotype)
         env.phenotypes += list(food.phenotype.values())
-    """
+
     jfilename = env.pname + '/' + env.runid + '.json'
 
-    # JsonPhenotypeData.to_json(env.phenotypes, jfilename)
+    JsonPhenotypeData.to_json(env.phenotypes, jfilename)
 
     # Not using this method right now
-    env.phenotypes = extract_phenotype(env.agents, jfilename)
+    # env.phenotypes = extract_phenotype(env.agents, jfilename)
 
     # Plot the fitness in the graph
     graph = Graph(env.pname, 'best.csv', ['explore', 'foraging'])

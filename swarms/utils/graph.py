@@ -2,6 +2,7 @@
 
 from matplotlib import pyplot as plt
 import pandas as pd
+import numpy as np
 
 plt.style.use('fivethirtyeight')
 
@@ -78,6 +79,47 @@ class GraphACC:
 
     def load_file(self):
         data = pd.read_csv(self.directory + '/' + self.fname, sep='|')
+        return data
+
+    def save_step_graph(self, filename, fields):
+        pass
+
+
+class ResMinMaxACC:
+
+    def __init__(self, directory, fnames):
+        self.directory = directory
+        self.normal_data = self.load_file(fnames[0])
+        self.res1_data = self.load_file(fnames[1])
+        self.res2_data = self.load_file(fnames[2])
+
+    def gen_plot(self):
+        fig = plt.figure()
+
+        self.mean1 = np.nanmean(self.normal_data, axis=0)
+        self.mean2 = np.nanmean(self.res1_data, axis=0)
+        self.mean3 = np.nanmean(self.res2_data, axis=0)
+        # self.sd = np.nanstd(self.data, axis=1)
+        # self.max_sd = self.mean + self.sd
+        # self.min_sd = self.mean - self.sd
+
+        xvalues = self.mean1.shape[0]
+        ax1 = fig.add_subplot(1, 1, 1)
+
+        ax1.plot(xvalues, self.mean1, color='green', label='Normal')
+        ax1.plot(xvalues, self.mean2, color='blue', label='Resilience 1')
+        ax1.plot(xvalues, self.mean3, color='red', label='Resilience 2')
+        # ax1.fill_between(xvalues, self.min_sd, self.max_sd, color="red", alpha=0.3)
+
+        ax1.set_xlabel('Iteration')
+        ax1.set_xlabel('Fitness')
+
+        ax1.set_title('ACC Graph with Resilience')
+
+        fig.savefig(self.directory + '/acc_res.pdf')
+
+    def load_file(self, fname):
+        data = pd.read_csv(self.directory + '/' + fname, sep='|', skipinitialspace=True)
         return data
 
     def save_step_graph(self, filename, fields):
