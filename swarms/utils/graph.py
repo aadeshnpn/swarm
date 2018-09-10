@@ -89,26 +89,30 @@ class ResMinMaxACC:
 
     def __init__(self, directory, fnames):
         self.directory = directory
-        self.normal_data = self.load_file(fnames[0])
-        self.res1_data = self.load_file(fnames[1])
-        self.res2_data = self.load_file(fnames[2])
+        self.fnames = fnames
 
     def gen_plot(self):
         fig = plt.figure()
 
+        self.normal_data = self.load_file(self.fnames[0])
+        self.res1_data = self.load_file(self.fnames[1])
+        self.res2_data = self.load_file(self.fnames[2])
+
         self.mean1 = np.nanmean(self.normal_data, axis=0)
         self.mean2 = np.nanmean(self.res1_data, axis=0)
         self.mean3 = np.nanmean(self.res2_data, axis=0)
+        # print (self.mean1.shape, self.mean2.shape, self.mean2.shape)
         # self.sd = np.nanstd(self.data, axis=1)
         # self.max_sd = self.mean + self.sd
         # self.min_sd = self.mean - self.sd
 
-        xvalues = self.mean1.shape[0]
+        xvalues = range(1, self.mean1.shape[0] - 1)
+        # print (xvalues)
         ax1 = fig.add_subplot(1, 1, 1)
 
-        ax1.plot(xvalues, self.mean1, color='green', label='Normal')
-        ax1.plot(xvalues, self.mean2, color='blue', label='Resilience 1')
-        ax1.plot(xvalues, self.mean3, color='red', label='Resilience 2')
+        ax1.plot(xvalues, self.mean1[:-2], color='green', label='Normal')
+        ax1.plot(xvalues, self.mean2[:-2], color='blue', label='Resilience 1')
+        ax1.plot(xvalues, self.mean3[:-2], color='red', label='Resilience 2')
         # ax1.fill_between(xvalues, self.min_sd, self.max_sd, color="red", alpha=0.3)
 
         ax1.set_xlabel('Iteration')
@@ -119,8 +123,10 @@ class ResMinMaxACC:
         fig.savefig(self.directory + '/acc_res.pdf')
 
     def load_file(self, fname):
+        #try:
         data = pd.read_csv(self.directory + '/' + fname, sep='|', skipinitialspace=True)
         return data
-
+        #except FileNotFoundError:
+        #    exit()
     def save_step_graph(self, filename, fields):
         pass
