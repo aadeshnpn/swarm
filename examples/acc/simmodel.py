@@ -829,7 +829,7 @@ class SimModelResComm1(Model):
         # Create agents
         for i in range(self.num_agents):
             # print (i, j, self.xmlstrings[j])
-            a = SimAgentResComm1(i, self, xmlstring=self.xmlstrings[j])
+            a = SimAgentRes1(i, self, xmlstring=self.xmlstrings[j])
             self.schedule.add(a)
             # Add the agent to a random grid cell
             # x = self.random.randint(
@@ -1010,7 +1010,7 @@ class SimModelResComm2(Model):
         # Create agents
         for i in range(self.num_agents):
             # print (i, j, self.xmlstrings[j])
-            a = SimAgentResComm2(i, self, xmlstring=self.xmlstrings[j])
+            a = SimAgentRes2(i, self, xmlstring=self.xmlstrings[j])
             self.schedule.add(a)
             # Add the agent to a random grid cell
             # x = self.random.randint(

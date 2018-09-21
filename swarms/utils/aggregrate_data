@@ -27,8 +27,8 @@ draw()
 {
 names=($(ls "${results}/$1" | grep "normal\|res"))
 python - <<EOF
-from graph import ResMinMaxACC;
-res1=ResMinMaxACC("${results}/$1",["${names[0]}", "${names[0]}", "${names[0]}"]);
+from swarms.utils.graph import ResMinMaxACC;
+res1=ResMinMaxACC("${results}/$1",["${names[0]}", "${names[1]}", "${names[2]}"]);
 res1.gen_plot()
 EOF
 }

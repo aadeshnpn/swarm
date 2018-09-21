@@ -294,5 +294,5 @@ if __name__ == '__main__':
     # Running 50 experiments in parallel
     # steps = [100000 for i in range(50)]
     # Parallel(n_jobs=8)(delayed(main)(i) for i in steps)
-    Parallel(n_jobs=8)(delayed(main)(i) for i in range(1000, 100000, 2000))
+    Parallel(n_jobs=8)(delayed(main)(i) for i in range(10000, 100000, 2000))
     # main(900)
