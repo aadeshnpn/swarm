@@ -186,8 +186,8 @@ class Food(Carryable):
 
 
 # Class to define Derbis
-class Derbis(Carryable):
-    """Derbis object."""
+class Debris(Carryable):
+    """Debris object."""
 
     def __init__(self, id=1, location=(0, 0), radius=2, weight=5):
         """Initialize."""
