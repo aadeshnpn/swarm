@@ -16,10 +16,14 @@ class Graph:
         self.data = self.load_file()
         self.mean = self.data[self.data['header'] == 'MEAN']
         self.std = self.data[self.data['header'] == 'STD']
-        self.overall = self.data[self.data['header'] == 'OVERALL']['fitness'].values
-        self.diverse = self.data[self.data['header'] == 'DIVERSE']['fitness'].values
-        self.explore = self.data[self.data['header'] == 'EXPLORE']['fitness'].values
-        self.forge = self.data[self.data['header'] == 'FORGE']['fitness'].values
+        self.overall = self.data[
+            self.data['header'] == 'OVERALL']['fitness'].values
+        self.diverse = self.data[
+            self.data['header'] == 'DIVERSE']['fitness'].values
+        self.explore = self.data[
+            self.data['header'] == 'EXPLORE']['fitness'].values
+        self.forge = self.data[
+            self.data['header'] == 'FORGE']['fitness'].values
 
     def gen_best_plots(self):
         fig = plt.figure()
@@ -113,7 +117,8 @@ class ResMinMaxACC:
         ax1.plot(xvalues, self.mean1[:-2], color='green', label='Normal')
         ax1.plot(xvalues, self.mean2[:-2], color='blue', label='Resilience 1')
         ax1.plot(xvalues, self.mean3[:-2], color='red', label='Resilience 2')
-        # ax1.fill_between(xvalues, self.min_sd, self.max_sd, color="red", alpha=0.3)
+        # ax1.fill_between(
+        # xvalues, self.min_sd, self.max_sd, color="red", alpha=0.3)
 
         ax1.set_xlabel('Iteration')
         ax1.set_xlabel('Fitness')
@@ -123,10 +128,12 @@ class ResMinMaxACC:
         fig.savefig(self.directory + '/acc_res.pdf')
 
     def load_file(self, fname):
-        #try:
-        data = pd.read_csv(self.directory + '/' + fname, sep='|', skipinitialspace=True)
+        # try:
+        data = pd.read_csv(
+            self.directory + '/' + fname, sep='|', skipinitialspace=True)
         return data
-        #except FileNotFoundError:
+        # except FileNotFoundError:
         #    exit()
+
     def save_step_graph(self, filename, fields):
         pass

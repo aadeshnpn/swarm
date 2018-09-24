@@ -32,7 +32,7 @@ class Model:
                 dt.datetime.now())) % 39916801
         else:
             self.seed = seed
-        self.random = numpy.random.RandomState(seed)
+        self.random = numpy.random.RandomState(seed)    # pylint: disable=E1101
 
         self.running = True
         self.schedule = None

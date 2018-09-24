@@ -3,16 +3,14 @@
 
 import xml.etree.ElementTree as ET
 import py_trees
-from py_trees.composites import Sequence, Selector
-# import random
-# random.seed(123)
+from py_trees.composites import Sequence, Selector  # noqa: F401
 
-from swarms.behaviors.scbehaviors import (
+from swarms.behaviors.scbehaviors import (      # noqa: F401
     MoveTowards, MoveAway, Explore, CompositeSingleCarry,
     CompositeMultipleCarry, CompositeDrop, CompositeDropCue,
     CompositePickCue, CompositeSendSignal, CompositeReceiveSignal
     )
-from swarms.behaviors.sbehaviors import (
+from swarms.behaviors.sbehaviors import (       # noqa: F401
     IsCarrying, NeighbourObjects, Move, IsDropable
     )
 
@@ -37,6 +35,7 @@ class BTConstruct:
         self.agent = agent
 
     def xmlfy(self):
+        """Convert [] to <>."""
         self.xmlstring = self.xmlstring.replace('[', '<')
         self.xmlstring = self.xmlstring.replace(']', '>')
         self.xmlstring = self.xmlstring.replace('%', '"')
@@ -52,18 +51,21 @@ class BTConstruct:
                 if len(nodeval) == 2:
                     method, item = nodeval
                     behavior = eval(method)(method + str(
-                        self.agent.model.random.randint(100, 200)) + '_' + item)
+                        self.agent.model.random.randint(
+                            100, 200)) + '_' + item)
                 else:
                     method, item, _ = nodeval
                     behavior = py_trees.meta.inverter(eval(method))(
                         method + str(
-                            self.agent.model.random.randint(100, 200)) + '_' + item + '_inv')
+                            self.agent.model.random.randint(
+                                100, 200)) + '_' + item + '_inv')
 
                 behavior.setup(0, self.agent, item)
 
             else:
                 method = node_text
-                behavior = eval(method)(method + str(self.agent.model.random.randint(100, 200)))
+                behavior = eval(method)(method + str(
+                    self.agent.model.random.randint(100, 200)))
                 behavior.setup(0, self.agent, None)
             return behavior
         else:
