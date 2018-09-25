@@ -8,7 +8,8 @@ from py_trees.composites import Sequence, Selector  # noqa: F401
 from swarms.behaviors.scbehaviors import (      # noqa: F401
     MoveTowards, MoveAway, Explore, CompositeSingleCarry,
     CompositeMultipleCarry, CompositeDrop, CompositeDropCue,
-    CompositePickCue, CompositeSendSignal, CompositeReceiveSignal
+    CompositePickCue, CompositeSendSignal, CompositeReceiveSignal,
+    CompositeDropPartial
     )
 from swarms.behaviors.sbehaviors import (       # noqa: F401
     IsCarrying, NeighbourObjects, Move, IsDropable
@@ -103,4 +104,4 @@ class BTConstruct:
         top.add_children(whole_list)
         self.behaviour_tree = py_trees.trees.BehaviourTree(top)
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
-        # py_trees.display.print_ascii_tree(top)
+        py_trees.display.print_ascii_tree(top)
