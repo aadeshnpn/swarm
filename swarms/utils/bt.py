@@ -104,4 +104,4 @@ class BTConstruct:
         top.add_children(whole_list)
         self.behaviour_tree = py_trees.trees.BehaviourTree(top)
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
-        py_trees.display.print_ascii_tree(top)
+        # py_trees.display.print_ascii_tree(top)
