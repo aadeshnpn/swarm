@@ -132,7 +132,7 @@ def evolve(iteration):
     """Learning Algorithm block."""
     # iteration = 10000
 
-    env = EvolModel(100, 100, 100, 10, iter=iteration)
+    env = EvolModel(50, 100, 100, 10, iter=iteration)
     env.build_environment_from_json()
 
     # for all agents store the information about hub
@@ -154,7 +154,7 @@ def evolve(iteration):
     # print('Total food in the hub evolution:', len(food_objects))
     env.phenotypes = []
     for food in food_objects:
-        print(food.phenotype)
+        # print(food.phenotype)
         env.phenotypes += list(food.phenotype.values())
 
     jfilename = env.pname + '/' + env.runid + '.json'
@@ -180,15 +180,17 @@ def main(iter):
         steps = [5000 for i in range(8)]
         env = (env.phenotypes, env.pname)
         Parallel(n_jobs=4)(delayed(simulate)(env, i) for i in steps)
-        Parallel(n_jobs=4)(delayed(simulate_res1)(env, i) for i in steps)
-        Parallel(n_jobs=4)(delayed(simulate_res2)(env, i) for i in steps)
+        # Parallel(n_jobs=4)(delayed(simulate_res1)(env, i) for i in steps)
+        # Parallel(n_jobs=4)(delayed(simulate_res2)(env, i) for i in steps)
         # simulate(env, 10000)
     print('=======End=========')
 
 
 if __name__ == '__main__':
     # Running 50 experiments in parallel
-    # steps = [100000 for i in range(50)]
+    steps = [100000 for i in range(50)]
     # Parallel(n_jobs=8)(delayed(main)(i) for i in steps)
     # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 100000, 2000))
-    main(900)
+    # main(900)
+    for step in steps:
+        main(step)

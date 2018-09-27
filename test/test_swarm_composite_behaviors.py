@@ -13,7 +13,7 @@ from swarms.behaviors.sbehaviors import (
     IsCarrying, NeighbourObjects, Move, IsCarryable,
     SingleCarry, IsSingleCarry
     )
-from swarms.lib.objects import Sites, Derbis, Food
+from swarms.lib.objects import Sites, Debris, Food
 import py_trees
 import numpy as np
 
@@ -300,11 +300,11 @@ class SwarmSingleCarry(Agent):
         root = py_trees.composites.Sequence("Sequence")
         # Sensing the environemnt to find object to carry
         lowest = NeighbourObjects('0')
-        lowest.setup(0, self, 'Derbis')
+        lowest.setup(0, self, 'Debris')
 
         # Creating composite single carry object
         singlecarry = CompositeSingleCarry('SingleCarry')
-        singlecarry.setup(0, self, 'Derbis')
+        singlecarry.setup(0, self, 'Debris')
 
         root.add_children([lowest, singlecarry])
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
@@ -331,7 +331,7 @@ class SingleCarryModel(Model):
 
         self.schedule = SimultaneousActivation(self)
 
-        self.thing = Derbis(id=1, location=(0, 0), radius=4)
+        self.thing = Debris(id=1, location=(0, 0), radius=4)
 
         self.grid.add_object_to_grid(self.thing.location, self.thing)
 
@@ -356,7 +356,7 @@ class TestSingleCarry(TestCase):
         self.environment = SingleCarryModel(
             1, 100, 100, 10, 123)
 
-        for i in range(1):
+        for i in range(2):
             self.environment.step()
 
     def test_agent_path(self):
@@ -382,10 +382,10 @@ class SwarmMultipleCarry(Agent):
         root = py_trees.composites.Sequence("Sequence")
 
         sense = NeighbourObjects('Sense')
-        sense.setup(0, self, 'Derbis')
+        sense.setup(0, self, 'Debris')
 
         multiple_carry = CompositeMultipleCarry('MultipleCarry')
-        multiple_carry.setup(0, self, 'Derbis')
+        multiple_carry.setup(0, self, 'Debris')
 
         move = Move('Move')
         move.setup(0, self)
@@ -416,7 +416,7 @@ class MultipleCarryModel(Model):
 
         self.schedule = SimultaneousActivation(self)
 
-        self.thing = Derbis(id=1, location=(0, 0), radius=40)
+        self.thing = Debris(id=1, location=(0, 0), radius=40)
 
         self.grid.add_object_to_grid(self.thing.location, self.thing)
 
@@ -532,7 +532,7 @@ class SingleCarryFoodModel(Model):
         self.schedule = SimultaneousActivation(self)
 
         for a in range(5):
-            self.thing = Food(id=a, location=(0, 0), radius=8)
+            self.thing = Food(id=a, location=(0, 0), radius=16)
 
             self.grid.add_object_to_grid(self.thing.location, self.thing)
 

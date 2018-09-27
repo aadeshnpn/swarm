@@ -319,7 +319,7 @@ class Move(Behaviour):
                     item.location, item, new_location)
                 item.location = new_location
                 return True
-        except IndexError:
+        except (IndexError, ValueError):
             return False
 
     def update(self):
@@ -478,6 +478,8 @@ class IsSingleCarry(Behaviour):
             if objects.weight:
                 if self.agent.get_capacity() > objects.calc_relative_weight():
                     return Status.SUCCESS
+                else:
+                    return Status.FAILURE
             else:
                 return Status.FAILURE
         except (AttributeError, IndexError):
@@ -663,7 +665,11 @@ class SingleCarry(Behaviour):
 
             # Temporary fix
             # Store the genome which activated the single carry
-            objects.phenotype = {'carry': self.agent.individual[0].phenotype}
+            try:
+                objects.phenotype = {
+                    'carry': self.agent.individual[0].phenotype}
+            except AttributeError:
+                pass
             return Status.SUCCESS
         except (AttributeError, IndexError):
             return Status.FAILURE

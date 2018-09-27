@@ -153,8 +153,11 @@ def evolve(iteration):
 
     env.phenotypes = []
     for debris in debris_objects:
-        print(debris.phenotype)
-        env.phenotypes += list(debris.phenotype.values())
+        try:
+            print(debris.phenotype)
+            env.phenotypes += list(debris.phenotype.values())
+        except AttributeError:
+            pass
 
     jfilename = env.pname + '/' + env.runid + '.json'
     JsonPhenotypeData.to_json(env.phenotypes, jfilename)

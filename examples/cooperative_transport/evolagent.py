@@ -71,6 +71,8 @@ class EvolAgent(Agent):
         self.step_count = 0
 
         self.fitness_name = True
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # py_trees.display.print_ascii_tree(self.bt.behaviour_tree.root)
 
     def get_food_in_hub(self):
         """Return food in the hub."""
@@ -152,7 +154,8 @@ class EvolAgent(Agent):
         This fitness supports the carrying behavior of
         the agents.
         """
-        return len(self.attached_objects) * (self.timestamp)
+        # return len(self.attached_objects) * (self.timestamp)
+        return len(self.partial_attached_objects) * (self.timestamp)
 
     def exploration_fitness(self):
         """Compute the exploration fitness."""

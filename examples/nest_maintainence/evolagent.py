@@ -92,10 +92,13 @@ class EvolAgent(Agent):
         agent_debris_objects = []
 
         for debris in debris_objects:
-            if (
-                debris.agent_name == self.name and
-                    debris.phenotype == self.individual[0].phenotype):
-                agent_debris_objects.append(debris)
+            try:
+                if (
+                    debris.agent_name == self.name and
+                        debris.phenotype == self.individual[0].phenotype):
+                    agent_debris_objects.append(debris)
+            except AttributeError:
+                pass
         return agent_debris_objects
 
     def detect_debris_carrying(self):

@@ -21,7 +21,7 @@ class EvolModel(Model):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000, seed=None,
-            expname='NestM', agent='EvolAgent', parm='swarm.txt'):
+            expname='NestM', agent='EvolAgent', parm='nm.txt'):
         """Initialize the attributes."""
         if seed is None:
             super(EvolModel, self).__init__(seed=None)

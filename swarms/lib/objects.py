@@ -79,6 +79,7 @@ class Carryable(EnvironmentObject):
         # Carryable boolen value
         self.carryable = True
         self.weight = int(self.radius / 2)
+        self.capacity = self.weight
         self.motion = False
         self.agents = dict()
         self.direction = 0
