@@ -7,7 +7,7 @@ from swarms.utils.jsonhandler import JsonData
 from swarms.utils.results import Best, Experiment
 from swarms.utils.db import Connect
 from evolagent import EvolAgent     # noqa: F401
-from swarms.lib.objects import Hub, Sites, Food, Derbis, Obstacles  # noqa: F401
+from swarms.lib.objects import Hub, Sites, Food, Debris, Obstacles  # noqa: F401
 import os
 import imp
 import datetime

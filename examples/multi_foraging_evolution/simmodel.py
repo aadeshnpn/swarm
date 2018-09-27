@@ -9,7 +9,7 @@ from swarms.utils.db import Connect
 from simagent import (  # noqa: F401
     SimAgent, SimAgentRes1, SimAgentRes2,
     SimAgentResComm1, SimAgentResComm2)
-from swarms.lib.objects import Hub, Sites, Food, Derbis, Obstacles  # noqa: F401
+from swarms.lib.objects import Hub, Sites, Food, Debris, Obstacles  # noqa: F401
 import os
 import imp
 import datetime

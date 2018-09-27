@@ -8,6 +8,8 @@ from swarms.utils.graph import Graph, GraphACC
 from joblib import Parallel, delayed
 from swarms.utils.results import SimulationResults
 from swarms.utils.jsonhandler import JsonPhenotypeData
+import sys
+
 # Global variables for width and height
 width = 100
 height = 100
@@ -169,7 +171,12 @@ def simulate(env, iteration):
     """Test the performane of evolved behavior."""
     # phenotype = agent.individual[0].phenotype
     # phenotypes = extract_phenotype(agents)
-    phenotypes = env[0]
+    phenotypes = JsonPhenotypeData.load_json_file(env[0])
+    # print (phenotypes)
+    if len(phenotypes['phenotypes']) < 1:
+        return
+    else:
+        phenotypes = phenotypes['phenotypes']
     threshold = 1.0
 
     sim = SimModel(
@@ -204,10 +211,10 @@ def simulate(env, iteration):
     # print ('food at hub', len(sim.food_in_loc(sim.hub.location)))
     # print("Total food in the hub", len(food_objects))
 
-    food_objects = sim.food_in_loc(sim.hub.location)
+    # food_objects = sim.food_in_loc(sim.hub.location)
 
-    for food in food_objects:
-        print('simulate phenotye:', dir(food))
+    # for food in food_objects:
+    #    print('simulate phenotye:', dir(food))
     value = sim.food_in_hub()
 
     foraging_percent = (
@@ -252,6 +259,7 @@ def evolve(iteration):
     food_objects = env.food_in_loc(env.hub.location)
     # print('Total food in the hub evolution:', len(food_objects))
     env.phenotypes = []
+
     for food in food_objects:
         print(food.phenotype)
         env.phenotypes += list(food.phenotype.values())
@@ -270,18 +278,27 @@ def evolve(iteration):
     return env
 
 
-def main(iter):
+def main():
     """Block for the main function."""
     print('=======Start=========')
-    env = evolve(iter)
+
+    # env = evolve(iter)
     # simulate(None, iter)
-    if len(env.phenotypes) > 1:
-        steps = [5000 for i in range(8)]
-        env = (env.phenotypes, env.pname)
-        Parallel(n_jobs=4)(delayed(simulate)(env, i) for i in steps)
-        Parallel(n_jobs=4)(delayed(simulate_res1)(env, i) for i in steps)
-        Parallel(n_jobs=4)(delayed(simulate_res2)(env, i) for i in steps)
-        # simulate(env, 10000)
+    pname = sys.argv[1]
+    jfilename = sys.argv[2]
+    pname = pname.split(',')
+    jfilename = jfilename.split(',')
+    # jfilename = '1536367107226.json'
+    #data = JsonPhenotypeData.load_json_file(jfilename)
+    #if len(data['phenotypes']) > 1:
+        # steps = [5000 for i in range(8)]
+        #env = (data['phenotypes'], pname)
+        # Parallel(n_jobs=4)(delayed(simulate)(env, i) for i in steps)
+        # Parallel(n_jobs=4)(delayed(simulate_res1)(env, i) for i in steps)
+        # Parallel(n_jobs=4)(delayed(simulate_res2)(env, i) for i in steps)
+        #simulate(env, 5000)
+    Parallel(n_jobs=4)(delayed(simulate)((jfilename[i], pname[i]), 5000) for i in range(len(pname)-1))
+
     print('=======End=========')
 
 
@@ -290,4 +307,5 @@ if __name__ == '__main__':
     # steps = [100000 for i in range(50)]
     # Parallel(n_jobs=8)(delayed(main)(i) for i in steps)
     # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 100000, 2000))
-    main(900)
+    main()
+

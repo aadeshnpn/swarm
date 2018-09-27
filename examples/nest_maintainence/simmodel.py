@@ -214,4 +214,4 @@ class SimModel(Model):
         neighbours = list(set(neighbours_out) - set(neighbours_in))
         debris_objects = grid.get_objects_from_list_of_grid(
             'Debris', neighbours)
-        return len(debris_objects)
+        return debris_objects

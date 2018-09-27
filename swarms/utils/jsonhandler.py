@@ -89,7 +89,7 @@ class JsonPhenotypeData:
     def load_json_file(filename):
         """Load json file."""
         json_data = open(filename).read()
-        return json.loads(json_data)
+        return eval(json.loads(json_data))
 
     @staticmethod
     def to_json(phenotypes, filename):

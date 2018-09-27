@@ -4,7 +4,7 @@ from simmodel import SimModel
 from evolmodel import EvolModel
 
 # from swarms.utils.jsonhandler import JsonData
-from swarms.utils.graph import Graph, GraphACC
+from swarms.utils.graph import Graph, GraphACC  # noqa: F401
 from joblib import Parallel, delayed
 from swarms.utils.results import SimulationResults
 from swarms.utils.jsonhandler import JsonPhenotypeData
@@ -132,7 +132,7 @@ def evolve(iteration):
     """Learning Algorithm block."""
     # iteration = 10000
 
-    env = EvolModel(50, 100, 100, 10, iter=iteration)
+    env = EvolModel(100, 100, 100, 10, iter=iteration)
     env.build_environment_from_json()
 
     # for all agents store the information about hub
@@ -164,8 +164,8 @@ def evolve(iteration):
     # env.phenotypes = extract_phenotype(env.agents, jfilename)
 
     # Plot the fitness in the graph
-    graph = Graph(env.pname, 'best.csv', ['explore', 'foraging'])
-    graph.gen_best_plots()
+    # graph = Graph(env.pname, 'best.csv', ['explore', 'foraging'])
+    # graph.gen_best_plots()
 
     # Test the evolved behavior
     return env
