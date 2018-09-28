@@ -516,6 +516,8 @@ class IsMultipleCarry(Behaviour):
             if objects.weight:
                 if self.agent.get_capacity() < objects.weight:
                     return Status.SUCCESS
+                else:
+                    return Status.FAILURE
             else:
                 return Status.FAILURE
         except (AttributeError, IndexError):

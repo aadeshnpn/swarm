@@ -144,6 +144,27 @@ class SimModel(Model):
         except KeyError:
             pass
 
+        # Create a place for the agents to drop the derbis
+        try:
+            self.obstacles = []
+            for i in range(4):
+                dx, dy = self.random.randint(5, 10, 2)
+                dx = self.hub.location[0] + 25 + dx
+                dy = self.hub.location[1] + 25 + dy
+                o = Obstacles(id=i, location=(dx, dy), radius=10)
+                self.grid.add_object_to_grid(o.location, o)
+                self.obstacles.append(o)
+        except AttributeError:
+            pass
+
+        # This doesn't change so no need to compute everytime
+        grid = self.grid
+        hub_loc = self.hub.location
+
+        neighbours_in = grid.get_neighborhood(hub_loc, 25)
+        neighbours_out = grid.get_neighborhood(hub_loc, 50)
+        self.neighbours = list(set(neighbours_out) - set(neighbours_in))
+
         if self.viewer:
             self.ui = UI(
                 (self.width, self.height), [self.hub], self.agents,
@@ -208,10 +229,6 @@ class SimModel(Model):
     def debris_cleaned(self):
         """Find amount of debris cleaned."""
         grid = self.grid
-        hub_loc = self.hub.location
-        neighbours_in = grid.get_neighborhood(hub_loc, 25)
-        neighbours_out = grid.get_neighborhood(hub_loc, 50)
-        neighbours = list(set(neighbours_out) - set(neighbours_in))
         debris_objects = grid.get_objects_from_list_of_grid(
-            'Debris', neighbours)
+            'Debris', self.neighbours)
         return debris_objects

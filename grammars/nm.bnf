@@ -6,6 +6,6 @@
 <conditions>::=[cond]<condition>[/cond]<conditions>|[cond]<condition>[/cond]
 <condition>::=NeighbourObjects|IsDropable_<sobjects>|NeighbourObjects_<objects>|NeighbourObjects_<objects>_invert
 <action>::=MoveTowards_<sobjects>|Explore|CompositeSingleCarry_<dobjects>|CompositeDrop_<dobjects>|MoveAway_<sobjects>
-<sobjects>::=Hub|Sites
+<sobjects>::=Hub|Obstacles
 <dobjects>::=Debris
 <objects>::=<sobjects>|<dobjects>
