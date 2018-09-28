@@ -179,7 +179,9 @@ def main(iter):
     if len(env.phenotypes) > 1:
         steps = [5000 for i in range(8)]
         env = (env.phenotypes, env.pname)
-        Parallel(n_jobs=4)(delayed(simulate)(env, i) for i in steps)
+        for step in steps:
+            simulate(env, step)
+        # Parallel(n_jobs=4)(delayed(simulate)(env, i) for i in steps)
         # Parallel(n_jobs=4)(delayed(simulate_res1)(env, i) for i in steps)
         # Parallel(n_jobs=4)(delayed(simulate_res2)(env, i) for i in steps)
         # simulate(env, 10000)
@@ -188,9 +190,9 @@ def main(iter):
 
 if __name__ == '__main__':
     # Running 50 experiments in parallel
-    steps = [100000 for i in range(50)]
+    # steps = [100000 for i in range(50)]
     # Parallel(n_jobs=8)(delayed(main)(i) for i in steps)
-    # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 100000, 2000))
+    Parallel(n_jobs=8)(delayed(main)(i) for i in range(8000, 100000, 2000))
     # main(900)
-    for step in steps:
-        main(step)
+    # for step in steps:
+    #     main(step)
