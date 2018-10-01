@@ -427,7 +427,7 @@ class MultipleCarryModel(Model):
             x = 1
             y = 1
             a.location = (x, y)
-            a.direction = -2.3561944901923448
+            a.direction = 1.3561944901923448
             self.grid.add_object_to_grid((x, y), a)
             self.agent.append(a)
 
@@ -441,7 +441,10 @@ class TestMultipleCarry(TestCase):
         self.environment = MultipleCarryModel(
             2, 100, 100, 10, 123)
 
-        for i in range(60):
+        for i in range(25):
+            print(
+                i, [agent.location for agent in self.environment.agent],
+                self.environment.thing.location)
             self.environment.step()
 
     def tuple_round(self, loc):
@@ -452,15 +455,22 @@ class TestMultipleCarry(TestCase):
         # Check if the two agents end up at same location while carrying
         # Heavy object
         agent1_loc = self.tuple_round(self.environment.agent[0].location)
+        agent1_loc1 = (agent1_loc[0] + 1, agent1_loc[1] + 2)
         agent2_loc = self.tuple_round(self.environment.agent[1].location)
-        self.assertEqual(agent1_loc, agent2_loc)
+        self.assertEqual(agent1_loc1, agent2_loc)
 
     def test_agent_object_loc(self):
         # Check if the location of heavy object and one of the agent is
         # almost same after moving
         item_loc = self.tuple_round(self.environment.thing.location)
-        agent_loc = self.tuple_round(self.environment.agent[0].location)
+        agent_loc = self.tuple_round(self.environment.agent[1].location)
         self.assertEqual(item_loc, agent_loc)
+
+    def test_agent_move(self):
+        # Check if the item along with agents have moved to the border
+        # of the environment
+        item_loc = self.tuple_round(self.environment.thing.location)
+        self.assertEqual(item_loc, (49, 50))
 
 
 class SwarmSingleCarryFood(Agent):

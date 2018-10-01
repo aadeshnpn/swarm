@@ -305,14 +305,22 @@ class Move(Behaviour):
         """Move logic for partially attached objects."""
         try:
             for item in self.agent.partial_attached_objects:
-                accleration = self.agent.force / item.weight
+                accleration = self.agent.force / item.agents[self.agent]
                 velocity = accleration * self.dt
                 direction = self.agent.direction
-                x = int(np.ceil(
-                    item.location[0] + np.cos(direction) * velocity))
-                y = int(np.ceil(
-                    item.location[1] + np.sin(direction) * velocity))
-                object_agent = list(item.agents.keys())[0]
+                if np.cos(direction) > 0:
+                    x = int(np.ceil(
+                        item.location[0] + np.cos(direction) * velocity))
+                    y = int(np.ceil(
+                        item.location[1] + np.sin(direction) * velocity))
+                else:
+                    x = int(np.floor(
+                        item.location[0] + np.cos(direction) * velocity))
+                    y = int(np.floor(
+                        item.location[1] + np.sin(direction) * velocity))
+                object_agent = list(item.agents.keys())
+                indx = self.agent.model.random.randint(0, len(object_agent))
+                object_agent = object_agent[indx]
                 new_location, direction = object_agent.model.grid.check_limits(
                     (x, y), direction)
                 object_agent.model.grid.move_object(
@@ -622,11 +630,18 @@ class DropPartial(Behaviour):
             objects = list(filter(
                 lambda x: type(x).__name__ == self.item,
                 self.agent.partial_attached_objects))[0]
-
-            # objects = self.agent.partial_attached_objects[0]
             objects.agents.pop(self.agent)
-            self.agent.model.grid.add_object_to_grid(objects.location, objects)
             self.agent.partial_attached_objects.remove(objects)
+            # If the agent is last to drop reduce the size of the
+            # food to the half the size of the hub. This indicates
+            # that the food has been deposited to the hub
+            if len(objects.agents) == 0:
+                self.agent.model.grid.remove_object_from_grid(
+                    objects.location, objects)
+                objects.radius = int(self.agent.model.hub.radius / 2)
+                objects.location = self.agent.model.hub.location
+                self.agent.model.grid.add_object_to_grid(
+                    objects.location, objects)
             return Status.SUCCESS
 
         except (AttributeError, IndexError):
@@ -763,10 +778,9 @@ class IsInPartialAttached(Behaviour):
             objects = list(filter(
                 lambda x: type(x).__name__ == self.item,
                 self.agent.partial_attached_objects))[0]
-
             if self.item in set(things) and \
                     self.agent in objects.agents:
-                return Status.SUCCESS
+                    return Status.SUCCESS
             else:
                 return Status.FAILURE
         except IndexError:
@@ -797,7 +811,6 @@ class IsEnoughStrengthToCarry(Behaviour):
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
                 self.item, self.agent.name)[0]
-
             if self.agent.get_capacity() >= objects.calc_relative_weight():
                 return Status.SUCCESS
             else:

@@ -168,7 +168,7 @@ class EvolModel(Model):
             foraging[id] = self.agents[id].debris_collected
             fittest[id] = self.agents[id].individual[0].fitness
         beta = self.agents[-1].beta
-
+        """
         mean = Best(
             self.pname, self.connect, self.sn, 1, 'MEAN', self.stepcnt,
             beta, np.mean(fittest), np.mean(diversity), np.mean(exploration),
@@ -182,7 +182,7 @@ class EvolModel(Model):
             np.std(foraging), "None"
             )
         std.save()
-
+        """
         # Compute best agent for each fitness
         self.best_agents(diversity, beta, "DIVERSE")
         self.best_agents(exploration, beta, "EXPLORE")

@@ -216,8 +216,8 @@ class TestXMLSmallGrid(TestCase):
         for i in range(20):
             self.environment.step()
             self.food_objects = self.environment.agents[0].get_food_in_hub()
-            print('food in the hub', i, [(
-                food.id, food.agent_name) for food in self.food_objects])
+            # print('food in the hub', i, [(
+            #    food.id, food.agent_name) for food in self.food_objects])
 
     def test_one_traget(self):
-        self.assertEqual(5, len(self.food_objects))
+        self.assertEqual(4, len(self.food_objects))

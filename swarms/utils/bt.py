@@ -12,7 +12,8 @@ from swarms.behaviors.scbehaviors import (      # noqa: F401
     CompositeDropPartial
     )
 from swarms.behaviors.sbehaviors import (       # noqa: F401
-    IsCarrying, NeighbourObjects, Move, IsDropable
+    IsCarrying, NeighbourObjects, Move, IsDropable,
+    IsVisitedBefore, IsInPartialAttached
     )
 
 
