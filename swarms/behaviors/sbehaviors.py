@@ -598,8 +598,11 @@ class Drop(Behaviour):
 
             # Temporary fix
             # Store the genome which activated the single carry
-            objects.phenotype['drop'] = self.agent.individual[0].phenotype
-
+            try:
+                objects.phenotype['drop'] = self.agent.individual[0].phenotype
+                return Status.SUCCESS
+            except AttributeError:
+                pass
             # objects.agents.remove(self.agent)
             return Status.SUCCESS
         except (AttributeError, IndexError):
@@ -642,6 +645,12 @@ class DropPartial(Behaviour):
                 objects.location = self.agent.model.hub.location
                 self.agent.model.grid.add_object_to_grid(
                     objects.location, objects)
+            try:
+                objects.phenotype['drop'] = self.agent.individual[0].phenotype
+                return Status.SUCCESS
+            except AttributeError:
+                pass
+
             return Status.SUCCESS
 
         except (AttributeError, IndexError):
@@ -744,6 +753,12 @@ class InitiateMultipleCarry(Behaviour):
                 objects.agents[self.agent] = average_weight
 
                 return Status.SUCCESS
+            try:
+                objects.phenotype = {
+                    'carry': self.agent.individual[0].phenotype}
+            except AttributeError:
+                pass
+
         except (KeyError, AttributeError, IndexError):
             return Status.FAILURE
 

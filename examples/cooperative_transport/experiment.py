@@ -155,7 +155,7 @@ def evolve(iteration):
     env.phenotypes = []
     for food in food_objects:
         # print(food.phenotype)
-        env.phenotypes += list(food.phenotype.values())
+        env.phenotypes += list(set(food.phenotype.values()))
 
     jfilename = env.pname + '/' + env.runid + '.json'
     JsonPhenotypeData.to_json(env.phenotypes, jfilename)
@@ -192,7 +192,7 @@ if __name__ == '__main__':
     # Running 50 experiments in parallel
     # steps = [100000 for i in range(50)]
     # Parallel(n_jobs=8)(delayed(main)(i) for i in steps)
-    Parallel(n_jobs=8)(delayed(main)(i) for i in range(8000, 100000, 2000))
+    Parallel(n_jobs=8)(delayed(main)(i) for i in range(8000, 1000000, 2000))
     # main(900)
     # for step in steps:
     #     main(step)
