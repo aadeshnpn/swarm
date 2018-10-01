@@ -10,13 +10,12 @@ from py_trees import Blackboard
 import numpy as np
 # import xml.etree.ElementTree as ET
 
-from swarms.behaviors.sbehaviors import (
+from swarms.behaviors.sbehaviors import (       # noqa: F401
     IsCarryable, IsSingleCarry, SingleCarry,
     NeighbourObjects, IsMultipleCarry, IsInPartialAttached,
     InitiateMultipleCarry, IsEnoughStrengthToCarry,
     Move, GoTo, IsMotionTrue, RandomWalk, IsMoveable,
-    MultipleCarry, Away, Towards, IsMultipleCarry,
-    DoNotMove
+    MultipleCarry, Away, Towards, DoNotMove
     )
 
 from ponyge.operators.initialisation import initialisation
@@ -60,8 +59,10 @@ class GEBTAgent(Agent):
         from ponyge.algorithm.parameters import Parameters
         parameter = Parameters()
         parameter_list = ['--parameters', 'swarm.txt']
-        # Comment when different results is desired. Else set this for testing purpose
-        parameter.params['RANDOM_SEED'] = name  # np.random.randint(1, 99999999)
+        # Comment when different results is desired.
+        # Else set this for testing purpose
+        parameter.params['RANDOM_SEED'] = name
+        # np.random.randint(1, 99999999)
         parameter.params['POPULATION_SIZE'] = self.operation_threshold // 2
         parameter.set_params(parameter_list)
         self.parameter = parameter
@@ -84,7 +85,8 @@ class GEBTAgent(Agent):
         # print ('bt tree', output, self.individual[0].phenotype)
         self.bt.behaviour_tree.tick()
 
-        cellmates = self.model.grid.get_objects_from_grid('GEBTAgent', self.location)
+        cellmates = self.model.grid.get_objects_from_grid(
+            'GEBTAgent', self.location)
         # print (cellmates)
         if len(self.genome_storage) >= self.operation_threshold:
             self.exchange_chromosome(cellmates)
@@ -101,7 +103,8 @@ class GEBTAgent(Agent):
         new_location = ()
         x = int(self.location[0] + np.cos(self.direction) * self.speed)
         y = int(self.location[1] + np.sin(self.direction) * self.speed)
-        new_location, direction = self.model.grid.check_limits((x, y), self.direction)
+        new_location, direction = self.model.grid.check_limits(
+            (x, y), self.direction)
         self.model.grid.move_object(self.location, self, new_location)
         self.location = new_location
         self.direction = direction
@@ -141,14 +144,16 @@ class GEEnvironmentModel(Model):
             a = GEBTAgent(i, self)
             self.schedule.add(a)
             # Add the agent to a random grid cell
-            # x = self.random.randint(-self.grid.width / 2, self.grid.width / 2)
+            # x = self.random.randint(
+            # -self.grid.width / 2, self.grid.width / 2)
             x = 0
-            # y = self.random.randint(-self.grid.height / 2, self.grid.height / 2)
+            # y = self.random.randint(
+            # -self.grid.height / 2, self.grid.height / 2)
             y = 0
 
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)
-            a.operation_threshold = 2  #  self.num_agents // 10
+            a.operation_threshold = 2  # self.num_agents // 10
 
     def step(self):
         self.schedule.step()
@@ -165,7 +170,9 @@ class TestGEBTSmallGrid(TestCase):
             # for agent in self.environment.schedule.agents:
             #  self.target_phenotype = agent.individual[0].phenotype
             #  self.target_fitness = agent.individual[0].fitness
-            #    print('Step', i, agent.name, agent.individual[0].fitness, agent.location)
+            #    print(
+            # 'Step', i, agent.name, agent.individual[0].fitness,
+            # agent.location)
 
     # def test_target_string(self):
     #    self.assertEqual('<?xml version="1.0" encoding="UTF-8"?><Sequence><Sequence><Sequence><cond>IsMoveable</cond><cond>IsMupltipleCarry</cond><act>RandomWalk</act></Sequence> <Sequence><cond>IsMotionTrue</cond><cond>IsMoveable</cond><cond>IsMotionTrue</cond><act>SingleCarry</act></Sequence></Sequence> <Selector><cond>IsMotionTrue</cond><cond>IsCarryable</cond><cond>IsMupltipleCarry</cond><act>GoTo</act></Selector></Sequence>', self.target_phenotype)

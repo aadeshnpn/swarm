@@ -7,12 +7,14 @@ from unittest import TestCase
 import py_trees
 
 import numpy as np
-# import xml.etree.ElementTree as ET
-from py_trees.composites import RepeatUntilFalse
+
 from swarms.behaviors.sbehaviors import (
-    NeighbourObjects, IsCarryable, IsSingleCarry,
-    SingleCarry, GoTo, Move, IsDropable, IsCarrying, Drop,
-    IsVisitedBefore, RandomWalk
+    NeighbourObjects, IsCarrying, IsVisitedBefore
+)
+
+from swarms.behaviors.scbehaviors import (
+    CompositeSingleCarry, CompositeDrop, Explore,
+    MoveTowards
 )
 
 # Global variables for width and height
@@ -34,93 +36,77 @@ class XMLTestAgent(Agent):
         self.shared_content = dict()
 
         self.shared_content['Hub'] = {model.hub}
-        mseq = py_trees.composites.Sequence('MSequence')
-        nseq = py_trees.composites.Sequence('NSequence')
-        select = py_trees.composites.Selector('RSelector')
-        carryseq = py_trees.composites.Sequence('CSequence')
-        dropseq = py_trees.composites.Sequence('DSequence')
 
-        lowest1 = py_trees.meta.inverter(NeighbourObjects)('00')
-        lowest1.setup(0, self, 'Hub')
+        # Drop branch
+        dseq = py_trees.composites.Sequence('DSequence')
+        iscarrying = IsCarrying('1')
+        iscarrying.setup(0, self, 'Food')
 
-        lowest11 = NeighbourObjects('0')
-        lowest11.setup(0, self, 'Sites')
+        neighhub = NeighbourObjects('2')
+        neighhub.setup(0, self, 'Hub')
 
-        lowest = NeighbourObjects('0')
-        lowest.setup(0, self, 'Food')
+        drop = CompositeDrop('4')
+        drop.setup(0, self, 'Food')
 
-        low = IsCarryable('1')
-        low.setup(0, self, 'Food')
+        dseq.add_children([neighhub, drop])
 
-        medium = IsSingleCarry('2')
-        medium.setup(0, self, 'Food')
+        # Carry branch
+        cseq = py_trees.composites.Sequence('CSequence')
 
-        high = SingleCarry('3')
-        high.setup(0, self, 'Food')
+        neighsite = NeighbourObjects('5')
+        neighsite.setup(0, self, 'Sites')
 
-        carryseq.add_children([lowest1, lowest11, lowest, low, medium, high])
+        neighfood = NeighbourObjects('50')
+        neighfood.setup(0, self, 'Food')
 
-        repeathub = RepeatUntilFalse("RepeatSeqHub")
-        repeatsite = RepeatUntilFalse("RepeatSeqSite")
+        invcarrying = py_trees.meta.inverter(IsCarrying)('8')
+        invcarrying.setup(0, self, 'Food')
 
-        high1 = py_trees.meta.inverter(NeighbourObjects)('4')
-        # high1 = NeighbourObjects('4')
-        high1.setup(0, self, 'Hub')
+        carry = CompositeSingleCarry('6')
+        carry.setup(0, self, 'Food')
 
-        med1 = GoTo('5')
-        med1.setup(0, self, 'Hub')
+        cseq.add_children([neighsite, neighfood, invcarrying, carry])
 
-        # low1 = py_trees.meta.inverter(Move)('6')
-        low1 = Move('6')
-        low1.setup(0, self, None)
+        # Locomotion branch
 
-        high2 = py_trees.meta.inverter(NeighbourObjects)('12')
-        # high2 = NeighbourObjects('12')
-        high2.setup(0, self, 'Sites')
+        # Move to site
+        siteseq = py_trees.composites.Sequence('SiteSeq')
 
-        # med2 = py_trees.meta.inverter(GoTo)('13')
-        med2 = GoTo('13')
-        med2.setup(0, self, 'Sites')
+        sitefound = IsVisitedBefore('7')
+        sitefound.setup(0, self, 'Sites')
 
-        # low1 = py_trees.meta.inverter(Move)('6')
-        low2 = Move('14')
-        low2.setup(0, self, None)
+        gotosite = MoveTowards('9')
+        gotosite.setup(0, self, 'Sites')
 
-        # Drop
-        dropseq = py_trees.composites.Sequence('DSequence')
-        c1 = IsCarrying('7')
-        c1.setup(0, self, 'Food')
+        siteseq.add_children([sitefound, invcarrying, gotosite])
 
-        d1 = IsDropable('8')
-        d1.setup(0, self, 'Hub')
+        # Move to hub
+        hubseq = py_trees.composites.Sequence('HubSeq')
 
-        d2 = Drop('9')
-        d2.setup(0, self, 'Food')
+        gotohub = MoveTowards('10')
+        gotohub.setup(0, self, 'Hub')
 
-        dropseq.add_children([c1, d1, d2])
+        hubseq.add_children([iscarrying, gotohub])
 
-        repeathub.add_children([high1, med1, low1])
-        repeatsite.add_children([high2, med2, low2])
+        sitenotfound = py_trees.meta.inverter(IsVisitedBefore)('11')
+        sitenotfound.setup(0, self, 'Sites')
 
-        mseq.add_children([carryseq, repeathub])
-        nseq.add_children([dropseq, repeatsite])
+        explore = Explore('12')
+        explore.setup(0, self)
 
-        # For randomwalk to work the agents shouldn't know the location of Site
-        v1 = py_trees.meta.inverter(IsVisitedBefore)('15')
-        v1.setup(0, self, 'Sites')
+        randwalk = py_trees.composites.Sequence('Randwalk')
+        randwalk.add_children([explore])
 
-        r1 = RandomWalk('16')
-        r1.setup(0, self, None)
+        locoselect = py_trees.composites.Selector('Move')
+        locoselect.add_children([siteseq, hubseq, explore])
+        select = py_trees.composites.Selector('Main')
 
-        m1 = Move('17')
-        m1.setup(0, self, None)
-
-        randseq = py_trees.composites.Sequence('RSequence')
-        randseq.add_children([v1, r1, m1])
-
-        select.add_children([nseq, mseq, randseq])
+        select.add_children([dseq, cseq, locoselect])
 
         self.behaviour_tree = py_trees.trees.BehaviourTree(select)
+        # Debugging stuffs for py_trees
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # py_trees.display.print_ascii_tree(select)
 
         self.beta = 1
         self.food_collected = 0
@@ -144,7 +130,7 @@ class XMLTestAgent(Agent):
         # return len(self.attached_objects) * 1000
         grid = self.model.grid
         hub_loc = self.model.hub.location
-        neighbours = grid.get_neighborhood(hub_loc, 35)
+        neighbours = grid.get_neighborhood(hub_loc, 15)
         food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
 
         # print (food_objects)
@@ -190,8 +176,8 @@ class XMLEnvironmentModel(Model):
         for i in range(self.num_agents):
             a = XMLTestAgent(i, self)
             self.schedule.add(a)
-            x = 25
-            y = 25
+            x = 45
+            y = 45
 
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)
@@ -211,13 +197,104 @@ class XMLEnvironmentModel(Model):
 class TestXMLSmallGrid(TestCase):
 
     def setUp(self):
-        self.environment = XMLEnvironmentModel(50, 100, 100, 10, 102)
+        self.environment = XMLEnvironmentModel(10, 100, 100, 10, 102)
 
-        for i in range(20):
+        for i in range(50):
+            # agent = self.environment.agents[0]
+            # print(agent.name, agent.location)
             self.environment.step()
             self.food_objects = self.environment.agents[0].get_food_in_hub()
             # print('food in the hub', i, [(
             #    food.id, food.agent_name) for food in self.food_objects])
 
     def test_one_traget(self):
-        self.assertEqual(4, len(self.food_objects))
+        self.assertEqual(5, len(self.food_objects))
+
+
+"""
+mseq = py_trees.composites.Sequence('MSequence')
+nseq = py_trees.composites.Sequence('NSequence')
+select = py_trees.composites.Selector('RSelector')
+carryseq = py_trees.composites.Sequence('CSequence')
+dropseq = py_trees.composites.Sequence('DSequence')
+
+lowest1 = py_trees.meta.inverter(NeighbourObjects)('00')
+lowest1.setup(0, self, 'Hub')
+
+lowest11 = NeighbourObjects('0')
+lowest11.setup(0, self, 'Sites')
+
+lowest = NeighbourObjects('0')
+lowest.setup(0, self, 'Food')
+
+low = IsCarryable('1')
+low.setup(0, self, 'Food')
+
+medium = IsSingleCarry('2')
+medium.setup(0, self, 'Food')
+
+high = SingleCarry('3')
+high.setup(0, self, 'Food')
+
+carryseq.add_children([lowest1, lowest11, lowest, low, medium, high])
+
+repeathub = RepeatUntilFalse("RepeatSeqHub")
+repeatsite = RepeatUntilFalse("RepeatSeqSite")
+
+high1 = py_trees.meta.inverter(NeighbourObjects)('4')
+# high1 = NeighbourObjects('4')
+high1.setup(0, self, 'Hub')
+
+med1 = GoTo('5')
+med1.setup(0, self, 'Hub')
+
+# low1 = py_trees.meta.inverter(Move)('6')
+low1 = Move('6')
+low1.setup(0, self, None)
+
+high2 = py_trees.meta.inverter(NeighbourObjects)('12')
+# high2 = NeighbourObjects('12')
+high2.setup(0, self, 'Sites')
+
+# med2 = py_trees.meta.inverter(GoTo)('13')
+med2 = GoTo('13')
+med2.setup(0, self, 'Sites')
+
+# low1 = py_trees.meta.inverter(Move)('6')
+low2 = Move('14')
+low2.setup(0, self, None)
+
+# Drop
+dropseq = py_trees.composites.Sequence('DSequence')
+c1 = IsCarrying('7')
+c1.setup(0, self, 'Food')
+
+d1 = IsDropable('8')
+d1.setup(0, self, 'Hub')
+
+d2 = Drop('9')
+d2.setup(0, self, 'Food')
+
+dropseq.add_children([c1, d1, d2])
+
+repeathub.add_children([high1, med1, low1])
+repeatsite.add_children([high2, med2, low2])
+
+mseq.add_children([carryseq, repeathub])
+nseq.add_children([dropseq, repeatsite])
+
+# For randomwalk to work the agents shouldn't know the location of Site
+v1 = py_trees.meta.inverter(IsVisitedBefore)('15')
+v1.setup(0, self, 'Sites')
+
+r1 = RandomWalk('16')
+r1.setup(0, self, None)
+
+m1 = Move('17')
+m1.setup(0, self, None)
+
+randseq = py_trees.composites.Sequence('RSequence')
+randseq.add_children([v1, r1, m1])
+
+select.add_children([nseq, mseq, randseq])
+"""
