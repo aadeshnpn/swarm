@@ -143,3 +143,57 @@ class ResMinMaxACC:
 
     def save_step_graph(self, filename, fields):
         pass
+
+
+class PGraph:
+
+    def __init__(self, directory, fnames):
+        self.directory = directory
+        self.fnames = fnames
+
+    def gen_plot(self):
+        fig = plt.figure()
+        data = []
+        for fname in self.fnames:
+            if len(fname) > 1:
+                values = self.load_file(fname)
+                data.append(values['fitness'].tolist())
+
+        data = np.array(data)
+
+        self.mean = np.nanmean(data, axis=0)
+        self.std = np.nanstd(data, axis=0)
+        self.max_std = self.mean + self.std
+        self.min_std = self.mean - self.std
+
+        xvalues = range(1, self.mean.shape[0] - 1)
+
+        ax1 = fig.add_subplot(1, 1, 1)
+
+        ax1.plot(xvalues, self.mean[:-2], color='green', label='Mean')
+        ax1.plot(xvalues, self.std[:-2], color='red', label='STD')
+
+        ax1.plot(xvalues, self.max_std[:-2], color='blue', label='Max')
+        ax1.plot(xvalues, self.min_std[:-2], color='purple', label='Min')
+        ax1.fill_between(
+            xvalues, self.min_std[:-2], self.max_std[:-2], color="red", alpha=0.3)
+
+        ax1.set_xlabel('Iteration')
+        ax1.set_xlabel('Fitness')
+
+        ax1.set_title('Cooperative Transport')
+        ax1.legend()
+        fig.savefig(self.directory + '/ct.pdf')
+        fig.savefig(self.directory + '/ct.png')
+        plt.close(fig)
+
+    def load_file(self, fname):
+        try:
+            data = pd.read_csv(
+                fname, sep='|', skipinitialspace=True)
+            return data
+        except FileNotFoundError:
+            exit()
+
+    def save_step_graph(self, filename, fields):
+        pass

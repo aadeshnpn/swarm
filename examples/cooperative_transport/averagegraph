@@ -1,0 +1,27 @@
+#!/usr/bin/bash
+#@author: aadeshnpn
+
+# Script to collect simulation and average the results and plot the graph
+
+expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/cooperative_transport"
+#expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/ct"
+exp=($(find ${expfold} -maxdepth 1 -type d  | grep "COT"))
+
+for expfolder in ${exp[@]}
+do
+    # echo "## ${expfolder}"
+    fileargs=""
+    filepath=($(find ${expfolder} -type f -name 'simulation.csv'))
+    for csv in ${filepath[@]}
+    do
+        if [[ ${#filepath} -gt 1 ]]; then
+            #echo "${csv}"
+            fileargs+=${csv},
+        fi
+    done
+    # echo "${fileargs}"
+    if [[ ${#fileargs} -gt 1 ]]; then
+        python pgraph.py "${fileargs}" ${expfolder}
+    fi
+done
+
