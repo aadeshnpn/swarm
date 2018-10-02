@@ -6,7 +6,18 @@ from swarms.utils.bt import BTConstruct
 from swarms.behaviors.scbehaviors import Move
 # from swarms.utils.results import Results
 from py_trees import Status
+# import py_trees
 import copy
+"""
+from swarms.behaviors.sbehaviors import (
+    NeighbourObjects, IsCarrying, IsVisitedBefore
+)
+
+from swarms.behaviors.scbehaviors import (
+    CompositeSingleCarry, CompositeDrop, Explore,
+    MoveTowards
+)
+"""
 
 
 # Define a dummy behavior for the move.
@@ -59,6 +70,78 @@ class SimAgent(Agent):
 
         self.bt.xmlstring = xmlstring
         self.bt.construct()
+
+        """
+        # Drop branch
+        dseq = py_trees.composites.Sequence('DSequence')
+        iscarrying = IsCarrying('1')
+        iscarrying.setup(0, self, 'Debris')
+
+        neighhub = NeighbourObjects('2')
+        neighhub.setup(0, self, 'Obstacles')
+
+        drop = CompositeDrop('4')
+        drop.setup(0, self, 'Debris')
+
+        dseq.add_children([neighhub, drop])
+
+        # Carry branch
+        cseq = py_trees.composites.Sequence('CSequence')
+
+        neighsite = py_trees.meta.inverter(NeighbourObjects)('5')
+        neighsite.setup(0, self, 'Obstacles')
+
+        neighfood = NeighbourObjects('50')
+        neighfood.setup(0, self, 'Debris')
+
+        invcarrying = py_trees.meta.inverter(IsCarrying)('8')
+        invcarrying.setup(0, self, 'Debris')
+
+        carry = CompositeSingleCarry('6')
+        carry.setup(0, self, 'Debris')
+
+        cseq.add_children([neighsite, neighfood, invcarrying, carry])
+
+        # Locomotion branch
+
+        # Move to site
+        siteseq = py_trees.composites.Sequence('SiteSeq')
+
+        sitefound = IsVisitedBefore('7')
+        sitefound.setup(0, self, 'Obstacles')
+
+        gotosite = MoveTowards('9')
+        gotosite.setup(0, self, 'Obstacles')
+
+        siteseq.add_children([sitefound, iscarrying, gotosite])
+
+        # Move to hub
+        hubseq = py_trees.composites.Sequence('HubSeq')
+
+        gotohub = MoveTowards('10')
+        gotohub.setup(0, self, 'Hub')
+
+        hubseq.add_children([iscarrying, gotohub])
+
+        sitenotfound = py_trees.meta.inverter(IsVisitedBefore)('11')
+        sitenotfound.setup(0, self, 'Obstacles')
+
+        explore = Explore('12')
+        explore.setup(0, self)
+
+        randwalk = py_trees.composites.Sequence('Randwalk')
+        randwalk.add_children([explore])
+
+        locoselect = py_trees.composites.Selector('Move')
+        locoselect.add_children([siteseq, explore])
+        select = py_trees.composites.Selector('Main')
+
+        select.add_children([dseq, cseq, locoselect])
+
+        self.behaviour_tree = py_trees.trees.BehaviourTree(select)
+        """
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # py_trees.display.print_ascii_tree(select)
 
     def step(self):
         self.bt.behaviour_tree.tick()

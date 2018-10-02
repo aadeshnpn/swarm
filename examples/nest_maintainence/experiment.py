@@ -5,7 +5,7 @@ from evolmodel import EvolModel
 
 # from swarms.utils.jsonhandler import JsonData
 from swarms.utils.graph import Graph, GraphACC  # noqa: F401
-from joblib import Parallel, delayed
+# from joblib import Parallel, delayed
 from swarms.utils.results import SimulationResults
 from swarms.utils.jsonhandler import JsonPhenotypeData
 # Global variables for width and height
@@ -48,7 +48,7 @@ def after_simulation(sim, phenotypes, iteration, threshold):
     # for all agents store the information about hub
     for agent in sim.agents:
         agent.shared_content['Hub'] = {sim.hub}
-        # agent.shared_content['Sites'] = {sim.site}
+        # agent.shared_content['Obstacles'] = {sim.obstacles}
 
     simresults = SimulationResults(
         sim.pname, sim.connect, sim.sn, sim.stepcnt,
@@ -80,7 +80,7 @@ def after_simulation(sim, phenotypes, iteration, threshold):
     print('Cleaning percent', value)
 
     if cleaned_percent >= threshold:
-        print('Debris cleane success')
+        print('Debris clean success')
         sucess = True
 
     sim.experiment.update_experiment_simulation(value, sucess)
@@ -118,8 +118,6 @@ def simulate_res2(env, iteration):
 
 def simulate(env, iteration):
     """Test the performane of evolved behavior."""
-    # phenotype = agent.individual[0].phenotype
-    # phenotypes = extract_phenotype(agents)
     phenotypes = env[0]
     threshold = 1.0
 
@@ -140,7 +138,7 @@ def evolve(iteration):
     # for all agents store the information about hub
     for agent in env.agents:
         agent.shared_content['Hub'] = {env.hub}
-        agent.shared_content['Obstacles'] = set(env.obstacles)
+        # agent.shared_content['Obstacles'] = set(env.obstacles)
 
     # Iterate and execute each step in the environment
     for i in range(iteration):
@@ -178,7 +176,6 @@ def main(iter):
     """Block for the main function."""
     print('=======Start=========')
     env = evolve(iter)
-    # simulate(None, iter)
     if len(env.phenotypes) > 1:
         steps = [5000 for i in range(8)]
         env = (env.phenotypes, env.pname)
@@ -195,7 +192,8 @@ if __name__ == '__main__':
     # Running 50 experiments in parallel
     # steps = [100000 for i in range(50)]
     # Parallel(n_jobs=8)(delayed(main)(i) for i in steps)
-    Parallel(n_jobs=8)(delayed(main)(i) for i in range(8000, 100000, 2000))
+    # Parallel(n_jobs=8)(delayed(main)(i) for i in range(8000, 100000, 2000))
     # for i in range(10000, 100000, 2000):
     #    main(i)
+    main(10000)
 

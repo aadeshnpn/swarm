@@ -51,6 +51,8 @@ class Graph:
             ax1.set_title('Fitness function')
 
         fig.savefig(self.directory + '/best.pdf')
+        fig.savefig(self.directory + '/best.png')
+        plt.close(fig)
 
     def load_file(self):
         data = pd.read_csv(self.directory + '/' + self.fname, sep='|')
@@ -80,6 +82,8 @@ class GraphACC:
         ax1.set_title('ACC Graph')
 
         fig.savefig(self.directory + '/acc.pdf')
+        fig.savefig(self.directory + '/acc.png')
+        plt.close(fig)
 
     def load_file(self):
         data = pd.read_csv(self.directory + '/' + self.fname, sep='|')
@@ -126,6 +130,8 @@ class ResMinMaxACC:
         ax1.set_title('ACC Graph with Resilience')
 
         fig.savefig(self.directory + '/acc_res.pdf')
+        fig.savefig(self.directory + '/acc_res.png')
+        plt.close(fig)
 
     def load_file(self, fname):
         # try:
