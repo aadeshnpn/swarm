@@ -229,6 +229,10 @@ class SimModel(Model):
     def debris_cleaned(self):
         """Find amount of debris cleaned."""
         grid = self.grid
-        debris_objects = grid.get_objects_from_list_of_grid(
-            'Debris', self.neighbours)
-        return debris_objects
+        debris_objects = []
+        for obstacle in self.obstacles:
+            neighbours = grid.get_neighborhood(
+                obstacle.location, obstacle.radius)
+            debris_objects += grid.get_objects_from_list_of_grid(
+                'Debris', neighbours)
+        return list(set(debris_objects))

@@ -81,8 +81,17 @@ class EvolAgent(Agent):
                     hub_loc, x.location) >= (
                         x.initial_distance + 5), self.model.debris))
         """
-        debris_objects = self.model.grid.get_objects_from_list_of_grid(
-            'Debris', self.model.neighbours)
+        grid = self.model.grid
+        debris_objects = []
+        for obstacle in self.model.obstacles:
+            neighbours = grid.get_neighborhood(
+                obstacle.location, obstacle.radius)
+            debris_objects += grid.get_objects_from_list_of_grid(
+                'Debris', neighbours)
+        debris_objects = list(set(debris_objects))
+
+        # debris_objects = self.model.grid.get_objects_from_list_of_grid(
+        #     'Debris', self.model.neighbours)
 
         agent_debris_objects = []
 

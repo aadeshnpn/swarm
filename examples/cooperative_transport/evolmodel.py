@@ -120,6 +120,7 @@ class EvolModel(Model):
                     i, location=self.site.location,
                     radius=food_radius)
                 f.agent_name = None
+                f.phenotype = {}
                 self.grid.add_object_to_grid(f.location, f)
                 self.foods.append(f)
         except KeyError:
