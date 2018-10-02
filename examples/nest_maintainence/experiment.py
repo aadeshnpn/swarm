@@ -5,7 +5,7 @@ from evolmodel import EvolModel
 
 # from swarms.utils.jsonhandler import JsonData
 from swarms.utils.graph import Graph, GraphACC  # noqa: F401
-# from joblib import Parallel, delayed
+from joblib import Parallel, delayed
 from swarms.utils.results import SimulationResults
 from swarms.utils.jsonhandler import JsonPhenotypeData
 # Global variables for width and height
@@ -192,8 +192,7 @@ if __name__ == '__main__':
     # Running 50 experiments in parallel
     # steps = [100000 for i in range(50)]
     # Parallel(n_jobs=8)(delayed(main)(i) for i in steps)
-    # Parallel(n_jobs=8)(delayed(main)(i) for i in range(8000, 100000, 2000))
+    Parallel(n_jobs=8)(delayed(main)(i) for i in range(8000, 1000000, 2000))
     # for i in range(10000, 100000, 2000):
     #    main(i)
-    main(100000)
-
+    # main(100000)

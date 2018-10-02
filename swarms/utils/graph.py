@@ -176,7 +176,8 @@ class PGraph:
         ax1.plot(xvalues, self.max_std[:-2], color='blue', label='Max')
         ax1.plot(xvalues, self.min_std[:-2], color='purple', label='Min')
         ax1.fill_between(
-            xvalues, self.min_std[:-2], self.max_std[:-2], color="red", alpha=0.3)
+            xvalues, self.min_std[:-2], self.max_std[:-2], color="red",
+            alpha=0.3)
 
         ax1.set_xlabel('Iteration')
         ax1.set_xlabel('Fitness')
