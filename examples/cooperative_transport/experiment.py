@@ -4,55 +4,17 @@ from simmodel import SimModel
 from evolmodel import EvolModel
 
 # from swarms.utils.jsonhandler import JsonData
-from swarms.utils.graph import Graph, GraphACC  # noqa: F401
+from swarms.utils.graph import Graph, GraphACC
 from joblib import Parallel, delayed
 from swarms.utils.results import SimulationResults
 from swarms.utils.jsonhandler import JsonPhenotypeData
+import sys
+
 # Global variables for width and height
 width = 100
 height = 100
 
 UI = False
-
-
-def after_simluation(sim, phenotypes, iteration, threshold):
-    """Compute stuffs after defining experiment environment."""
-    simresults = SimulationResults(
-        sim.pname, sim.connect, sim.sn, sim.stepcnt, sim.food_in_hub(),
-        phenotypes[0]
-        )
-
-    simresults.save_phenotype()
-    simresults.save_to_file()
-
-    # Iterate and execute each step in the environment
-    for i in range(iteration):
-        # For every iteration we need to store the results
-        # Save them into db or a file
-        sim.step()
-        simresults = SimulationResults(
-            sim.pname, sim.connect, sim.sn, sim.stepcnt, sim.food_in_hub(),
-            phenotypes[0]
-            )
-        simresults.save_to_file()
-
-    value = sim.food_in_hub()
-
-    foraging_percent = (
-        value * 100.0) / (sim.num_agents * 2.0)
-
-    sucess = False
-    print('Foraging percent', value)
-
-    if foraging_percent >= threshold:
-        print('Foraging success')
-        sucess = True
-
-    sim.experiment.update_experiment_simulation(value, sucess)
-
-    # Plot the fitness in the graph
-    graph = GraphACC(sim.pname, 'simulation.csv')
-    graph.gen_plot()
 
 
 def extract_phenotype(agents, filename, method='ratio'):
@@ -84,13 +46,13 @@ def extract_phenotype(agents, filename, method='ratio'):
 
 
 def simulate_res1(env, iteration):
-    """Test the performane of evolved behavior with type 1 resilience."""
+    """Test the performane of evolved behavior."""
     phenotypes = env[0]
     threshold = 1.0
 
     sim = SimModel(
         100, 100, 100, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1],
-        expname='COTRes1', agent='SimAgentRes1')
+        expname='MSFRes1', agent='SimAgentRes1')
     sim.build_environment_from_json()
 
     # for all agents store the information about hub
@@ -98,34 +60,178 @@ def simulate_res1(env, iteration):
         agent.shared_content['Hub'] = {sim.hub}
         # agent.shared_content['Sites'] = {sim.site}
 
-    after_simluation(sim, phenotypes, iteration, threshold)
+    simresults = SimulationResults(
+        sim.pname, sim.connect, sim.sn, sim.stepcnt, sim.food_in_hub(),
+        phenotypes[0]
+        )
+
+    simresults.save_phenotype()
+    simresults.save_to_file()
+
+    # Iterate and execute each step in the environment
+    for i in range(iteration):
+        # For every iteration we need to store the results
+        # Save them into db or a file
+        sim.step()
+        simresults = SimulationResults(
+            sim.pname, sim.connect, sim.sn, sim.stepcnt, sim.food_in_hub(),
+            phenotypes[0]
+            )
+        simresults.save_to_file()
+
+    # print ('food at site', len(sim.food_in_loc(sim.site.location)))
+    # print ('food at hub', len(sim.food_in_loc(sim.hub.location)))
+    # print("Total food in the hub", len(food_objects))
+
+    food_objects = sim.food_in_loc(sim.hub.location)
+
+    for food in food_objects:
+        print('simulate phenotye:', dir(food))
+    value = sim.food_in_hub()
+
+    foraging_percent = (
+        value * 100.0) / (sim.num_agents * 2.0)
+
+    sucess = False
+    print('Foraging percent', value)
+
+    if foraging_percent >= threshold:
+        print('Foraging success')
+        sucess = True
+
+    sim.experiment.update_experiment_simulation(value, sucess)
+
+    # Plot the fitness in the graph
+    graph = GraphACC(sim.pname, 'simulation.csv')
+    graph.gen_plot()
 
 
 def simulate_res2(env, iteration):
-    """Test the performane of evolved behavior with type 2 resilience."""
+    """Test the performane of evolved behavior."""
     phenotypes = env[0]
     threshold = 1.0
 
     sim = SimModel(
         100, 100, 100, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1],
-        expname='COTRes2', agent='SimAgentRes2')
+        expname='MSFRes2', agent='SimAgentRes2')
     sim.build_environment_from_json()
 
-    after_simluation(sim, phenotypes, iteration, threshold)
+    # for all agents store the information about hub
+    for agent in sim.agents:
+        agent.shared_content['Hub'] = {sim.hub}
+        # agent.shared_content['Sites'] = {sim.site}
+
+    simresults = SimulationResults(
+        sim.pname, sim.connect, sim.sn, sim.stepcnt, sim.food_in_hub(),
+        phenotypes[0]
+        )
+
+    simresults.save_phenotype()
+    simresults.save_to_file()
+
+    # Iterate and execute each step in the environment
+    for i in range(iteration):
+        # For every iteration we need to store the results
+        # Save them into db or a file
+        sim.step()
+        simresults = SimulationResults(
+            sim.pname, sim.connect, sim.sn, sim.stepcnt, sim.food_in_hub(),
+            phenotypes[0]
+            )
+        simresults.save_to_file()
+
+    # print ('food at site', len(sim.food_in_loc(sim.site.location)))
+    # print ('food at hub', len(sim.food_in_loc(sim.hub.location)))
+    # print("Total food in the hub", len(food_objects))
+
+    food_objects = sim.food_in_loc(sim.hub.location)
+
+    for food in food_objects:
+        print('simulate phenotye:', dir(food))
+    value = sim.food_in_hub()
+
+    foraging_percent = (
+        value * 100.0) / (sim.num_agents * 2.0)
+
+    sucess = False
+    print('Foraging percent', value)
+
+    if foraging_percent >= threshold:
+        print('Foraging success')
+        sucess = True
+
+    sim.experiment.update_experiment_simulation(value, sucess)
+
+    # Plot the fitness in the graph
+    graph = GraphACC(sim.pname, 'simulation.csv')
+    graph.gen_plot()
 
 
 def simulate(env, iteration):
     """Test the performane of evolved behavior."""
     # phenotype = agent.individual[0].phenotype
     # phenotypes = extract_phenotype(agents)
-    phenotypes = env[0]
+    phenotypes = JsonPhenotypeData.load_json_file(env[0])
+    # print (phenotypes)
+    if len(phenotypes['phenotypes']) < 1:
+        return
+    else:
+        phenotypes = phenotypes['phenotypes']
     threshold = 1.0
 
     sim = SimModel(
         100, 100, 100, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1])
     sim.build_environment_from_json()
 
-    after_simluation(sim, phenotypes, iteration, threshold)
+    # for all agents store the information about hub
+    for agent in sim.agents:
+        agent.shared_content['Hub'] = {sim.hub}
+        # agent.shared_content['Sites'] = {sim.site}
+
+    simresults = SimulationResults(
+        sim.pname, sim.connect, sim.sn, sim.stepcnt, sim.food_in_hub(),
+        phenotypes[0]
+        )
+
+    simresults.save_phenotype()
+    simresults.save_to_file()
+
+    # Iterate and execute each step in the environment
+    for i in range(iteration):
+        # For every iteration we need to store the results
+        # Save them into db or a file
+        sim.step()
+        simresults = SimulationResults(
+            sim.pname, sim.connect, sim.sn, sim.stepcnt, sim.food_in_hub(),
+            phenotypes[0]
+            )
+        simresults.save_to_file()
+
+    # print ('food at site', len(sim.food_in_loc(sim.site.location)))
+    # print ('food at hub', len(sim.food_in_loc(sim.hub.location)))
+    # print("Total food in the hub", len(food_objects))
+
+    # food_objects = sim.food_in_loc(sim.hub.location)
+
+    # for food in food_objects:
+    #    print('simulate phenotye:', dir(food))
+    value = sim.food_in_hub()
+
+    foraging_percent = (
+        value * 100.0) / (sim.num_agents * 2.0)
+
+    sucess = False
+    print('Foraging percent', value)
+
+    if foraging_percent >= threshold:
+        print('Foraging success')
+        sucess = True
+
+    sim.experiment.update_experiment_simulation(value, sucess)
+
+    # Plot the fitness in the graph
+    graph = GraphACC(sim.pname, 'simulation.csv')
+    graph.gen_plot()
 
 
 def evolve(iteration):
@@ -153,9 +259,10 @@ def evolve(iteration):
     food_objects = env.food_in_loc(env.hub.location)
     # print('Total food in the hub evolution:', len(food_objects))
     env.phenotypes = []
+
     for food in food_objects:
-        # print(food.phenotype)
-        env.phenotypes += list(set(food.phenotype.values()))
+        print(food.phenotype)
+        env.phenotypes += list(food.phenotype.values())
 
     jfilename = env.pname + '/' + env.runid + '.json'
     JsonPhenotypeData.to_json(env.phenotypes, jfilename)
@@ -164,27 +271,37 @@ def evolve(iteration):
     # env.phenotypes = extract_phenotype(env.agents, jfilename)
 
     # Plot the fitness in the graph
-    # graph = Graph(env.pname, 'best.csv', ['explore', 'foraging'])
-    # graph.gen_best_plots()
+    graph = Graph(env.pname, 'best.csv', ['explore', 'foraging'])
+    graph.gen_best_plots()
 
     # Test the evolved behavior
     return env
 
 
-def main(iter):
+def main():
     """Block for the main function."""
     print('=======Start=========')
-    env = evolve(iter)
+
+    # env = evolve(iter)
     # simulate(None, iter)
-    if len(env.phenotypes) > 1:
-        steps = [5000 for i in range(8)]
-        env = (env.phenotypes, env.pname)
-        for step in steps:
-            simulate(env, step)
+    pname = sys.argv[1]
+    jfilename = sys.argv[2]
+    pname = pname.split(',')
+    jfilename = jfilename.split(',')
+    # jfilename = '1536367107226.json'
+    #data = JsonPhenotypeData.load_json_file(jfilename)
+    #if len(data['phenotypes']) > 1:
+        # steps = [5000 for i in range(8)]
+        #env = (data['phenotypes'], pname)
         # Parallel(n_jobs=4)(delayed(simulate)(env, i) for i in steps)
         # Parallel(n_jobs=4)(delayed(simulate_res1)(env, i) for i in steps)
         # Parallel(n_jobs=4)(delayed(simulate_res2)(env, i) for i in steps)
-        # simulate(env, 10000)
+        #simulate(env, 5000)
+    # Run each phenotype 8 times so to get an average
+    for i in range(len(pname)):
+        if pname[i] not in '':
+            Parallel(n_jobs=8)(delayed(simulate)((jfilename[i], pname[i]), 5000) for j in range(8))
+
     print('=======End=========')
 
 
@@ -192,7 +309,6 @@ if __name__ == '__main__':
     # Running 50 experiments in parallel
     # steps = [100000 for i in range(50)]
     # Parallel(n_jobs=8)(delayed(main)(i) for i in steps)
-    Parallel(n_jobs=8)(delayed(main)(i) for i in range(8000, 1000000, 2000))
-    # main(900)
-    # for step in steps:
-    #     main(step)
+    # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 100000, 2000))
+    main()
+
