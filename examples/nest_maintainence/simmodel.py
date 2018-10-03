@@ -157,14 +157,6 @@ class SimModel(Model):
         except AttributeError:
             pass
 
-        # This doesn't change so no need to compute everytime
-        grid = self.grid
-        hub_loc = self.hub.location
-
-        neighbours_in = grid.get_neighborhood(hub_loc, 25)
-        neighbours_out = grid.get_neighborhood(hub_loc, 50)
-        self.neighbours = list(set(neighbours_out) - set(neighbours_in))
-
         if self.viewer:
             self.ui = UI(
                 (self.width, self.height), [self.hub], self.agents,

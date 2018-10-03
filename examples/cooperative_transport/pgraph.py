@@ -1,7 +1,7 @@
 """Script to draw performance graph for paper."""
 
 import sys
-from swarms.utils.graph import PGraph
+from swarms.utils.graph import PGraph, BoxGraph
 
 
 def main():
@@ -11,6 +11,9 @@ def main():
     filenames = filenames.split(',')
     graph = PGraph(fdir, filenames)
     graph.gen_plot()
+
+    box = BoxGraph(fdir, filenames)
+    box.gen_plot()
 
 
 if __name__ == '__main__':
