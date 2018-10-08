@@ -114,12 +114,12 @@ class EvolModel(Model):
         try:
             self.debris = []
             for i in range(self.num_agents):
-                dx, dy = self.random.randint(5, 10, 2)
+                dx, dy = self.random.randint(1, 10, 2)
                 dx = self.hub.location[0] + dx
                 dy = self.hub.location[1] + dy
                 d = Debris(
                     i, location=(dx, dy),
-                    radius=5)
+                    radius=10)
                 d.agent_name = None
                 self.grid.add_object_to_grid(d.location, d)
                 self.debris.append(d)
@@ -129,7 +129,7 @@ class EvolModel(Model):
         # Create a place for the agents to drop the derbis
         try:
             self.obstacles = []
-            for i in range(4):
+            for i in range(1):
                 dx, dy = self.random.randint(5, 10, 2)
                 dx = self.hub.location[0] + 25 + dx
                 dy = self.hub.location[1] + 25 + dy

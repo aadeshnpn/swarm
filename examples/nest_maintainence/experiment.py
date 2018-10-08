@@ -8,6 +8,7 @@ from swarms.utils.graph import Graph, GraphACC  # noqa: F401
 from joblib import Parallel, delayed
 from swarms.utils.results import SimulationResults
 from swarms.utils.jsonhandler import JsonPhenotypeData
+
 # Global variables for width and height
 width = 100
 height = 100
@@ -48,7 +49,7 @@ def after_simulation(sim, phenotypes, iteration, threshold):
     # for all agents store the information about hub
     for agent in sim.agents:
         agent.shared_content['Hub'] = {sim.hub}
-        # agent.shared_content['Obstacles'] = {sim.obstacles}
+        agent.shared_content['Obstacles'] = set(sim.obstacles)
 
     simresults = SimulationResults(
         sim.pname, sim.connect, sim.sn, sim.stepcnt,
@@ -125,6 +126,9 @@ def simulate(env, iteration):
         100, 100, 100, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1])
     sim.build_environment_from_json()
 
+    # print(len(sim.obstacles), len(sim.debris))
+    # py_trees.display.print_ascii_tree(sim.agents[0].bt.behaviour_tree.root)
+
     after_simulation(sim, phenotypes, iteration, threshold)
 
 
@@ -138,7 +142,7 @@ def evolve(iteration):
     # for all agents store the information about hub
     for agent in env.agents:
         agent.shared_content['Hub'] = {env.hub}
-        # agent.shared_content['Obstacles'] = set(env.obstacles)
+        agent.shared_content['Obstacles'] = set(env.obstacles)
 
     # Iterate and execute each step in the environment
     for i in range(iteration):
@@ -179,20 +183,27 @@ def main(iter):
     if len(env.phenotypes) > 1:
         steps = [5000 for i in range(8)]
         env = (env.phenotypes, env.pname)
+        # jname = '/home/aadeshnpn/Documents/BYU/hcmi/swarm/results/
+        # 1538612308183NestM/1538612308183.json'
+        # phenotype = JsonPhenotypeData.load_json_file(jname)
+        # pname = '/home/aadeshnpn/Documents/BYU/hcmi/swarm/results
+        # /1538612308183NestM/'
+        # env = (phenotype['phenotypes'], pname)
         # Parallel(n_jobs=8)(delayed(simulate)(env, i) for i in steps)
         for step in steps:
             simulate(env, step)
         # Parallel(n_jobs=4)(delayed(simulate_res1)(env, i) for i in steps)
         # Parallel(n_jobs=4)(delayed(simulate_res2)(env, i) for i in steps)
         # simulate(env, 10000)
+
     print('=======End=========')
 
 
 if __name__ == '__main__':
     # Running 50 experiments in parallel
-    # steps = [100000 for i in range(50)]
-    # Parallel(n_jobs=8)(delayed(main)(i) for i in steps)
-    Parallel(n_jobs=8)(delayed(main)(i) for i in range(8000, 1000000, 2000))
+    steps = [20000 for i in range(50)]
+    Parallel(n_jobs=8)(delayed(main)(i) for i in steps)
+    # Parallel(n_jobs=8)(delayed(main)(i) for i in range(8000, 1000000, 2000))
     # for i in range(10000, 100000, 2000):
     #    main(i)
-    # main(100000)
+    # main(20000)
