@@ -203,10 +203,10 @@ def simulate(env, iteration):
     # print ('food at hub', len(sim.food_in_loc(sim.hub.location)))
     # print("Total food in the hub", len(food_objects))
 
-    food_objects = sim.food_in_loc(sim.hub.location)
+    #food_objects = sim.food_in_loc(sim.hub.location)
 
-    for food in food_objects:
-        print('simulate phenotye:', dir(food))
+    #for food in food_objects:
+    #    print('simulate phenotye:', dir(food))
     value = sim.food_in_hub()
 
     foraging_percent = (
@@ -272,14 +272,21 @@ def evolve(iteration):
 def main(iter):
     """Block for the main function."""
     print('=======Start=========')
-    env = evolve(iter)
+    #env = evolve(iter)
     # simulate(None, iter)
-    if len(env.phenotypes) > 1:
-        steps = [5000 for i in range(8)]
-        env = (env.phenotypes, env.pname)
-        #Parallel(n_jobs=8)(delayed(simulate)(env, i) for i in steps)
-        for i in steps:
-            simulate(env, i)
+    # Read from the json
+    pname = '/home/aadeshnpn/Documents/BYU/HCMI/research/single/07777SForagingSimulation'
+    jfilename = pname + '/1538473090382007.json'
+    jdata = JsonPhenotypeData.load_json_file(jfilename)
+    phenotypes = jdata['phenotypes']
+    #if len(env.phenotypes) > 1:
+    if len(phenotypes) > 1:
+        steps = [5000 for i in range(50)]
+        # env = (env.phenotypes, env.pname)
+        env = (phenotypes, pname)
+        Parallel(n_jobs=16)(delayed(simulate)(env, i) for i in steps)
+        #for i in steps:
+        #    simulate(env, i)
         # Parallel(n_jobs=4)(delayed(simulate_res1)(env, i) for i in steps)
         # Parallel(n_jobs=4)(delayed(simulate_res2)(env, i) for i in steps)
         # simulate(env, 10000)
@@ -290,8 +297,8 @@ if __name__ == '__main__':
     # Running 50 experiments in parallel
     # steps = [100000 for i in range(50)]
     # Parallel(n_jobs=8)(delayed(main)(i) for i in steps)
-    Parallel(n_jobs=16)(delayed(main)(i) for i in range(10000, 1000000, 2000))
-    # main(90000)
+    # Parallel(n_jobs=16)(delayed(main)(i) for i in range(10000, 1000000, 2000))
+    main(90000)
     #for i in range(10000, 1000000, 2000):
     #    main(i)
 

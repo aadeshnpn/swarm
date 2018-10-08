@@ -1,5 +1,5 @@
-expfolder="/home/aadeshnpn/Documents/BYU/hcmi/hri/with_comm_not_move_1"
-
+#expfolder="/home/aadeshnpn/Documents/BYU/hcmi/hri/with_comm_not_move_1"
+expfolder="/home/aadeshnpn/Documents/BYU/HCMI/research/multiple"
 filepath=($(find ${expfolder} -type f | grep json))
 
 firstarg=""

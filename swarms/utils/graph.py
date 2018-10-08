@@ -9,10 +9,11 @@ plt.style.use('fivethirtyeight')
 
 class Graph:
 
-    def __init__(self, directory, fname, fields):
-        self.directory = directory
-        self.fname = fname
-        self.fields = fields
+    def __init__(self, directory, fname, fields, tile="Fitness function"):
+        self.__dict__.update(locals())
+        # self.directory = director
+        # self.fname = fname
+        # self.fields = fields
         self.data = self.load_file()
         self.mean = self.data[self.data['header'] == 'MEAN']
         self.std = self.data[self.data['header'] == 'STD']
@@ -48,8 +49,9 @@ class Graph:
             plt.xlim(0, len(mean))
             ax1.set_xlabel('Steps')
             ax1.set_xlabel('Fitness')
-            ax1.set_title('Fitness function')
+            ax1.set_title(self.title)
 
+        plt.tight_layout()
         fig.savefig(self.directory + '/best.pdf')
         fig.savefig(self.directory + '/best.png')
         plt.close(fig)
@@ -64,9 +66,10 @@ class Graph:
 
 class GraphACC:
 
-    def __init__(self, directory, fname):
-        self.directory = directory
-        self.fname = fname
+    def __init__(self, directory, fname, title="ACC Graph"):
+        self.__dict__.update(locals())
+        # self.directory = directory
+        # self.fname = fname
         self.data = self.load_file()
         self.step = self.data['step'].values
         self.performance = self.data['fitness'].values
@@ -79,8 +82,9 @@ class GraphACC:
         ax1.set_xlabel('Steps')
         ax1.set_xlabel('Performance')
 
-        ax1.set_title('ACC Graph')
+        ax1.set_title(self.title)
 
+        plt.tight_layout()
         fig.savefig(self.directory + '/acc.pdf')
         fig.savefig(self.directory + '/acc.png')
         plt.close(fig)
@@ -95,9 +99,10 @@ class GraphACC:
 
 class ResMinMaxACC:
 
-    def __init__(self, directory, fnames):
-        self.directory = directory
-        self.fnames = fnames
+    def __init__(self, directory, fnames, title="ACC Graph with Resilience"):
+        self.__dict__.update(locals())
+        # self.directory = directory
+        # self.fnames = fnames
 
     def gen_plot(self):
         fig = plt.figure()
@@ -128,7 +133,7 @@ class ResMinMaxACC:
         ax1.set_xlabel('Fitness')
 
         ax1.set_title('ACC Graph with Resilience')
-
+        plt.tight_layout()
         fig.savefig(self.directory + '/acc_res.pdf')
         fig.savefig(self.directory + '/acc_res.png')
         plt.close(fig)
@@ -147,9 +152,10 @@ class ResMinMaxACC:
 
 class PGraph:
 
-    def __init__(self, directory, fnames):
-        self.directory = directory
-        self.fnames = fnames
+    def __init__(self, directory, fnames, title="Performance"):
+        self.__dict__.update(locals())
+        # self.directory = directory
+        # self.fnames = fnames
 
     def gen_plot(self):
         fig = plt.figure()
@@ -186,8 +192,9 @@ class PGraph:
         ax1.set_xlabel('Iteration')
         ax1.set_ylabel('Fitness')
 
-        ax1.set_title('Performance')
+        ax1.set_title(self.title)
         ax1.legend()
+        plt.tight_layout()
         fig.savefig(self.directory + '/average.pdf')
         fig.savefig(self.directory + '/average.png')
         plt.close(fig)
@@ -206,9 +213,10 @@ class PGraph:
 
 class BoxGraph:
 
-    def __init__(self, directory, fnames):
-        self.directory = directory
-        self.fnames = fnames
+    def __init__(self, directory, fnames, title="Performance"):
+        self.__dict__.update(locals())
+        # self.directory = directory
+        # self.fnames = fnames
 
     def gen_plot(self):
         fig = plt.figure()
@@ -246,10 +254,66 @@ class BoxGraph:
         ax1.set_xlabel('Iteration')
         ax1.set_ylabel('Fitness')
 
-        ax1.set_title('Performance')
+        ax1.set_title(self.title)
         ax1.legend()
+        plt.tight_layout()
         fig.savefig(self.directory + '/boxplot.pdf')
         fig.savefig(self.directory + '/boxplot.png')
+        plt.close(fig)
+
+    def load_file(self, fname):
+        try:
+            data = pd.read_csv(
+                fname, sep='|', skipinitialspace=True)
+            return data
+        except FileNotFoundError:
+            exit()
+
+    def save_step_graph(self, filename, fields):
+        pass
+
+
+class PCompGraph:
+
+    def __init__(self, dir1, fnames1, fnames2, title="Performance"):
+        self.__dict__.update(locals())
+
+    def load_data(self, fnames):
+        data = []
+        for fname in fnames:
+            if len(fname) > 1:
+                values = self.load_file(fname)
+                data.append(values['fitness'].tolist())
+
+        data = np.array(data)
+        return data
+
+    def gen_plot(self):
+        fig = plt.figure()
+
+        data1 = self.load_data(self.fnames1)
+        data2 = self.load_data(self.fnames2)
+
+        self.mean1 = np.nanmean(data1, axis=0)
+        self.mean2 = np.nanmean(data2, axis=0)
+        #self.std = np.nanstd(data, axis=0)
+        #self.max_std = self.mean + self.std
+        #self.min_std = self.mean - self.std
+
+        xvalues = range(1, self.mean1.shape[0] - 1)
+
+        ax1 = fig.add_subplot(1, 1, 1)
+
+        ax1.plot(xvalues, self.mean1[:-2], color='green', label='Single-Source')
+        ax1.plot(xvalues, self.mean2[:-2], color='red', label='Multiple-Source')
+
+        ax1.set_xlabel('Iteration')
+        ax1.set_ylabel('Mean Fitness')
+        ax1.set_title(self.title)
+        ax1.legend()
+        plt.tight_layout()
+        fig.savefig(self.dir1 + '/mean.pdf')
+        fig.savefig(self.dir1 + '/mean.png')
         plt.close(fig)
 
     def load_file(self, fname):

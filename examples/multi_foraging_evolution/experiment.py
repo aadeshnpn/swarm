@@ -297,7 +297,8 @@ def main():
         # Parallel(n_jobs=4)(delayed(simulate_res1)(env, i) for i in steps)
         # Parallel(n_jobs=4)(delayed(simulate_res2)(env, i) for i in steps)
         #simulate(env, 5000)
-    Parallel(n_jobs=4)(delayed(simulate)((jfilename[i], pname[i]), 5000) for i in range(len(pname)-1))
+    #Parallel(n_jobs=4)(delayed(simulate)((jfilename[i], pname[i]), 5000) for i in range(len(pname)-1))
+    Parallel(n_jobs=8)(delayed(simulate)((jfilename[0], pname[0]), 5000) for i in range(8))
 
     print('=======End=========')
 

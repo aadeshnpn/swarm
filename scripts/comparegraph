@@ -1,0 +1,67 @@
+#!/usr/bin/bash
+#@author: aadeshnpn
+
+# Script to collect simulation and average the results and plot the graph
+
+getpath()
+{
+exp=$1
+for expfolder in ${exp[@]}
+do
+    # echo "## ${expfolder}"
+    fileargs=""
+    filepath=($(find ${expfolder} -type f -name 'simulation.csv'))
+    #echo "${filepath[@]}"
+    for csv in ${filepath[@]}
+    do
+        if [[ ${#filepath[@]} -gt 0 ]]; then
+            #echo "${csv}"
+            fileargs+=${csv},
+        fi
+    done
+    # echo "${fileargs}"
+    if [[ ${#fileargs} -gt 0 ]]; then
+        echo "${fileargs}" #${expfold}
+        #python pgraph.py "${fileargs}" ${expfolder}
+    fi
+done
+}
+
+expfold="/tmp/single"
+exp=($(find ${expfold} -maxdepth 1 -type d  | grep "SFor"))
+
+list1=$(getpath ${exp[@]})
+
+expfold="/tmp/multiple"
+exp=($(find ${expfold} -maxdepth 1 -type d  | grep "MSFor"))
+
+
+list2=$(getpath ${exp[@]})
+
+python  << EOF
+"""Script to draw performance graph for paper."""
+import sys
+from swarms.utils.graph import PCompGraph
+
+
+def main():
+    """Parse args and call graph module."""
+    #filenames = sys.argv[1]
+    #fdir = sys.argv[2]
+    fdir="/tmp/"
+    filenames1="${list1}"
+    filenames1 = filenames1.split(',')
+    filenames2="${list2}"
+    filenames2 = filenames2.split(',')
+    #graph = PGraph(fdir, filenames1, "Single-Source Foraging")
+    graph = PCompGraph(fdir, filenames1, filenames2, "Foraging Problems")
+    graph.gen_plot()
+
+    #box = BoxGraph(fdir, filenames, "Single-Source Foraging")
+    #box = BoxGraph(fdir, filenames, "Nest Maintenance")
+    #box.gen_plot()
+
+
+if __name__ == '__main__':
+    main()
+EOF
