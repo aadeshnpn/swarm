@@ -163,7 +163,7 @@ def simulate_res2(env, iteration):
     graph.gen_plot()
 
 
-def simulate(env, iteration):
+def simulate(env, iteration, N=100):
     """Test the performane of evolved behavior."""
     # phenotype = agent.individual[0].phenotype
     # phenotypes = extract_phenotype(agents)
@@ -172,7 +172,7 @@ def simulate(env, iteration):
     threshold = 1.0
 
     sim = SimModel(
-        100, 100, 100, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1])
+        N, 100, 100, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1])
     sim.build_environment_from_json()
 
     # for all agents store the information about hub
@@ -272,24 +272,26 @@ def evolve(iteration):
 def main(iter):
     """Block for the main function."""
     print('=======Start=========')
-    #env = evolve(iter)
+    # env = evolve(iter)
     # simulate(None, iter)
     # Read from the json
-    pname = '/home/aadeshnpn/Documents/BYU/HCMI/research/single/07777SForagingSimulation'
-    jfilename = pname + '/1538473090382007.json'
+    pname = '/home/aadeshnpn/Documents/BYU/hcmi/hri/nest_maint/007NestMAgents'
+    jfilename = pname + '/1539014820252.json'
     jdata = JsonPhenotypeData.load_json_file(jfilename)
     phenotypes = jdata['phenotypes']
-    #if len(env.phenotypes) > 1:
-    if len(phenotypes) > 1:
-        steps = [5000 for i in range(50)]
-        # env = (env.phenotypes, env.pname)
-        env = (phenotypes, pname)
-        Parallel(n_jobs=16)(delayed(simulate)(env, i) for i in steps)
-        #for i in steps:
-        #    simulate(env, i)
-        # Parallel(n_jobs=4)(delayed(simulate_res1)(env, i) for i in steps)
-        # Parallel(n_jobs=4)(delayed(simulate_res2)(env, i) for i in steps)
-        # simulate(env, 10000)
+    # if len(env.phenotypes) > 1:
+    for N in range(50, 500, 25):
+        if len(phenotypes) > 1:
+            steps = [5000 for i in range(16)]
+            # env = (env.phenotypes, env.pname)
+            aname = pname + '/' + str(N)
+            env = (phenotypes, aname)
+            Parallel(n_jobs=16)(delayed(simulate)(env, i, N) for i in steps)
+            #for i in steps:
+            #    simulate(env, i)
+            # Parallel(n_jobs=4)(delayed(simulate_res1)(env, i) for i in steps)
+            # Parallel(n_jobs=4)(delayed(simulate_res2)(env, i) for i in steps)
+            # simulate(env, 10000)
     print('=======End=========')
 
 

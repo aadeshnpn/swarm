@@ -8,6 +8,7 @@ from swarms.utils.graph import Graph, GraphACC  # noqa: F401
 from joblib import Parallel, delayed
 from swarms.utils.results import SimulationResults
 from swarms.utils.jsonhandler import JsonPhenotypeData
+import os
 
 # Global variables for width and height
 width = 100
@@ -64,18 +65,18 @@ def after_simulation(sim, phenotypes, iteration, threshold):
         # For every iteration we need to store the results
         # Save them into db or a file
         sim.step()
+        debris_objects = sim.debris_cleaned()
+
+        value = len(debris_objects)
+
+        cleaned_percent = (
+            value * 100.0) / (sim.num_agents)
+
         simresults = SimulationResults(
             sim.pname, sim.connect, sim.sn, sim.stepcnt,
-            len(sim.debris_cleaned()), phenotypes[0]
+            int(cleaned_percent), phenotypes[0]
             )
         simresults.save_to_file()
-
-    debris_objects = sim.debris_cleaned()
-
-    value = len(debris_objects)
-
-    cleaned_percent = (
-        value * 100.0) / (sim.num_agents * 2.0)
 
     sucess = False
     print('Cleaning percent', value)
@@ -117,13 +118,13 @@ def simulate_res2(env, iteration):
     after_simulation(sim, phenotypes, iteration, threshold)
 
 
-def simulate(env, iteration):
+def simulate(env, iteration, N=100):
     """Test the performane of evolved behavior."""
     phenotypes = env[0]
     threshold = 1.0
 
     sim = SimModel(
-        100, 100, 100, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1])
+        N, 100, 100, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1])
     sim.build_environment_from_json()
 
     # print(len(sim.obstacles), len(sim.debris))
@@ -179,10 +180,20 @@ def evolve(iteration):
 def main(iter):
     """Block for the main function."""
     print('=======Start=========')
-    env = evolve(iter)
-    if len(env.phenotypes) > 1:
-        steps = [5000 for i in range(8)]
-        env = (env.phenotypes, env.pname)
+    # env = evolve(iter)
+    pname = '/home/aadeshnpn/Documents/BYU/hcmi/hri/nest_maint/00100NestMAgents'
+    jfilename = pname + '/1539014820252.json'
+    jdata = JsonPhenotypeData.load_json_file(jfilename)
+    phenotypes = jdata['phenotypes']
+
+    # if len(env.phenotypes) > 1:
+    for N in range(225, 500, 25):
+        if len(phenotypes) > 1:
+            steps = [5000 for i in range(16)]
+            aname = pname + '/' + str(N)
+            os.mkdir(aname)
+            env = (phenotypes, aname)
+            Parallel(n_jobs=16)(delayed(simulate)(env, i, N) for i in steps)
         # jname = '/home/aadeshnpn/Documents/BYU/hcmi/swarm/results/
         # 1538612308183NestM/1538612308183.json'
         # phenotype = JsonPhenotypeData.load_json_file(jname)
@@ -190,8 +201,8 @@ def main(iter):
         # /1538612308183NestM/'
         # env = (phenotype['phenotypes'], pname)
         # Parallel(n_jobs=8)(delayed(simulate)(env, i) for i in steps)
-        for step in steps:
-            simulate(env, step)
+        # for step in steps:
+        #    simulate(env, step)
         # Parallel(n_jobs=4)(delayed(simulate_res1)(env, i) for i in steps)
         # Parallel(n_jobs=4)(delayed(simulate_res2)(env, i) for i in steps)
         # simulate(env, 10000)
@@ -201,9 +212,9 @@ def main(iter):
 
 if __name__ == '__main__':
     # Running 50 experiments in parallel
-    steps = [20000 for i in range(50)]
-    Parallel(n_jobs=8)(delayed(main)(i) for i in steps)
+    # steps = [20000 for i in range(50)]
+    # Parallel(n_jobs=8)(delayed(main)(i) for i in steps)
     # Parallel(n_jobs=8)(delayed(main)(i) for i in range(8000, 1000000, 2000))
     # for i in range(10000, 100000, 2000):
     #    main(i)
-    # main(20000)
+    main(20000)

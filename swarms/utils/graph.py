@@ -166,8 +166,8 @@ class PGraph:
                 data.append(values['fitness'].tolist())
 
         data = np.array(data)
-
         self.mean = np.nanmean(data, axis=0)
+        np.save(self.directory + '/' + 'mean.obj', self.mean, allow_pickle=False)
         self.std = np.nanstd(data, axis=0)
         self.max_std = self.mean + self.std
         self.min_std = self.mean - self.std
@@ -230,6 +230,7 @@ class BoxGraph:
 
         self.mean = np.nanmean(data, axis=0)
         self.std = np.nanstd(data, axis=0)
+        np.save(self.directory + '/' + 'std.obj', self.mean, allow_pickle=False)
         self.max_std = self.mean + self.std
         self.min_std = self.mean - self.std
 
@@ -326,3 +327,46 @@ class PCompGraph:
 
     def save_step_graph(self, filename, fields):
         pass
+
+
+class PMultCompGraph:
+
+    def __init__(self, dir, fnames, title="Performance"):
+        self.__dict__.update(locals())
+
+    def load_data(self, fnames):
+        data = []
+        for fname in fnames:
+            mean = np.load(fname)
+            data.append(mean)
+
+        return data
+
+    def gen_plot(self):
+        # These are the colors that will be used in the plot
+        color_sequence = [
+            '#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c',
+            '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5',
+            '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f',
+            '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5']
+
+        fig = plt.figure()
+
+        means = self.load_data(self.fnames)
+
+        xvalues = range(1, means[0].shape[0] - 1)
+
+        ax1 = fig.add_subplot(1, 1, 1)
+        no = list(range(50, 500, 25))
+        for i in range(len(means)):
+            ax1.plot(
+                xvalues, means[i][:-2], label=str(no[i]) + ' Agents', color=color_sequence[i])
+
+        ax1.set_xlabel('Iteration')
+        ax1.set_ylabel('Mean Fitness')
+        ax1.set_title(self.title)
+        ax1.legend()
+        plt.tight_layout()
+        fig.savefig(self.dir + '/overallmean.pdf')
+        fig.savefig(self.dir + '/overallmean.png')
+        plt.close(fig)
