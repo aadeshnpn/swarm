@@ -4,7 +4,7 @@
 # Script to collect mean for same experiment based on the number of agents
 
 
-expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/nest_maint/00100NestMAgents"
+expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/nest_maint/0101010NestMAgents"
 
 exp=($(find ${expfold} -type f -name mean*.npy | xargs ls -v ))
 

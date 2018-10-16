@@ -3,19 +3,19 @@
 
 # Script to collect simulation and average the results and plot the graph
 
-#expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/cooperative_transport"
-expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/nest_maint/00100NestMAgents"
+expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/cooperative_transport"
+#expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/nest_maint/0101010NestMAgents"
 #expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/ct"
-#exp=($(find ${expfold} -maxdepth 1 -type d  | grep "COT"))
-exp=($(find ${expfold} -maxdepth 1 -type d ))
+exp=($(find ${expfold} -maxdepth 1 -type d  | grep "COT"))
+#exp=($(find ${expfold} -maxdepth 1 -type d ))
 #exp=($(find ${expfold} -maxdepth 1 -type d  | grep "NestM"))
-
+# echo "${exp[@]}"
 for expfolder in ${exp[@]}
 do
-    # echo "## ${expfolder}"
+    #echo "${expfolder[@]}"
     fileargs=""
     filepath=($(find ${expfolder} -type f -name 'simulation.csv'))
-    #echo "${filepath[@]}"
+    # echo "${#filepath[@]}"
     for csv in ${filepath[@]}
     do
         if [[ ${#filepath[@]} -gt 0 ]]; then
@@ -25,7 +25,7 @@ do
     done
     # echo "${fileargs}"
     if [[ ${#fileargs} -gt 0 ]]; then
-        echo "${fileargs} ${expfold}"
+        #echo "${fileargs} ${expfold}"
         python pgraph.py "${fileargs}" ${expfolder}
     fi
 done

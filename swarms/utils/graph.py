@@ -244,7 +244,8 @@ class BoxGraph:
         box_data = [box_data[i] for i in range(500, maxgen, 500)]
 
         ax1.boxplot(
-            box_data, 0, 'gD', positions=list(range(500, maxgen, 500)))
+            box_data, 0, 'gD', positions=list(range(500, maxgen, 500)),
+            widths=100)
 
         ax1.fill_between(
             xvalues, self.min_std[:-2], self.max_std[:-2], color="red",
@@ -253,7 +254,7 @@ class BoxGraph:
         plt.xlim(0, maxgen + 1)
 
         ax1.set_xlabel('Iteration')
-        ax1.set_ylabel('Fitness')
+        ax1.set_ylabel('Performance')
 
         ax1.set_title(self.title)
         ax1.legend()
@@ -309,7 +310,7 @@ class PCompGraph:
         ax1.plot(xvalues, self.mean2[:-2], color='red', label='Multiple-Source')
 
         ax1.set_xlabel('Iteration')
-        ax1.set_ylabel('Mean Fitness')
+        ax1.set_ylabel('Mean Perfromance')
         ax1.set_title(self.title)
         ax1.legend()
         plt.tight_layout()
@@ -357,7 +358,7 @@ class PMultCompGraph:
         xvalues = range(1, means[0].shape[0] - 1)
 
         ax1 = fig.add_subplot(1, 1, 1)
-        no = list(range(50, 500, 25))
+        no = list(range(50, 550, 50))
         for i in range(len(means)):
             ax1.plot(
                 xvalues, means[i][:-2], label=str(no[i]) + ' Agents', color=color_sequence[i])
@@ -365,7 +366,7 @@ class PMultCompGraph:
         ax1.set_xlabel('Iteration')
         ax1.set_ylabel('Mean Fitness')
         ax1.set_title(self.title)
-        ax1.legend()
+        ax1.legend(fontsize="x-small")
         plt.tight_layout()
         fig.savefig(self.dir + '/overallmean.pdf')
         fig.savefig(self.dir + '/overallmean.png')

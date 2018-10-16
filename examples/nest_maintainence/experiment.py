@@ -187,7 +187,7 @@ def main(iter):
     phenotypes = jdata['phenotypes']
 
     # if len(env.phenotypes) > 1:
-    for N in range(225, 500, 25):
+    for N in range(500, 550, 25):
         if len(phenotypes) > 1:
             steps = [5000 for i in range(16)]
             aname = pname + '/' + str(N)
