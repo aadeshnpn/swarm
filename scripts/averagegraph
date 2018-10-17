@@ -3,12 +3,16 @@
 
 # Script to collect simulation and average the results and plot the graph
 
-expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/cooperative_transport"
-#expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/nest_maint/0101010NestMAgents"
+#expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/cooperative_transport"
+#expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/nest_maint"
 #expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/ct"
-exp=($(find ${expfold} -maxdepth 1 -type d  | grep "COT"))
+expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/nest_maint"
+
+#exp=($(find ${expfold} -maxdepth 1 -type d  | grep "COT"))
 #exp=($(find ${expfold} -maxdepth 1 -type d ))
-#exp=($(find ${expfold} -maxdepth 1 -type d  | grep "NestM"))
+#exp=($(find ${expfold} -maxdepth 1 -type d  | grep "1539014820252NestM"))
+exp=($(find ${expfold} -maxdepth 2 -type d  | grep "00100NestMAgents"))
+
 # echo "${exp[@]}"
 for expfolder in ${exp[@]}
 do

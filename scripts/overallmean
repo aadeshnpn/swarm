@@ -4,7 +4,7 @@
 # Script to collect mean for same experiment based on the number of agents
 
 
-expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/nest_maint/0101010NestMAgents"
+expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/nest_maint/00100NestMAgents"
 
 exp=($(find ${expfold} -type f -name mean*.npy | xargs ls -v ))
 
@@ -13,7 +13,7 @@ exp=($(find ${expfold} -type f -name mean*.npy | xargs ls -v ))
 python  << EOF
 """Script to draw performance graph for paper."""
 import sys
-from swarms.utils.graph import PMultCompGraph
+from swarms.utils.graph import PMultCompGraph, PMultGraph
 
 
 def main():
@@ -24,7 +24,8 @@ def main():
     # print (filenames)
     box = PMultCompGraph(fdir, filenames, "Nest Maintenance")
     box.gen_plot()
-
+    agraph = PMultGraph(fdir, filenames, "Nest Maintenance")
+    agraph.gen_plot()
 
 if __name__ == '__main__':
     main()
