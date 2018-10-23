@@ -406,7 +406,7 @@ class PMultGraph:
         # box_data = [means[i] for i in range(0, 20)]
         # ax1.boxplot(box_data, 0, 'gD', positions=list(range(50, 550, 25)), widths=25)
 
-        no = list(range(50, 550, 25))
+        no = list(range(50, 525, 25))
         values = []
 
         for i in range(len(means)):

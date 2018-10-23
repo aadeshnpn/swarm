@@ -32,8 +32,11 @@ class SimModel(Model):
         else:
             super(SimModel, self).__init__(seed)
 
-        self.runid = datetime.datetime.now().strftime(
-            "%s") + str(self.random.randint(1, 1000, 1)[0])
+        # self.runid = datetime.datetime.now().strftime(
+        #    "%s") + str(self.random.randint(1, 1000, 1)[0])
+
+        self.runid = datetime.datetime.now().timestamp()
+        self.runid = str(self.runid).replace('.', '')
 
         if pname is None:
             self.pname = os.getcwd() + '/' + self.runid + expname
@@ -131,7 +134,7 @@ class SimModel(Model):
         self.hub = self.render.objects['hub'][0]
         try:
             self.debris = []
-            for i in range(self.num_agents):
+            for i in range(200):
                 dx, dy = self.random.randint(1, 10, 2)
                 dx = self.hub.location[0] + dx
                 dy = self.hub.location[1] + dy
