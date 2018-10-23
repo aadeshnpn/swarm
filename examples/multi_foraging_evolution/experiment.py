@@ -171,13 +171,18 @@ def simulate(env, iteration):
     """Test the performane of evolved behavior."""
     # phenotype = agent.individual[0].phenotype
     # phenotypes = extract_phenotype(agents)
-    phenotypes = JsonPhenotypeData.load_json_file(env[0])
+    # phenotypes = JsonPhenotypeData.load_json_file(env[0])
     # print (phenotypes)
+    """
     if len(phenotypes['phenotypes']) < 1:
         return
     else:
         phenotypes = phenotypes['phenotypes']
+    """
     threshold = 1.0
+
+    phenotypes = env[0]
+    pname = env[1]
 
     sim = SimModel(
         100, 100, 100, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1])
@@ -271,15 +276,43 @@ def evolve(iteration):
     # env.phenotypes = extract_phenotype(env.agents, jfilename)
 
     # Plot the fitness in the graph
-    graph = Graph(env.pname, 'best.csv', ['explore', 'foraging'])
-    graph.gen_best_plots()
+    # graph = Graph(env.pname, 'best.csv', ['explore', 'foraging'])
+    # graph.gen_best_plots()
 
     # Test the evolved behavior
     return env
 
 
-def main():
+def main(iter):
     """Block for the main function."""
+    print('=======Start=========')
+    env = evolve(iter)
+    # simulate(None, iter)
+    if len(env.phenotypes) > 1:
+        steps = [5000 for i in range(16)]
+        env = (env.phenotypes, env.pname)
+        for step in steps:
+            simulate(env, step)
+            # simulate_res1(env, step)
+            # simulate_res2(env, step)
+        # Parallel(n_jobs=4)(delayed(simulate)(env, i) for i in steps)
+        # Parallel(n_jobs=4)(delayed(simulate_res1)(env, i) for i in steps)
+        # Parallel(n_jobs=4)(delayed(simulate_res2)(env, i) for i in steps)
+        # simulate(env, 10000)
+    print('=======End=========')
+
+
+if __name__ == '__main__':
+    # Running 50 experiments in parallel
+    # steps = [100000 for i in range(50)]
+    # Parallel(n_jobs=8)(delayed(main)(i) for i in steps)
+    Parallel(n_jobs=8)(delayed(main)(i) for i in range(10000, 100000, 2000))
+    # main(900)
+
+
+"""
+def main():
+    "Block for the main function."
     print('=======Start=========')
 
     # env = evolve(iter)
@@ -308,5 +341,5 @@ if __name__ == '__main__':
     # steps = [100000 for i in range(50)]
     # Parallel(n_jobs=8)(delayed(main)(i) for i in steps)
     # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 100000, 2000))
-    main()
-
+    # main()
+"""

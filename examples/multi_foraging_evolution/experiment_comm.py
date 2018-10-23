@@ -281,12 +281,12 @@ def main(iter):
     env = evolve(iter)
     # simulate(None, iter)
     if len(env.phenotypes) > 1:
-        steps = [9000 for i in range(50)]
+        steps = [5000 for i in range(50)]
         env = (env.phenotypes, env.pname)
         for step in steps:
             simulate(env, step)
-            simulate_res1(env, step)
-            simulate_res2(env, step)
+            # simulate_res1(env, step)
+            # simulate_res2(env, step)
         # Parallel(n_jobs=4)(delayed(simulate)(env, i) for i in steps)
         # Parallel(n_jobs=4)(delayed(simulate_res1)(env, i) for i in steps)
         # Parallel(n_jobs=4)(delayed(simulate_res2)(env, i) for i in steps)

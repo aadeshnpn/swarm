@@ -180,7 +180,7 @@ def simulate_nm(env, iteration, N=100):
         # agent.shared_content['Sites'] = {sim.site}
 
     simresults = SimulationResults(
-        sim.pname, sim.connect, sim.sn, sim.stepcnt, sim.debris_cleaned(),
+        sim.pname, sim.connect, sim.sn, sim.stepcnt, len(sim.debris_cleaned()),
         phenotypes[0]
         )
 
@@ -193,7 +193,7 @@ def simulate_nm(env, iteration, N=100):
         # Save them into db or a file
         sim.step()
         simresults = SimulationResults(
-            sim.pname, sim.connect, sim.sn, sim.stepcnt, sim.debris_cleaned(),
+            sim.pname, sim.connect, sim.sn, sim.stepcnt, len(sim.debris_cleaned()),
             phenotypes[0]
             )
         simresults.save_to_file()
@@ -206,7 +206,7 @@ def simulate_nm(env, iteration, N=100):
 
     # for food in food_objects:
     #    print('simulate phenotye:', dir(food))
-    value = len(sim.debris_cleaned)
+    value = len(sim.debris_cleaned())
 
     foraging_percent = (
         value * 100.0) / (sim.num_agents * 2.0)
@@ -228,15 +228,17 @@ def simulate_nm(env, iteration, N=100):
 def main(iter):
     """Block for the main function."""
     print('=======Start=========')
-    pname = '/home/aadeshnpn/Documents/BYU/hcmi/hri/handcoded/ct'
-    for N in range(16):
-        # steps = [5000 for i in range(16)]
-        # env = (env.phenotypes, env.pname)
-        # aname = pname + '/' + str(N)
-        env = (['123', '123'], pname)
-        # Parallel(n_jobs=16)(delayed(simulate_forg)(env, i, N) for i in steps)
-        # simulate_forg(env, 5000)
-        simulate_ct(env, 5000)
+    pname = '/home/aadeshnpn/Documents/BYU/HCMI/research/handcoded/nm'
+    # for N in range(16):
+    steps = [5000 for i in range(16)]
+    # env = (env.phenotypes, env.pname)
+    # aname = pname + '/' + str(N)
+    env = (['123', '123'], pname)
+    # Parallel(n_jobs=16)(delayed(simulate_ct)(env, i) for i in steps)
+    Parallel(n_jobs=16)(delayed(simulate_nm)(env, i) for i in steps)
+    # simulate_forg(env, 5000)
+    # simulate_ct(env, 5000)
+    # simulate_nm(env, 5000)
     print('=======End=========')
 
 
