@@ -4,15 +4,14 @@
 # Script to collect simulation and average the results and plot the graph
 
 #expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/cooperative_transport"
-#expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/nest_maint"
+expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/nest_maint"
 #expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/ct"
-#expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/nest_maint"
-expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/handcoded"
+#expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/handcoded"
 #exp=($(find ${expfold} -maxdepth 1 -type d  | grep "COT"))
 #exp=($(find ${expfold} -maxdepth 1 -type d ))
 #exp=($(find ${expfold} -maxdepth 1 -type d  | grep "1539014820252NestM"))
-#exp=($(find ${expfold} -maxdepth 2 -type d  | grep "1000010101NestMAgents"))
-exp=($(find ${expfold} -maxdepth 1 -type d  | grep "forg"))
+exp=($(find ${expfold} -maxdepth 2 -type d  | grep "10000NestMAgents"))
+#exp=($(find ${expfold} -maxdepth 1 -type d  | grep "nm"))
 
 # echo "${exp[@]}"
 for expfolder in ${exp[@]}
@@ -28,7 +27,7 @@ do
             fileargs+=${csv},
         fi
     done
-    # echo "${fileargs}"
+    echo "${expfolder}"
     if [[ ${#fileargs} -gt 0 ]]; then
         #echo "${fileargs} ${expfold}"
         python pgraph.py "${fileargs}" ${expfolder}

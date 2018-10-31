@@ -3,6 +3,7 @@
 from matplotlib import pyplot as plt
 import pandas as pd
 import numpy as np
+from scipy.signal import argrelextrema
 
 plt.style.use('fivethirtyeight')
 
@@ -349,7 +350,8 @@ class PMultCompGraph:
             '#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c',
             '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5',
             '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f',
-            '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5']
+            '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5',
+            '#9caae5', '#1cafe2']
 
         fig = plt.figure()
 
@@ -358,8 +360,9 @@ class PMultCompGraph:
         xvalues = range(1, means[0].shape[0] - 1)
 
         ax1 = fig.add_subplot(1, 1, 1)
-        no = list(range(50, 550, 25))
-
+        maxval = 50 + len(means) * 25
+        no = list(range(50, maxval, 25))
+        print (len(means))
         for i in range(len(means)):
             ax1.plot(
                 xvalues, means[i][:-2], label=str(no[i]) + ' Agents', color=color_sequence[i])
@@ -393,7 +396,8 @@ class PMultGraph:
             '#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c',
             '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5',
             '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f',
-            '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5']
+            '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5',
+            '#9caae5', '#1cafe2']
 
         fig = plt.figure()
 
@@ -406,13 +410,21 @@ class PMultGraph:
         # box_data = [means[i] for i in range(0, 20)]
         # ax1.boxplot(box_data, 0, 'gD', positions=list(range(50, 550, 25)), widths=25)
 
-        no = list(range(50, 525, 25))
+        maxval = 50 + len(means) * 25
+        no = list(range(50, maxval, 25))
+        no = np.array(no)
         values = []
 
         for i in range(len(means)):
-            values.append(np.mean(means[i]))
+            values.append(np.max(means[i]))
 
-        ax1.plot(no, values)
+        values = np.array(values)
+
+        maxindx = argrelextrema(values, np.greater)
+        minindx = argrelextrema(values, np.less)
+        ax1.plot(no[maxindx], values[maxindx], label='Maxima', marker='^', linestyle='--', linewidth=2)
+        ax1.plot(no[minindx], values[minindx], label='Minima', marker='o', linestyle='--', linewidth=1)
+        ax1.plot(no, values, linewidth=1, label='Mean')
 
         ax1.set_xlabel('No. of Agents')
         ax1.set_ylabel('Performance')

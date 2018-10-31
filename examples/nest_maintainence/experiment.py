@@ -70,7 +70,7 @@ def after_simulation(sim, phenotypes, iteration, threshold):
         value = len(debris_objects)
 
         cleaned_percent = (
-            value * 100.0) / (sim.num_agents)
+            value * 100.0) / (200.0)
 
         simresults = SimulationResults(
             sim.pname, sim.connect, sim.sn, sim.stepcnt,
@@ -187,7 +187,7 @@ def main(iter):
     phenotypes = jdata['phenotypes']
 
     # if len(env.phenotypes) > 1:
-    for N in range(50, 550, 25):
+    for N in range(425, 550, 25):
         if len(phenotypes) > 1:
             steps = [5000 for i in range(16)]
             aname = pname + '/' + str(N)
