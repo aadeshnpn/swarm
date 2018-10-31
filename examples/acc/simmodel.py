@@ -144,7 +144,7 @@ class SimModel(Model):
         try:
             self.site = self.render.objects['sites'][0]
             self.foods = []
-            for i in range(self.num_agents * 2):
+            for i in range(self.num_agents * 1):
                 f = Food(
                     i, location=self.site.location, radius=self.site.radius)
                 f.agent_name = None
@@ -325,7 +325,7 @@ class SimModelRes1(Model):
         try:
             self.site = self.render.objects['sites'][0]
             self.foods = []
-            for i in range(self.num_agents * 2):
+            for i in range(self.num_agents * 1):
                 f = Food(
                     i, location=self.site.location, radius=self.site.radius)
                 f.agent_name = None
@@ -506,7 +506,7 @@ class SimModelRes2(Model):
         try:
             self.site = self.render.objects['sites'][0]
             self.foods = []
-            for i in range(self.num_agents * 2):
+            for i in range(self.num_agents * 1):
                 f = Food(
                     i, location=self.site.location, radius=self.site.radius)
                 f.agent_name = None
