@@ -10,7 +10,7 @@ plt.style.use('fivethirtyeight')
 
 class Graph:
 
-    def __init__(self, directory, fname, fields, tile="Fitness function"):
+    def __init__(self, directory, fname, fields, title="Fitness function"):
         self.__dict__.update(locals())
         # self.directory = director
         # self.fname = fname

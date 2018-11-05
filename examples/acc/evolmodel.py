@@ -334,7 +334,7 @@ class EvolModelComm(Model):
         self.hub = self.render.objects['hub'][0]
         try:
             self.site = self.render.objects['sites'][0]
-            for i in range(self.num_agents * 2):
+            for i in range(self.num_agents * 1):
                 f = Food(
                     i, location=self.site.location, radius=self.site.radius)
                 f.agent_name = None

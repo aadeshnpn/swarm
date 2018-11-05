@@ -30,8 +30,11 @@ class SimModel(Model):
         else:
             super(SimModel, self).__init__(seed)
 
-        self.runid = datetime.datetime.now().strftime(
-            "%s") + str(self.random.randint(1, 1000, 1)[0])
+        # self.runid = datetime.datetime.now().strftime(
+        #    "%s") + str(self.random.randint(1, 1000, 1)[0])
+
+        self.runid = datetime.datetime.now().timestamp()
+        self.runid = str(self.runid).replace('.', '')
 
         if pname is None:
             self.pname = os.getcwd() + '/' + self.runid + "SForagingSimulation"
@@ -144,7 +147,7 @@ class SimModel(Model):
         try:
             self.site = self.render.objects['sites'][0]
             self.foods = []
-            for i in range(self.num_agents * 2):
+            for i in range(self.num_agents * 1):
                 f = Food(
                     i, location=self.site.location, radius=self.site.radius)
                 f.agent_name = None
@@ -218,15 +221,18 @@ class SimModelRes1(Model):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            xmlstrings=None, seed=None, viewer=False, pname=None):
+            xmlstrings=None, seed=None, viewer=False, pname=None, prob=0.5):
         """Initialize the attributes."""
         if seed is None:
             super(SimModelRes1, self).__init__(seed=None)
         else:
             super(SimModelRes1, self).__init__(seed)
 
-        self.runid = datetime.datetime.now().strftime(
-            "%s") + str(self.random.randint(1, 1000, 1)[0])
+        self.runid = datetime.datetime.now().timestamp()
+        self.runid = str(self.runid).replace('.', '') + '-' + str(prob).replace('.', '')
+
+        # self.runid = datetime.datetime.now().strftime(
+        #    "%s") + str(self.random.randint(1, 1000, 1)[0])
 
         if pname is None:
             self.pname = os.getcwd() + '/' + self.runid + "SFSRes1"
@@ -271,7 +277,7 @@ class SimModelRes1(Model):
         # Create agents
         for i in range(self.num_agents):
             # print (i, j, self.xmlstrings[j])
-            a = SimAgentRes1(i, self, xmlstring=self.xmlstrings[j])
+            a = SimAgentRes1(i, self, xmlstring=self.xmlstrings[j], prob=prob)
             self.schedule.add(a)
             # Add the agent to a random grid cell
             # x = self.random.randint(
@@ -325,7 +331,7 @@ class SimModelRes1(Model):
         try:
             self.site = self.render.objects['sites'][0]
             self.foods = []
-            for i in range(self.num_agents * 2):
+            for i in range(self.num_agents * 1):
                 f = Food(
                     i, location=self.site.location, radius=self.site.radius)
                 f.agent_name = None
@@ -399,15 +405,18 @@ class SimModelRes2(Model):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            xmlstrings=None, seed=None, viewer=False, pname=None):
+            xmlstrings=None, seed=None, viewer=False, pname=None, prob=prob):
         """Initialize the attributes."""
         if seed is None:
             super(SimModelRes2, self).__init__(seed=None)
         else:
             super(SimModelRes2, self).__init__(seed)
 
-        self.runid = datetime.datetime.now().strftime(
-            "%s") + str(self.random.randint(1, 1000, 1)[0])
+        self.runid = datetime.datetime.now().timestamp()
+        self.runid = str(self.runid).replace('.', '') + '-' + str(prob).replace('.', '')
+
+        # self.runid = datetime.datetime.now().strftime(
+        #    "%s") + str(self.random.randint(1, 1000, 1)[0])
 
         if pname is None:
             self.pname = os.getcwd() + '/' + self.runid + "SFSRes2"
@@ -452,7 +461,7 @@ class SimModelRes2(Model):
         # Create agents
         for i in range(self.num_agents):
             # print (i, j, self.xmlstrings[j])
-            a = SimAgentRes2(i, self, xmlstring=self.xmlstrings[j])
+            a = SimAgentRes2(i, self, xmlstring=self.xmlstrings[j], prob=prob)
             self.schedule.add(a)
             # Add the agent to a random grid cell
             # x = self.random.randint(
@@ -506,7 +515,7 @@ class SimModelRes2(Model):
         try:
             self.site = self.render.objects['sites'][0]
             self.foods = []
-            for i in range(self.num_agents * 2):
+            for i in range(self.num_agents * 1):
                 f = Food(
                     i, location=self.site.location, radius=self.site.radius)
                 f.agent_name = None

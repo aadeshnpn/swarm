@@ -159,7 +159,7 @@ class SimAgentRes1(Agent):
     working.
     """
 
-    def __init__(self, name, model, xmlstring=None):
+    def __init__(self, name, model, xmlstring=None, prob=0.5):
         super().__init__(name, model)
         self.location = ()
 
@@ -169,6 +169,7 @@ class SimAgentRes1(Agent):
 
         self.moveable = True
         self.shared_content = dict()
+        self.prob = prob
 
         self.carryable = False
         # Define a BTContruct object
@@ -204,7 +205,7 @@ class SimAgentRes1(Agent):
 
     def step(self):
         # Only the actuators work 50% of the time
-        if self.model.random.rand() > 0.5:
+        if self.model.random.rand() > self.prob:
             self.bt.behaviour_tree.tick()
         else:
             self.dummy_bt.behaviour_tree.tick()
@@ -243,7 +244,7 @@ class SimAgentRes2(Agent):
     to simulate resilient behaviors a node is removed.
     """
 
-    def __init__(self, name, model, xmlstring=None):
+    def __init__(self, name, model, xmlstring=None, prob=0.5):
         super().__init__(name, model)
         self.location = ()
 
@@ -253,6 +254,8 @@ class SimAgentRes2(Agent):
 
         self.moveable = True
         self.shared_content = dict()
+
+        self.prob = prob
 
         self.carryable = False
         # Define a BTContruct object
@@ -287,7 +290,7 @@ class SimAgentRes2(Agent):
 
     def step(self):
         # Only the actuators work 50% of the time
-        if self.model.random.rand() > 0.5:
+        if self.model.random.rand() > self.prob:
             self.bt.behaviour_tree.tick()
         else:
             self.dummy_bt.behaviour_tree.tick()
