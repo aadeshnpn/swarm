@@ -163,7 +163,7 @@ def simulate_res2(env, iteration, prob=0.5):
     graph.gen_plot()
 
 
-def simulate(env, iteration, N=100):
+def simulate(env, iteration, N=150):
     """Test the performane of evolved behavior."""
     # phenotype = agent.individual[0].phenotype
     # phenotypes = extract_phenotype(agents)
@@ -310,7 +310,7 @@ if __name__ == '__main__':
     # steps = [100000 for i in range(50)]
     # Parallel(n_jobs=8)(delayed(main)(i) for i in steps)
     # Parallel(n_jobs=16)(delayed(main)(i) for i in range(10000, 1000000, 2000))
-    main(90000)
+    main(1000)
     #for i in range(10000, 1000000, 2000):
     #    main(i)
 

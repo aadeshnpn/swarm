@@ -27,8 +27,11 @@ class EvolModel(Model):
         else:
             super(EvolModel, self).__init__(seed)
 
-        self.runid = datetime.datetime.now().strftime(
-            "%s") + str(self.random.randint(1, 1000, 1)[0])
+        self.runid = datetime.datetime.now().timestamp()
+        self.runid = str(self.runid).replace('.', '')
+
+        #self.runid = datetime.datetime.now().strftime(
+        #    "%s") + str(self.random.randint(1, 1000, 1)[0])
 
         self.pname = '/'.join(os.getcwd().split('/')[:-2]) + '/results/' + self.runid + "SForaging"
 
@@ -237,8 +240,11 @@ class EvolModelComm(Model):
         else:
             super(EvolModelComm, self).__init__(seed)
 
-        self.runid = datetime.datetime.now().strftime(
-            "%s") + str(self.random.randint(1, 1000, 1)[0])
+        self.runid = datetime.datetime.now().timestamp()
+        self.runid = str(self.runid).replace('.', '')
+
+        #self.runid = datetime.datetime.now().strftime(
+        #    "%s") + str(self.random.randint(1, 1000, 1)[0])
 
         self.pname = '/'.join(os.getcwd().split('/')[:-2]) + '/results/' + self.runid + "SFComm"
 

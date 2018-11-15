@@ -26,6 +26,7 @@ class Graph:
             self.data['header'] == 'EXPLORE']['fitness'].values
         self.forge = self.data[
             self.data['header'] == 'FORGE']['fitness'].values
+        self.title = title
 
     def gen_best_plots(self):
         fig = plt.figure()

@@ -205,7 +205,7 @@ class SimAgentRes1(Agent):
 
     def step(self):
         # Only the actuators work 50% of the time
-        if self.model.random.rand() > self.prob:
+        if self.model.random.rand() < self.prob:
             self.bt.behaviour_tree.tick()
         else:
             self.dummy_bt.behaviour_tree.tick()
@@ -290,7 +290,7 @@ class SimAgentRes2(Agent):
 
     def step(self):
         # Only the actuators work 50% of the time
-        if self.model.random.rand() > self.prob:
+        if self.model.random.rand() < self.prob:
             self.bt.behaviour_tree.tick()
         else:
             self.dummy_bt.behaviour_tree.tick()
@@ -371,7 +371,7 @@ class SimAgentResComm1(Agent):
 
     def step(self):
         # Only the actuators work 50% of the time
-        if self.model.random.rand() > 0.5:
+        if self.model.random.rand() < 0.5:
             self.bt.behaviour_tree.tick()
         else:
             self.dummy_bt.behaviour_tree.tick()
@@ -455,7 +455,7 @@ class SimAgentResComm2(Agent):
 
     def step(self):
         # Only the actuators work 50% of the time
-        if self.model.random.rand() > 0.5:
+        if self.model.random.rand() < 0.5:
             self.bt.behaviour_tree.tick()
         else:
             self.dummy_bt.behaviour_tree.tick()

@@ -405,7 +405,7 @@ class SimModelRes2(Model):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            xmlstrings=None, seed=None, viewer=False, pname=None, prob=prob):
+            xmlstrings=None, seed=None, viewer=False, pname=None, prob=0.5):
         """Initialize the attributes."""
         if seed is None:
             super(SimModelRes2, self).__init__(seed=None)
@@ -596,8 +596,11 @@ class SimModelComm(Model):
         else:
             super(SimModelComm, self).__init__(seed)
 
-        self.runid = datetime.datetime.now().strftime(
-            "%s") + str(self.random.randint(1, 1000, 1)[0])
+        self.runid = datetime.datetime.now().timestamp()
+        self.runid = str(self.runid).replace('.', '') + '-' + str(prob).replace('.', '')
+
+        #self.runid = datetime.datetime.now().strftime(
+        #    "%s") + str(self.random.randint(1, 1000, 1)[0])
 
         if pname is None:
             self.pname = os.getcwd() + '/' + self.runid + "SForagingSimulation"
@@ -792,8 +795,11 @@ class SimModelResComm1(Model):
         else:
             super(SimModelResComm1, self).__init__(seed)
 
-        self.runid = datetime.datetime.now().strftime(
-            "%s") + str(self.random.randint(1, 1000, 1)[0])
+        self.runid = datetime.datetime.now().timestamp()
+        self.runid = str(self.runid).replace('.', '') + '-' + str(prob).replace('.', '')
+
+        #self.runid = datetime.datetime.now().strftime(
+        #    "%s") + str(self.random.randint(1, 1000, 1)[0])
 
         if pname is None:
             self.pname = os.getcwd() + '/' + self.runid + "SFSResComm1"
@@ -973,8 +979,11 @@ class SimModelResComm2(Model):
         else:
             super(SimModelResComm2, self).__init__(seed)
 
-        self.runid = datetime.datetime.now().strftime(
-            "%s") + str(self.random.randint(1, 1000, 1)[0])
+        self.runid = datetime.datetime.now().timestamp()
+        self.runid = str(self.runid).replace('.', '') + '-' + str(prob).replace('.', '')
+
+        #self.runid = datetime.datetime.now().strftime(
+        #    "%s") + str(self.random.randint(1, 1000, 1)[0])
 
         if pname is None:
             self.pname = os.getcwd() + '/' + self.runid + "SFSResComm2"
