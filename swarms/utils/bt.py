@@ -106,3 +106,7 @@ class BTConstruct:
         self.behaviour_tree = py_trees.trees.BehaviourTree(top)
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
         # py_trees.display.print_ascii_tree(top)
+
+    def visualize(self, name='bt.png'):
+        """Save bt graph to a file."""
+        py_trees.display.render_dot_tree(self.behaviour_tree.root, name=name)
