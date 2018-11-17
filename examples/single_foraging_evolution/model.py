@@ -7,8 +7,9 @@ from swarms.lib.space import Grid
 from swarms.utils.jsonhandler import JsonData
 from swarms.utils.results import Best, Experiment
 from swarms.utils.db import Connect
-from agent import SwarmAgent, RunSwarmAgent
-from swarms.lib.objects import Hub, Sites, Food, Derbis, Obstacles
+from agent import LearningAgent, ExecutingAgent
+from swarms.lib.objects import (    # noqa : F401
+    Hub, Sites, Food, Debris, Obstacles)
 import os
 import imp
 import datetime
@@ -17,76 +18,59 @@ import numpy as np
 filename = os.path.join(imp.find_module("swarms")[1] + "/utils/world.json")
 
 
-class EnvironmentModel(Model):
-    """A environemnt to model swarms."""
+class ForagingModel(Model):
+    """A environemnt to model foraging environment."""
 
-    def __init__(self, N, width, height, grid=10, iter=100000, seed=None):
+    def __init__(
+            self, N, width, height, grid=10, iter=100000,
+            seed=None, name='SForaging'):
         """Initialize the attributes."""
         if seed is None:
-            super(EnvironmentModel, self).__init__(seed=None)
+            super(ForagingModel, self).__init__(seed=None)
         else:
-            super(EnvironmentModel, self).__init__(seed)
+            super(ForagingModel, self).__init__(seed)
 
-        self.runid = datetime.datetime.now().strftime(
-            "%s") + str(self.random.randint(1, 1000, 1)[0])
-        self.pname = os.getcwd() + '/' + self.runid + "SForaging"
+        # Create a unique experiment id
+        self.runid = datetime.datetime.now().timestamp()
+        self.runid = str(self.runid).replace('.', '')
 
+        # Create the experiment folder
+        self.pname = os.getcwd() + '/' + self.runid + name
+
+        # Define some parameters to count the step
         self.stepcnt = 1
         self.iter = iter
-        self.top = None
+
         # Create db connection
         connect = Connect('swarm', 'swarm', 'swarm', 'localhost')
         self.connect = connect.tns_connect()
 
         # Fill out the experiment table
         self.experiment = Experiment(
-            self.connect, self.runid, N, seed, 'Single Foraging',
+            self.connect, self.runid, N, seed, name,
             iter, width, height, grid)
         self.experiment.insert_experiment()
 
+        # Get the primary key of the experiment table for future use
         self.sn = self.experiment.sn
 
         # Create a folder to store results
         os.mkdir(self.pname)
 
+        # Number of agents
         self.num_agents = N
-
+        # Environmental grid size
         self.grid = Grid(width, height, grid)
-
+        # Schedular to active agents
         self.schedule = SimultaneousActivation(self)
-
-        # self.site = Sites(id=1, location=(5, 5), radius=11, q_value=0.5)
-
-        # self.grid.add_object_to_grid(self.site.location, self.site)
-
-        # self.hub = Hub(id=1, location=(0, 0), radius=11)
-
-        # self.grid.add_object_to_grid(self.hub.location, self.hub)
-
+        # Empty list of hold the agents
         self.agents = []
 
-        # Create agents
-        for i in range(self.num_agents):
-            a = SwarmAgent(i, self)
-            self.schedule.add(a)
-            # Add the agent to a random grid cell
-            x = self.random.randint(
-                -self.grid.width / 2, self.grid.width / 2)
-            # x = 0
-            y = self.random.randint(
-                -self.grid.height / 2, self.grid.height / 2)
-            # y = 0
-
-            a.location = (x, y)
-            self.grid.add_object_to_grid((x, y), a)
-            a.operation_threshold = 2  # self.num_agents // 10
-            self.agents.append(a)
-
-        # Add equal number of food source
-        # for i in range(20):
-        #    f = Food(i, location=(-29, -29), radius=5)
-        #    self.grid.add_object_to_grid(f.location, f)
-            # print (i,x,y)
+    def create_agents(self, random_init=True, phenotypes=None):
+        """Initialize agents in the environment."""
+        # This is abstract class. Each class inherting this
+        # must define this on its own
+        pass
 
     def create_environment_object(self, jsondata, obj):
         """Create env from jsondata."""
@@ -114,7 +98,7 @@ class EnvironmentModel(Model):
         # needs to be sent to UI
         self.render = JsonData()
         self.render.objects = {}
-
+        # First create the agents in the environment
         for name in jsondata.keys():
             obj = eval(name.capitalize())
             self.render.objects[name] = self.create_environment_object(
@@ -123,7 +107,7 @@ class EnvironmentModel(Model):
         self.hub = self.render.objects['hub'][0]
         try:
             self.site = self.render.objects['sites'][0]
-            for i in range(self.num_agents * 2):
+            for i in range(self.num_agents * 1):
                 f = Food(
                     i, location=self.site.location, radius=self.site.radius)
                 f.agent_name = None
@@ -133,10 +117,9 @@ class EnvironmentModel(Model):
 
     def step(self):
         """Step through the environment."""
-        # Gather info from all the agents
-        self.top = self.gather_info()
         # Next step
         self.schedule.step()
+
         # Increment the step count
         self.stepcnt += 1
 
@@ -218,73 +201,96 @@ class EnvironmentModel(Model):
         # print (food_objects)
         return food_objects
 
+    def foraging_percent(self):
+        """Compute the percent of the total food in the hub."""
+        grid = self.grid
+        hub_loc = self.hub.location
+        neighbours = grid.get_neighborhood(hub_loc, 10)
+        food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+        return ((food_objects * 1.0) / self.num_agents) * 100
 
-class RunEnvironmentModel(Model):
+
+class EvolveModel(ForagingModel):
     """A environemnt to model swarms."""
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            xmlstrings=None, seed=None):
+            seed=None, name="EvoSForge"):
         """Initialize the attributes."""
-        if seed is None:
-            super(RunEnvironmentModel, self).__init__(seed=None)
-        else:
-            super(RunEnvironmentModel, self).__init__(seed)
+        super(EvolveModel, self).__init__(
+            self, N, width, height, grid, iter, seed, name)
 
-        self.runid = datetime.datetime.now().strftime(
-            "%s") + str(self.random.randint(1, 1000, 1)[0])
-        self.pname = os.getcwd() + '/' + self.runid + "SForagingSimulation"
-
-        self.stepcnt = 1
-        self.iter = iter
-        self.xmlstrings = xmlstrings
-
-        # Create db connection
-        connect = Connect('swarm', 'swarm', 'swarm', 'localhost')
-        self.connect = connect.tns_connect()
-
-        # Fill out the experiment table
-        self.experiment = Experiment(
-            self.connect, self.runid, N, seed, 'Simuation Single Foraging',
-            iter, width, height, grid, phenotype=xmlstrings[0])
-        self.experiment.insert_experiment_simulation()
-
-        self.sn = self.experiment.sn
-
-        # Create a folder to store results
-        os.mkdir(self.pname)
-
-        self.num_agents = N
-
-        self.grid = Grid(width, height, grid)
-
-        self.schedule = SimultaneousActivation(self)
-
-        # self.site = Sites(id=1, location=(5, 5), radius=11, q_value=0.5)
-
-        # self.grid.add_object_to_grid(self.site.location, self.site)
-
-        # self.hub = Hub(id=1, location=(0, 0), radius=11)
-
-        # self.grid.add_object_to_grid(self.hub.location, self.hub)
-
-        self.agents = []
-
-        bound = np.ceil((self.num_agents * 1.0) / len(self.xmlstrings))
-
-        j = 0
+    def create_agents(self, random_init=True, phenotypes=None):
+        """Initialize agents in the environment."""
         # Create agents
         for i in range(self.num_agents):
-            # print (i, j, self.xmlstrings[j])
-            a = RunSwarmAgent(i, self, xmlstring=self.xmlstrings[j])
+            a = LearningAgent(i, self)
             self.schedule.add(a)
             # Add the agent to a random grid cell
             x = self.random.randint(
                 -self.grid.width / 2, self.grid.width / 2)
-            # x = 0
             y = self.random.randint(
                 -self.grid.height / 2, self.grid.height / 2)
-            # y = 0
+
+            a.location = (x, y)
+            self.grid.add_object_to_grid((x, y), a)
+            a.operation_threshold = 2  # self.num_agents // 10
+            self.agents.append(a)
+
+    def behavior_sampling(self, method='ratio', ratio_value=0.4):
+        """Extract phenotype of the learning agents.
+
+        Sort the agents based on the overall fitness and then based on the
+        method extract phenotype of the agents.
+        Method can take {'ratio','higest','sample'}
+        """
+        sorted_agents = sorted(
+            self.agents, key=lambda x: x.individual[0].fitness, reverse=True)
+
+        if method == 'ratio':
+            upper_bound = ratio_value * self.num_agents
+            selected_agents = self.agents[0:int(upper_bound)]
+            selected_phenotype = [
+                agent.individual[0].phenotype for agent in selected_agents]
+            return selected_phenotype
+        else:
+            return [sorted_agents[0].individual[0].phenotype]
+
+
+class ValidationModel(ForagingModel):
+    """A environemnt to validate swarm behaviors."""
+
+    def __init__(
+            self, N, width, height, grid=10, iter=100000,
+            seed=None, name="ValidateSForge"):
+        """Initialize the attributes."""
+        super(ValidationModel, self).__init__(
+            self, N, width, height, grid, iter, seed, name)
+
+    def create_agents(self, random_init=False, phenotypes=None):
+        """Initialize agents in the environment."""
+        # Variable to tell how many agents will have the same phenotype
+        bound = np.ceil((self.num_agents * 1.0) / len(phenotypes))
+        j = 0
+        # Create agents
+        for i in range(self.num_agents):
+            # print (i, j, self.xmlstrings[j])
+            a = ExecutingAgent(i, self, xmlstring=phenotypes[j])
+            # Add the agent to schedular list
+            self.schedule.add(a)
+            # Add the hub to agents memory
+            a.shared_content['Hub'] = self.hub
+
+            if random_init:
+                # Add the agent to a random grid cell
+                x = self.random.randint(
+                    -self.grid.width / 2, self.grid.width / 2)
+                y = self.random.randint(
+                    -self.grid.height / 2, self.grid.height / 2)
+            try:
+                x, y = self.hub.location
+            except AttributeError:
+                x, y = 0, 0
 
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)
@@ -294,96 +300,42 @@ class RunEnvironmentModel(Model):
             if (i + 1) % bound == 0:
                 j += 1
 
-        # Add equal number of food source
-        # for i in range(20):
-        #    f = Food(i, location=(-29, -29), radius=5)
-        #    self.grid.add_object_to_grid(f.location, f)
-            # print (i,x,y)
 
-    def create_environment_object(self, jsondata, obj):
-        """Create env from jsondata."""
-        name = obj.__name__.lower()
-        temp_list = []
-        i = 0
-        for json_object in jsondata[name]:
-            location = (json_object["x"], json_object["y"])
-            if "q_value" in json_object:
-                temp_obj = obj(
-                    i, location, json_object["radius"], q_value=json_object[
-                        "q_value"])
-            else:
-                temp_obj = obj(i, location, json_object["radius"])
+class TestModel(ForagingModel):
+    """A environemnt to test swarm behavior performance."""
 
-            self.grid.add_object_to_grid(location, temp_obj)
-            temp_list.append(temp_obj)
-            i += 1
-        return temp_list
+    def __init__(
+            self, N, width, height, grid=10, iter=100000,
+            seed=None, name="TestSForge"):
+        """Initialize the attributes."""
+        super(TestModel, self).__init__(
+            self, N, width, height, grid, iter, seed, name)
 
-    def build_environment_from_json(self):
-        """Build env from jsondata."""
-        jsondata = JsonData.load_json_file(filename)
-        # Create a instance of JsonData to store object that
-        # needs to be sent to UI
-        self.render = JsonData()
-        self.render.objects = {}
+    def create_agents(self, random_init=False, phenotypes=None):
+        """Initialize agents in the environment."""
+        # Variable to tell how many agents will have the same phenotype
+        bound = np.ceil((self.num_agents * 1.0) / len(phenotypes))
+        j = 0
+        # Create agents
+        for i in range(self.num_agents):
+            # print (i, j, self.xmlstrings[j])
+            a = ExecutingAgent(i, self, xmlstring=phenotypes[j])
+            self.schedule.add(a)
+            if random_init:
+                # Add the agent to a random grid cell
+                x = self.random.randint(
+                    -self.grid.width / 2, self.grid.width / 2)
+                y = self.random.randint(
+                    -self.grid.height / 2, self.grid.height / 2)
+            try:
+                x, y = self.hub.location
+            except AttributeError:
+                x, y = 0, 0
 
-        for name in jsondata.keys():
-            obj = eval(name.capitalize())
-            self.render.objects[name] = self.create_environment_object(
-                jsondata, obj)
+            a.location = (x, y)
+            self.grid.add_object_to_grid((x, y), a)
+            a.operation_threshold = 2  # self.num_agents // 10
+            self.agents.append(a)
 
-        self.hub = self.render.objects['hub'][0]
-        try:
-            self.site = self.render.objects['sites'][0]
-            for i in range(self.num_agents * 2):
-                f = Food(
-                    i, location=self.site.location, radius=self.site.radius)
-                f.agent_name = None
-                self.grid.add_object_to_grid(f.location, f)
-        except KeyError:
-            pass
-
-    def step(self):
-        """Step through the environment."""
-        # Gather info from all the agents
-        # self.gather_info()
-        # Next step
-        self.schedule.step()
-        # Increment the step count
-        self.stepcnt += 1
-
-    def find_higest_performer(self):
-        """Find the best agent."""
-        fitness = self.agents[0].individual[0].fitness
-        fittest = self.agents[0]
-        for agent in self.agents:
-            if agent.individual[0].fitness > fitness:
-                fittest = agent
-        return fittest
-
-    def find_higest_food_collector(self):
-        """Find the best agent to collect food."""
-        fitness = self.agents[0].food_collected
-        fittest = self.agents[0]
-        for agent in self.agents:
-            if agent.food_collected > fitness:
-                fittest = agent
-        return fittest
-
-    def detect_food_moved(self):
-        """Detect food moved."""
-        grid = self.grid
-        food_loc = self.site.location
-        neighbours = grid.get_neighborhood(food_loc, 10)
-        food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
-
-        # print (food_objects)
-        return food_objects
-
-    def food_in_hub(self):
-        """Find amount of food in hub."""
-        grid = self.grid
-        food_loc = self.hub.location
-        neighbours = grid.get_neighborhood(food_loc, 10)
-        food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
-        return len(food_objects)
+            if (i + 1) % bound == 0:
+                j += 1

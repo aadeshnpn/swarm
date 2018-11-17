@@ -3,7 +3,7 @@
 from swarms.lib.agent import Agent
 import numpy as np
 from swarms.utils.bt import BTConstruct
-from swarms.utils.results import Results
+from swarms.utils.results import Results    # noqa : F401
 
 from ponyge.operators.initialisation import initialisation
 from ponyge.fitness.evaluation import evaluate_fitness
@@ -15,66 +15,63 @@ from ponyge.operators.selection import selection
 import py_trees
 
 
-class SwarmAgent(Agent):
-    """An minimalistic swarm agent."""
+class ForagingAgent(Agent):
+    """An minimalistic foraging swarm agent."""
 
     def __init__(self, name, model):
         """Initialize the agent."""
         super().__init__(name, model)
         self.location = ()
-
+        # Agent attributes for motion
         self.direction = model.random.rand() * (2 * np.pi)
         self.speed = 2
         self.radius = 3
-        self.results = "db"  # This can take 2 values. db or file
-
-        # self.exchange_time = model.random.randint(2, 4)
-        # This doesn't help. Maybe only perform genetic operations when
-        # an agents meet 10% of its total population
-        # """
-        self.operation_threshold = 2
-        self.genome_storage = []
-
-        # Define a BTContruct object
-        self.bt = BTConstruct(None, self)
-
-        # self.blackboard = Blackboard()
-        # self.blackboard.shared_content = dict()
-
-        self.shared_content = dict()
-        # self.shared_content = dict(
         self.carryable = False
-        self.beta = 0.0001
+        self.shared_content = dict()
         self.food_collected = 0
-        # Grammatical Evolution part
-        from ponyge.algorithm.parameters import Parameters
-        parameter = Parameters()
-        parameter_list = ['--parameters', '../..,swarm.txt']
-        # Comment when different results is desired.
-        # Else set this for testing purpose
-        # parameter.params['RANDOM_SEED'] = name
-        # # np.random.randint(1, 99999999)
-        parameter.params['POPULATION_SIZE'] = self.operation_threshold // 2
-        parameter.set_params(parameter_list)
-        self.parameter = parameter
-        individual = initialisation(self.parameter, 1)
-        individual = evaluate_fitness(individual, self.parameter)
-
-        self.individual = individual
-        self.bt.xmlstring = self.individual[0].phenotype
-        self.bt.construct()
-
-        self.diversity_fitness = self.individual[0].fitness
-
+        # Results
+        self.results = "db"  # This can take 2 values. db or file
+        # Behavior Tree Class
+        self.bt = BTConstruct(None, self)
         # Location history
         self.location_history = set()
+        # Step count
         self.timestamp = 0
         self.step_count = 0
 
         self.fitness_name = True
 
+    def init_evolution_algo(self):
+        """Agent's GE algorithm operation defination."""
+        # This is a abstract class. Only the agents
+        # with evolving nature require this
+        pass
+
+    def construct_bt(self):
+        """Abstract method to construct BT."""
+        # Different agents has different way to construct the BT
+        pass
+
+    # New Agent methods for behavior based robotics
+    def sense(self):
+        """Sense included in behavior tree."""
+        pass
+
+    def plan(self):
+        """Plan not required for now."""
+        pass
+
+    def step(self):
+        """Agent action at a single time step."""
+        # Abstract class only evoling agent need this class
+        pass
+
+    def advance(self):
+        """Require for staged activation."""
+        pass
+
     def get_food_in_hub(self):
-        # return len(self.attached_objects) * 1000
+        """Get the food in the hub stored by the agent."""
         grid = self.model.grid
         hub_loc = self.model.hub.location
         neighbours = grid.get_neighborhood(hub_loc, 10)
@@ -83,14 +80,69 @@ class SwarmAgent(Agent):
         for food in food_objects:
             if food.agent_name == self.name:
                 agent_food_objects.append(food)
-        # print (food_objects)
         return agent_food_objects
 
     def detect_food_carrying(self):
+        """Check if the agent is carrying food."""
         if len(self.attached_objects) > 0:
             print('Food carying', self.name, self.attached_objects)
             output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
             print(output)
+
+    def carrying_fitness(self):
+        """Compute carrying fitness.
+
+        This fitness supports the carrying behavior of
+        the agents.
+        """
+        return len(self.attached_objects)
+
+    def exploration_fitness(self):
+        """Compute the exploration fitness."""
+        # Use exploration space as fitness values
+        return len(self.location_history)
+
+
+class LearningAgent(ForagingAgent):
+    """Simple agent with GE capabilities."""
+
+    def __init__(self, name, model):
+        """Initialize the agent."""
+        super().__init__(name, model)
+
+    def init_evolution_algo(self):
+        """Agent's GE algorithm operation defination."""
+        # Genetic algorithm parameters
+        self.operation_threshold = 2
+        self.genome_storage = []
+
+        # Grammatical Evolution part
+        from ponyge.algorithm.parameters import Parameters
+        parameter = Parameters()
+        parameter_list = ['--parameters', '../..,swarm.txt']
+        # Comment when different results is desired.
+        # Else set this for testing purpose
+        # parameter.params['RANDOM_SEED'] = name
+        # # np.random.randint(1, 99999999)
+        # Set GE runtime parameters
+        parameter.params['POPULATION_SIZE'] = self.operation_threshold // 2
+        parameter.set_params(parameter_list)
+        self.parameter = parameter
+        # Initialize the genome
+        individual = initialisation(self.parameter, 1)
+        individual = evaluate_fitness(individual, self.parameter)
+        # Assign the genome to the agent
+        self.individual = individual
+        # Fitness
+        self.beta = 0.0001
+        self.diversity_fitness = self.individual[0].fitness
+
+    def construct_bt(self):
+        """Construct BT."""
+        # Get the phenotype of the genome and store as xmlstring
+        self.bt.xmlstring = self.individual[0].phenotype
+        # Construct actual BT from xmlstring
+        self.bt.construct()
 
     def store_genome(self, cellmates):
         """Store the genome from neighbours."""
@@ -140,7 +192,6 @@ class SwarmAgent(Agent):
         # First block gives importance to exploration and when as soon
         # food has been found, the next block will focus on dropping
         # the food on hub
-        #"""
         if self.carrying_fitness() <= 0 and self.food_collected <= 0:
             self.individual[0].fitness = (
                 (1 - self.beta) * self.exploration_fitness(
@@ -152,48 +203,9 @@ class SwarmAgent(Agent):
                 1 - self.beta) * self.carrying_fitness() + (
                     self.beta * self.food_collected * self.timestamp)
             self.fitness_name = False
-        #"""
-        """
-        if 'Sites' not in self.shared_content.keys():
-            self.individual[0].fitness = self.exploration_fitness()
-            self.fitness_name = 'EXP'
-        elif 'Sites' in self.shared_content.keys():
-            # self.individual[0].fitness = self.carrying_fitness()
-            #self.individual[0].fitness = (
-            #    (1 - self.beta) * self.exploration_fitness(
-            #    ) + self.beta * self.carrying_fitness())
-            #self.fitness_name = 'CAR'
-        #elif ('Sites' in self.shared_content.keys() and len(self.attached_objects) > 0):
-            self.individual[0].fitness = (
-                (1 - self.beta) * self.exploration_fitness(
-
-                ) + self.beta * self.food_collected * self.timestamp)
-            self.fitness_name = 'DRP'
-        """
-    def carrying_fitness(self):
-        """Compute carrying fitness.
-
-        This fitness supports the carrying behavior of
-        the agents.
-        """
-        return len(self.attached_objects) * (self.timestamp)
-
-    def exploration_fitness(self):
-        """Compute the exploration fitness."""
-        # Use exploration space as fitness values
-        return len(self.location_history)
-
-    # New Agent methods for behavior based robotics
-    def sense(self):
-        """Sense included in behavior tree."""
-        pass
-
-    def plan(self):
-        """Plan not required for now."""
-        pass
 
     def step(self):
-        """Agent action at a single time step."""
+        """Take a step in the simulation."""
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
         # output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
 
@@ -204,8 +216,7 @@ class SwarmAgent(Agent):
         # Increase beta
         self.beta = self.step_count / self.model.iter
 
-        #if self.fitness_name == 'EXP':
-            # Maintain the location history of the agent
+        # Maintain location history
         self.location_history.add(self.location)
 
         # Compute the behavior tree
@@ -216,26 +227,9 @@ class SwarmAgent(Agent):
 
         # Computes overall fitness using Beta function
         self.overall_fitness()
-        # if self.fitness_name != 'EXP':
-        #print (self.step_count, self.name, np.round(self.individual[0].fitness,2),
-        #np.round(self.carrying_fitness(),2), self.timestamp, np.round(self.beta,2), len(self.genome_storage), self.attached_objects, self.fitness_name )
         # Find the nearby agents
         cellmates = self.model.grid.get_objects_from_grid(
-            'SwarmAgent', self.location)
-
-        # Create a results instance and save it to a file
-        """
-        self.results = Results(
-            self.model.pname, self.model.connect, self.model.sn, self.name,
-            self.step_count, self.timestamp, self.beta,
-            self.individual[0].fitness,
-            self.diversity_fitness, self.exploration_fitness(),
-            self.food_collected, len(cellmates), self.individual[0].genome,
-            self.individual[0].phenotype, self.bt
-            )
-        """
-        # Save the results to a db
-        # self.results.save_to_file()
+            type(self).__name__, self.location)
 
         # Logic for gentic operations.
         # If the genome storage has enough genomes and agents has done some
@@ -246,31 +240,22 @@ class SwarmAgent(Agent):
             self.genome_storage) >= (self.model.num_agents / 1.4)
         if storage_threshold:
             self.genetic_step()
-        elif (storage_threshold is False and self.timestamp > 50 and self.exploration_fitness() < 10):
+        elif (
+                (
+                    storage_threshold is False and self.timestamp > 50
+                    ) and (self.exploration_fitness() < 10)):
             individual = initialisation(self.parameter, 10)
             individual = evaluate_fitness(individual, self.parameter)
             self.genome_storage = individual
             self.genetic_step()
 
-        #elif (storage_threshold is False and self.timestamp > 400 and self.food_collected < 1):
-            # This is the case of the agent not moving and staying dormant.
-            # Need to use genetic operation to change its genome
-        #    individual = initialisation(self.parameter, 10)
-        #    individual = evaluate_fitness(individual, self.parameter)
-        #    self.genome_storage = individual
-        #    self.genetic_step()
-
         # If neighbours found, store the genome
         if len(cellmates) > 1:
             self.store_genome(cellmates)
 
-    def advance(self):
-        """Require for staged activation."""
-        pass
 
-
-class RunSwarmAgent(Agent):
-    """A swarm agent.
+class ExecutingAgent(ForagingAgent):
+    """A foraging swarm agent.
 
     This agent will run the behaviors evolved.
     """
@@ -278,70 +263,14 @@ class RunSwarmAgent(Agent):
     def __init__(self, name, model, xmlstring=None):
         """Initialize the agent."""
         super().__init__(name, model)
-        self.location = ()
+        self.xmlstring = xmlstring
 
-        self.direction = model.random.rand() * (2 * np.pi)
-        self.speed = 2
-        self.radius = 3
-        self.carryable = False
-
-        # Define a BTContruct object
-        self.bt = BTConstruct(None, self)
-
-        self.shared_content = dict()
-
-        self.food_collected = 0
-
-        self.bt.xmlstring = xmlstring
+    def construct_bt(self):
+        """Construct BT."""
+        # Get the phenotype of the genome and store as xmlstring
+        self.bt.xmlstring = self.xmlstring
+        # Construct actual BT from xmlstring
         self.bt.construct()
-
-        # self.diversity_fitness = model.fitness
-
-        # Location history
-        self.location_history = set()
-        self.timestamp = 0
-        self.step_count = 0
-
-    def get_food_in_hub(self):
-        # return len(self.attached_objects) * 1000
-        grid = self.model.grid
-        hub_loc = self.model.hub.location
-        neighbours = grid.get_neighborhood(hub_loc, 10)
-        food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
-        agent_food_objects = []
-        for food in food_objects:
-            if food.agent_name == self.name:
-                agent_food_objects.append(food)
-        # print (food_objects)
-        return agent_food_objects
-
-    def detect_food_carrying(self):
-        if len(self.attached_objects) > 0:
-            print('Food carying', self.name, self.attached_objects)
-            output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
-            print(output)
-
-    def carrying_fitness(self):
-        """Compute carrying fitness.
-
-        This fitness supports the carrying behavior of
-        the agents.
-        """
-        return len(self.attached_objects)
-
-    def exploration_fitness(self):
-        """Compute the exploration fitness."""
-        # Use exploration space as fitness values
-        return len(self.location_history)
-
-    # New Agent methods for behavior based robotics
-    def sense(self):
-        """Sense included in behavior tree."""
-        pass
-
-    def plan(self):
-        """Plan not required for now."""
-        pass
 
     def step(self):
         """Agent action at a single time step."""
@@ -354,7 +283,3 @@ class RunSwarmAgent(Agent):
 
         # Find the no.of food collected from the BT execution
         # self.food_collected = len(self.get_food_in_hub())
-
-    def advance(self):
-        """Require for staged activation."""
-        pass

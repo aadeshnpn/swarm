@@ -1,9 +1,9 @@
 """Experiment script to run Single source foraging simulation."""
 
-from model import EnvironmentModel, RunEnvironmentModel
+from model import EvolveModel, ValidationModel, TestModel
 # from swarms.utils.jsonhandler import JsonData
-from swarms.utils.graph import Graph, GraphACC
-from joblib import Parallel, delayed
+from swarms.utils.graph import Graph, GraphACC  # noqa : F401
+from joblib import Parallel, delayed    # noqa : F401
 from swarms.utils.results import SimulationResults
 
 # Global variables for width and height
@@ -13,131 +13,108 @@ height = 100
 UI = False
 
 
-def extract_phenotype(agents, method='ratio'):
-    """Extract phenotype of the learning agents.
-
-    Sort the agents based on the overall fitness and then based on the
-    method extract phenotype of the agents.
-    Method can take {'ratio','higest','sample'}
-    """
-    sorted_agents = sorted(
-        agents, key=lambda x: x.individual[0].fitness, reverse=True)
-
-    if method == 'ratio':
-        ratio_value = 0.4
-        upper_bound = ratio_value * len(agents)
-        selected_agents = agents[0:int(upper_bound)]
-        selected_phenotype = [
-            agent.individual[0].phenotype for agent in selected_agents]
-        return selected_phenotype
-    else:
-        return [sorted_agents[0].individual[0].phenotype]
-
-
-def simulate(agents, iteration):
-    """Test the performane of evolved behavior."""
-    # phenotype = agent.individual[0].phenotype
-    # phenotypes = extract_phenotype(agents)
-    phenotypes = agents
-    # iteration = 10000
-    threshold = 1.0
-    sim = RunEnvironmentModel(
-        100, 100, 100, 10, iter=iteration, xmlstrings=phenotypes)
-    sim.build_environment_from_json()
-
-    # for all agents store the information about hub
-    # Also
-    for agent in sim.agents:
-        agent.shared_content['Hub'] = {sim.hub}
-        agent.shared_content['Sites'] = {sim.site}
-
-    simresults = SimulationResults(
-        sim.pname, sim.connect, sim.sn, sim.stepcnt, sim.food_in_hub(),
-        phenotypes[0]
-        )
-    simresults.save_phenotype()
-    simresults.save_to_file()
-
-    # Iterate and execute each step in the environment
+def validation_loop(phenotypes, iteration, threshold=50.0):
+    """Validate the evolved behaviors."""
+    # Create a validation environment instance
+    valid = ValidationModel(
+        100, 100, 100, 10, iter=iteration)
+    # Build the environment
+    valid.build_environment_from_json()
+    # Create the agents in the environment from the sampled behaviors
+    valid.create_agents(phenotypes=phenotypes)
     for i in range(iteration):
-        # For every iteration we need to store the results
-        # Save them into db or a file
-        sim.step()
-        simresults = SimulationResults(
-            sim.pname, sim.connect, sim.sn, sim.stepcnt, sim.food_in_hub(),
-            phenotypes[0]
-            )
-        simresults.save_to_file()
+        valid.step()
 
-    # print("Total food in the hub", len(food_objects))
-    value = sim.food_in_hub()
+    # Return true if the sample behavior achieves a threshold
+    if valid.foraging_percent() > threshold:
+        return True
+    else:
+        return False
 
-    foraging_percent = (
-        value * 100.0) / (sim.num_agents * 2.0)
 
-    sucess = False
-    print ('Foraging percent', value)
+def test_loop(phenotypes, iteration):
+    """Validate the evolved behaviors."""
+    # Create a validation environment instance
+    test = TestModel(
+        100, 100, 100, 10, iter=iteration)
+    # Build the environment
+    test.build_environment_from_json()
+    # Create the agents in the environment from the sampled behaviors
+    test.create_agents(phenotypes=phenotypes)
+    # Store the initial result
+    testresults = SimulationResults(
+        test.pname, test.connect, test.sn, test.stepcnt,
+        test.foraging_percent(), phenotypes[0]
+        )
+    # Save the phenotype to a json file
+    testresults.save_phenotype()
+    # Save the data in a result csv file
+    testresults.save_to_file()
 
-    if foraging_percent >= threshold:
-        print('Foraging success')
-        sucess = True
+    # Execute the BT in the environment
+    for i in range(iteration):
+        test.step()
 
-    # sim.experiment.update_experiment_simulation(value, sucess)
-    sim.experiment.update_experiment_simulation(value, sucess)
+        testresults = SimulationResults(
+            test.pname, test.connect, test.sn, test.stepcnt,
+            test.foraging_percent(), phenotypes[0]
+        )
+        testresults.save_to_file()
 
-    # Plot the fitness in the graph
-    graph = GraphACC(sim.pname, 'simulation.csv')
+    # Plot the result in the graph
+    graph = GraphACC(test.pname, 'simulation.csv')
     graph.gen_plot()
 
 
-def evolve(iteration):
+def learning_phase(iteration, early_stop=True):
     """Learning Algorithm block."""
-    # iteration = 10000
-
-    env = EnvironmentModel(50, 100, 100, 10, iter=iteration)
+    # Evolution environment
+    env = EvolveModel(50, 100, 100, 10, iter=iteration)
     env.build_environment_from_json()
+
+    # Validation Step parameter
+    # Run the validation test every these many steps
+    validation_step = 2
 
     # for all agents store the information about hub
     for agent in env.agents:
         agent.shared_content['Hub'] = {env.hub}
 
-    # Hub and site object
-    # print(env.hub, env.site)
-
     # Iterate and execute each step in the environment
+    # Take a step i number of step in evolution environment
+    # Take a 1000 step in validation environment sampling from the evolution
+    # Make the validation envronmnet same as the evolution environment
     for i in range(iteration):
+        # Take a step in evolution
         env.step()
+        if i % validation_step == 0:
+            phenotypes = env.behavior_sampling()
+            early_stop = validation_loop(phenotypes, 1000)
+            if early_stop:
+                # Save the phenotypes to a json file
 
+                # Update the experiment table
+                env.experiment.update_experiment()
+
+                # Return phenotypes
+                return phenotypes
+
+    # Update the experiment table
     env.experiment.update_experiment()
+    return phenotypes
 
-    best_agent = env.top
 
-    # Find if food has been deposited in the hub
-    grid = env.grid
-    food_loc = (0, 0)
-    neighbours = grid.get_neighborhood(food_loc, 10)
-    food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
-    print ('Total food in the hub', len(food_objects))
-
-    for food in food_objects:
-        print (food.phenotype)
-        if food.agent_name == best_agent:
-            print('Foraging success', food.id, food.location)
-
-    # Plot the fitness in the graph
-    graph = Graph(env.pname, 'best.csv', ['explore', 'foraging'])
-    graph.gen_best_plots()
-
-    # Test the evolved behavior
-    return env.agents  # [best_agent]
+def test_phase(phenotypes):
+    """Test the phenotypes in a completely different environment."""
+    pass
 
 
 def main(iter):
     """Block for the main function."""
-    # agents = evolve(iter)
-    # simulate(agents, iter)
-    phenotype = ['<?xml version=\"1.0\" encoding=\"UTF-8\"?><Sequence><Sequence><Sequence><Selector><cond>NeighbourObjects</cond><act>CompositeSingleCarry_Food</act></Selector><Sequence><cond>NeighbourObjects</cond><act>Explore</act></Sequence></Sequence> <Selector><cond>NeighbourObjects</cond><cond>NeighbourObjects</cond><act>MoveTowards_Hub</act></Selector></Sequence><Sequence><Sequence><Sequence><cond>IsDropable_Hub</cond><act>CompositeDrop_Food</act></Sequence> <Sequence><cond>NeighbourObjects</cond><act>CompositeSingleCarry_Food</act></Sequence></Sequence> <Selector><cond>IsDropable_Hub</cond><act>MoveAway_Sites</act></Selector></Sequence></Sequence>']
-    simulate(phenotype, iter)
+    # Run the evolutionary learning algorithm
+    phenotypes = learning_phase(iter)
+    # Run the evolved behaviors on a test environment
+    test_phase(phenotypes)
 
 
 if __name__ == '__main__':
