@@ -651,4 +651,3 @@ class CompositePickCue(Behaviour):
         """
         self.behaviour_tree.tick()
         return self.behaviour_tree.root.status
-

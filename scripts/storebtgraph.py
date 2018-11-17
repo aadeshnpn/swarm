@@ -1,6 +1,5 @@
 """Script to store BT graph."""
 
-import sys
 import py_trees
 
 from swarms.utils.jsonhandler import JsonPhenotypeData
@@ -18,15 +17,17 @@ from swarms.behaviors.scbehaviors import (      # noqa: F401
 
 def main():
     """Parse args and call bt visualize module."""
-    # dname = '/home/aadeshnpn/Documents/BYU/hcmi/hri/supporting_materials/nest_maintenance'
+    # dname = '/home/aadeshnpn/Documents/BYU/hcmi/hri/supporting_materials/nest_maintenance'    # noqa: E501
     # jfname = dname + '/1539014820252.json'
-    dname = '/home/aadeshnpn/Documents/BYU/hcmi/hri/supporting_materials/cooperative_transport'
-    jfname = dname + '/1538447335350.json'
+    # dname = '/home/aadeshnpn/Documents/BYU/hcmi/hri/supporting_materials/cooperative_transport'   # noqa: E501
+    # jfname = dname + '/1538447335350.json'
+    dname = '/home/aadeshnpn/Documents/BYU/hcmi/hri/supporting_materials/foraging'  # noqa: E501
+    jfname = dname + '/1538473090382007.json'
     jdata = JsonPhenotypeData.load_json_file(jfname)
     phenotypes = jdata['phenotypes']
     for i in range(len(phenotypes)):
-        if i >= 5:
-            break
+        # if i >= 5:
+        #    break
         m = Model()
         a = Agent('1', m)
         bt = BTConstruct(None, a, phenotypes[i])
@@ -34,14 +35,26 @@ def main():
         bt.visualize(name=dname + '/' + str(i))
 
 
+def gen_from_xmlstring():
+    """Generate BT graph from xml string."""
+    dname = '/home/aadeshnpn/Documents/BYU/hcmi/hri/supporting_materials/nest_maintenance'  # noqa: E501
+    xmlstring = ''
+    m = Model()
+    a = Agent('1', m)
+    bt = BTConstruct(None, a, xmlstring)
+    bt.construct()
+    bt.visualize(name=dname + '/' + str(90))
+
+
 def compositebehaviors():
+    """Generate BT graph from composite behaviors."""
     behaviors = [
         MoveTowards, MoveAway, Explore, CompositeSingleCarry,
         CompositeMultipleCarry, CompositeDrop, CompositeDropCue,
         CompositePickCue, CompositeSendSignal, CompositeReceiveSignal,
         CompositeDropPartial]
 
-    dname = '/home/aadeshnpn/Documents/BYU/hcmi/hri/supporting_materials/composite_behaviors'
+    dname = '/home/aadeshnpn/Documents/BYU/hcmi/hri/supporting_materials/composite_behaviors'   # noqa: E501
 
     for i in range(len(behaviors)):
         behavior = behaviors[i](str(i))
@@ -57,3 +70,4 @@ def compositebehaviors():
 if __name__ == '__main__':
     main()
     # compositebehaviors()
+    # gen_from_xmlstring()

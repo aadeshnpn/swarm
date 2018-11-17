@@ -128,6 +128,7 @@ class SimForgAgent(Agent):
 
         self.behaviour_tree = py_trees.trees.BehaviourTree(select)
 
+        py_trees.display.render_dot_tree(self.behaviour_tree.root, name=model.pname+'/forgehc')
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
         # py_trees.display.print_ascii_tree(select)
 
@@ -243,7 +244,7 @@ class SimCTAgent(Agent):
         select.add_children([dseq, cseq, locoselect])
 
         self.behaviour_tree = py_trees.trees.BehaviourTree(select)
-
+        py_trees.display.render_dot_tree(self.behaviour_tree.root, name=model.pname+'/cthc')
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
         # py_trees.display.print_ascii_tree(select)
 
@@ -354,7 +355,7 @@ class SimNMAgent(Agent):
         select.add_children([dseq, cseq, locoselect])
 
         self.behaviour_tree = py_trees.trees.BehaviourTree(select)
-
+        py_trees.display.render_dot_tree(self.behaviour_tree.root, name=model.pname+'/nmhc')
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
         # py_trees.display.print_ascii_tree(select)
 

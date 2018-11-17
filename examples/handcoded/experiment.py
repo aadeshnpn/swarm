@@ -228,17 +228,18 @@ def simulate_nm(env, iteration, N=100):
 def main(iter):
     """Block for the main function."""
     print('=======Start=========')
-    pname = '/home/aadeshnpn/Documents/BYU/HCMI/research/handcoded/nm'
+    #pname = '/home/aadeshnpn/Documents/BYU/HCMI/research/handcoded/nm'
+    pname = '/home/aadeshnpn/Documents/BYU/hcmi/hri/handcoded/ct'
     # for N in range(16):
     steps = [5000 for i in range(16)]
     # env = (env.phenotypes, env.pname)
     # aname = pname + '/' + str(N)
     env = (['123', '123'], pname)
     # Parallel(n_jobs=16)(delayed(simulate_ct)(env, i) for i in steps)
-    Parallel(n_jobs=16)(delayed(simulate_nm)(env, i) for i in steps)
-    # simulate_forg(env, 5000)
-    # simulate_ct(env, 5000)
-    # simulate_nm(env, 5000)
+    #Parallel(n_jobs=16)(delayed(simulate_nm)(env, i) for i in steps)
+    # simulate_forg(env, 5)
+    simulate_ct(env, 5)
+    # simulate_nm(env, 5)
     print('=======End=========')
 
 
