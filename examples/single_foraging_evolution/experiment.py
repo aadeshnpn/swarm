@@ -71,14 +71,10 @@ def learning_phase(iteration, early_stop=True):
     # Evolution environment
     env = EvolveModel(50, 100, 100, 10, iter=iteration)
     env.build_environment_from_json()
-
+    env.create_agents()
     # Validation Step parameter
     # Run the validation test every these many steps
     validation_step = 2
-
-    # for all agents store the information about hub
-    for agent in env.agents:
-        agent.shared_content['Hub'] = {env.hub}
 
     # Iterate and execute each step in the environment
     # Take a step i number of step in evolution environment
@@ -122,4 +118,4 @@ if __name__ == '__main__':
 
     # Parallel(n_jobs=8)(delayed(main)(i) for i in range(1000, 100000, 2000))
     # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 8000, 2000))
-    main(1800)
+    main(10)

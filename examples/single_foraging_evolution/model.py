@@ -35,7 +35,8 @@ class ForagingModel(Model):
         self.runid = str(self.runid).replace('.', '')
 
         # Create the experiment folder
-        self.pname = os.getcwd() + '/' + self.runid + name
+        self.pname = '/'.join(
+            os.getcwd().split('/')[:-2]) + '/results/' + self.runid + name
 
         # Define some parameters to count the step
         self.stepcnt = 1
@@ -105,6 +106,7 @@ class ForagingModel(Model):
                 jsondata, obj)
 
         self.hub = self.render.objects['hub'][0]
+        self.total_food_units = 0
         try:
             self.site = self.render.objects['sites'][0]
             for i in range(self.num_agents * 1):
@@ -112,6 +114,7 @@ class ForagingModel(Model):
                     i, location=self.site.location, radius=self.site.radius)
                 f.agent_name = None
                 self.grid.add_object_to_grid(f.location, f)
+                self.total_food_units += f.weight
         except KeyError:
             pass
 
@@ -207,7 +210,8 @@ class ForagingModel(Model):
         hub_loc = self.hub.location
         neighbours = grid.get_neighborhood(hub_loc, 10)
         food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
-        return ((food_objects * 1.0) / self.num_agents) * 100
+        total_food_weights = sum([food.weight for food in food_objects])
+        return ((total_food_weights * 1.0) / self.total_food_units) * 100
 
 
 class EvolveModel(ForagingModel):
@@ -218,14 +222,22 @@ class EvolveModel(ForagingModel):
             seed=None, name="EvoSForge"):
         """Initialize the attributes."""
         super(EvolveModel, self).__init__(
-            self, N, width, height, grid, iter, seed, name)
+            N, width, height, grid, iter, seed, name)
 
     def create_agents(self, random_init=True, phenotypes=None):
         """Initialize agents in the environment."""
         # Create agents
         for i in range(self.num_agents):
             a = LearningAgent(i, self)
+            # Add agent to the scheduler
             self.schedule.add(a)
+            # Add the hub to agents memory
+            a.shared_content['Hub'] = {self.hub}
+            # First intitialize the Genetic algorithm. Then BT
+            a.init_evolution_algo()
+            # Initialize the BT. Since the agents are evolutionary
+            # the bt will be random
+            a.construct_bt()
             # Add the agent to a random grid cell
             x = self.random.randint(
                 -self.grid.width / 2, self.grid.width / 2)
@@ -265,7 +277,7 @@ class ValidationModel(ForagingModel):
             seed=None, name="ValidateSForge"):
         """Initialize the attributes."""
         super(ValidationModel, self).__init__(
-            self, N, width, height, grid, iter, seed, name)
+            N, width, height, grid, iter, seed, name)
 
     def create_agents(self, random_init=False, phenotypes=None):
         """Initialize agents in the environment."""
@@ -279,7 +291,10 @@ class ValidationModel(ForagingModel):
             # Add the agent to schedular list
             self.schedule.add(a)
             # Add the hub to agents memory
-            a.shared_content['Hub'] = self.hub
+            a.shared_content['Hub'] = {self.hub}
+            # Initialize the BT. Since the agents are normal agents just
+            # use the phenotype
+            a.construct_bt()
 
             if random_init:
                 # Add the agent to a random grid cell
