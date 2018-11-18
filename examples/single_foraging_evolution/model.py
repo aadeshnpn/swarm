@@ -36,7 +36,8 @@ class ForagingModel(Model):
 
         # Create the experiment folder
         self.pname = '/'.join(
-            os.getcwd().split('/')[:-2]) + '/results/' + self.runid + name
+            os.getcwd().split('/')[:-2]
+            ) + '/results/' + self.runid + '-' + str(iter) + name
 
         # Define some parameters to count the step
         self.stepcnt = 1
@@ -268,6 +269,17 @@ class EvolveModel(ForagingModel):
         else:
             return [sorted_agents[0].individual[0].phenotype]
 
+    def step(self):
+        """Step through the environment."""
+        # Gather info to plot the graph
+        _ = self.gather_info()
+
+        # Next step
+        self.schedule.step()
+
+        # Increment the step count
+        self.stepcnt += 1
+
 
 class ValidationModel(ForagingModel):
     """A environemnt to validate swarm behaviors."""
@@ -324,7 +336,7 @@ class TestModel(ForagingModel):
             seed=None, name="TestSForge"):
         """Initialize the attributes."""
         super(TestModel, self).__init__(
-            self, N, width, height, grid, iter, seed, name)
+            N, width, height, grid, iter, seed, name)
 
     def create_agents(self, random_init=False, phenotypes=None):
         """Initialize agents in the environment."""
@@ -336,6 +348,11 @@ class TestModel(ForagingModel):
             # print (i, j, self.xmlstrings[j])
             a = ExecutingAgent(i, self, xmlstring=phenotypes[j])
             self.schedule.add(a)
+            # Add the hub to agents memory
+            a.shared_content['Hub'] = {self.hub}
+            # Initialize the BT. Since the agents are normal agents just
+            # use the phenotype
+            a.construct_bt()
             if random_init:
                 # Add the agent to a random grid cell
                 x = self.random.randint(

@@ -274,7 +274,6 @@ class ExecutingAgent(ForagingAgent):
 
     def step(self):
         """Agent action at a single time step."""
-
         # Maintain the location history of the agent
         # self.location_history.add(self.location)
 

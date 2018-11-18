@@ -1,7 +1,7 @@
 """Experiment script to run Single source foraging simulation."""
 
 from model import EvolveModel, ValidationModel, TestModel
-# from swarms.utils.jsonhandler import JsonData
+from swarms.utils.jsonhandler import JsonPhenotypeData
 from swarms.utils.graph import Graph, GraphACC  # noqa : F401
 from joblib import Parallel, delayed    # noqa : F401
 from swarms.utils.results import SimulationResults
@@ -24,6 +24,18 @@ def validation_loop(phenotypes, iteration, threshold=50.0):
     valid.create_agents(phenotypes=phenotypes)
     for i in range(iteration):
         valid.step()
+        validresults = SimulationResults(
+            valid.pname, valid.connect, valid.sn, valid.stepcnt,
+            valid.foraging_percent(), phenotypes[0]
+        )
+        validresults.save_to_file()
+
+    # Save the phenotype to json file
+    phenotype_to_json(valid.pname, valid.runid + '-' + str(i), phenotypes)
+
+    # Plot the result in the graph
+    graph = GraphACC(valid.pname, 'simulation.csv')
+    graph.gen_plot()
 
     # Return true if the sample behavior achieves a threshold
     if valid.foraging_percent() > threshold:
@@ -33,7 +45,7 @@ def validation_loop(phenotypes, iteration, threshold=50.0):
 
 
 def test_loop(phenotypes, iteration):
-    """Validate the evolved behaviors."""
+    """Test the phenotypes in a completely different environment."""
     # Create a validation environment instance
     test = TestModel(
         100, 100, 100, 10, iter=iteration)
@@ -50,7 +62,8 @@ def test_loop(phenotypes, iteration):
     testresults.save_phenotype()
     # Save the data in a result csv file
     testresults.save_to_file()
-
+    # Save the phenotype of json file
+    phenotype_to_json(test.pname, test.runid, phenotypes)
     # Execute the BT in the environment
     for i in range(iteration):
         test.step()
@@ -69,7 +82,7 @@ def test_loop(phenotypes, iteration):
 def learning_phase(iteration, early_stop=True):
     """Learning Algorithm block."""
     # Evolution environment
-    env = EvolveModel(50, 100, 100, 10, iter=iteration)
+    env = EvolveModel(100, 100, 100, 10, iter=iteration)
     env.build_environment_from_json()
     env.create_agents()
     # Validation Step parameter
@@ -85,10 +98,15 @@ def learning_phase(iteration, early_stop=True):
         env.step()
         if i % validation_step == 0:
             phenotypes = env.behavior_sampling()
+            # save the phenotype to json file
+            phenotype_to_json(env.pname, env.runid + '-' + str(i), phenotypes)
             early_stop = validation_loop(phenotypes, 1000)
-            if early_stop:
-                # Save the phenotypes to a json file
 
+            # Plot the fitness in the graph
+            graph = Graph(env.pname, 'best.csv', ['explore', 'foraging'])
+            graph.gen_best_plots()
+
+            if early_stop:
                 # Update the experiment table
                 env.experiment.update_experiment()
 
@@ -100,9 +118,10 @@ def learning_phase(iteration, early_stop=True):
     return phenotypes
 
 
-def test_phase(phenotypes):
-    """Test the phenotypes in a completely different environment."""
-    pass
+def phenotype_to_json(pname, runid, phenotypes):
+    """Store the phenotype to a json file."""
+    jfilename = pname + '/' + runid + '.json'
+    JsonPhenotypeData.to_json(phenotypes, jfilename)
 
 
 def main(iter):
@@ -110,12 +129,12 @@ def main(iter):
     # Run the evolutionary learning algorithm
     phenotypes = learning_phase(iter)
     # Run the evolved behaviors on a test environment
-    test_phase(phenotypes)
+    test_loop(phenotypes, 2000)
 
 
 if __name__ == '__main__':
     # Running 50 experiments in parallel
 
-    # Parallel(n_jobs=8)(delayed(main)(i) for i in range(1000, 100000, 2000))
+    Parallel(n_jobs=16)(delayed(main)(i) for i in range(1000, 100000, 2000))
     # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 8000, 2000))
-    main(10)
+    # main(10)
