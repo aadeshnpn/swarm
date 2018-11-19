@@ -82,7 +82,7 @@ def test_loop(phenotypes, iteration):
 def learning_phase(iteration, early_stop=False):
     """Learning Algorithm block."""
     # Evolution environment
-    env = EvolveModel(150, 100, 100, 10, iter=iteration)
+    env = EvolveModel(100, 100, 100, 10, iter=iteration)
     env.build_environment_from_json()
     env.create_agents()
     # Validation Step parameter
@@ -103,7 +103,9 @@ def learning_phase(iteration, early_stop=False):
             early_stop = validation_loop(phenotypes, 1000)
 
             # Plot the fitness in the graph
-            graph = Graph(env.pname, 'best.csv', ['explore', 'foraging'])
+            graph = Graph(
+                env.pname, 'best.csv', ['explore', 'foraging', 'prospective'],
+                pname='best' + str(i))
             graph.gen_best_plots()
 
             if early_stop:

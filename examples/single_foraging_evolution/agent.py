@@ -95,12 +95,12 @@ class ForagingAgent(Agent):
         This fitness supports the carrying behavior of
         the agents.
         """
-        return len(self.attached_objects)
+        return len(self.attached_objects) * (self.timestamp)
 
     def exploration_fitness(self):
         """Compute the exploration fitness."""
         # Use exploration space as fitness values
-        return len(self.location_history)
+        return len(self.location_history) - 1
 
 
 class LearningAgent(ForagingAgent):
@@ -109,6 +109,7 @@ class LearningAgent(ForagingAgent):
     def __init__(self, name, model):
         """Initialize the agent."""
         super().__init__(name, model)
+        self.delayed_reward = 0
 
     def init_evolution_algo(self):
         """Agent's GE algorithm operation defination."""
@@ -172,6 +173,7 @@ class LearningAgent(ForagingAgent):
 
     def genetic_step(self):
         """Additional procedures called after genecti step."""
+        self.delayed_reward = self.individual[0].fitness
         self.exchange_chromosome()
         self.bt.xmlstring = self.individual[0].phenotype
         self.bt.construct()
@@ -192,17 +194,9 @@ class LearningAgent(ForagingAgent):
         # First block gives importance to exploration and when as soon
         # food has been found, the next block will focus on dropping
         # the food on hub
-        if self.carrying_fitness() <= 0 and self.food_collected <= 0:
-            self.individual[0].fitness = (
-                (1 - self.beta) * self.exploration_fitness(
-                ) + self.beta * self.carrying_fitness())
-            self.fitness_name = True
-
-        elif self.carrying_fitness() > 0:
-            self.individual[0].fitness = (
-                1 - self.beta) * self.carrying_fitness() + (
-                    self.beta * self.food_collected * self.timestamp)
-            self.fitness_name = False
+        self.individual[0].fitness = (1 - self.beta) * self.delayed_reward \
+            + self.exploration_fitness() + self.carrying_fitness() \
+            + self.food_collected
 
     def step(self):
         """Take a step in the simulation."""

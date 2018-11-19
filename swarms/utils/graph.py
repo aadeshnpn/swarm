@@ -10,7 +10,9 @@ plt.style.use('fivethirtyeight')
 
 class Graph:
 
-    def __init__(self, directory, fname, fields, title="Fitness function"):
+    def __init__(
+            self, directory, fname, fields, title="Fitness function",
+            pname='best'):
         self.__dict__.update(locals())
         # self.directory = director
         # self.fname = fname
@@ -21,12 +23,13 @@ class Graph:
         self.overall = self.data[
             self.data['header'] == 'OVERALL']['fitness'].values
         self.diverse = self.data[
-            self.data['header'] == 'DIVERSE']['fitness'].values
+            self.data['header'] == 'PROSPE']['fitness'].values
         self.explore = self.data[
             self.data['header'] == 'EXPLORE']['fitness'].values
         self.forge = self.data[
             self.data['header'] == 'FORGE']['fitness'].values
-        self.title = title
+
+        self.pname = '/' + pname
 
     def gen_best_plots(self):
         fig = plt.figure()
@@ -37,7 +40,7 @@ class Graph:
             field_max = mean + std
             field_min = mean - std
             xvalues = range(1, len(mean) + 1)
-            ax1 = fig.add_subplot(2, 1, i)
+            ax1 = fig.add_subplot(2, 2, i)
             i += 1
             # Plotting mean and standard deviation
             ax1.plot(xvalues, mean, color='blue', label='Mean ' + field)
@@ -51,12 +54,14 @@ class Graph:
             plt.xlim(0, len(mean))
             ax1.legend()
             ax1.set_xlabel('Steps')
-            ax1.set_xlabel('Fitness')
-            ax1.set_title(self.title + ' ' + field)
+            ax1.set_ylabel('Fitness')
+            ax1.set_title(field.capitalize())
 
         plt.tight_layout()
-        fig.savefig(self.directory + '/best.pdf')   # pylint: disable = E1101
-        fig.savefig(self.directory + '/best.png')   # pylint: disable = E1101
+        fig.savefig(
+            self.directory + self.pname + '.pdf')  # pylint: disable = E1101
+        fig.savefig(
+            self.directory + self.pname + '.png')  # pylint: disable = E1101
         plt.close(fig)
 
     def load_file(self):
