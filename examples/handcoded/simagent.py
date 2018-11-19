@@ -56,16 +56,17 @@ class SimForgAgent(Agent):
 
         # Drop branch
         dseq = py_trees.composites.Sequence('DSequence')
-        iscarrying = IsCarrying('1')
+        iscarrying = IsCarrying('IsCarrying_Food')
         iscarrying.setup(0, self, 'Food')
 
-        neighhub = NeighbourObjects('2')
+        neighhub = NeighbourObjects('NeighbourObjects_Hub')
         neighhub.setup(0, self, 'Hub')
 
-        notneighhub = py_trees.meta.inverter(NeighbourObjects)('2')
+        notneighhub = py_trees.meta.inverter(NeighbourObjects)(
+            'NeighbourObjects_Hub')
         notneighhub.setup(0, self, 'Hub')
 
-        drop = CompositeDrop('4')
+        drop = CompositeDrop('CompositeDrop_Food')
         drop.setup(0, self, 'Food')
 
         dseq.add_children([neighhub, drop])
@@ -73,16 +74,16 @@ class SimForgAgent(Agent):
         # Carry branch
         cseq = py_trees.composites.Sequence('CSequence')
 
-        neighsite = NeighbourObjects('5')
+        neighsite = NeighbourObjects('NeighbourObjects_Sites')
         neighsite.setup(0, self, 'Sites')
 
-        neighfood = NeighbourObjects('50')
+        neighfood = NeighbourObjects('NeighbourObjects_Food')
         neighfood.setup(0, self, 'Food')
 
-        invcarrying = py_trees.meta.inverter(IsCarrying)('8')
+        invcarrying = py_trees.meta.inverter(IsCarrying)('IsCarrying_Food')
         invcarrying.setup(0, self, 'Food')
 
-        carry = CompositeSingleCarry('6')
+        carry = CompositeSingleCarry('CompositeSingleCarry_Food')
         carry.setup(0, self, 'Food')
 
         cseq.add_children([neighsite, neighfood, invcarrying, carry])
@@ -92,10 +93,10 @@ class SimForgAgent(Agent):
         # Move to site
         siteseq = py_trees.composites.Sequence('SiteSeq')
 
-        sitefound = IsVisitedBefore('7')
+        sitefound = IsVisitedBefore('IsVisitedBefore_Sites')
         sitefound.setup(0, self, 'Sites')
 
-        gotosite = MoveTowards('9')
+        gotosite = MoveTowards('MoveTowards_Sites')
         gotosite.setup(0, self, 'Sites')
 
         siteseq.add_children([sitefound, invcarrying, gotosite])
@@ -104,15 +105,16 @@ class SimForgAgent(Agent):
         # Move to hub
         hubseq = py_trees.composites.Sequence('HubSeq')
 
-        gotohub = MoveTowards('10')
+        gotohub = MoveTowards('MoveTowards_Hub')
         gotohub.setup(0, self, 'Hub')
 
         hubseq.add_children([iscarrying, gotohub])
 
-        sitenotfound = py_trees.meta.inverter(IsVisitedBefore)('11')
+        sitenotfound = py_trees.meta.inverter(IsVisitedBefore)(
+            'IsVisitedBefore_Sites')
         sitenotfound.setup(0, self, 'Sites')
 
-        explore = Explore('12')
+        explore = Explore('Explore')
         explore.setup(0, self)
 
         randwalk = py_trees.composites.Sequence('Randwalk')
@@ -128,7 +130,8 @@ class SimForgAgent(Agent):
 
         self.behaviour_tree = py_trees.trees.BehaviourTree(select)
 
-        py_trees.display.render_dot_tree(self.behaviour_tree.root, name=model.pname+'/forgehc')
+        py_trees.display.render_dot_tree(
+            self.behaviour_tree.root, name=model.pname + '/forgehc')
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
         # py_trees.display.print_ascii_tree(select)
 
@@ -178,14 +181,14 @@ class SimCTAgent(Agent):
         # Drop branch
         dseq = py_trees.composites.Sequence('DSequence')
 
-        iscarrying = IsInPartialAttached('8')
+        iscarrying = IsInPartialAttached('IsInPartialAttached_Food')
         iscarrying.setup(0, self, 'Food')
 
         # If near hub and carrying food with other agents drop
-        neighhub = NeighbourObjects('2')
+        neighhub = NeighbourObjects('NeighbourObjects_Hub')
         neighhub.setup(0, self, 'Hub')
 
-        drop = CompositeDropPartial('4')
+        drop = CompositeDropPartial('CompositeDropPartial_Food')
         drop.setup(0, self, 'Food')
 
         dseq.add_children([neighhub, drop])
@@ -195,22 +198,24 @@ class SimCTAgent(Agent):
 
         # neighsite = NeighbourObjects('5')
         # neighsite.setup(0, self, 'Sites')
-        neighhub = py_trees.meta.inverter(NeighbourObjects)('40')
+        neighhub = py_trees.meta.inverter(NeighbourObjects)(
+            'NeighbourObjects_Hub')
         neighhub.setup(0, self, 'Hub')
 
-        neighfood = NeighbourObjects('50')
+        neighfood = NeighbourObjects('NeighbourObjects_Food')
         neighfood.setup(0, self, 'Food')
 
-        invcarrying = py_trees.meta.inverter(IsInPartialAttached)('8')
+        invcarrying = py_trees.meta.inverter(IsInPartialAttached)(
+            'IsInPartialAttached_Food')
         invcarrying.setup(0, self, 'Food')
 
-        carry = CompositeMultipleCarry('9')
+        carry = CompositeMultipleCarry('CompositeMultipleCarry_Food')
         carry.setup(0, self, 'Food')
 
         # Move to hub
         hubseq = py_trees.composites.Sequence('HubSeq')
         # If carrying something to go to hub
-        gotohub = MoveTowards('10')
+        gotohub = MoveTowards('MoveTowards_Hub')
         gotohub.setup(0, self, 'Hub')
 
         hubseq.add_children([iscarrying, gotohub])
@@ -222,16 +227,16 @@ class SimCTAgent(Agent):
         # Move to site
         siteseq = py_trees.composites.Sequence('SiteSeq')
         # If site already found and not carrying anything go to site
-        sitefound = IsVisitedBefore('7')
+        sitefound = IsVisitedBefore('IsVisitedBefore_Sites')
         sitefound.setup(0, self, 'Sites')
 
-        gotosite = MoveTowards('9')
+        gotosite = MoveTowards('MoveTowards_Sites')
         gotosite.setup(0, self, 'Sites')
 
         siteseq.add_children([sitefound, invcarrying, gotosite])
 
         # Do Random walk
-        explore = Explore('12')
+        explore = Explore('Explore')
         explore.setup(0, self)
 
         randwalk = py_trees.composites.Sequence('Randwalk')
@@ -244,7 +249,8 @@ class SimCTAgent(Agent):
         select.add_children([dseq, cseq, locoselect])
 
         self.behaviour_tree = py_trees.trees.BehaviourTree(select)
-        py_trees.display.render_dot_tree(self.behaviour_tree.root, name=model.pname+'/cthc')
+        py_trees.display.render_dot_tree(
+            self.behaviour_tree.root, name=model.pname + '/cthc')
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
         # py_trees.display.print_ascii_tree(select)
 
@@ -290,13 +296,13 @@ class SimNMAgent(Agent):
 
         # Drop branch
         dseq = py_trees.composites.Sequence('DSequence')
-        iscarrying = IsCarrying('1')
+        iscarrying = IsCarrying('IsCarrying_Debris')
         iscarrying.setup(0, self, 'Debris')
 
-        neighhub = NeighbourObjects('2')
+        neighhub = NeighbourObjects('NeighbourObjects')
         neighhub.setup(0, self, 'Obstacles')
 
-        drop = CompositeDrop('4')
+        drop = CompositeDrop('CompositeDrop_Debris')
         drop.setup(0, self, 'Debris')
 
         dseq.add_children([neighhub, drop])
@@ -304,16 +310,18 @@ class SimNMAgent(Agent):
         # Carry branch
         cseq = py_trees.composites.Sequence('CSequence')
 
-        neighsite = py_trees.meta.inverter(NeighbourObjects)('5')
+        neighsite = py_trees.meta.inverter(NeighbourObjects)(
+            'NeighbourObjects')
         neighsite.setup(0, self, 'Obstacles')
 
-        neighfood = NeighbourObjects('50')
+        neighfood = NeighbourObjects('NeighbourObjects_Debris')
         neighfood.setup(0, self, 'Debris')
 
-        invcarrying = py_trees.meta.inverter(IsCarrying)('8')
+        invcarrying = py_trees.meta.inverter(IsCarrying)(
+            'IsCarrying_Debris')
         invcarrying.setup(0, self, 'Debris')
 
-        carry = CompositeSingleCarry('6')
+        carry = CompositeSingleCarry('CompositeSingleCarry_Debris')
         carry.setup(0, self, 'Debris')
 
         cseq.add_children([neighsite, neighfood, invcarrying, carry])
@@ -323,10 +331,10 @@ class SimNMAgent(Agent):
         # Move to site
         siteseq = py_trees.composites.Sequence('SiteSeq')
 
-        sitefound = IsVisitedBefore('7')
+        sitefound = IsVisitedBefore('IsVisitedBefore')
         sitefound.setup(0, self, 'Obstacles')
 
-        gotosite = MoveTowards('9')
+        gotosite = MoveTowards('MoveTowards')
         gotosite.setup(0, self, 'Obstacles')
 
         siteseq.add_children([sitefound, iscarrying, gotosite])
@@ -334,15 +342,16 @@ class SimNMAgent(Agent):
         # Move to hub
         hubseq = py_trees.composites.Sequence('HubSeq')
 
-        gotohub = MoveTowards('10')
+        gotohub = MoveTowards('MoveTowards_Hub')
         gotohub.setup(0, self, 'Hub')
 
         hubseq.add_children([iscarrying, gotohub])
 
-        sitenotfound = py_trees.meta.inverter(IsVisitedBefore)('11')
+        sitenotfound = py_trees.meta.inverter(IsVisitedBefore)(
+            'IsVisitedBefore')
         sitenotfound.setup(0, self, 'Obstacles')
 
-        explore = Explore('12')
+        explore = Explore('Explore')
         explore.setup(0, self)
 
         randwalk = py_trees.composites.Sequence('Randwalk')
@@ -355,7 +364,8 @@ class SimNMAgent(Agent):
         select.add_children([dseq, cseq, locoselect])
 
         self.behaviour_tree = py_trees.trees.BehaviourTree(select)
-        py_trees.display.render_dot_tree(self.behaviour_tree.root, name=model.pname+'/nmhc')
+        py_trees.display.render_dot_tree(
+            self.behaviour_tree.root, name=model.pname + '/nmhc')
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
         # py_trees.display.print_ascii_tree(select)
 

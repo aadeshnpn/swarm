@@ -13,7 +13,7 @@ height = 100
 UI = False
 
 
-def validation_loop(phenotypes, iteration, threshold=50.0):
+def validation_loop(phenotypes, iteration, threshold=10.0):
     """Validate the evolved behaviors."""
     # Create a validation environment instance
     valid = ValidationModel(
@@ -79,15 +79,15 @@ def test_loop(phenotypes, iteration):
     graph.gen_plot()
 
 
-def learning_phase(iteration, early_stop=True):
+def learning_phase(iteration, early_stop=False):
     """Learning Algorithm block."""
     # Evolution environment
-    env = EvolveModel(100, 100, 100, 10, iter=iteration)
+    env = EvolveModel(150, 100, 100, 10, iter=iteration)
     env.build_environment_from_json()
     env.create_agents()
     # Validation Step parameter
     # Run the validation test every these many steps
-    validation_step = 2
+    validation_step = 200
 
     # Iterate and execute each step in the environment
     # Take a step i number of step in evolution environment
@@ -135,6 +135,6 @@ def main(iter):
 if __name__ == '__main__':
     # Running 50 experiments in parallel
 
-    Parallel(n_jobs=16)(delayed(main)(i) for i in range(1000, 100000, 2000))
+    # Parallel(n_jobs=16)(delayed(main)(i) for i in range(10000, 100000, 2000))
     # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 8000, 2000))
-    # main(10)
+    main(80000)

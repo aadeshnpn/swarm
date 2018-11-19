@@ -272,7 +272,7 @@ class EvolveModel(ForagingModel):
     def step(self):
         """Step through the environment."""
         # Gather info to plot the graph
-        _ = self.gather_info()
+        self.gather_info()
 
         # Next step
         self.schedule.step()

@@ -45,13 +45,14 @@ class Graph:
                 xvalues, field_max, field_min, color='DodgerBlue', alpha=0.3)
 
             ax1.plot(xvalues, self.overall, color='red', label='Overall')
-            ax1.plot(xvalues, self.diverse, color='green', label='Diversity')
-            ax1.plot(xvalues, self.explore, color='orange', label='Explore')
-            ax1.plot(xvalues, self.forge, color='indigo', label='Forge')
+            # ax1.plot(xvalues, self.diverse, color='green', label='Diversity')
+            # ax1.plot(xvalues, self.explore, color='orange', label='Explore')
+            # ax1.plot(xvalues, self.forge, color='indigo', label='Forge')
             plt.xlim(0, len(mean))
+            ax1.legend()
             ax1.set_xlabel('Steps')
             ax1.set_xlabel('Fitness')
-            ax1.set_title(self.title)
+            ax1.set_title(self.title + ' ' + field)
 
         plt.tight_layout()
         fig.savefig(self.directory + '/best.pdf')   # pylint: disable = E1101
@@ -455,7 +456,7 @@ class PMultGraph:
 
         ax1.set_xlabel('No. of Agents')
         ax1.set_ylabel('Performance')
-        ax1.set_title(self.title) # pylint: disable=E1101
+        ax1.set_title(self.title)  # pylint: disable=E1101
         ax1.legend(fontsize="x-small")
         plt.tight_layout()
         fig.savefig(self.dir + '/agentsmean.pdf')   # pylint: disable=E1101

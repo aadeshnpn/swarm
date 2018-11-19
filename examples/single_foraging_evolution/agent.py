@@ -230,14 +230,13 @@ class LearningAgent(ForagingAgent):
         # Find the nearby agents
         cellmates = self.model.grid.get_objects_from_grid(
             type(self).__name__, self.location)
-
         # Logic for gentic operations.
         # If the genome storage has enough genomes and agents has done some
         # exploration then compute the genetic step OR
         # 600 time step has passed and the agent has not done anything useful
         # then also perform genetic step
         storage_threshold = len(
-            self.genome_storage) >= (self.model.num_agents / 1.4)
+            self.genome_storage) >= (self.model.num_agents / 4)
         if storage_threshold:
             self.genetic_step()
         elif (
