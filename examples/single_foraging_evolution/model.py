@@ -261,17 +261,26 @@ class EvolveModel(ForagingModel):
         method extract phenotype of the agents.
         Method can take {'ratio','higest','sample'}
         """
-        sorted_agents = sorted(
-            self.agents, key=lambda x: x.individual[0].fitness, reverse=True)
+        # sorted_agents = sorted(
+        #    self.agents, key=lambda x: x.individual[0].fitness, reverse=True)
+        phenotypes = dict()
+        # Get the phenotypes collected from the agent
+        for agent in self.agents:
+            phenotypes = {**agent.phenotypes, **phenotypes}
+        # Sort the phenotypes
+        phenotypes, _ = zip(
+            *sorted(phenotypes.items(), key=lambda x: x[1], reverse=True))
 
         if method == 'ratio':
             upper_bound = ratio_value * self.num_agents
-            selected_agents = self.agents[0:int(upper_bound)]
-            selected_phenotype = [
-                agent.individual[0].phenotype for agent in selected_agents]
+            # selected_agents = self.agents[0:int(upper_bound)]
+            # selected_phenotype = [
+            #    agent.individual[0].phenotype for agent in selected_agents]
+            selected_phenotype = list(phenotypes)[:int(upper_bound)]
             return selected_phenotype
         else:
-            return [sorted_agents[0].individual[0].phenotype]
+            # return [sorted_agents[0].individual[0].phenotype]
+            return phenotypes[0]
 
     def step(self):
         """Step through the environment."""

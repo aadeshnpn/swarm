@@ -87,7 +87,7 @@ def learning_phase(iteration, early_stop=False):
     env.create_agents()
     # Validation Step parameter
     # Run the validation test every these many steps
-    validation_step = 200
+    validation_step = 40
 
     # Iterate and execute each step in the environment
     # Take a step i number of step in evolution environment
@@ -96,7 +96,7 @@ def learning_phase(iteration, early_stop=False):
     for i in range(iteration):
         # Take a step in evolution
         env.step()
-        if i % validation_step == 0:
+        if (i + 1) % validation_step == 0:
             phenotypes = env.behavior_sampling()
             # save the phenotype to json file
             phenotype_to_json(env.pname, env.runid + '-' + str(i), phenotypes)
@@ -104,7 +104,8 @@ def learning_phase(iteration, early_stop=False):
 
             # Plot the fitness in the graph
             graph = Graph(
-                env.pname, 'best.csv', ['explore', 'foraging', 'prospective'],
+                env.pname, 'best.csv', [
+                    'explore', 'foraging', 'prospective', 'fitness'],
                 pname='best' + str(i))
             graph.gen_best_plots()
 
@@ -130,13 +131,13 @@ def main(iter):
     """Block for the main function."""
     # Run the evolutionary learning algorithm
     phenotypes = learning_phase(iter)
+    # learning_phase(iter)
     # Run the evolved behaviors on a test environment
     test_loop(phenotypes, 2000)
 
 
 if __name__ == '__main__':
     # Running 50 experiments in parallel
-
-    # Parallel(n_jobs=16)(delayed(main)(i) for i in range(10000, 100000, 2000))
+    # Parallel(n_jobs=8)(delayed(main)(i) for i in range(2000, 100000, 2000))
     # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 8000, 2000))
-    main(80000)
+    main(8000)

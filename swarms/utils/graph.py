@@ -43,11 +43,13 @@ class Graph:
             ax1 = fig.add_subplot(2, 2, i)
             i += 1
             # Plotting mean and standard deviation
-            ax1.plot(xvalues, mean, color='blue', label='Mean ' + field)
+            ax1.plot(
+                xvalues, mean, color='blue', label='Mean',
+                linewidth=1.0)
             ax1.fill_between(
                 xvalues, field_max, field_min, color='DodgerBlue', alpha=0.3)
 
-            ax1.plot(xvalues, self.overall, color='red', label='Overall')
+            # ax1.plot(xvalues, self.overall, color='red', label='Overall')
             # ax1.plot(xvalues, self.diverse, color='green', label='Diversity')
             # ax1.plot(xvalues, self.explore, color='orange', label='Explore')
             # ax1.plot(xvalues, self.forge, color='indigo', label='Forge')

@@ -70,16 +70,20 @@ class ForagingAgent(Agent):
         """Require for staged activation."""
         pass
 
-    def get_food_in_hub(self):
+    def get_food_in_hub(self, agent_name=True):
         """Get the food in the hub stored by the agent."""
         grid = self.model.grid
         hub_loc = self.model.hub.location
         neighbours = grid.get_neighborhood(hub_loc, 10)
         food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
         agent_food_objects = []
-        for food in food_objects:
-            if food.agent_name == self.name:
+        if not agent_name:
+            for food in food_objects:
                 agent_food_objects.append(food)
+        else:
+            for food in food_objects:
+                if food.agent_name == self.name:
+                    agent_food_objects.append(food)
         return agent_food_objects
 
     def detect_food_carrying(self):
@@ -110,6 +114,7 @@ class LearningAgent(ForagingAgent):
         """Initialize the agent."""
         super().__init__(name, model)
         self.delayed_reward = 0
+        self.phenotypes = dict()
 
     def init_evolution_algo(self):
         """Agent's GE algorithm operation defination."""
@@ -135,7 +140,7 @@ class LearningAgent(ForagingAgent):
         # Assign the genome to the agent
         self.individual = individual
         # Fitness
-        self.beta = 0.0001
+        self.beta = 0.9
         self.diversity_fitness = self.individual[0].fitness
 
     def construct_bt(self):
@@ -173,7 +178,14 @@ class LearningAgent(ForagingAgent):
 
     def genetic_step(self):
         """Additional procedures called after genecti step."""
+        # print(
+        #    'fitness: ', self.name, self.step_count, self.timestamp,
+        #    self.beta,
+        #    self.delayed_reward, self.exploration_fitness(),
+        #    self.carrying_fitness(), self.food_collected)
+
         self.delayed_reward = self.individual[0].fitness
+        self.phenotypes[self.individual[0].phenotype] = self.delayed_reward
         self.exchange_chromosome()
         self.bt.xmlstring = self.individual[0].phenotype
         self.bt.construct()
@@ -194,7 +206,8 @@ class LearningAgent(ForagingAgent):
         # First block gives importance to exploration and when as soon
         # food has been found, the next block will focus on dropping
         # the food on hub
-        self.individual[0].fitness = (1 - self.beta) * self.delayed_reward \
+        self.delayed_reward = self.beta * self.delayed_reward
+        self.individual[0].fitness = self.delayed_reward \
             + self.exploration_fitness() + self.carrying_fitness() \
             + self.food_collected
 
@@ -208,7 +221,7 @@ class LearningAgent(ForagingAgent):
         self.step_count += 1
 
         # Increase beta
-        self.beta = self.step_count / self.model.iter
+        # self.beta = self.timestamp / self.model.iter
 
         # Maintain location history
         self.location_history.add(self.location)
@@ -217,7 +230,8 @@ class LearningAgent(ForagingAgent):
         self.bt.behaviour_tree.tick()
 
         # Find the no.of food collected from the BT execution
-        self.food_collected = len(self.get_food_in_hub())
+        self.food_collected = len(self.get_food_in_hub()) * len(
+            self.get_food_in_hub(False))
 
         # Computes overall fitness using Beta function
         self.overall_fitness()
@@ -230,7 +244,7 @@ class LearningAgent(ForagingAgent):
         # 600 time step has passed and the agent has not done anything useful
         # then also perform genetic step
         storage_threshold = len(
-            self.genome_storage) >= (self.model.num_agents / 4)
+            self.genome_storage) >= (self.model.num_agents / 10)
         if storage_threshold:
             self.genetic_step()
         elif (
