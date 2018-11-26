@@ -87,7 +87,7 @@ def learning_phase(iteration, early_stop=False):
     env.create_agents()
     # Validation Step parameter
     # Run the validation test every these many steps
-    validation_step = 40
+    validation_step = 1000
 
     # Iterate and execute each step in the environment
     # Take a step i number of step in evolution environment
@@ -136,8 +136,17 @@ def main(iter):
     test_loop(phenotypes, 2000)
 
 
+def test_json_phenotype(json):
+    jname = '/home/aadeshnpn/Documents/BYU/hcmi/swarm/results/1543189989736115-62000EvoSForge/' + json  # noqa : E501
+    phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
+    # print (phenotype)
+    if validation_loop(phenotype, 5000):
+        print('foraging success')
+
 if __name__ == '__main__':
     # Running 50 experiments in parallel
     # Parallel(n_jobs=8)(delayed(main)(i) for i in range(2000, 100000, 2000))
     # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 8000, 2000))
-    main(8000)
+    main(10000)
+    # json = '1543189989736115-999.json'
+    # test_json_phenotype(json)

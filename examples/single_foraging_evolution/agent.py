@@ -231,7 +231,7 @@ class LearningAgent(ForagingAgent):
 
         # Find the no.of food collected from the BT execution
         self.food_collected = len(self.get_food_in_hub()) * len(
-            self.get_food_in_hub(False))
+            self.get_food_in_hub(False)) * 100
 
         # Computes overall fitness using Beta function
         self.overall_fitness()

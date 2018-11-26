@@ -61,6 +61,4 @@ def main():
 
 
 if __name__ == '__main__':
-    # Running 50 experiments in parallel
-    # Parallel(n_jobs=4)(delayed(main)() for i in range(1, 50))
     main()
