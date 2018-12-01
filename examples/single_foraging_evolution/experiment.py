@@ -5,7 +5,7 @@ from swarms.utils.jsonhandler import JsonPhenotypeData
 from swarms.utils.graph import Graph, GraphACC  # noqa : F401
 from joblib import Parallel, delayed    # noqa : F401
 from swarms.utils.results import SimulationResults
-
+import py_trees
 # Global variables for width and height
 width = 100
 height = 100
@@ -16,20 +16,28 @@ UI = False
 def validation_loop(phenotypes, iteration, threshold=10.0):
     """Validate the evolved behaviors."""
     # Create a validation environment instance
+    print('len of phenotype', len(set(phenotypes)))
     valid = ValidationModel(
         100, 100, 100, 10, iter=iteration)
     # Build the environment
     valid.build_environment_from_json()
     # Create the agents in the environment from the sampled behaviors
     valid.create_agents(phenotypes=phenotypes)
+    # print('total food units', valid.total_food_units)
+    # Print the BT
+    # py_trees.display.print_ascii_tree(valid.agents[1].bt.behaviour_tree.root)
+    # py_trees.logging.level = py_trees.logging.Level.DEBUG
+
     for i in range(iteration):
         valid.step()
+        # print ([agent.location for agent in valid.agents])
         validresults = SimulationResults(
             valid.pname, valid.connect, valid.sn, valid.stepcnt,
             valid.foraging_percent(), phenotypes[0]
         )
         validresults.save_to_file()
 
+    # print('food in the hub', valid.agents[0].get_food_in_hub(False))
     # Save the phenotype to json file
     phenotype_to_json(valid.pname, valid.runid + '-' + str(i), phenotypes)
 
@@ -100,7 +108,7 @@ def learning_phase(iteration, early_stop=False):
             phenotypes = env.behavior_sampling()
             # save the phenotype to json file
             phenotype_to_json(env.pname, env.runid + '-' + str(i), phenotypes)
-            early_stop = validation_loop(phenotypes, 1000)
+            early_stop = validation_loop(phenotypes, 2000)
 
             # Plot the fitness in the graph
             graph = Graph(
@@ -108,14 +116,14 @@ def learning_phase(iteration, early_stop=False):
                     'explore', 'foraging', 'prospective', 'fitness'],
                 pname='best' + str(i))
             graph.gen_best_plots()
-
+            """
             if early_stop:
                 # Update the experiment table
                 env.experiment.update_experiment()
 
                 # Return phenotypes
                 return phenotypes
-
+            """
     # Update the experiment table
     env.experiment.update_experiment()
     return phenotypes
@@ -137,16 +145,19 @@ def main(iter):
 
 
 def test_json_phenotype(json):
-    jname = '/home/aadeshnpn/Documents/BYU/hcmi/swarm/results/1543189989736115-62000EvoSForge/' + json  # noqa : E501
+    # jname = '/home/aadeshnpn/Documents/BYU/hcmi/swarm/results/1543189989736115-62000EvoSForge/' + json  # noqa : E501
+    jname = '/tmp/1543367322976111-8000EvoSForge/' + json
     phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
     # print (phenotype)
-    if validation_loop(phenotype, 5000):
+    # phenotype = ' '
+    if validation_loop(phenotype, 2000):
         print('foraging success')
 
 if __name__ == '__main__':
     # Running 50 experiments in parallel
-    Parallel(n_jobs=8)(delayed(main)(i) for i in range(2000, 100000, 2000))
+    # Parallel(n_jobs=8)(delayed(main)(i) for i in range(2000, 100000, 2000))
     # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 8000, 2000))
-    # main(10000)
-    # json = '1543189989736115-999.json'
+    # main(8000)
+    # json = '1543367322976111-5999.json'
     # test_json_phenotype(json)
+    Parallel(n_jobs=8)(delayed(main)(8000) for i in range(16))
