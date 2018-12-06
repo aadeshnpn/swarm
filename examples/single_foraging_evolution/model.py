@@ -259,7 +259,7 @@ class EvolveModel(ForagingModel):
             a.operation_threshold = 2  # self.num_agents // 10
             self.agents.append(a)
 
-    def behavior_sampling(self, method='ratio', ratio_value=0.4):
+    def behavior_sampling(self, method='ratio', ratio_value=0.2):
         """Extract phenotype of the learning agents.
 
         Sort the agents based on the overall fitness and then based on the
