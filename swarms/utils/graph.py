@@ -234,7 +234,9 @@ class PGraph:
 
 class BoxGraph:
 
-    def __init__(self, directory, fnames, title="Performance"):
+    def __init__(
+            self, directory, fnames, logscale=False,
+            ylimit=(-1, 130), title="Performance"):
         self.__dict__.update(locals())
         # self.directory = directory
         # self.fnames = fnames
@@ -248,7 +250,8 @@ class BoxGraph:
                 data.append(values['fitness'].tolist())
 
         data = np.array(data)
-
+        if self.logscale:   # pylint: disable=E1101
+            data = np.log(data+1)
         self.mean = np.nanmean(data, axis=0)
         self.std = np.nanstd(data, axis=0)
         np.save(
@@ -275,11 +278,12 @@ class BoxGraph:
             alpha=0.3)
 
         plt.xlim(0, maxgen + 1)
+        plt.ylim(self.ylimit[0], self.ylimit[1])    # pylint: disable=E1101
 
-        ax1.set_xlabel('Iteration')
-        ax1.set_ylabel('Performance')
+        ax1.set_xlabel('Iteration', fontsize='medium')
+        ax1.set_ylabel('Performance', fontsize='medium')
 
-        ax1.set_title(self.title)   # pylint: disable=E1101
+        ax1.set_title(self.title, fontsize='medium')   # pylint: disable=E1101
         ax1.legend()
         plt.tight_layout()
         fig.savefig(self.directory + '/boxplot.pdf')    # pylint: disable=E1101

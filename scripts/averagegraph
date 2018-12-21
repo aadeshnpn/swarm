@@ -3,17 +3,22 @@
 
 # Script to collect simulation and average the results and plot the graph
 
-#expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/cooperative_transport"
-expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/nest_maint"
+#expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/cooperative_transport/"
+#expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/nest_maint"
 #expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/ct"
 #expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/handcoded"
-#exp=($(find ${expfold} -maxdepth 1 -type d  | grep "COT"))
+#expfold='/home/aadeshnpn/Documents/BYU/hcmi/hri/sforaging'
+expfold='/home/aadeshnpn/Documents/BYU/hcmi/hri/mforaging'
+#exp=($(find ${expfold} -maxdepth 1 -type d  | grep "1538447335350COT"))
 #exp=($(find ${expfold} -maxdepth 1 -type d ))
 #exp=($(find ${expfold} -maxdepth 1 -type d  | grep "1539014820252NestM"))
-exp=($(find ${expfold} -maxdepth 2 -type d  | grep "10000NestMAgents"))
-#exp=($(find ${expfold} -maxdepth 1 -type d  | grep "nm"))
+#exp=($(find ${expfold} -maxdepth 2 -type d  | grep "10000NestMAgents"))
+#exp=($(find ${expfold} -maxdepth 1 -type d  | grep "07777SForagingSimulation"))
+exp=($(find ${expfold} -maxdepth 1 -type d  | grep "00712345MSForaging"))
+#exp=($(find ${expfold} -maxdepth 1 -type d  | grep "forg"))
 
-# echo "${exp[@]}"
+#echo "${exp[@]}"
+
 for expfolder in ${exp[@]}
 do
     #echo "${expfolder[@]}"
@@ -23,11 +28,11 @@ do
     for csv in ${filepath[@]}
     do
         if [[ ${#filepath[@]} -gt 0 ]]; then
-            #echo "${csv}"
+            # echo "${csv}"
             fileargs+=${csv},
         fi
     done
-    echo "${expfolder}"
+    #echo "${expfolder}"
     if [[ ${#fileargs} -gt 0 ]]; then
         #echo "${fileargs} ${expfold}"
         python pgraph.py "${fileargs}" ${expfolder}

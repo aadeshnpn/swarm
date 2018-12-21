@@ -7,7 +7,7 @@ from swarms.lib.space import Grid
 from swarms.utils.jsonhandler import JsonData
 from swarms.utils.results import Best, Experiment
 from swarms.utils.db import Connect
-from agent import LearningAgent, ExecutingAgent
+from agent import LearningAgent, ExecutingAgent, TestingAgent
 from swarms.lib.objects import (    # noqa : F401
     Hub, Sites, Food, Debris, Obstacles)
 import os
@@ -229,7 +229,7 @@ class EvolveModel(ForagingModel):
         super(EvolveModel, self).__init__(
             N, width, height, grid, iter, seed, name)
 
-    def create_agents(self, random_init=True, phenotypes=None):
+    def create_agents(self, random_init=False, phenotypes=None):
         """Initialize agents in the environment."""
         # Create agents
         for i in range(self.num_agents):
@@ -243,18 +243,23 @@ class EvolveModel(ForagingModel):
             # Initialize the BT. Since the agents are evolutionary
             # the bt will be random
             a.construct_bt()
-            # Add the agent to a random grid cell
-            x = self.random.randint(
-                -self.grid.width / 2, self.grid.width / 2)
-            y = self.random.randint(
-                -self.grid.height / 2, self.grid.height / 2)
 
+            if random_init:
+                # Add the agent to a random grid cell
+                x = self.random.randint(
+                    -self.grid.width / 2, self.grid.width / 2)
+                y = self.random.randint(
+                    -self.grid.height / 2, self.grid.height / 2)
+            try:
+                x, y = self.hub.location
+            except AttributeError:
+                x, y = 0, 0
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)
             a.operation_threshold = 2  # self.num_agents // 10
             self.agents.append(a)
 
-    def behavior_sampling(self, method='ratio', ratio_value=0.4):
+    def behavior_sampling(self, method='ratio', ratio_value=0.2):
         """Extract phenotype of the learning agents.
 
         Sort the agents based on the overall fitness and then based on the
@@ -269,7 +274,9 @@ class EvolveModel(ForagingModel):
             phenotypes = {**agent.phenotypes, **phenotypes}
         # Sort the phenotypes
         phenotypes, _ = zip(
-            *sorted(phenotypes.items(), key=lambda x: x[1], reverse=True))
+            *sorted(phenotypes.items(), key=lambda x: (
+                x[1][2], x[1][1], x[1][0]), reverse=True))
+        # Just for testing. Not needed
 
         if method == 'ratio':
             upper_bound = ratio_value * self.num_agents
@@ -282,10 +289,24 @@ class EvolveModel(ForagingModel):
             # return [sorted_agents[0].individual[0].phenotype]
             return phenotypes[0]
 
+    def phenotype_attached_objects(self):
+        """Extract phenotype from the objects."""
+        grid = self.grid
+        hub_loc = self.hub.location
+        neighbours = grid.get_neighborhood(hub_loc, 10)
+        food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+        phenotypes = []
+        for food in food_objects:
+            phenotypes += list(food.phenotype.values())
+        return list(set(phenotypes))
+
     def step(self):
         """Step through the environment."""
         # Gather info to plot the graph
-        self.gather_info()
+        try:
+            self.gather_info()
+        except FloatingPointError:
+            pass
 
         # Next step
         self.schedule.step()
@@ -304,15 +325,16 @@ class ValidationModel(ForagingModel):
         super(ValidationModel, self).__init__(
             N, width, height, grid, iter, seed, name)
 
-    def create_agents(self, random_init=False, phenotypes=None):
+    def create_agents(self, random_init=True, phenotypes=None):
         """Initialize agents in the environment."""
         # Variable to tell how many agents will have the same phenotype
-        bound = np.ceil((self.num_agents * 1.0) / len(phenotypes))
+        # bound = np.ceil((self.num_agents * 1.0) / len(phenotypes))
         j = 0
         # Create agents
         for i in range(self.num_agents):
             # print (i, j, self.xmlstrings[j])
             a = ExecutingAgent(i, self, xmlstring=phenotypes[j])
+            # a = TestingAgent(i, self, xmlstring=phenotypes[j])
             # Add the agent to schedular list
             self.schedule.add(a)
             # Add the hub to agents memory
@@ -336,9 +358,9 @@ class ValidationModel(ForagingModel):
             self.grid.add_object_to_grid((x, y), a)
             a.operation_threshold = 2  # self.num_agents // 10
             self.agents.append(a)
-
-            if (i + 1) % bound == 0:
-                j += 1
+            j += 1
+            if j >= len(phenotypes):
+                j = 0
 
 
 class TestModel(ForagingModel):
