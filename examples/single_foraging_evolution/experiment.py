@@ -5,7 +5,7 @@ from swarms.utils.jsonhandler import JsonPhenotypeData
 from swarms.utils.graph import Graph, GraphACC  # noqa : F401
 from joblib import Parallel, delayed    # noqa : F401
 from swarms.utils.results import SimulationResults
-import py_trees
+# import py_trees
 # Global variables for width and height
 width = 100
 height = 100
@@ -108,7 +108,7 @@ def learning_phase(iteration, early_stop=False):
             phenotypes = env.behavior_sampling()
             # save the phenotype to json file
             phenotype_to_json(env.pname, env.runid + '-' + str(i), phenotypes)
-            early_stop = validation_loop(phenotypes, 2000)
+            # early_stop = validation_loop(phenotypes, 2000)
 
             # Plot the fitness in the graph
             graph = Graph(
@@ -152,6 +152,7 @@ def test_json_phenotype(json):
     # phenotype = ' '
     if validation_loop(phenotype, 2000):
         print('foraging success')
+
 
 if __name__ == '__main__':
     # Running 50 experiments in parallel

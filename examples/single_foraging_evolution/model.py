@@ -7,15 +7,18 @@ from swarms.lib.space import Grid
 from swarms.utils.jsonhandler import JsonData
 from swarms.utils.results import Best, Experiment
 from swarms.utils.db import Connect
-from agent import LearningAgent, ExecutingAgent, TestingAgent
+from swarms.utils.ui import UI
+from agent import LearningAgent, ExecutingAgent, TestingAgent  # noqa : F041
 from swarms.lib.objects import (    # noqa : F401
     Hub, Sites, Food, Debris, Obstacles)
 import os
-import imp
+# import imp
 import datetime
 import numpy as np
 
-filename = os.path.join(imp.find_module("swarms")[1] + "/utils/world.json")
+# filename = os.path.join(imp.find_module("swarms")[1] + "/utils/world.json")
+projectdir = "/home/aadeshnpn/Documents/BYU/hcmi/swarm/examples"
+filename = os.path.join(projectdir + "/single_foraging_evolution/world.json")
 
 
 class ForagingModel(Model):
@@ -23,7 +26,7 @@ class ForagingModel(Model):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name='SForaging'):
+            seed=None, name='SForaging', viewer=False):
         """Initialize the attributes."""
         if seed is None:
             super(ForagingModel, self).__init__(seed=None)
@@ -42,6 +45,9 @@ class ForagingModel(Model):
         # Define some parameters to count the step
         self.stepcnt = 1
         self.iter = iter
+
+        # UI
+        self.viewer = viewer
 
         # Create db connection
         connect = Connect('swarm', 'swarm', 'swarm', 'localhost')
@@ -108,6 +114,7 @@ class ForagingModel(Model):
 
         self.hub = self.render.objects['hub'][0]
         self.total_food_units = 0
+        self.foods = []
         try:
             self.site = self.render.objects['sites'][0]
             for i in range(self.num_agents * 1):
@@ -116,6 +123,7 @@ class ForagingModel(Model):
                 f.agent_name = None
                 self.grid.add_object_to_grid(f.location, f)
                 self.total_food_units += f.weight
+                self.foods.append(f)
         except KeyError:
             pass
 
@@ -224,10 +232,10 @@ class EvolveModel(ForagingModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="EvoSForge"):
+            seed=None, name="EvoSForge", viewer=False):
         """Initialize the attributes."""
         super(EvolveModel, self).__init__(
-            N, width, height, grid, iter, seed, name)
+            N, width, height, grid, iter, seed, name, viewer)
 
     def create_agents(self, random_init=False, phenotypes=None):
         """Initialize agents in the environment."""
@@ -320,10 +328,10 @@ class ValidationModel(ForagingModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="ValidateSForge"):
+            seed=None, name="ValidateSForge", viewer=False):
         """Initialize the attributes."""
         super(ValidationModel, self).__init__(
-            N, width, height, grid, iter, seed, name)
+            N, width, height, grid, iter, seed, name, viewer)
 
     def create_agents(self, random_init=True, phenotypes=None):
         """Initialize agents in the environment."""
@@ -368,10 +376,10 @@ class TestModel(ForagingModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="TestSForge"):
+            seed=None, name="TestSForge", viewer=False):
         """Initialize the attributes."""
         super(TestModel, self).__init__(
-            N, width, height, grid, iter, seed, name)
+            N, width, height, grid, iter, seed, name, viewer)
 
     def create_agents(self, random_init=False, phenotypes=None):
         """Initialize agents in the environment."""
@@ -406,3 +414,20 @@ class TestModel(ForagingModel):
 
             if (i + 1) % bound == 0:
                 j += 1
+
+        if self.viewer:
+            self.ui = UI(
+                (100, 100), [self.hub], self.agents,
+                self.site, food=self.foods)
+
+    def step(self, ):
+        """Step through the environment."""
+        # Next step
+        self.schedule.step()
+
+        # Increment the step count
+        self.stepcnt += 1
+
+        # If viewer required do take a step in UI
+        if self.viewer:
+            self.ui.step()
