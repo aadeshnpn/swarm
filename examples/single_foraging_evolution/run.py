@@ -5,17 +5,17 @@ from swarms.utils.jsonhandler import JsonPhenotypeData
 from swarms.utils.ui import UI
 # from joblib import Parallel, delayed
 # Global variables for width and height
-width = 100
-height = 100
-viewer = True
+width = 400
+height = 400
+viewer = False
 
 
 def main():
     """Block main."""
-    iteration = 100
+    iteration = 5000
 
     # Create a test environment to visualize
-    env = TestModel(width, height, 100, 10, iter=iteration, viewer=viewer)
+    env = TestModel(200, width, height, 20, iter=iteration, viewer=viewer)
 
     # Build environment from json
     env.build_environment_from_json()
