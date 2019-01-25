@@ -415,12 +415,57 @@ class TestModel(ForagingModel):
             if (i + 1) % bound == 0:
                 j += 1
 
+
+class ViewerModel(ForagingModel):
+    """A environemnt to test swarm behavior performance."""
+
+    def __init__(
+            self, N, width, height, grid=10, iter=100000,
+            seed=None, name="TestSForge", viewer=True):
+        """Initialize the attributes."""
+        super(ViewerModel, self).__init__(
+            N, width, height, grid, iter, seed, name, viewer)
+
+    def create_agents(self, random_init=False, phenotypes=None):
+        """Initialize agents in the environment."""
+        # Variable to tell how many agents will have the same phenotype
+        bound = np.ceil((self.num_agents * 1.0) / len(phenotypes))
+        j = 0
+        # Create agents
+        for i in range(self.num_agents):
+            # print (i, j, self.xmlstrings[j])
+            a = TestingAgent(i, self, xmlstring=phenotypes[j])
+            self.schedule.add(a)
+            # Add the hub to agents memory
+            a.shared_content['Hub'] = {self.hub}
+            # Initialize the BT. Since the agents are normal agents just
+            # use the phenotype
+            a.construct_bt()
+            if random_init:
+                # Add the agent to a random grid cell
+                x = self.random.randint(
+                    -self.grid.width / 2, self.grid.width / 2)
+                y = self.random.randint(
+                    -self.grid.height / 2, self.grid.height / 2)
+            try:
+                x, y = self.hub.location
+            except AttributeError:
+                x, y = 0, 0
+
+            a.location = (x, y)
+            self.grid.add_object_to_grid((x, y), a)
+            a.operation_threshold = 2  # self.num_agents // 10
+            self.agents.append(a)
+
+            if (i + 1) % bound == 0:
+                j += 1
+
         if self.viewer:
             self.ui = UI(
                 (100, 100), [self.hub], self.agents,
                 self.site, food=self.foods)
 
-    def step(self, ):
+    def step(self):
         """Step through the environment."""
         # Next step
         self.schedule.step()

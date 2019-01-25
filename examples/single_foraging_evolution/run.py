@@ -1,13 +1,13 @@
 """Main script that is called from UI."""
 
-from model import TestModel
+from model import ViewerModel
 from swarms.utils.jsonhandler import JsonPhenotypeData
 from swarms.utils.ui import UI
 # from joblib import Parallel, delayed
 # Global variables for width and height
 width = 400
 height = 400
-viewer = False
+viewer = True
 
 
 def main():
@@ -15,7 +15,7 @@ def main():
     iteration = 5000
 
     # Create a test environment to visualize
-    env = TestModel(200, width, height, 20, iter=iteration, viewer=viewer)
+    env = ViewerModel(200, width, height, 20, iter=iteration, viewer=viewer)
 
     # Build environment from json
     env.build_environment_from_json()

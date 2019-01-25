@@ -16,12 +16,12 @@ import py_trees
 
 from swarms.behaviors.sbehaviors import (
     NeighbourObjects, IsVisitedBefore,
-    IsCarrying, IsInPartialAttached
+    IsCarrying
     )
 
 from swarms.behaviors.scbehaviors import (
     CompositeDrop, CompositeSingleCarry, MoveTowards,
-    Explore, CompositeDropPartial, CompositeMultipleCarry
+    Explore
 )
 
 
