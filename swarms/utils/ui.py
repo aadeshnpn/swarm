@@ -9,7 +9,7 @@ class UI:
 
     def __init__(
         self, size, hub, agents, sites=None, obstacles=None, traps=None,
-            derbis=None, food=None, cues=None):
+            debris=None, food=None, cues=None):
             """Initialize objects for UI."""
             self.width = size[0]
             self.height = size[1]
@@ -18,7 +18,7 @@ class UI:
             self.sites = sites
             self.obstacles = obstacles
             self.traps = traps
-            self.derbis = derbis
+            self.debris = debris
             self.food = food
             self.cues = cues
 
@@ -29,6 +29,6 @@ class UI:
         """
         print(JsonData.to_json(
             self.width, self.height, self.hub, self.sites, self.obstacles,
-            self.traps, self.cues, self.food, self.derbis, self.agents)
+            self.traps, self.cues, self.food, self.debris, self.agents)
             )
         time.sleep(0.00833333)

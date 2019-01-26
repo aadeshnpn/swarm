@@ -54,7 +54,7 @@ class JsonData:
 
     @staticmethod
     def to_json(width, height, hub, sites, obstacles, traps,
-                cues, food, derbis, agents):
+                cues, food, debris, agents):
         """Convert simulation to json."""
         return(
             json.dumps(
@@ -71,7 +71,7 @@ class JsonData:
                         "traps": JsonData.environment_object_to_json(traps),
                         # "cues": JsonData.environment_object_to_json(cues),
                         "food": JsonData.environment_object_to_json(food),
-                        # "derbis": JsonData.environment_object_to_json(derbis),
+                        "debris": JsonData.environment_object_to_json(debris),
                         "agents": [JsonData.agent_to_json(
                             agent) for agent in agents],
                     }
