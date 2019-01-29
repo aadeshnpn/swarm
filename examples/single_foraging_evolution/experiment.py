@@ -16,9 +16,9 @@ UI = False
 def validation_loop(phenotypes, iteration, threshold=10.0):
     """Validate the evolved behaviors."""
     # Create a validation environment instance
-    print('len of phenotype', len(set(phenotypes)))
+    # print('len of phenotype', len(set(phenotypes)))
     valid = ValidationModel(
-        100, 100, 100, 10, iter=iteration)
+        100, width, height, 10, iter=iteration)
     # Build the environment
     valid.build_environment_from_json()
     # Create the agents in the environment from the sampled behaviors
@@ -56,7 +56,7 @@ def test_loop(phenotypes, iteration):
     """Test the phenotypes in a completely different environment."""
     # Create a validation environment instance
     test = TestModel(
-        100, 100, 100, 10, iter=iteration)
+        100, width, height, 10, iter=iteration)
     # Build the environment
     test.build_environment_from_json()
     # Create the agents in the environment from the sampled behaviors
@@ -90,7 +90,7 @@ def test_loop(phenotypes, iteration):
 def learning_phase(iteration, early_stop=False):
     """Learning Algorithm block."""
     # Evolution environment
-    env = EvolveModel(100, 100, 100, 10, iter=iteration)
+    env = EvolveModel(100, width, height, 10, iter=iteration)
     env.build_environment_from_json()
     env.create_agents()
     # Validation Step parameter
@@ -109,7 +109,7 @@ def learning_phase(iteration, early_stop=False):
             # save the phenotype to json file
             phenotype_to_json(env.pname, env.runid + '-' + str(i), phenotypes)
             # early_stop = validation_loop(phenotypes, 2000)
-
+            validation_loop(phenotypes, 2000)
             # Plot the fitness in the graph
             graph = Graph(
                 env.pname, 'best.csv', [
@@ -145,12 +145,12 @@ def main(iter):
 
 
 def test_json_phenotype(json):
-    # jname = '/home/aadeshnpn/Documents/BYU/hcmi/swarm/results/1543189989736115-62000EvoSForge/' + json  # noqa : E501
-    jname = '/tmp/1543367322976111-8000EvoSForge/' + json
+    jname = '/home/aadeshnpn/Documents/BYU/hcmi/swarm/results/1548702144821364-8000EvoSForge/' + json  # noqa : E501
+    # jname = '/tmp/1543367322976111-8000EvoSForge/' + json
     phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
     # print (phenotype)
     # phenotype = ' '
-    if validation_loop(phenotype, 2000):
+    if validation_loop(phenotype, 2000, 1):
         print('foraging success')
 
 
@@ -159,6 +159,6 @@ if __name__ == '__main__':
     # Parallel(n_jobs=8)(delayed(main)(i) for i in range(2000, 100000, 2000))
     # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 8000, 2000))
     # main(8000)
-    # json = '1543367322976111-5999.json'
+    # json = '1548702144821364-7999.json'
     # test_json_phenotype(json)
-    Parallel(n_jobs=8)(delayed(main)(8000) for i in range(16))
+    Parallel(n_jobs=8)(delayed(main)(8000) for i in range(8))

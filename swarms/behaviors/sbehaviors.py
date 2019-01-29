@@ -281,7 +281,7 @@ class Move(Behaviour):
     def setup(self, timeout, agent, item=None):
         """Setup."""
         self.agent = agent
-        self.dt = 1.1
+        self.dt = 0.1
 
     def initialise(self):
         """Pass."""
@@ -306,8 +306,9 @@ class Move(Behaviour):
         try:
             for item in self.agent.partial_attached_objects:
                 accleration = self.agent.force / item.agents[self.agent]
-                velocity = accleration * self.dt
+                velocity = (accleration * self.dt) / len(item.agents)
                 direction = self.agent.direction
+                """
                 if np.cos(direction) > 0:
                     x = int(np.ceil(
                         item.location[0] + np.cos(direction) * velocity))
@@ -318,14 +319,25 @@ class Move(Behaviour):
                         item.location[0] + np.cos(direction) * velocity))
                     y = int(np.floor(
                         item.location[1] + np.sin(direction) * velocity))
-                object_agent = list(item.agents.keys())
-                indx = self.agent.model.random.randint(0, len(object_agent))
-                object_agent = object_agent[indx]
-                new_location, direction = object_agent.model.grid.check_limits(
-                    (x, y), direction)
+                """
+                x = int(self.agent.location[0] + np.cos(
+                    direction) * velocity)
+                y = int(self.agent.location[1] + np.sin(
+                    direction) * velocity)
+
+                # object_agent = list(item.agents.keys())
+                # indx = self.agent.model.random.randint(0, len(object_agent))
+                # object_agent = object_agent[indx]
+                object_agent = self.agent
+                # new_location, direction
+                # = object_agent.model.grid.check_limits(
+                #     (x, y), direction)
+                new_location = (x, y)
                 object_agent.model.grid.move_object(
                     item.location, item, new_location)
+                self.agent.direction = direction
                 item.location = new_location
+
                 return True
         except (IndexError, ValueError):
             return False
@@ -358,13 +370,13 @@ class Move(Behaviour):
 
         else:
             new_location = self.agent.partial_attached_objects[0].location
-            self.agent.model.grid.move_object(
-                self.agent.location, self.agent, new_location)
+            for agent in self.agent.partial_attached_objects[0].agents.keys():
+                agent.model.grid.move_object(
+                    agent.location, agent, new_location)
+                agent.location = new_location
 
             # Now the agent location has been updated, update the signal grids
             self.update_signals(self.agent.location, new_location)
-
-            self.agent.location = new_location
 
         return Status.SUCCESS
 
