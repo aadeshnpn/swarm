@@ -221,7 +221,7 @@ class ForagingModel(Model):
         """Compute the percent of the total food in the hub."""
         grid = self.grid
         hub_loc = self.hub.location
-        neighbours = grid.get_neighborhood(hub_loc, 10)
+        neighbours = grid.get_neighborhood(hub_loc, self.hub.radius)
         food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
         total_food_weights = sum([food.weight for food in food_objects])
         return ((total_food_weights * 1.0) / self.total_food_units) * 100
@@ -333,7 +333,7 @@ class ValidationModel(ForagingModel):
         super(ValidationModel, self).__init__(
             N, width, height, grid, iter, seed, name, viewer)
 
-    def create_agents(self, random_init=True, phenotypes=None):
+    def create_agents(self, random_init=False, phenotypes=None):
         """Initialize agents in the environment."""
         # Variable to tell how many agents will have the same phenotype
         # bound = np.ceil((self.num_agents * 1.0) / len(phenotypes))
@@ -434,7 +434,7 @@ class ViewerModel(ForagingModel):
         # Create agents
         for i in range(self.num_agents):
             # print (i, j, self.xmlstrings[j])
-            a = TestingAgent(i, self, xmlstring=phenotypes[j])
+            a = ExecutingAgent(i, self, xmlstring=phenotypes[j])
             self.schedule.add(a)
             # Add the hub to agents memory
             a.shared_content['Hub'] = {self.hub}

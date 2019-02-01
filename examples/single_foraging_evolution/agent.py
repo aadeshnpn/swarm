@@ -84,7 +84,7 @@ class ForagingAgent(Agent):
         """Get the food in the hub stored by the agent."""
         grid = self.model.grid
         hub_loc = self.model.hub.location
-        neighbours = grid.get_neighborhood(hub_loc, 10)
+        neighbours = grid.get_neighborhood(hub_loc, self.model.hub.radius)
         food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
         agent_food_objects = []
         if not agent_name:
@@ -135,7 +135,7 @@ class LearningAgent(ForagingAgent):
         # Grammatical Evolution part
         from ponyge.algorithm.parameters import Parameters
         parameter = Parameters()
-        parameter_list = ['--parameters', '../..,swarm.txt']
+        parameter_list = ['--parameters', '../..,swarmr.txt']
         # Comment when different results is desired.
         # Else set this for testing purpose
         # parameter.params['RANDOM_SEED'] = name
@@ -152,6 +152,7 @@ class LearningAgent(ForagingAgent):
         # Fitness
         self.beta = 0.9
         self.diversity_fitness = self.individual[0].fitness
+        self.generation = 0
 
     def construct_bt(self):
         """Construct BT."""
@@ -206,6 +207,7 @@ class LearningAgent(ForagingAgent):
         self.location_history = set()
         self.timestamp = 0
         self.diversity_fitness = self.individual[0].fitness
+        self.generation += 1
 
     def overall_fitness(self):
         """Compute complete fitness.
@@ -228,7 +230,7 @@ class LearningAgent(ForagingAgent):
         """Get the food in the hub stored by the agent."""
         grid = self.model.grid
         hub_loc = self.model.hub.location
-        neighbours = grid.get_neighborhood(hub_loc, 10)
+        neighbours = grid.get_neighborhood(hub_loc, self.model.hub.radius)
         food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
         agent_food_objects = []
         if not agent_name:
@@ -277,12 +279,10 @@ class LearningAgent(ForagingAgent):
             e, c, f = self.phenotypes[self.individual[0].phenotype]
             if f < self.food_collected:
                 f = self.food_collected
-            else:
-                if c < cf:
-                    c = cf
-                else:
-                    if e < ef:
-                        e = ef
+            if c < cf:
+                c = cf
+            if e < ef:
+                e = ef
 
             self.phenotypes[self.individual[0].phenotype] = (e, c, f)
         else:
@@ -290,8 +290,7 @@ class LearningAgent(ForagingAgent):
                 pass
             else:
                 self.phenotypes[self.individual[0].phenotype] = (
-                    self.exploration_fitness(), self.carrying_fitness(),
-                    self.food_collected)
+                    ef, cf, self.food_collected)
 
         # Find the nearby agents
         cellmates = self.model.grid.get_objects_from_grid(
@@ -303,11 +302,11 @@ class LearningAgent(ForagingAgent):
         # then also perform genetic step
         storage_threshold = len(
             self.genome_storage) >= (self.model.num_agents / 10)
-        if storage_threshold:
+        if storage_threshold and self.food_collected <= 0:
             self.genetic_step()
         elif (
                 (
-                    storage_threshold is False and self.timestamp > 50
+                    storage_threshold is False and self.timestamp > 100
                     ) and (self.exploration_fitness() < 10)):
             individual = initialisation(self.parameter, 10)
             individual = evaluate_fitness(individual, self.parameter)

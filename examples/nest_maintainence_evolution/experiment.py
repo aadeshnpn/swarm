@@ -16,9 +16,9 @@ UI = False
 def validation_loop(phenotypes, iteration, threshold=10.0):
     """Validate the evolved behaviors."""
     # Create a validation environment instance
-    print('len of phenotype', len(set(phenotypes)))
+    # print('len of phenotype', len(set(phenotypes)))
     valid = ValidationModel(
-        100, 100, 100, 10, iter=iteration)
+        100, width, height, 10, iter=iteration)
     # Build the environment
     valid.build_environment_from_json()
     # Create the agents in the environment from the sampled behaviors
@@ -56,7 +56,7 @@ def test_loop(phenotypes, iteration):
     """Test the phenotypes in a completely different environment."""
     # Create a validation environment instance
     test = TestModel(
-        100, 100, 100, 10, iter=iteration)
+        100, width, height, 10, iter=iteration)
     # Build the environment
     test.build_environment_from_json()
     # Create the agents in the environment from the sampled behaviors
@@ -90,12 +90,12 @@ def test_loop(phenotypes, iteration):
 def learning_phase(iteration, early_stop=False):
     """Learning Algorithm block."""
     # Evolution environment
-    env = EvolveModel(100, 100, 100, 10, iter=iteration)
+    env = EvolveModel(100, width, height, 10, iter=iteration)
     env.build_environment_from_json()
     env.create_agents()
     # Validation Step parameter
     # Run the validation test every these many steps
-    validation_step = 1000
+    validation_step = 2000
 
     # Iterate and execute each step in the environment
     # Take a step i number of step in evolution environment
@@ -108,7 +108,7 @@ def learning_phase(iteration, early_stop=False):
             phenotypes = env.behavior_sampling()
             # save the phenotype to json file
             phenotype_to_json(env.pname, env.runid + '-' + str(i), phenotypes)
-            # early_stop = validation_loop(phenotypes, 2000)
+            validation_loop(phenotypes, validation_step)
 
             # Plot the fitness in the graph
             graph = Graph(
@@ -161,4 +161,4 @@ if __name__ == '__main__':
     # main(8000)
     # json = '1543367322976111-5999.json'
     # test_json_phenotype(json)
-    Parallel(n_jobs=8)(delayed(main)(8000) for i in range(16))
+    Parallel(n_jobs=4)(delayed(main)(8000) for i in range(128))

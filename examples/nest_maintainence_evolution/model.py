@@ -118,7 +118,8 @@ class NMModel(Model):
         self.debris = []
         try:
             for i in range(self.num_agents * 1):
-                dx, dy = self.random.randint(1, 10, 2)
+                # dx, dy = self.random.randint(10, 20, 2)
+                dx, dy = self.random.normal(0, 10, 2)
                 dx = self.hub.location[0] + dx
                 dy = self.hub.location[1] + dy
                 d = Debris(
@@ -135,8 +136,8 @@ class NMModel(Model):
             self.obstacles = []
             for i in range(1):
                 dx, dy = self.random.randint(5, 10, 2)
-                dx = self.hub.location[0] + 25 + dx
-                dy = self.hub.location[1] + 25 + dy
+                dx = self.hub.location[0] + 60 + dx
+                dy = self.hub.location[1] + 60 + dy
                 o = Obstacles(id=i, location=(dx, dy), radius=10)
                 self.grid.add_object_to_grid(o.location, o)
                 self.obstacles.append(o)
@@ -468,7 +469,7 @@ class ViewerModel(NMModel):
         # Create agents
         for i in range(self.num_agents):
             # print (i, j, self.xmlstrings[j])
-            a = TestingAgent(i, self, xmlstring=phenotypes[j])
+            a = ExecutingAgent(i, self, xmlstring=phenotypes[j])
             self.schedule.add(a)
             # Add the hub to agents memory
             a.shared_content['Hub'] = {self.hub}

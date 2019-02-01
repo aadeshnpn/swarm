@@ -7,7 +7,7 @@ from swarms.utils.ui import UI
 # Global variables for width and height
 width = 400
 height = 400
-viewer = True
+viewer = False
 
 
 def main():
@@ -21,11 +21,13 @@ def main():
     env.build_environment_from_json()
 
     # Load a json file containing the phenotype
-    pfileloc = '/home/aadeshnpn/Documents/BYU/hcmi/hri/thesis/sf/'
-    jname = pfileloc + '1538473090382007.json'
+    pfileloc = '/home/aadeshnpn/Documents/BYU/hcmi/hri/nest_maint/1539014820252NestM/'
+    jname = pfileloc + '1539014820252.json'
 
     phenotypes = JsonPhenotypeData.load_json_file(jname)['phenotypes']
     # Create the agents in the environment from the sampled behaviors
+    print (len(phenotypes))
+
     env.create_agents(phenotypes=phenotypes)
     # Overiding the default viewer properties
     env.ui = UI(
@@ -37,9 +39,8 @@ def main():
 
     # print('Execution done')
     # Find if food has been deposited in the hub
-    cleaned = env.debris_cleaned()
-    print(len(cleaned))
-
+    print('Cleaning Percentage', env.foraging_percent())
+    print(len(env.debris_cleaned()))
 
 if __name__ == '__main__':
     main()

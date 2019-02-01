@@ -241,25 +241,39 @@ class LearningAgent(NMAgent):
             + self.exploration_fitness() + self.carrying_fitness() \
             + self.debris_collected
 
-    def get_food_in_hub(self, agent_name=True):
-        """Get the food in the hub stored by the agent."""
+    def get_debris_transported(self):
+        """Return debris that have been cleared from hub."""
+        # Not computational efficient method
+        """
+        cleared_debris = list(
+            filter(
+                lambda x: point_distance(
+                    hub_loc, x.location) >= (
+                        x.initial_distance + 5), self.model.debris))
+        """
         grid = self.model.grid
-        hub_loc = self.model.hub.location
-        neighbours = grid.get_neighborhood(hub_loc, 10)
-        food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
-        agent_food_objects = []
-        if not agent_name:
-            for food in food_objects:
-                agent_food_objects.append(food.weight)
-        else:
-            for food in food_objects:
+        debris_objects = []
+        for obstacle in self.model.obstacles:
+            neighbours = grid.get_neighborhood(
+                obstacle.location, obstacle.radius)
+            debris_objects += grid.get_objects_from_list_of_grid(
+                'Debris', neighbours)
+        debris_objects = list(set(debris_objects))
+
+        # debris_objects = self.model.grid.get_objects_from_list_of_grid(
+        #     'Debris', self.model.neighbours)
+
+        agent_debris_objects = []
+
+        for debris in debris_objects:
+            try:
                 if (
-                    food.agent_name == self.name and (
-                        self.individual[0].phenotype in list(
-                            food.phenotype.values())
-                        )):
-                    agent_food_objects.append(food.weight)
-        return sum(agent_food_objects)
+                    debris.agent_name == self.name and
+                        debris.phenotype == self.individual[0].phenotype):
+                    agent_debris_objects.append(debris.weight)
+            except AttributeError:
+                pass
+        return sum(agent_debris_objects)
 
     def step(self):
         """Take a step in the simulation."""
@@ -280,7 +294,7 @@ class LearningAgent(NMAgent):
         self.bt.behaviour_tree.tick()
 
         # Find the no.of debris collected from the BT execution
-        self.debris_collected = len(self.get_debris_transported())
+        self.debris_collected = self.get_debris_transported()
         # * self.get_food_in_hub(False)
 
         # Computes overall fitness using Beta function
