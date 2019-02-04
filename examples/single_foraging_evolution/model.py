@@ -312,7 +312,11 @@ class EvolveModel(ForagingModel):
         """Step through the environment."""
         # Gather info to plot the graph
         try:
-            self.gather_info()
+            idx = self.gather_info()
+            # agent = self.agents[idx]
+            # print(
+            #    idx, agent.individual[0].phenotype,
+            #    agent.individual[0].fitness, agent.food_collected)
         except FloatingPointError:
             pass
 

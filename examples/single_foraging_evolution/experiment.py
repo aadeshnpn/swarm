@@ -1,6 +1,7 @@
 """Experiment script to run Single source foraging simulation."""
 
 import numpy as np
+import pdb
 from model import EvolveModel, ValidationModel, TestModel
 from swarms.utils.jsonhandler import JsonPhenotypeData
 from swarms.utils.graph import Graph, GraphACC  # noqa : F401
@@ -98,7 +99,7 @@ def learning_phase(iteration, early_stop=False):
     env.create_agents()
     # Validation Step parameter
     # Run the validation test every these many steps
-    validation_step = 5000
+    validation_step = 500
 
     # Iterate and execute each step in the environment
     # Take a step i number of step in evolution environment
@@ -108,11 +109,15 @@ def learning_phase(iteration, early_stop=False):
         # Take a step in evolution
         env.step()
         if (i + 1) % validation_step == 0:
-            phenotypes = env.behavior_sampling(ratio_value=0.5)
-            # save the phenotype to json file
-            phenotype_to_json(env.pname, env.runid + '-' + str(i), phenotypes)
-            # early_stop = validation_loop(phenotypes, 2000)
-            validation_loop(phenotypes, validation_step)
+            try:
+                phenotypes = env.behavior_sampling(ratio_value=0.5)
+                # save the phenotype to json file
+                phenotype_to_json(
+                    env.pname, env.runid + '-' + str(i), phenotypes)
+                # early_stop = validation_loop(phenotypes, 2000)
+                # validation_loop(phenotypes, validation_step)
+            except ValueError:
+                pass
             # Plot the fitness in the graph
             graph = Graph(
                 env.pname, 'best.csv', [
@@ -129,9 +134,13 @@ def learning_phase(iteration, early_stop=False):
             """
     # Update the experiment table
     env.experiment.update_experiment()
-    generations = [agent.generation for agent in env.agents]
-    print('max, min generations', np.max(generations), np.min(generations))
-    return phenotypes
+    # generations = [agent.generation for agent in env.agents]
+    # print('max, min generations', np.max(generations), np.min(generations))
+    # pdb.set_trace()
+    try:
+        return phenotypes
+    except UnboundLocalError:
+        return None
 
 
 def phenotype_to_json(pname, runid, phenotypes):
@@ -146,7 +155,8 @@ def main(iter):
     phenotypes = learning_phase(iter)
     # learning_phase(iter)
     # Run the evolved behaviors on a test environment
-    test_loop(phenotypes, 5000)
+    if phenotypes is not None:
+        test_loop(phenotypes, 5000)
 
 
 def test_json_phenotype(json):
@@ -164,7 +174,7 @@ if __name__ == '__main__':
     # Running 50 experiments in parallel
     # Parallel(n_jobs=8)(delayed(main)(i) for i in range(2000, 100000, 2000))
     # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 8000, 2000))
-    # main(8000)
+    # main(12000)
     # json = '1548724267951337-1999.json'
     # test_json_phenotype(json)
     Parallel(n_jobs=8)(delayed(main)(20000) for i in range(8))
