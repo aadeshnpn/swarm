@@ -5,8 +5,8 @@ from swarms.utils.jsonhandler import JsonPhenotypeData
 from swarms.utils.ui import UI
 # from joblib import Parallel, delayed
 # Global variables for width and height
-width = 200
-height = 200
+width = 400
+height = 400
 viewer = True
 
 

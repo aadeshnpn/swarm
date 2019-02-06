@@ -2,6 +2,8 @@
 
 
 import numpy as np
+import math
+import copy
 # import hashlib
 
 from swarms.lib.agent import Agent
@@ -157,6 +159,9 @@ class LearningAgent(ForagingAgent):
         self.beta = 0.99
         self.diversity_fitness = self.individual[0].fitness
         self.generation = 0
+        # if self.name == 7:
+        #    self.individual[0].fitness = 10000000000000
+        #    self.delayed_reward = 10000000000000
 
     def construct_bt(self):
         """Construct BT."""
@@ -226,9 +231,12 @@ class LearningAgent(ForagingAgent):
         # food has been found, the next block will focus on dropping
         # the food on hub
         self.delayed_reward = self.beta * self.delayed_reward
+        # multiplier = math.pow(self.beta, self.timestamp)
+        # delayed_ef = multiplier * self.ef
+        # delayed_cf = multiplier * self.cf
         self.individual[0].fitness = self.delayed_reward \
-            + self.exploration_fitness() + self.carrying_fitness() \
-            + self.food_collected * 5
+            + self.ef + self.cf * 1 \
+            + self.food_collected * 20
 
     def get_food_in_hub(self, agent_name=True):
         """Get the food in the hub stored by the agent."""
@@ -242,10 +250,11 @@ class LearningAgent(ForagingAgent):
                 agent_food_objects.append(food.weight)
         else:
             for food in food_objects:
+                # print('p keys', self.name, food.phenotype.keys())
                 if (
                     food.agent_name == self.name and (
                         self.individual[0].phenotype in list(
-                            food.phenotype.values())
+                            food.phenotype.keys())
                         )):
                     agent_food_objects.append(food.weight)
         return sum(agent_food_objects)
@@ -273,13 +282,13 @@ class LearningAgent(ForagingAgent):
         self.food_collected = self.get_food_in_hub()  # * self.get_food_in_hub(
         #  False)
 
-        # Computes overall fitness using Beta function
-        self.overall_fitness()
-
         # Hash the phenotype with its fitness
         # We need to move this from here to genetic step
-        cf = self.carrying_fitness()
-        ef = self.exploration_fitness()
+        self.cf = self.carrying_fitness()
+        self.ef = self.exploration_fitness()
+
+        # Computes overall fitness using Beta function
+        self.overall_fitness()
 
         # Debugging
         # decodedata = "b\'" + self.individual[0].phenotype + "\'"
@@ -287,24 +296,29 @@ class LearningAgent(ForagingAgent):
         # print(
         #    self.name, hashlib.sha224(encode).hexdigest(
         #    ), self.food_collected, cf, ef)
-
+        """
         if self.individual[0].phenotype in self.phenotypes.keys():
             e, c, f = self.phenotypes[self.individual[0].phenotype]
             if f < self.food_collected:
                 f = self.food_collected
-            if c < cf:
-                c = cf
-            if e < ef:
-                e = ef
+            if c < self.cf:
+                c = self.cf
+            if e < self.ef:
+                e = self.ef
 
             self.phenotypes[self.individual[0].phenotype] = (e, c, f)
         else:
-            # if int(cf) == 0 and int(ef) == 0 and int(self.food_collected) == 0:
-            if int(cf) == 0 and int(self.food_collected) == 0:
+            # if int(cf) == 0 and int(ef) == 0
+            # and int(self.food_collected) == 0:
+            if int(self.cf) == 0 and int(self.food_collected) == 0:
                 pass
             else:
                 self.phenotypes[self.individual[0].phenotype] = (
-                    ef, cf, self.food_collected)
+                    self.ef, self.cf, self.food_collected)
+        """
+        self.phenotypes = dict()
+        self.phenotypes[self.individual[0].phenotype] = (
+            self.individual[0].fitness)
 
         # Find the nearby agents
         cellmates = self.model.grid.get_objects_from_grid(
@@ -316,9 +330,9 @@ class LearningAgent(ForagingAgent):
         # then also perform genetic step
         storage_threshold = len(
             self.genome_storage) >= (self.model.num_agents / 10)
-        if storage_threshold:
+        if storage_threshold and self.food_collected <= 1:
             self.genetic_step()
-        """
+        # """
         elif (
                 (
                     storage_threshold is False and self.timestamp > 100
@@ -327,7 +341,7 @@ class LearningAgent(ForagingAgent):
             individual = evaluate_fitness(individual, self.parameter)
             self.genome_storage = individual
             self.genetic_step()
-        """
+        # """
         # If neighbours found, store the genome
         if len(cellmates) > 1:
             self.store_genome(cellmates)

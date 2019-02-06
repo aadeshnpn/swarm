@@ -123,6 +123,7 @@ class ForagingModel(Model):
                 f.agent_name = None
                 self.grid.add_object_to_grid(f.location, f)
                 self.total_food_units += f.weight
+                f.phenotype = dict()
                 self.foods.append(f)
         except KeyError:
             pass
@@ -297,22 +298,57 @@ class EvolveModel(ForagingModel):
             # return [sorted_agents[0].individual[0].phenotype]
             return phenotypes[0]
 
+    def behavior_sampling_objects(self, method='ratio', ratio_value=0.2):
+        """Extract phenotype of the learning agents based on the objects.
+
+        Sort the phenotye based on the overall fitness and then based on the
+        method extract phenotype of the agents.
+        Method can take {'ratio','higest','sample'}
+        """
+        # sorted_agents = sorted(
+        #    self.agents, key=lambda x: x.individual[0].fitness, reverse=True)
+        # phenotypes = dict()
+        # Get the phenotypes collected from the agent
+        phenotypes = self.phenotype_attached_objects()
+        for agent in self.agents:
+            phenotypes = {**agent.phenotypes, **phenotypes}
+
+        # Sort the phenotypes
+        phenotypes, _ = zip(
+            *sorted(phenotypes.items(), key=lambda x: (
+                x[1]), reverse=True))
+
+        if method == 'ratio':
+            upper_bound = ratio_value * self.num_agents
+            # selected_agents = self.agents[0:int(upper_bound)]
+            # selected_phenotype = [
+            #    agent.individual[0].phenotype for agent in selected_agents]
+            selected_phenotype = list(phenotypes)[:int(upper_bound)]
+            return selected_phenotype
+        else:
+            # return [sorted_agents[0].individual[0].phenotype]
+            return phenotypes[0]
+
     def phenotype_attached_objects(self):
         """Extract phenotype from the objects."""
-        grid = self.grid
-        hub_loc = self.hub.location
-        neighbours = grid.get_neighborhood(hub_loc, 10)
-        food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
-        phenotypes = []
-        for food in food_objects:
-            phenotypes += list(food.phenotype.values())
-        return list(set(phenotypes))
+        # grid = self.grid
+        # hub_loc = self.hub.location
+        # neighbours = grid.get_neighborhood(hub_loc, 20)
+        # food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+        phenotypes = dict()
+        for food in self.foods:
+            # phenotypes += list(food.phenotype.values())
+            try:
+                phenotypes = {**food.phenotype, ** phenotypes}
+            except (AttributeError, ValueError):
+                pass
+        return phenotypes
 
     def step(self):
         """Step through the environment."""
         # Gather info to plot the graph
         try:
-            idx = self.gather_info()
+            self.gather_info()
             # agent = self.agents[idx]
             # print(
             #    idx, agent.individual[0].phenotype,

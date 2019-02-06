@@ -611,7 +611,11 @@ class Drop(Behaviour):
             # Temporary fix
             # Store the genome which activated the single carry
             try:
-                objects.phenotype['drop'] = self.agent.individual[0].phenotype
+                # objects.phenotype['drop'] =
+                # self.agent.individual[0].phenotype
+                objects.phenotype = {
+                    self.agent.individual[0].phenotype: self.agent.individual[
+                        0].fitness}
                 return Status.SUCCESS
             except AttributeError:
                 pass
@@ -705,7 +709,8 @@ class SingleCarry(Behaviour):
             # Store the genome which activated the single carry
             try:
                 objects.phenotype = {
-                    'carry': self.agent.individual[0].phenotype}
+                    self.agent.individual[0].phenotype: self.agent.individual[
+                        0].fitness}
             except AttributeError:
                 pass
             return Status.SUCCESS
