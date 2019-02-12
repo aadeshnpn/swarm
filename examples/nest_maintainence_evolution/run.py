@@ -7,7 +7,7 @@ from swarms.utils.ui import UI
 # Global variables for width and height
 width = 400
 height = 400
-viewer = False
+viewer = True
 
 
 def main():

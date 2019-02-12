@@ -49,7 +49,8 @@ def simulate_res1(env, iteration, prob=0.5):
     threshold = 1.0
 
     sim = SimModelRes1(
-        150, 100, 100, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1], prob=prob)
+        150, 100, 100, 10, iter=iteration,
+        xmlstrings=phenotypes, pname=env[1], prob=prob)
     sim.build_environment_from_json()
 
     # for all agents store the information about hub
@@ -109,7 +110,8 @@ def simulate_res2(env, iteration, prob=0.5):
     threshold = 1.0
 
     sim = SimModelRes2(
-        150, 100, 100, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1], prob=prob)
+        150, 100, 100, 10, iter=iteration, xmlstrings=phenotypes,
+        pname=env[1], prob=prob)
     sim.build_environment_from_json()
 
     # for all agents store the information about hub
@@ -168,7 +170,6 @@ def simulate(env, iteration, N=150):
     # phenotype = agent.individual[0].phenotype
     # phenotypes = extract_phenotype(agents)
     phenotypes = env[0]
-    # phenotypes = ['<?xml version=\"1.0\" encoding=\"UTF-8\"?><Sequence><Sequence><Sequence><Selector><cond>IsDropable_Sites</cond><act>Explore</act></Selector><Sequence><cond>NeighbourObjects</cond><act>CompositeSingleCarry_Food</act></Sequence></Sequence> <Sequence><Sequence><cond>NeighbourObjects</cond><act>Explore</act></Sequence> <Sequence><cond>NeighbourObjects</cond><act>MoveTowards_Hub</act></Sequence></Sequence></Sequence> <Sequence><Selector><cond>NeighbourObjects</cond><act>MoveAway_Sites</act></Selector><Sequence><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Sequence></Sequence></Sequence>', '<?xml version=\"1.0\" encoding=\"UTF-8\"?><Sequence><Sequence><Sequence><Selector><cond>IsDropable_Sites</cond><act>Explore</act></Selector><Sequence><cond>NeighbourObjects</cond><act>CompositeSingleCarry_Food</act></Sequence></Sequence> <Sequence><Sequence><cond>NeighbourObjects</cond><act>Explore</act></Sequence> <Sequence><cond>NeighbourObjects</cond><act>MoveTowards_Hub</act></Sequence></Sequence></Sequence> <Sequence><Selector><cond>NeighbourObjects</cond><act>MoveAway_Sites</act></Selector><Sequence><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Sequence></Sequence></Sequence>','<?xml version=\"1.0\" encoding=\"UTF-8\"?><Sequence><Sequence><Sequence><Selector><cond>IsDropable_Sites</cond><act>Explore</act></Selector><Sequence><cond>NeighbourObjects</cond><act>CompositeSingleCarry_Food</act></Sequence></Sequence> <Sequence><Sequence><cond>NeighbourObjects</cond><act>Explore</act></Sequence> <Sequence><cond>NeighbourObjects</cond><act>MoveTowards_Hub</act></Sequence></Sequence></Sequence> <Sequence><Selector><cond>NeighbourObjects</cond><act>MoveAway_Sites</act></Selector><Sequence><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Sequence></Sequence></Sequence>','<?xml version=\"1.0\" encoding=\"UTF-8\"?><Sequence><Sequence><Sequence><Selector><cond>IsDropable_Sites</cond><act>Explore</act></Selector><Sequence><cond>NeighbourObjects</cond><act>CompositeSingleCarry_Food</act></Sequence></Sequence> <Sequence><Sequence><cond>NeighbourObjects</cond><act>Explore</act></Sequence> <Sequence><cond>NeighbourObjects</cond><act>MoveTowards_Hub</act></Sequence></Sequence></Sequence> <Sequence><Selector><cond>NeighbourObjects</cond><act>MoveAway_Sites</act></Selector><Sequence><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Sequence></Sequence></Sequence>','<?xml version=\"1.0\" encoding=\"UTF-8\"?><Sequence><Sequence><Sequence><Sequence><Sequence><cond>NeighbourObjects</cond><act>Explore</act></Sequence> <Sequence><cond>NeighbourObjects</cond><act>CompositeSingleCarry_Food</act></Sequence></Sequence> <Sequence><cond>IsDropable_Hub</cond><act>CompositeDrop_Food</act></Sequence></Sequence> <Sequence><cond>IsDropable_Hub</cond><cond>IsDropable_Hub</cond><act>CompositeDrop_Food</act></Sequence></Sequence> <Selector><Selector><cond>IsDropable_Hub</cond><act>MoveTowards_Hub</act></Selector> <Selector><cond>IsDropable_Hub</cond><cond>NeighbourObjects</cond><act>MoveTowards_Sites</act></Selector></Selector></Sequence>','<?xml version=\"1.0\" encoding=\"UTF-8\"?><Sequence><Sequence><Sequence><Sequence><Sequence><cond>NeighbourObjects</cond><act>Explore</act></Sequence> <Sequence><cond>NeighbourObjects</cond><act>CompositeSingleCarry_Food</act></Sequence></Sequence> <Sequence><cond>IsDropable_Hub</cond><act>CompositeDrop_Food</act></Sequence></Sequence> <Sequence><cond>IsDropable_Hub</cond><cond>IsDropable_Hub</cond><act>CompositeDrop_Food</act></Sequence></Sequence> <Selector><Selector><cond>IsDropable_Hub</cond><act>MoveTowards_Hub</act></Selector> <Selector><cond>IsDropable_Hub</cond><cond>NeighbourObjects</cond><act>MoveTowards_Sites</act></Selector></Selector></Sequence>','<?xml version=\"1.0\" encoding=\"UTF-8\"?><Selector><Selector><Sequence><Sequence><cond>IsDropable_Hub</cond><act>Explore</act></Sequence> <Sequence><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Sequence></Sequence><Sequence><Sequence><cond>IsDropable_Hub</cond><act>CompositeSingleCarry_Food</act></Sequence> <Selector><cond>NeighbourObjects</cond><act>MoveTowards_Sites</act></Selector></Sequence></Selector> <Selector><Selector><cond>IsDropable_Sites</cond><cond>IsDropable_Hub</cond><act>CompositeSingleCarry_Food</act></Selector> <Selector><cond>IsDropable_Hub</cond><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Selector></Selector></Selector>','<?xml version=\"1.0\" encoding=\"UTF-8\"?><Selector><Selector><Sequence><Sequence><cond>IsDropable_Hub</cond><act>Explore</act></Sequence> <Sequence><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Sequence></Sequence><Sequence><Sequence><cond>IsDropable_Hub</cond><act>CompositeSingleCarry_Food</act></Sequence> <Selector><cond>NeighbourObjects</cond><act>MoveTowards_Sites</act></Selector></Sequence></Selector> <Selector><Selector><cond>IsDropable_Sites</cond><cond>IsDropable_Hub</cond><act>CompositeSingleCarry_Food</act></Selector> <Selector><cond>IsDropable_Hub</cond><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Selector></Selector></Selector>','<?xml version=\"1.0\" encoding=\"UTF-8\"?><Selector><Selector><Sequence><Sequence><cond>IsDropable_Hub</cond><act>Explore</act></Sequence> <Sequence><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Sequence></Sequence><Sequence><Sequence><cond>IsDropable_Hub</cond><act>CompositeSingleCarry_Food</act></Sequence> <Selector><cond>NeighbourObjects</cond><act>MoveTowards_Sites</act></Selector></Sequence></Selector> <Selector><Selector><cond>IsDropable_Sites</cond><cond>IsDropable_Hub</cond><act>CompositeSingleCarry_Food</act></Selector> <Selector><cond>IsDropable_Hub</cond><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Selector></Selector></Selector>','<?xml version=\"1.0\" encoding=\"UTF-8\"?><Selector><Selector><Sequence><Sequence><cond>IsDropable_Hub</cond><act>Explore</act></Sequence> <Sequence><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Sequence></Sequence><Sequence><Sequence><cond>IsDropable_Hub</cond><act>CompositeSingleCarry_Food</act></Sequence> <Selector><cond>NeighbourObjects</cond><act>MoveTowards_Sites</act></Selector></Sequence></Selector> <Selector><Selector><cond>IsDropable_Sites</cond><cond>IsDropable_Hub</cond><act>CompositeSingleCarry_Food</act></Selector> <Selector><cond>IsDropable_Hub</cond><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Selector></Selector></Selector>']
     threshold = 1.0
 
     sim = SimModel(
@@ -275,7 +276,8 @@ def main(iter):
     print('=======Start=========')
     steps = list(range(10000, 1000000, 2000))
     for j in range(0, len(steps), 16):
-        envs = Parallel(n_jobs=16)(delayed(evolve)(i) for i in steps[j:j+16])
+        envs = Parallel(n_jobs=16)(delayed(
+            evolve)(i) for i in steps[j:j + 16])
         # env = evolve(iter)
         # simulate(None, iter)
         """
@@ -291,11 +293,14 @@ def main(iter):
                 # env = (env.phenotypes, env.pname)
                 # aname = pname + '/' + str(N)
                 # env = (phenotypes, pname)
-                Parallel(n_jobs=16)(delayed(simulate)(env, i, 150) for i in steps)
+                Parallel(n_jobs=16)(delayed(simulate)(
+                    env, i, 150) for i in steps)
                 # Run over different probability
                 for p in [0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
-                    Parallel(n_jobs=16)(delayed(simulate_res1)(env, i, prob=p) for i in steps)
-                    Parallel(n_jobs=16)(delayed(simulate_res2)(env, i, prob=p) for i in steps)
+                    Parallel(n_jobs=16)(delayed(
+                        simulate_res1)(env, i, prob=p) for i in steps)
+                    Parallel(n_jobs=16)(delayed(
+                        simulate_res2)(env, i, prob=p) for i in steps)
 
     # for i in steps:
     #    simulate(env, i)
@@ -309,8 +314,9 @@ if __name__ == '__main__':
     # Running 50 experiments in parallel
     # steps = [100000 for i in range(50)]
     # Parallel(n_jobs=8)(delayed(main)(i) for i in steps)
-    # Parallel(n_jobs=16)(delayed(main)(i) for i in range(10000, 1000000, 2000))
+    # Parallel(n_jobs=16)(delayed(
+    # main)(i) for i in range(10000, 1000000, 2000))
     main(1000)
-    #for i in range(10000, 1000000, 2000):
+    # for i in range(10000, 1000000, 2000):
     #    main(i)
 

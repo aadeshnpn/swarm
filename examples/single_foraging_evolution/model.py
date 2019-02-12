@@ -145,6 +145,10 @@ class ForagingModel(Model):
         prospective = np.ones(len(self.agents))
         for id in range(len(self.agents)):
             # diversity[id] = self.agents[id].diversity_fitness
+            # exploration[id] = self.agents[id].exploration_fitness()
+            # foraging[id] = self.agents[id].food_collected
+            # fittest[id] = self.agents[id].individual[0].fitness
+            # prospective[id] = self.agents[id].carrying_fitness()
             exploration[id] = self.agents[id].exploration_fitness()
             foraging[id] = self.agents[id].food_collected
             fittest[id] = self.agents[id].individual[0].fitness
@@ -238,7 +242,7 @@ class EvolveModel(ForagingModel):
         super(EvolveModel, self).__init__(
             N, width, height, grid, iter, seed, name, viewer)
 
-    def create_agents(self, random_init=False, phenotypes=None):
+    def create_agents(self, random_init=True, phenotypes=None):
         """Initialize agents in the environment."""
         # Create agents
         for i in range(self.num_agents):
@@ -259,13 +263,14 @@ class EvolveModel(ForagingModel):
                     -self.grid.width / 2, self.grid.width / 2)
                 y = self.random.randint(
                     -self.grid.height / 2, self.grid.height / 2)
-            try:
-                x, y = self.hub.location
-            except AttributeError:
-                x, y = 0, 0
+            else:
+                try:
+                    x, y = self.hub.location
+                except AttributeError:
+                    x, y = 0, 0
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)
-            a.operation_threshold = 2  # self.num_agents // 10
+            # a.operation_threshold = 2  # self.num_agents // 10
             self.agents.append(a)
 
     def behavior_sampling(self, method='ratio', ratio_value=0.2):
@@ -358,7 +363,7 @@ class EvolveModel(ForagingModel):
 
         # Next step
         self.schedule.step()
-
+        # input('Enter to continue' + str(self.stepcnt))
         # Increment the step count
         self.stepcnt += 1
 

@@ -2,10 +2,6 @@
 
 
 import numpy as np
-import math
-import copy
-# import hashlib
-
 from swarms.lib.agent import Agent
 from swarms.utils.bt import BTConstruct
 from swarms.utils.results import Results    # noqa : F401
@@ -156,9 +152,13 @@ class LearningAgent(ForagingAgent):
         # Assign the genome to the agent
         self.individual = individual
         # Fitness
-        self.beta = 0.99
+        self.beta = 0.9
         self.diversity_fitness = self.individual[0].fitness
+        self.individual[0].fitness = 0
         self.generation = 0
+
+        self.delayed_cf = 0
+        self.delayed_ef = 0
         # if self.name == 7:
         #    self.individual[0].fitness = 10000000000000
         #    self.delayed_reward = 10000000000000
@@ -173,14 +173,14 @@ class LearningAgent(ForagingAgent):
     def store_genome(self, cellmates):
         """Store the genome from neighbours."""
         # cellmates.remove(self)
-        # self.genome_storage += [agent.individual[0] for agent in cellmates]
-        for agent in cellmates:
-            if agent.food_collected > 0:
-                self.genome_storage += agent.individual
-            elif len(agent.attached_objects) > 0:
-                self.genome_storage += agent.individual
-            elif agent.exploration_fitness() > 10:
-                self.genome_storage += agent.individual
+        self.genome_storage += [agent.individual[0] for agent in cellmates]
+        # for agent in cellmates:
+        #    if agent.food_collected > 0:
+        #        self.genome_storage += agent.individual
+        #    elif len(agent.attached_objects) > 0:
+        #        self.genome_storage += agent.individual
+        #    elif agent.exploration_fitness() > 10:
+        #        self.genome_storage += agent.individual
 
     def exchange_chromosome(self,):
         """Perform genetic operations."""
@@ -230,13 +230,19 @@ class LearningAgent(ForagingAgent):
         # First block gives importance to exploration and when as soon
         # food has been found, the next block will focus on dropping
         # the food on hub
-        self.delayed_reward = self.beta * self.delayed_reward
+        self.delayed_reward = round(self.beta * self.delayed_reward, 4)
         # multiplier = math.pow(self.beta, self.timestamp)
-        # delayed_ef = multiplier * self.ef
-        # delayed_cf = multiplier * self.cf
-        self.individual[0].fitness = self.delayed_reward \
-            + self.ef + self.cf * 1 \
-            + self.food_collected * 20
+        # self.delayed_ef = multiplier * self.ef
+        # self.delayed_cf = multiplier * self.cf
+        # self.delayed_ef = self.ef * self.timestamp
+        self.individual[0].fitness = (
+            self.delayed_reward + self.ef + self.cf + self.food_collected)
+        # print (self.name, self.location,
+        # self.delayed_reward, self.ef, self.individual[0].fitness)
+
+        # self.individual[0].fitness = self.delayed_reward \
+        #    + self.delayed_ef    + self.delayed_cf * 1 \
+        #  + self.food_collected * 20
 
     def get_food_in_hub(self, agent_name=True):
         """Get the food in the hub stored by the agent."""
@@ -323,6 +329,11 @@ class LearningAgent(ForagingAgent):
         # Find the nearby agents
         cellmates = self.model.grid.get_objects_from_grid(
             type(self).__name__, self.location)
+
+        # If neighbours found, store the genome
+        if len(cellmates) > 1:
+            self.store_genome(cellmates)
+
         # Logic for gentic operations.
         # If the genome storage has enough genomes and agents has done some
         # exploration then compute the genetic step OR
@@ -330,21 +341,19 @@ class LearningAgent(ForagingAgent):
         # then also perform genetic step
         storage_threshold = len(
             self.genome_storage) >= (self.model.num_agents / 10)
-        if storage_threshold and self.food_collected <= 1:
+
+        if storage_threshold:
             self.genetic_step()
         # """
         elif (
                 (
                     storage_threshold is False and self.timestamp > 100
-                    ) and (self.exploration_fitness() < 10)):
+                    ) and (self.exploration_fitness() < 2)):
             individual = initialisation(self.parameter, 10)
             individual = evaluate_fitness(individual, self.parameter)
-            self.genome_storage = individual
+            self.genome_storage = self.genome_storage + individual
             self.genetic_step()
         # """
-        # If neighbours found, store the genome
-        if len(cellmates) > 1:
-            self.store_genome(cellmates)
 
 
 class ExecutingAgent(ForagingAgent):

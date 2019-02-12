@@ -21,7 +21,7 @@ def main():
     env.build_environment_from_json()
 
     # Load a json file containing the phenotype
-    pfileloc = '/home/aadeshnpn/Documents/BYU/hcmi/hri/sforaging/07777SForagingSimulation/'
+    pfileloc = '/home/aadeshnpn/Documents/BYU/hcmi/hri/thesis/sf/'
     jname = pfileloc + '1538473090382007.json'
 
     phenotypes = JsonPhenotypeData.load_json_file(jname)['phenotypes']
