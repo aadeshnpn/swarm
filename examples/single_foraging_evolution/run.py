@@ -5,9 +5,9 @@ from swarms.utils.jsonhandler import JsonPhenotypeData
 from swarms.utils.ui import UI
 # from joblib import Parallel, delayed
 # Global variables for width and height
-width = 400
-height = 400
-viewer = True
+width = 100
+height = 100
+viewer = False
 
 
 def main():
@@ -21,13 +21,14 @@ def main():
     env.build_environment_from_json()
 
     # Load a json file containing the phenotype
-    pfileloc = '/home/aadeshnpn/Documents/BYU/hcmi/hri/thesis/sf/'
-    jname = pfileloc + '1538473090382007.json'
+    # pfileloc = '/home/aadeshnpn/Documents/BYU/hcmi/swarm/results/1550156973273193-5000ValidateSForge/'
+    # jname = pfileloc + '1550156973273193-4999.json'
 
-    phenotypes = JsonPhenotypeData.load_json_file(jname)['phenotypes']
+    # phenotypes = JsonPhenotypeData.load_json_file(jname)['phenotypes']
     # Create the agents in the environment from the sampled behaviors
     # print (len(phenotypes))
-    env.create_agents(phenotypes=phenotypes[:50])
+    phenotypes = ['<?xml version="1.0" encoding="UTF-8"?><Selector><Selector><Sequence><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Sequence><Sequence><cond>NeighbourObjects</cond><act>Explore</act></Sequence></Selector> <Selector><cond>IsCarrying_Food</cond><act>CompositeSingleCarry_Food</act></Selector></Selector>','<?xml version="1.0" encoding="UTF-8"?><Sequence><Sequence><cond>IsCarrying_Food_invert</cond><act>Explore</act></Sequence><Sequence><cond>IsVisitedBefore_Hub</cond><cond>NeighbourObjects</cond><act>CompositeSingleCarry_Food</act></Sequence></Sequence>','<?xml version="1.0" encoding="UTF-8"?><Sequence><Sequence><Sequence><cond>IsVisitedBefore_Hub</cond><act>Explore</act></Sequence> <Sequence><cond>NeighbourObjects</cond><act>CompositeSingleCarry_Food</act></Sequence></Sequence> <Sequence><cond>IsDropable_Sites</cond><cond>NeighbourObjects</cond><act>MoveAway_Hub</act></Sequence></Sequence>','<?xml version="1.0" encoding="UTF-8"?><Selector><Selector><Sequence><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Sequence><Sequence><cond>NeighbourObjects</cond><act>CompositeSingleCarry_Food</act></Sequence></Selector> <Selector><cond>IsVisitedBefore_Hub_invert</cond><act>Explore</act></Selector></Selector>','<?xml version="1.0" encoding="UTF-8"?><Sequence><Sequence><Sequence><cond>NeighbourObjects</cond><act>Explore</act></Sequence><Sequence><cond>NeighbourObjects</cond><act>CompositeSingleCarry_Food</act></Sequence></Sequence> <Selector><cond>IsDropable_Hub</cond><act>MoveTowards_Sites</act></Selector></Sequence>']
+    env.create_agents(phenotypes=phenotypes)
     # Overiding the default viewer properties
     env.ui = UI(
         (width, height), [env.hub], env.agents,
@@ -39,8 +40,8 @@ def main():
     # print('Execution done')
     # Find if food has been deposited in the hub
     print('foraging percent', env.foraging_percent())
-    grid = env.grid
-    neighbours = grid.get_neighborhood(env.hub.location, env.hub.radius)
+    # grid = env.grid
+    # neighbours = grid.get_neighborhood(env.hub.location, env.hub.radius)
     # ExecutingAgent
     # food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
     # agents = grid.get_objects_from_list_of_grid('ExecutingAgent', neighbours)

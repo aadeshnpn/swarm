@@ -116,7 +116,11 @@ class ForagingAgent(Agent):
     def exploration_fitness(self):
         """Compute the exploration fitness."""
         # Use exploration space as fitness values
-        return len(self.location_history) - 1
+        locations = len(self.location_history)
+        if locations == 0:
+            return 0
+        else:
+            return locations - 1
 
 
 class LearningAgent(ForagingAgent):
@@ -236,9 +240,10 @@ class LearningAgent(ForagingAgent):
         # self.delayed_cf = multiplier * self.cf
         # self.delayed_ef = self.ef * self.timestamp
         self.individual[0].fitness = (
-            self.delayed_reward + self.ef + self.cf + self.food_collected)
-        # print (self.name, self.location,
-        # self.delayed_reward, self.ef, self.individual[0].fitness)
+            self.ef + self.cf * 4 + self.food_collected * 8)
+        #print(
+        #    self.name, self.location, self.ef, self.cf,
+        #    self.food_collected, self.individual[0].fitness)
 
         # self.individual[0].fitness = self.delayed_reward \
         #    + self.delayed_ef    + self.delayed_cf * 1 \
@@ -276,13 +281,12 @@ class LearningAgent(ForagingAgent):
 
         # Increase beta
         # self.beta = self.timestamp / self.model.iter
+        # Compute the behavior tree
+        self.bt.behaviour_tree.tick()
 
         # Maintain location history
         _, gridval = self.model.grid.find_grid(self.location)
         self.location_history.add(gridval)
-
-        # Compute the behavior tree
-        self.bt.behaviour_tree.tick()
 
         # Find the no.of food collected from the BT execution
         self.food_collected = self.get_food_in_hub()  # * self.get_food_in_hub(
@@ -342,9 +346,20 @@ class LearningAgent(ForagingAgent):
         storage_threshold = len(
             self.genome_storage) >= (self.model.num_agents / 10)
 
+        # New logic to invoke genetic step
+        if self.individual[0].fitness <= 0 and self.timestamp > 100:
+            individual = initialisation(self.parameter, 10)
+            individual = evaluate_fitness(individual, self.parameter)
+            self.genome_storage = self.genome_storage + individual
+            self.genetic_step()
+        elif (
+                (
+                    self.individual[0].fitness >= 0 and storage_threshold
+                    ) and self.timestamp > 200 and self.food_collected <= 0):
+            self.genetic_step()
+        """
         if storage_threshold:
             self.genetic_step()
-        # """
         elif (
                 (
                     storage_threshold is False and self.timestamp > 100
@@ -353,7 +368,7 @@ class LearningAgent(ForagingAgent):
             individual = evaluate_fitness(individual, self.parameter)
             self.genome_storage = self.genome_storage + individual
             self.genetic_step()
-        # """
+        """
 
 
 class ExecutingAgent(ForagingAgent):

@@ -218,7 +218,6 @@ class ForagingModel(Model):
         food_loc = self.site.location
         neighbours = grid.get_neighborhood(food_loc, 10)
         food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
-
         # print (food_objects)
         return food_objects
 
@@ -228,6 +227,12 @@ class ForagingModel(Model):
         hub_loc = self.hub.location
         neighbours = grid.get_neighborhood(hub_loc, self.hub.radius)
         food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+        _, hub_grid = grid.find_grid(hub_loc)
+        for food in self.foods:
+            _, food_grid = grid.find_grid(food.location)
+            if food_grid == hub_grid:
+                food_objects += [food]
+        food_objects = set(food_objects)
         total_food_weights = sum([food.weight for food in food_objects])
         return ((total_food_weights * 1.0) / self.total_food_units) * 100
 
@@ -315,6 +320,7 @@ class EvolveModel(ForagingModel):
         # phenotypes = dict()
         # Get the phenotypes collected from the agent
         phenotypes = self.phenotype_attached_objects()
+
         for agent in self.agents:
             phenotypes = {**agent.phenotypes, **phenotypes}
 
@@ -347,6 +353,7 @@ class EvolveModel(ForagingModel):
                 phenotypes = {**food.phenotype, ** phenotypes}
             except (AttributeError, ValueError):
                 pass
+        # print ('phenotypes for attached objects', phenotypes)
         return phenotypes
 
     def step(self):
@@ -402,10 +409,11 @@ class ValidationModel(ForagingModel):
                     -self.grid.width / 2, self.grid.width / 2)
                 y = self.random.randint(
                     -self.grid.height / 2, self.grid.height / 2)
-            try:
-                x, y = self.hub.location
-            except AttributeError:
-                x, y = 0, 0
+            else:
+                try:
+                    x, y = self.hub.location
+                except AttributeError:
+                    x, y = 0, 0
 
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)
@@ -447,10 +455,11 @@ class TestModel(ForagingModel):
                     -self.grid.width / 2, self.grid.width / 2)
                 y = self.random.randint(
                     -self.grid.height / 2, self.grid.height / 2)
-            try:
-                x, y = self.hub.location
-            except AttributeError:
-                x, y = 0, 0
+            else:
+                try:
+                    x, y = self.hub.location
+                except AttributeError:
+                    x, y = 0, 0
 
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)
@@ -492,10 +501,11 @@ class ViewerModel(ForagingModel):
                     -self.grid.width / 2, self.grid.width / 2)
                 y = self.random.randint(
                     -self.grid.height / 2, self.grid.height / 2)
-            try:
-                x, y = self.hub.location
-            except AttributeError:
-                x, y = 0, 0
+            else:
+                try:
+                    x, y = self.hub.location
+                except AttributeError:
+                    x, y = 0, 0
 
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)

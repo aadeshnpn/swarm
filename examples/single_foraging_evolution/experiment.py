@@ -10,18 +10,19 @@ from joblib import Parallel, delayed    # noqa : F401
 from swarms.utils.results import SimulationResults
 # import py_trees
 # Global variables for width and height
-width = 200
-height = 200
+width = 100
+height = 100
 
 UI = False
 
 
-def validation_loop(phenotypes, iteration, threshold=10.0):
+def validation_loop(phenotypes, iteration, parentname=None, threshold=10.0):
     """Validate the evolved behaviors."""
     # Create a validation environment instance
     # print('len of phenotype', len(set(phenotypes)))
     valid = ValidationModel(
         100, width, height, 10, iter=iteration)
+    print('parent:', parentname, ' children:', valid.runid)
     # Build the environment
     valid.build_environment_from_json()
     # Create the agents in the environment from the sampled behaviors
@@ -100,7 +101,7 @@ def learning_phase(iteration, early_stop=False):
     env.create_agents()
     # Validation Step parameter
     # Run the validation test every these many steps
-    validation_step = 5000
+    validation_step = 6000
 
     # Iterate and execute each step in the environment
     # Take a step i number of step in evolution environment
@@ -120,12 +121,15 @@ def learning_phase(iteration, early_stop=False):
                 #        ), agent.individual[0].fitness)]
                 # n,p,f = zip(*msg)
                 # print (i, p[:10])
-                phenotypes = env.behavior_sampling_objects(ratio_value=0.2)
-                # save the phenotype to json file
-                phenotype_to_json(
-                    env.pname, env.runid + '-' + str(i), phenotypes)
-                # early_stop = validation_loop(phenotypes, 5000)
-                validation_loop(phenotypes, 5000)
+                ratio = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]
+                for r in ratio:
+                    phenotypes = env.behavior_sampling_objects(ratio_value=r)
+                    # save the phenotype to json file
+                    phenotype_to_json(
+                        env.pname, env.runid + '-' + str(r), phenotypes)
+                    # early_stop = validation_loop(phenotypes, 5000)
+                    validation_loop(
+                        phenotypes, 5000, parentname=env.runid + '-' + str(r))
             except ValueError:
                 pass
             # Plot the fitness in the graph
@@ -163,6 +167,10 @@ def learning_phase(iteration, early_stop=False):
     """
     # print('max, min generations', np.max(generations), np.min(generations))
     # pdb.set_trace()
+    allphenotypes = env.behavior_sampling_objects(ratio_value=0.99)
+    # save the phenotype to json file
+    phenotype_to_json(
+        env.pname, env.runid + '-' + 'all', allphenotypes)
     try:
         # return list(phenotypes.keys())
         return phenotypes
@@ -183,16 +191,16 @@ def main(iter):
     # learning_phase(iter)
     # Run the evolved behaviors on a test environment
     if phenotypes is not None:
-        test_loop(phenotypes, 500)
+        test_loop(phenotypes, 5000)
 
 
 def test_json_phenotype(json):
-    jname = '/home/aadeshnpn/Documents/BYU/hcmi/swarm/results/food_collected/1549518015716837-10000EvoSForge/' + json  # noqa : E501
+    jname = '/home/aadeshnpn/Documents/BYU/hcmi/swarm/results/1550083569946511-12000EvoSForge/' + json  # noqa : E501
     # jname = '/tmp/1543367322976111-8000EvoSForge/' + json
     phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
-    # print(phenotype)
+    print(len(phenotype))
     # phenotype = ' '
-    test_loop(phenotype, 1000)
+    test_loop(phenotype, 5000)
     # if validation_loop(phenotype, 2000, 1):
     #    print('foraging success')
 
@@ -201,7 +209,7 @@ if __name__ == '__main__':
     # Running 50 experiments in parallel
     # Parallel(n_jobs=8)(delayed(main)(i) for i in range(2000, 100000, 2000))
     # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 8000, 2000))
-    # main(5000)
-    # json = '1549518015716837-5999.json'
+    # main(8000)
+    # json = '1550083569946511-all.json'
     # test_json_phenotype(json)
-    Parallel(n_jobs=8)(delayed(main)(15000) for i in range(256))
+    Parallel(n_jobs=8)(delayed(main)(12000) for i in range(8))
