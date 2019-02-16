@@ -16,13 +16,14 @@ height = 100
 UI = False
 
 
-def validation_loop(phenotypes, iteration, parentname=None, threshold=10.0):
+def validation_loop(
+        phenotypes, iteration, parentname=None, ratio=1, threshold=10.0):
     """Validate the evolved behaviors."""
     # Create a validation environment instance
     # print('len of phenotype', len(set(phenotypes)))
     valid = ValidationModel(
-        100, width, height, 10, iter=iteration)
-    print('parent:', parentname, ' children:', valid.runid)
+        100, width, height, 10, iter=iteration, parent=parentname, ratio=ratio)
+    # print('parent:', parentname, ' children:', valid.runid)
     # Build the environment
     valid.build_environment_from_json()
     # Create the agents in the environment from the sampled behaviors
@@ -129,7 +130,7 @@ def learning_phase(iteration, early_stop=False):
                         env.pname, env.runid + '-' + str(r), phenotypes)
                     # early_stop = validation_loop(phenotypes, 5000)
                     validation_loop(
-                        phenotypes, 5000, parentname=env.runid + '-' + str(r))
+                        phenotypes, 5000, parentname=env.pname, ratio=r)
             except ValueError:
                 pass
             # Plot the fitness in the graph
@@ -209,7 +210,7 @@ if __name__ == '__main__':
     # Running 50 experiments in parallel
     # Parallel(n_jobs=8)(delayed(main)(i) for i in range(2000, 100000, 2000))
     # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 8000, 2000))
-    # main(8000)
+    main(12000)
     # json = '1550083569946511-all.json'
     # test_json_phenotype(json)
-    Parallel(n_jobs=8)(delayed(main)(12000) for i in range(8))
+    # Parallel(n_jobs=8)(delayed(main)(12000) for i in range(256))

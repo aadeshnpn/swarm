@@ -21,13 +21,12 @@ def main():
     env.build_environment_from_json()
 
     # Load a json file containing the phenotype
-    # pfileloc = '/home/aadeshnpn/Documents/BYU/hcmi/swarm/results/1550156973273193-5000ValidateSForge/'
-    # jname = pfileloc + '1550156973273193-4999.json'
+    pfileloc = '/home/aadeshnpn/Documents/BYU/hcmi/swarm/results/1550156973273193-5000ValidateSForge/'
+    jname = pfileloc + '1550156973273193-4999.json'
 
-    # phenotypes = JsonPhenotypeData.load_json_file(jname)['phenotypes']
+    phenotypes = JsonPhenotypeData.load_json_file(jname)['phenotypes']
     # Create the agents in the environment from the sampled behaviors
     # print (len(phenotypes))
-    phenotypes = ['<?xml version="1.0" encoding="UTF-8"?><Selector><Selector><Sequence><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Sequence><Sequence><cond>NeighbourObjects</cond><act>Explore</act></Sequence></Selector> <Selector><cond>IsCarrying_Food</cond><act>CompositeSingleCarry_Food</act></Selector></Selector>','<?xml version="1.0" encoding="UTF-8"?><Sequence><Sequence><cond>IsCarrying_Food_invert</cond><act>Explore</act></Sequence><Sequence><cond>IsVisitedBefore_Hub</cond><cond>NeighbourObjects</cond><act>CompositeSingleCarry_Food</act></Sequence></Sequence>','<?xml version="1.0" encoding="UTF-8"?><Sequence><Sequence><Sequence><cond>IsVisitedBefore_Hub</cond><act>Explore</act></Sequence> <Sequence><cond>NeighbourObjects</cond><act>CompositeSingleCarry_Food</act></Sequence></Sequence> <Sequence><cond>IsDropable_Sites</cond><cond>NeighbourObjects</cond><act>MoveAway_Hub</act></Sequence></Sequence>','<?xml version="1.0" encoding="UTF-8"?><Selector><Selector><Sequence><cond>NeighbourObjects</cond><act>CompositeDrop_Food</act></Sequence><Sequence><cond>NeighbourObjects</cond><act>CompositeSingleCarry_Food</act></Sequence></Selector> <Selector><cond>IsVisitedBefore_Hub_invert</cond><act>Explore</act></Selector></Selector>','<?xml version="1.0" encoding="UTF-8"?><Sequence><Sequence><Sequence><cond>NeighbourObjects</cond><act>Explore</act></Sequence><Sequence><cond>NeighbourObjects</cond><act>CompositeSingleCarry_Food</act></Sequence></Sequence> <Selector><cond>IsDropable_Hub</cond><act>MoveTowards_Sites</act></Selector></Sequence>']
     env.create_agents(phenotypes=phenotypes)
     # Overiding the default viewer properties
     env.ui = UI(

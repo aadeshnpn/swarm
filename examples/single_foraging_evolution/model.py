@@ -12,6 +12,7 @@ from agent import LearningAgent, ExecutingAgent, TestingAgent  # noqa : F041
 from swarms.lib.objects import (    # noqa : F401
     Hub, Sites, Food, Debris, Obstacles)
 import os
+from pathlib import Path
 # import imp
 import datetime
 import numpy as np
@@ -26,7 +27,7 @@ class ForagingModel(Model):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name='SForaging', viewer=False):
+            seed=None, name='SForaging', viewer=False, parent=None, ratio=1.0):
         """Initialize the attributes."""
         if seed is None:
             super(ForagingModel, self).__init__(seed=None)
@@ -38,9 +39,15 @@ class ForagingModel(Model):
         self.runid = str(self.runid).replace('.', '')
 
         # Create the experiment folder
-        self.pname = '/'.join(
-            os.getcwd().split('/')[:-2]
-            ) + '/results/' + self.runid + '-' + str(iter) + name
+
+        # If parent folder exits create inside it
+
+        if parent is not None and Path(parent).is_dir():
+            self.pname = parent + '/' + self.runid + '-' + str(ratio)
+        else:
+            self.pname = '/'.join(
+                os.getcwd().split('/')[:-2]
+                ) + '/results/' + self.runid + '-' + str(iter) + name
 
         # Define some parameters to count the step
         self.stepcnt = 1
@@ -380,10 +387,11 @@ class ValidationModel(ForagingModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="ValidateSForge", viewer=False):
+            seed=None, name="ValidateSForge", viewer=False,
+            parent=None, ratio=1.0):
         """Initialize the attributes."""
         super(ValidationModel, self).__init__(
-            N, width, height, grid, iter, seed, name, viewer)
+            N, width, height, grid, iter, seed, name, viewer, parent, ratio)
 
     def create_agents(self, random_init=False, phenotypes=None):
         """Initialize agents in the environment."""
