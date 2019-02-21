@@ -122,15 +122,16 @@ def learning_phase(iteration, early_stop=False):
                 #        ), agent.individual[0].fitness)]
                 # n,p,f = zip(*msg)
                 # print (i, p[:10])
-                ratio = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]
-                for r in ratio:
-                    phenotypes = env.behavior_sampling_objects(ratio_value=r)
-                    # save the phenotype to json file
-                    phenotype_to_json(
-                        env.pname, env.runid + '-' + str(r), phenotypes)
-                    # early_stop = validation_loop(phenotypes, 5000)
-                    validation_loop(
-                        phenotypes, 5000, parentname=env.pname, ratio=r)
+
+                # ratio = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]
+                # for r in ratio:
+                phenotypes = env.behavior_sampling_objects(ratio_value=0.1)
+                # save the phenotype to json file
+                phenotype_to_json(
+                    env.pname, env.runid, phenotypes)
+                # early_stop = validation_loop(phenotypes, 5000)
+                validation_loop(
+                    phenotypes, 5000, parentname=env.pname)
             except ValueError:
                 pass
             # Plot the fitness in the graph
@@ -210,7 +211,7 @@ if __name__ == '__main__':
     # Running 50 experiments in parallel
     # Parallel(n_jobs=8)(delayed(main)(i) for i in range(2000, 100000, 2000))
     # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 8000, 2000))
-    main(12000)
+    # main(12000)
     # json = '1550083569946511-all.json'
     # test_json_phenotype(json)
-    # Parallel(n_jobs=8)(delayed(main)(12000) for i in range(256))
+    Parallel(n_jobs=8)(delayed(main)(12000) for i in range(128))

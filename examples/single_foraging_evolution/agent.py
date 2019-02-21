@@ -239,8 +239,10 @@ class LearningAgent(ForagingAgent):
         # self.delayed_ef = multiplier * self.ef
         # self.delayed_cf = multiplier * self.cf
         # self.delayed_ef = self.ef * self.timestamp
+
         self.individual[0].fitness = (
             self.ef + self.cf * 4 + self.food_collected * 8)
+        # self.individual[0].fitness = self.ef + self.cf * 4
         # print(
         #    self.name, self.location, self.ef, self.cf,
         #    self.food_collected, self.individual[0].fitness)
