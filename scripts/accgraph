@@ -1,0 +1,16 @@
+#!/usr/bin/bash
+#@author: aadeshnpn
+
+# Script to collect simulation and average the results and plot the graph
+expfold='/home/aadeshnpn/Documents/BYU/hcmi/hri/results_comm_res/1536367107226SFComm'
+res1='res1_27000.csv'
+res2='res2_27000.csv'
+normal='normal_27000.csv'
+
+#expfold='/home/aadeshnpn/Documents/BYU/hcmi/hri/with_comm_not_move_1/1536708502888SFComm'
+#res1='res1_18000.csv'
+#res2='res2_18000.csv'
+#normal='normal_18000.csv'
+
+fnames="${normal},${res1},${res2}"
+python acc.py "${fnames}" ${expfold}

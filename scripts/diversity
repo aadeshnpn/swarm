@@ -1,0 +1,42 @@
+#!/usr/bin/bash
+#@author: aadeshnpn
+
+# Script to collect results for behavior sampling
+
+
+expfold="/home/aadeshnpn/Documents/BYU/hcmi/hri/ijcai/fitness_exp/expcf"
+
+mkdir -p ${expfold}/results
+
+exp=($(find ${expfold} -type f -name simulation.csv | grep "TestS" ))
+
+echo "${#exp[@]}"
+
+python  << EOF
+"""Script to store the data."""
+import sys
+import numpy as np
+import pandas as pd
+def load_file(fname):
+    # try:
+    data = pd.read_csv(
+        fname, sep='|',  # pylint: disable=E1101
+        skipinitialspace=True)
+    return data
+
+def main():
+    """Parse args and call graph module."""
+    filenames="${exp[@]}"
+    filenames = filenames.split(' ')
+    dataall = []
+    for fname in filenames:
+        print (fname)
+        data = load_file(fname)
+        dataall.append(data['fitness'].values)
+    dataall = np.array(dataall)
+    dataname = "${expfold}/results/expfood.npy"
+    np.save(dataname, dataall)
+
+if __name__ == '__main__':
+    main()
+EOF
