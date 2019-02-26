@@ -19,8 +19,8 @@ def main():
     graph.gen_plot()
 
     # box = BoxGraph(fdir, filenames, "Single-Source Foraging")
-    box = BoxGraph(fdir, filenames, True, (-1, 5), "Multi-Source Foraging")
-    # box = BoxGraph(fdir, filenames, "Nest Maintenance")
+    # box = BoxGraph(fdir, filenames, False, (-1, 100), "Multi-Source Foraging")
+    box = BoxGraph(fdir, filenames, False, (-1, 120), "Nest Maintenance with Handcoded behaviors")
     # box = BoxGraph(
     # fdir, filenames, "Nest Maintenance \n with \n Handcoded behaviors")
     box.gen_plot()

@@ -21,7 +21,9 @@ def main():
     env.build_environment_from_json()
 
     # Load a json file containing the phenotype
-    pfileloc = '/home/aadeshnpn/Documents/BYU/hcmi/swarm/results/1550156973273193-5000ValidateSForge/'
+    pfileloc = (
+        '/home/aadeshnpn/Documents/BYU/hcmi/swarm/' +
+        'results/1550156973273193-5000ValidateSForge/')
     jname = pfileloc + '1550156973273193-4999.json'
 
     phenotypes = JsonPhenotypeData.load_json_file(jname)['phenotypes']

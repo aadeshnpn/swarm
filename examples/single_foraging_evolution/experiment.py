@@ -211,7 +211,7 @@ if __name__ == '__main__':
     # Running 50 experiments in parallel
     # Parallel(n_jobs=8)(delayed(main)(i) for i in range(2000, 100000, 2000))
     # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 8000, 2000))
-    # main(12000)
+    main(5000)
     # json = '1550083569946511-all.json'
     # test_json_phenotype(json)
-    Parallel(n_jobs=8)(delayed(main)(12000) for i in range(128))
+    # Parallel(n_jobs=8)(delayed(main)(12000) for i in range(128))

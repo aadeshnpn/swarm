@@ -161,8 +161,8 @@ class LearningAgent(ForagingAgent):
         self.individual[0].fitness = 0
         self.generation = 0
 
-        self.delayed_cf = 0
-        self.delayed_ef = 0
+        # self.delayed_cf = 0
+        # self.delayed_ef = 0
         # if self.name == 7:
         #    self.individual[0].fitness = 10000000000000
         #    self.delayed_reward = 10000000000000

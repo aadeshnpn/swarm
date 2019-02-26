@@ -662,7 +662,9 @@ class DropPartial(Behaviour):
                 self.agent.model.grid.add_object_to_grid(
                     objects.location, objects)
             try:
-                objects.phenotype['drop'] = self.agent.individual[0].phenotype
+                objects.phenotype = {
+                    self.agent.individual[0].phenotype: self.agent.individual[
+                        0].fitness}
                 return Status.SUCCESS
             except AttributeError:
                 pass
@@ -772,7 +774,8 @@ class InitiateMultipleCarry(Behaviour):
                 return Status.SUCCESS
             try:
                 objects.phenotype = {
-                    'carry': self.agent.individual[0].phenotype}
+                    self.agent.individual[0].phenotype: self.agent.individual[
+                        0].fitness}
             except AttributeError:
                 pass
 

@@ -12,14 +12,18 @@ from agent import LearningAgent, ExecutingAgent, TestingAgent  # noqa : F041
 from swarms.lib.objects import (    # noqa : F401
     Hub, Sites, Food, Debris, Obstacles)
 import os
+import pathlib
 from pathlib import Path
 # import imp
 import datetime
 import numpy as np
 
 # filename = os.path.join(imp.find_module("swarms")[1] + "/utils/world.json")
-projectdir = "/home/aadeshnpn/Documents/BYU/hcmi/swarm/examples"
-filename = os.path.join(projectdir + "/single_foraging_evolution/world.json")
+# projectdir = "/home/aadeshnpn/Documents/BYU/hcmi/swarm/examples"
+# filename = os.path.join(projectdir + "/single_foraging_evolution/world.json")
+current_dir = pathlib.Path(__file__).parent
+filename = os.path.join(
+    str(current_dir) + "/world.json")
 
 
 class ForagingModel(Model):

@@ -107,6 +107,7 @@ class Grid:
         try:
             return grid_key, self.grid[grid_key]
         except KeyError:
+            print('KeyError', 'No grid key for ', grid_key)
             exit()
 
     def get_horizontal_neighbours(self, center_grid, scale, width_scale):

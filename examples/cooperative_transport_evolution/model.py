@@ -1,5 +1,10 @@
 """Inherited model class."""
 
+import os
+import datetime
+import numpy as np
+import pathlib
+
 from swarms.lib.model import Model
 from swarms.lib.time import SimultaneousActivation
 # RandomActivation, StagedActivation
@@ -11,15 +16,10 @@ from swarms.utils.ui import UI
 from agent import LearningAgent, ExecutingAgent, TestingAgent  # noqa : F041
 from swarms.lib.objects import (    # noqa : F401
     Hub, Sites, Food, Debris, Obstacles)
-import os
-# import imp
-import datetime
-import numpy as np
 
-# filename = os.path.join(imp.find_module("swarms")[1] + "/utils/world.json")
-projectdir = "/home/aadeshnpn/Documents/BYU/hcmi/swarm/examples"
+current_dir = pathlib.Path(__file__).parent
 filename = os.path.join(
-    projectdir + "/cooperative_transport_evolution/world.json")
+    str(current_dir) + "/world.json")
 
 
 class CTModel(Model):
@@ -27,7 +27,8 @@ class CTModel(Model):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name='CTForaging', viewer=False):
+            seed=None, name='CTForaging', viewer=False,
+            parent=None, ratio=1.0):
         """Initialize the attributes."""
         if seed is None:
             super(CTModel, self).__init__(seed=None)
@@ -39,9 +40,14 @@ class CTModel(Model):
         self.runid = str(self.runid).replace('.', '')
 
         # Create the experiment folder
-        self.pname = '/'.join(
-            os.getcwd().split('/')[:-2]
-            ) + '/results/' + self.runid + '-' + str(iter) + name
+        # If parent folder exits create inside it
+
+        if parent is not None and pathlib.Path(parent).is_dir():
+            self.pname = parent + '/' + self.runid + '-' + str(ratio)
+        else:
+            self.pname = '/'.join(
+                os.getcwd().split('/')[:-2]
+                ) + '/results/' + self.runid + '-' + str(iter) + name
 
         # Define some parameters to count the step
         self.stepcnt = 1
@@ -125,6 +131,7 @@ class CTModel(Model):
                 f.agent_name = None
                 self.grid.add_object_to_grid(f.location, f)
                 self.total_food_units += f.weight
+                f.phenotype = dict()
                 self.foods.append(f)
         except KeyError:
             pass
@@ -223,8 +230,14 @@ class CTModel(Model):
         """Compute the percent of the total food in the hub."""
         grid = self.grid
         hub_loc = self.hub.location
-        neighbours = grid.get_neighborhood(hub_loc, 10)
+        neighbours = grid.get_neighborhood(hub_loc, self.hub.radius)
         food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+        _, hub_grid = grid.find_grid(hub_loc)
+        for food in self.foods:
+            _, food_grid = grid.find_grid(food.location)
+            if food_grid == hub_grid:
+                food_objects += [food]
+        food_objects = set(food_objects)
         total_food_weights = sum([food.weight for food in food_objects])
         return ((total_food_weights * 1.0) / self.total_food_units) * 100
 
@@ -239,7 +252,7 @@ class EvolveModel(CTModel):
         super(EvolveModel, self).__init__(
             N, width, height, grid, iter, seed, name, viewer)
 
-    def create_agents(self, random_init=False, phenotypes=None):
+    def create_agents(self, random_init=True, phenotypes=None):
         """Initialize agents in the environment."""
         # Create agents
         for i in range(self.num_agents):
@@ -260,13 +273,14 @@ class EvolveModel(CTModel):
                     -self.grid.width / 2, self.grid.width / 2)
                 y = self.random.randint(
                     -self.grid.height / 2, self.grid.height / 2)
-            try:
-                x, y = self.hub.location
-            except AttributeError:
-                x, y = 0, 0
+            else:
+                try:
+                    x, y = self.hub.location
+                except AttributeError:
+                    x, y = 0, 0
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)
-            a.operation_threshold = 2  # self.num_agents // 10
+            # a.operation_threshold = 2  # self.num_agents // 10
             self.agents.append(a)
 
     def behavior_sampling(self, method='ratio', ratio_value=0.2):
@@ -299,16 +313,53 @@ class EvolveModel(CTModel):
             # return [sorted_agents[0].individual[0].phenotype]
             return phenotypes[0]
 
+    def behavior_sampling_objects(self, method='ratio', ratio_value=0.2):
+        """Extract phenotype of the learning agents based on the objects.
+
+        Sort the phenotye based on the overall fitness and then based on the
+        method extract phenotype of the agents.
+        Method can take {'ratio','higest','sample'}
+        """
+        # sorted_agents = sorted(
+        #    self.agents, key=lambda x: x.individual[0].fitness, reverse=True)
+        # phenotypes = dict()
+        # Get the phenotypes collected from the agent
+        phenotypes = self.phenotype_attached_objects()
+
+        for agent in self.agents:
+            phenotypes = {**agent.phenotypes, **phenotypes}
+
+        # Sort the phenotypes
+        phenotypes, _ = zip(
+            *sorted(phenotypes.items(), key=lambda x: (
+                x[1]), reverse=True))
+
+        if method == 'ratio':
+            upper_bound = ratio_value * self.num_agents
+            # selected_agents = self.agents[0:int(upper_bound)]
+            # selected_phenotype = [
+            #    agent.individual[0].phenotype for agent in selected_agents]
+            selected_phenotype = list(phenotypes)[:int(upper_bound)]
+            return selected_phenotype
+        else:
+            # return [sorted_agents[0].individual[0].phenotype]
+            return phenotypes[0]
+
     def phenotype_attached_objects(self):
         """Extract phenotype from the objects."""
-        grid = self.grid
-        hub_loc = self.hub.location
-        neighbours = grid.get_neighborhood(hub_loc, 10)
-        food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
-        phenotypes = []
-        for food in food_objects:
-            phenotypes += list(food.phenotype.values())
-        return list(set(phenotypes))
+        # grid = self.grid
+        # hub_loc = self.hub.location
+        # neighbours = grid.get_neighborhood(hub_loc, 20)
+        # food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+        phenotypes = dict()
+        for food in self.foods:
+            # phenotypes += list(food.phenotype.values())
+            try:
+                phenotypes = {**food.phenotype, ** phenotypes}
+            except (AttributeError, ValueError):
+                pass
+        # print ('phenotypes for attached objects', phenotypes)
+        return phenotypes
 
     def step(self):
         """Step through the environment."""
@@ -330,12 +381,13 @@ class ValidationModel(CTModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="ValidateCTForge", viewer=False):
+            seed=None, name="ValidateCTForge", viewer=False,
+            parent=None, ratio=1.0):
         """Initialize the attributes."""
         super(ValidationModel, self).__init__(
-            N, width, height, grid, iter, seed, name, viewer)
+            N, width, height, grid, iter, seed, name, viewer, parent, ratio)
 
-    def create_agents(self, random_init=True, phenotypes=None):
+    def create_agents(self, random_init=False, phenotypes=None):
         """Initialize agents in the environment."""
         # Variable to tell how many agents will have the same phenotype
         # bound = np.ceil((self.num_agents * 1.0) / len(phenotypes))
@@ -359,10 +411,11 @@ class ValidationModel(CTModel):
                     -self.grid.width / 2, self.grid.width / 2)
                 y = self.random.randint(
                     -self.grid.height / 2, self.grid.height / 2)
-            try:
-                x, y = self.hub.location
-            except AttributeError:
-                x, y = 0, 0
+            else:
+                try:
+                    x, y = self.hub.location
+                except AttributeError:
+                    x, y = 0, 0
 
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)
@@ -378,10 +431,11 @@ class TestModel(CTModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="TestCTForge", viewer=False):
+            seed=None, name="TestCTForge", viewer=False,
+            parent=None, ratio=1.0):
         """Initialize the attributes."""
         super(TestModel, self).__init__(
-            N, width, height, grid, iter, seed, name, viewer)
+            N, width, height, grid, iter, seed, name, viewer, parent, ratio)
 
     def create_agents(self, random_init=False, phenotypes=None):
         """Initialize agents in the environment."""
@@ -404,10 +458,11 @@ class TestModel(CTModel):
                     -self.grid.width / 2, self.grid.width / 2)
                 y = self.random.randint(
                     -self.grid.height / 2, self.grid.height / 2)
-            try:
-                x, y = self.hub.location
-            except AttributeError:
-                x, y = 0, 0
+            else:
+                try:
+                    x, y = self.hub.location
+                except AttributeError:
+                    x, y = 0, 0
 
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)
@@ -449,10 +504,11 @@ class ViewerModel(CTModel):
                     -self.grid.width / 2, self.grid.width / 2)
                 y = self.random.randint(
                     -self.grid.height / 2, self.grid.height / 2)
-            try:
-                x, y = self.hub.location
-            except AttributeError:
-                x, y = 0, 0
+            else:
+                try:
+                    x, y = self.hub.location
+                except AttributeError:
+                    x, y = 0, 0
 
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)
