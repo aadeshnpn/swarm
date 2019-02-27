@@ -12,9 +12,9 @@ MAX_INIT_TREE_DEPTH:    7
 MAX_TREE_DEPTH:         10
 MUTATION:               int_flip_per_codon
 MUTATION_PROBABILITY:   0.1
-FITNESS_FUNCTION:       swarm.bt_diversity
+FITNESS_FUNCTION:       swarm.bt_repetative
 REPLACEMENT:            generational
 SELECTION:              truncation
 VERBOSE:                False
 SILENT:                 True
-COMMUNICATION:          True
+COMMUNICATION:          False

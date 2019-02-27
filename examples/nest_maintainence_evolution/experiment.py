@@ -13,12 +13,13 @@ height = 100
 UI = False
 
 
-def validation_loop(phenotypes, iteration, threshold=10.0):
+def validation_loop(
+        phenotypes, iteration, parentname=None, ratio=1, threshold=10.0):
     """Validate the evolved behaviors."""
     # Create a validation environment instance
     # print('len of phenotype', len(set(phenotypes)))
     valid = ValidationModel(
-        100, width, height, 10, iter=iteration)
+        100, width, height, 10, iter=iteration, parent=parentname, ratio=ratio)
     # Build the environment
     valid.build_environment_from_json()
     # Create the agents in the environment from the sampled behaviors
@@ -95,7 +96,7 @@ def learning_phase(iteration, early_stop=False):
     env.create_agents()
     # Validation Step parameter
     # Run the validation test every these many steps
-    validation_step = 2000
+    validation_step = 6000
 
     # Iterate and execute each step in the environment
     # Take a step i number of step in evolution environment
@@ -105,11 +106,15 @@ def learning_phase(iteration, early_stop=False):
         # Take a step in evolution
         env.step()
         if (i + 1) % validation_step == 0:
-            phenotypes = env.behavior_sampling()
-            # save the phenotype to json file
-            phenotype_to_json(env.pname, env.runid + '-' + str(i), phenotypes)
-            validation_loop(phenotypes, validation_step)
-
+            try:
+                phenotypes = env.behavior_sampling_objects(ratio_value=0.1)
+                # save the phenotype to json file
+                phenotype_to_json(
+                    env.pname, env.runid, phenotypes)
+                validation_loop(
+                    phenotypes, 5000, phenotypes)
+            except ValueError:
+                pass
             # Plot the fitness in the graph
             graph = Graph(
                 env.pname, 'best.csv', [
@@ -126,7 +131,16 @@ def learning_phase(iteration, early_stop=False):
             """
     # Update the experiment table
     env.experiment.update_experiment()
-    return phenotypes
+
+    allphenotypes = env.behavior_sampling_objects(ratio_value=0.99)
+    # save the phenotype to json file
+    phenotype_to_json(
+        env.pname, env.runid + '-' + 'all', allphenotypes)
+    try:
+        # return list(phenotypes.keys())
+        return phenotypes
+    except UnboundLocalError:
+        return None
 
 
 def phenotype_to_json(pname, runid, phenotypes):
@@ -141,7 +155,8 @@ def main(iter):
     phenotypes = learning_phase(iter)
     # learning_phase(iter)
     # Run the evolved behaviors on a test environment
-    test_loop(phenotypes, 2000)
+    if phenotypes is not None:
+        test_loop(phenotypes, 2000)
 
 
 def test_json_phenotype(json):

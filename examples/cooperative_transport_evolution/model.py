@@ -43,7 +43,7 @@ class CTModel(Model):
         # If parent folder exits create inside it
 
         if parent is not None and pathlib.Path(parent).is_dir():
-            self.pname = parent + '/' + self.runid + '-' + str(ratio)
+            self.pname = parent + '/' + self.runid + '-' + str(ratio) + name
         else:
             self.pname = '/'.join(
                 os.getcwd().split('/')[:-2]

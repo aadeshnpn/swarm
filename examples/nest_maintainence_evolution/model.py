@@ -12,14 +12,20 @@ from agent import LearningAgent, ExecutingAgent, TestingAgent  # noqa : F041
 from swarms.lib.objects import (    # noqa : F401
     Hub, Sites, Food, Debris, Obstacles)
 import os
+import pathlib
+from pathlib import Path
 # import imp
 import datetime
 import numpy as np
 
 # filename = os.path.join(imp.find_module("swarms")[1] + "/utils/world.json")
-projectdir = "/home/aadeshnpn/Documents/BYU/hcmi/swarm/examples"
+# projectdir = "/home/aadeshnpn/Documents/BYU/hcmi/swarm/examples"
+# filename = os.path.join(
+#    projectdir + "/nest_maintainence_evolution/world.json")
+
+current_dir = pathlib.Path(__file__).parent
 filename = os.path.join(
-    projectdir + "/nest_maintainence_evolution/world.json")
+    str(current_dir) + "/world.json")
 
 
 class NMModel(Model):
@@ -27,7 +33,8 @@ class NMModel(Model):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name='NM', viewer=False):
+            seed=None, name='NM', viewer=False,
+            parent=None, ratio=1.0):
         """Initialize the attributes."""
         if seed is None:
             super(NMModel, self).__init__(seed=None)
@@ -39,9 +46,12 @@ class NMModel(Model):
         self.runid = str(self.runid).replace('.', '')
 
         # Create the experiment folder
-        self.pname = '/'.join(
-            os.getcwd().split('/')[:-2]
-            ) + '/results/' + self.runid + '-' + str(iter) + name
+        if parent is not None and Path(parent).is_dir():
+            self.pname = parent + '/' + self.runid + '-' + str(ratio)
+        else:
+            self.pname = '/'.join(
+                os.getcwd().split('/')[:-2]
+                ) + '/results/' + self.runid + '-' + str(iter) + name
 
         # Define some parameters to count the step
         self.stepcnt = 1
@@ -127,6 +137,7 @@ class NMModel(Model):
                 d.agent_name = None
                 self.grid.add_object_to_grid(d.location, d)
                 self.total_debris_units += d.weight
+                d.phenotype = dict()
                 self.debris.append(d)
         except KeyError:
             pass
@@ -293,13 +304,14 @@ class EvolveModel(NMModel):
                     -self.grid.width / 2, self.grid.width / 2)
                 y = self.random.randint(
                     -self.grid.height / 2, self.grid.height / 2)
-            try:
-                x, y = self.hub.location
-            except AttributeError:
-                x, y = 0, 0
+            else:
+                try:
+                    x, y = self.hub.location
+                except AttributeError:
+                    x, y = 0, 0
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)
-            a.operation_threshold = 2  # self.num_agents // 10
+            # a.operation_threshold = 2  # self.num_agents // 10
             self.agents.append(a)
 
     def behavior_sampling(self, method='ratio', ratio_value=0.2):
@@ -332,16 +344,49 @@ class EvolveModel(NMModel):
             # return [sorted_agents[0].individual[0].phenotype]
             return phenotypes[0]
 
+    def behavior_sampling_objects(self, method='ratio', ratio_value=0.2):
+        """Extract phenotype of the learning agents based on the objects.
+
+        Sort the phenotye based on the overall fitness and then based on the
+        method extract phenotype of the agents.
+        Method can take {'ratio','higest','sample'}
+        """
+        # sorted_agents = sorted(
+        #    self.agents, key=lambda x: x.individual[0].fitness, reverse=True)
+        # phenotypes = dict()
+        # Get the phenotypes collected from the agent
+        phenotypes = self.phenotype_attached_objects()
+
+        for agent in self.agents:
+            phenotypes = {**agent.phenotypes, **phenotypes}
+
+        # Sort the phenotypes
+        phenotypes, _ = zip(
+            *sorted(phenotypes.items(), key=lambda x: (
+                x[1]), reverse=True))
+
+        if method == 'ratio':
+            upper_bound = ratio_value * self.num_agents
+            # selected_agents = self.agents[0:int(upper_bound)]
+            # selected_phenotype = [
+            #    agent.individual[0].phenotype for agent in selected_agents]
+            selected_phenotype = list(phenotypes)[:int(upper_bound)]
+            return selected_phenotype
+        else:
+            # return [sorted_agents[0].individual[0].phenotype]
+            return phenotypes[0]
+
     def phenotype_attached_objects(self):
         """Extract phenotype from the objects."""
-        grid = self.grid
-        hub_loc = self.hub.location
-        neighbours = grid.get_neighborhood(hub_loc, 10)
-        food_objects = grid.get_objects_from_list_of_grid('Debris', neighbours)
-        phenotypes = []
-        for food in food_objects:
-            phenotypes += list(food.phenotype.values())
-        return list(set(phenotypes))
+        phenotypes = dict()
+        for debri in self.debris:
+            # phenotypes += list(food.phenotype.values())
+            try:
+                phenotypes = {**debri.phenotype, ** phenotypes}
+            except (AttributeError, ValueError):
+                pass
+        # print ('phenotypes for attached objects', phenotypes)
+        return phenotypes
 
     def step(self):
         """Step through the environment."""
@@ -363,10 +408,12 @@ class ValidationModel(NMModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="ValidateNM", viewer=False):
+            seed=None, name="ValidateNM", viewer=False,
+            parent=None, ratio=1.0):
         """Initialize the attributes."""
         super(ValidationModel, self).__init__(
-            N, width, height, grid, iter, seed, name, viewer)
+            N, width, height, grid, iter, seed, name, viewer,
+            parent, ratio)
 
     def create_agents(self, random_init=True, phenotypes=None):
         """Initialize agents in the environment."""
@@ -392,10 +439,11 @@ class ValidationModel(NMModel):
                     -self.grid.width / 2, self.grid.width / 2)
                 y = self.random.randint(
                     -self.grid.height / 2, self.grid.height / 2)
-            try:
-                x, y = self.hub.location
-            except AttributeError:
-                x, y = 0, 0
+            else:
+                try:
+                    x, y = self.hub.location
+                except AttributeError:
+                    x, y = 0, 0
 
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)
@@ -437,10 +485,11 @@ class TestModel(NMModel):
                     -self.grid.width / 2, self.grid.width / 2)
                 y = self.random.randint(
                     -self.grid.height / 2, self.grid.height / 2)
-            try:
-                x, y = self.hub.location
-            except AttributeError:
-                x, y = 0, 0
+            else:
+                try:
+                    x, y = self.hub.location
+                except AttributeError:
+                    x, y = 0, 0
 
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)
@@ -482,10 +531,11 @@ class ViewerModel(NMModel):
                     -self.grid.width / 2, self.grid.width / 2)
                 y = self.random.randint(
                     -self.grid.height / 2, self.grid.height / 2)
-            try:
-                x, y = self.hub.location
-            except AttributeError:
-                x, y = 0, 0
+            else:
+                try:
+                    x, y = self.hub.location
+                except AttributeError:
+                    x, y = 0, 0
 
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)

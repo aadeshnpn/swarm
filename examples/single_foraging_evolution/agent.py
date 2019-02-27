@@ -141,7 +141,7 @@ class LearningAgent(ForagingAgent):
         # Grammatical Evolution part
         from ponyge.algorithm.parameters import Parameters
         parameter = Parameters()
-        parameter_list = ['--parameters', '../..,swarm.txt']
+        parameter_list = ['--parameters', '../..,swarm_sf.txt']
         # Comment when different results is desired.
         # Else set this for testing purpose
         # parameter.params['RANDOM_SEED'] = name

@@ -5,7 +5,7 @@ CROSSOVER_PROBABILITY:  0.9
 DEBUG:                  False
 GENERATIONS:            1000
 MAX_GENOME_LENGTH:      50
-GRAMMAR_FILE:           ../..,bt.bnf
+GRAMMAR_FILE:           ../..,sf.bnf
 INITIALISATION:         uniform_tree
 INVALID_SELECTION:      False
 MAX_INIT_TREE_DEPTH:    7
@@ -17,4 +17,4 @@ REPLACEMENT:            generational
 SELECTION:              truncation
 VERBOSE:                False
 SILENT:                 True
-COMMUNICATION:          True
+COMMUNICATION:          False

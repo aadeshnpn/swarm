@@ -105,7 +105,7 @@ def learning_phase(iteration, early_stop=False):
     for i in range(iteration):
         # Take a step in evolution
         env.step()
-        print (env.stepcnt)
+        # print (env.stepcnt)
         if (i + 1) % validation_step == 0:
             try:
                 phenotypes = env.behavior_sampling_objects(ratio_value=0.1)
@@ -139,9 +139,9 @@ def learning_phase(iteration, early_stop=False):
         env.pname, env.runid + '-' + 'all', allphenotypes)
     try:
         # return list(phenotypes.keys())
-        return phenotypes
+        return phenotypes, env.pname
     except UnboundLocalError:
-        return None
+        return None, None
 
 
 def phenotype_to_json(pname, runid, phenotypes):
@@ -153,11 +153,11 @@ def phenotype_to_json(pname, runid, phenotypes):
 def main(iter):
     """Block for the main function."""
     # Run the evolutionary learning algorithm
-    phenotypes = learning_phase(iter)
+    phenotypes, pname = learning_phase(iter)
     # learning_phase(iter)
     # Run the evolved behaviors on a test environment
     if phenotypes is not None:
-        test_loop(phenotypes, 5000)
+        test_loop(phenotypes, parentname=pname, iteration=5000)
 
 
 def test_json_phenotype(json):
@@ -167,14 +167,14 @@ def test_json_phenotype(json):
     # print (phenotype)
     # phenotype = ' '
     if test_loop(phenotype, 2000):
-        print('foraging success')
+        print('success')
 
 
 if __name__ == '__main__':
     # Running 50 experiments in parallel
     # Parallel(n_jobs=8)(delayed(main)(i) for i in range(2000, 100000, 2000))
     # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 8000, 2000))
-    main(5000)
+    main(8000)
     # json = '1543367322976111-5999.json'
     # test_json_phenotype(json)
-    # Parallel(n_jobs=4)(delayed(main)(8000) for i in range(128))
+    # Parallel(n_jobs=16)(delayed(main)(16000) for i in range(16))
