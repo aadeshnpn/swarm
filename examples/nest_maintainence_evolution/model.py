@@ -181,7 +181,7 @@ class NMModel(Model):
         for id in range(len(self.agents)):
             # diversity[id] = self.agents[id].diversity_fitness
             exploration[id] = self.agents[id].exploration_fitness()
-            foraging[id] = self.agents[id].food_collected
+            foraging[id] = self.agents[id].debris_collected
             fittest[id] = self.agents[id].individual[0].fitness
             prospective[id] = self.agents[id].carrying_fitness()
 
@@ -213,7 +213,7 @@ class NMModel(Model):
         idx = np.argmax(data)
         # dfitness = self.agents[idx].diversity_fitness
         ofitness = self.agents[idx].individual[0].fitness
-        ffitness = self.agents[idx].food_collected
+        ffitness = self.agents[idx].debris_collected
         efitness = self.agents[idx].exploration_fitness()
         pfitness = self.agents[idx].carrying_fitness()
         phenotype = self.agents[idx].individual[0].phenotype

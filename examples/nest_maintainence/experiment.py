@@ -124,7 +124,8 @@ def simulate(env, iteration, N=100):
     threshold = 1.0
 
     sim = SimModel(
-        N, 100, 100, 10, seed=None, iter=iteration, xmlstrings=phenotypes, pname=env[1])
+        N, 100, 100, 10, seed=None, iter=iteration,
+        xmlstrings=phenotypes, pname=env[1])
     sim.build_environment_from_json()
 
     # print(len(sim.obstacles), len(sim.debris))
@@ -181,7 +182,8 @@ def main(iter):
     """Block for the main function."""
     print('=======Start=========')
     # env = evolve(iter)
-    pname = '/home/aadeshnpn/Documents/BYU/hcmi/hri/nest_maint/10000NestMAgents'
+    pname = (
+        '/home/aadeshnpn/Documents/BYU/hcmi/hri/nest_maint/10000NestMAgents')
     jfilename = pname + '/1539014820252.json'
     jdata = JsonPhenotypeData.load_json_file(jfilename)
     phenotypes = jdata['phenotypes']

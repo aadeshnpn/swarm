@@ -7,8 +7,8 @@ from joblib import Parallel, delayed    # noqa : F401
 from swarms.utils.results import SimulationResults
 # import py_trees
 # Global variables for width and height
-width = 100
-height = 100
+width = 200
+height = 200
 
 UI = False
 
@@ -112,7 +112,7 @@ def learning_phase(iteration, early_stop=False):
                 phenotype_to_json(
                     env.pname, env.runid, phenotypes)
                 validation_loop(
-                    phenotypes, 5000, phenotypes)
+                    phenotypes, 5000, parentname=env.pname)
             except ValueError:
                 pass
             # Plot the fitness in the graph
@@ -173,7 +173,7 @@ if __name__ == '__main__':
     # Running 50 experiments in parallel
     # Parallel(n_jobs=8)(delayed(main)(i) for i in range(2000, 100000, 2000))
     # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 8000, 2000))
-    # main(8000)
+    main(8000)
     # json = '1543367322976111-5999.json'
     # test_json_phenotype(json)
-    Parallel(n_jobs=4)(delayed(main)(8000) for i in range(128))
+    # Parallel(n_jobs=4)(delayed(main)(8000) for i in range(128))

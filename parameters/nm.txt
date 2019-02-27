@@ -1,5 +1,5 @@
 CACHE:                  True
-CODON_SIZE:             1000
+CODON_SIZE:             2000
 CROSSOVER:              variable_onepoint
 CROSSOVER_PROBABILITY:  0.9
 DEBUG:                  False
@@ -8,10 +8,10 @@ MAX_GENOME_LENGTH:      50
 GRAMMAR_FILE:           ../..,nm.bnf
 INITIALISATION:         uniform_tree
 INVALID_SELECTION:      False
-MAX_INIT_TREE_DEPTH:    5
-MAX_TREE_DEPTH:         12
+MAX_INIT_TREE_DEPTH:    7
+MAX_TREE_DEPTH:         10
 MUTATION:               int_flip_per_codon
-MUTATION_PROBABILITY:   0.09
+MUTATION_PROBABILITY:   0.1
 FITNESS_FUNCTION:       swarm.bt_diversity
 REPLACEMENT:            generational
 SELECTION:              truncation
