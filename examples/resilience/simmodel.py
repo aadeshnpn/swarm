@@ -15,7 +15,12 @@ import datetime
 import numpy as np
 from swarms.utils.ui import UI
 
-filename = os.path.join(imp.find_module("swarms")[1] + "/utils/world.json")
+import pathlib
+
+current_dir = pathlib.Path(__file__).parent
+filename = os.path.join(
+    str(current_dir) + "/world.json")
+
 
 
 class SimForgModel(Model):
@@ -144,6 +149,7 @@ class SimForgModel(Model):
                 jsondata, obj)
 
         self.hub = self.render.objects['hub'][0]
+        self.obstacles = self.render.objects['obstacles']
         try:
             self.site = self.render.objects['sites'][0]
             self.foods = []

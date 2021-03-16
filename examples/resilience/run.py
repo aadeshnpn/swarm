@@ -16,7 +16,7 @@ def main():
 
     # Create a test environment to visualize
     env = SimForgModel(
-        width, height, 100, 10, iter=iteration, xmlstrings=[123], pname='/tmp/', viewer=True)
+        50, width, height, 10, iter=iteration, xmlstrings=[123], pname='/tmp/', viewer=True)
     env.build_environment_from_json()
 
     # for all agents store the information about hub
@@ -26,7 +26,7 @@ def main():
     # Overiding the default viewer properties
     env.ui = UI(
         (width, height), [env.hub], env.agents,
-        [env.site], food=env.foods, traps=env.traps)
+        [env.site], food=env.foods, traps=env.traps, obstacles=env.obstacles)
     
     # Iterate and execute each step in the environment
     for i in range(iteration):
