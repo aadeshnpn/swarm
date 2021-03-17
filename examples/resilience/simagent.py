@@ -11,12 +11,12 @@ import py_trees
 
 from swarms.behaviors.sbehaviors import (
     NeighbourObjects, IsVisitedBefore,
-    IsCarrying, IsInPartialAttached
+    IsCarrying, IsInPartialAttached, ObjectsOnGrid
     )
 
 from swarms.behaviors.scbehaviors import (
     CompositeDrop, CompositeSingleCarry, MoveTowards,
-    Explore, CompositeDropPartial, CompositeMultipleCarry
+    Explore, CompositeDropPartial, CompositeMultipleCarry, AgentDead
 )
 
 # import py_trees
@@ -71,12 +71,15 @@ class SimForgAgent(Agent):
 
         dseq.add_children([neighhub, drop])
 
-        ## Obstacles and Trap
-        # neighobst = NeighbourObjects('NeighbourObjects_Obstacles')
+        # ## Obstacles and Trap
+        # neighobst = ObjectsOnGrid('ObjectsOnGrid_Obstacles')
         # neighobst.setup(0, self, 'Obstacles')
 
-        # neightrap = NeighbourObjects('NeighbourObjects_Traps')
+        # neightrap = ObjectsOnGrid('NeighbourObjects_Traps')
         # neightrap.setup(0, self, 'Traps')
+
+        adead = AgentDead('Adead')
+        adead.setup(0, self)
 
         # Carry branch
         cseq = py_trees.composites.Sequence('CSequence')
@@ -107,7 +110,7 @@ class SimForgAgent(Agent):
         gotosite.setup(0, self, 'Sites')
 
         # siteseq.add_children([neighobst, neightrap, sitefound, invcarrying, gotosite])        
-        siteseq.add_children([sitefound, invcarrying, gotosite])
+        siteseq.add_children([sitefound, invcarrying, gotosite, adead])
         # siteseq.add_children([invcarrying])
 
         # Move to hub
@@ -117,7 +120,7 @@ class SimForgAgent(Agent):
         gotohub.setup(0, self, 'Hub')
 
         # hubseq.add_children([neighobst, neightrap, iscarrying, gotohub])
-        hubseq.add_children([iscarrying, gotohub])        
+        hubseq.add_children([iscarrying, gotohub, adead])        
 
         sitenotfound = py_trees.meta.inverter(IsVisitedBefore)(
             'IsVisitedBefore_Sites')

@@ -1329,7 +1329,7 @@ class IsPassable(Behaviour):
         """Check passable property."""
         try:
             objects = ObjectsStore.find(
-                self.blackboard.shared_content, self.agent.shared_content,
+                self.blackboard.shared_content, dict(),
                 self.thing, self.agent.name)[0]
             if objects.passable:
                 return Status.SUCCESS
@@ -1362,27 +1362,27 @@ class IsDeathable(Behaviour):
         """Check deathable property."""
         try:
             objects = ObjectsStore.find(
-                self.blackboard.shared_content, self.agent.shared_content,
+                self.blackboard.shared_content, dict(),
                 self.thing, self.agent.name)[0]
             if objects.deathable:
                 return Status.SUCCESS
             else:
                 return Status.FAILURE
         except (AttributeError, IndexError):
-            return Status.FAILURE     
+            return Status.FAILURE  
 
 
-# Behavior to make an agent dead after falling into trap
-class AgentDead(Behaviour):
-    """Make the agent dead deathable attribute of the item."""
+# Behavior to check deathable attribute of an object
+class IsAgentDead(Behaviour):
+    """Check if agent is dead."""
 
     def __init__(self, name):
         """Initialize."""
-        super(IsDeathable, self).__init__(name)
+        super(IsAgentDead, self).__init__(name)
         self.blackboard = Blackboard()
         self.blackboard.shared_content = dict()
 
-    def setup(self, timeout, agent, thing):
+    def setup(self, timeout, agent, thing=None):
         """Setup."""
         self.agent = agent
         self.thing = thing
@@ -1394,12 +1394,34 @@ class AgentDead(Behaviour):
     def update(self):
         """Check deathable property."""
         try:
-            objects = ObjectsStore.find(
-                self.blackboard.shared_content, self.agent.shared_content,
-                self.thing, self.agent.name)[0]
-            if objects.deathable:
+            if self.agent.dead:
                 return Status.SUCCESS
             else:
                 return Status.FAILURE
         except (AttributeError, IndexError):
-            return Status.FAILURE                    
+            return Status.FAILURE                 
+
+
+# Behavior to make an agent dead after falling into trap
+class MakeAgentDead(Behaviour):
+    """Make the agent dead deathable attribute of the item."""
+
+    def __init__(self, name):
+        """Initialize."""
+        super(MakeAgentDead, self).__init__(name)
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+
+    def setup(self, timeout, agent, thing=None):
+        """Setup."""
+        self.agent = agent
+        self.thing = thing
+
+    def initialise(self):
+        """Pass."""
+        pass
+
+    def update(self):
+        """Check deathable property."""
+        self.agent.dead = True
+        return Status.SUCCESS

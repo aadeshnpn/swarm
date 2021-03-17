@@ -19,7 +19,8 @@ from swarms.behaviors.sbehaviors import (
     IsMultipleCarry, IsInPartialAttached, IsEnoughStrengthToCarry,
     InitiateMultipleCarry, IsCarrying, Drop, RandomWalk, DropPartial,
     SignalDoesNotExists, SendSignal, NeighbourObjects, ReceiveSignal,
-    CueDoesNotExists, DropCue, PickCue, IsPassable, IsDeathable
+    CueDoesNotExists, DropCue, PickCue, IsPassable, IsDeathable, 
+    IsAgentDead, ObjectsOnGrid, MakeAgentDead
     )
 
 # Start of mid-level behaviors. These behaviors are the
@@ -55,6 +56,11 @@ class MoveTowards(Behaviour):
         """
         self.agent = agent
         self.item = item
+
+        # Check if agent is dead
+        adead = inverter(IsAgentDead)('MT_IsAgentDead_0')
+        adead.setup(0, self.agent, None)
+
         # Define goto primitive behavior
         goto = GoTo('MT_GOTO_1')
         goto.setup(0, self.agent, self.item)
@@ -77,7 +83,7 @@ class MoveTowards(Behaviour):
 
         # Define a sequence to combine the primitive behavior
         mt_sequence = Sequence('MT_SEQUENCE')
-        mt_sequence.add_children([goto, towards, passable, deathable, move])
+        mt_sequence.add_children([adead, goto, towards, passable, deathable, move])
 
         self.behaviour_tree = BehaviourTree(mt_sequence)
 
@@ -119,6 +125,11 @@ class MoveAway(Behaviour):
         """
         self.agent = agent
         self.item = item
+
+        # Check if agent is dead
+        adead = inverter(IsAgentDead)('MT_IsAgentDead_0')
+        adead.setup(0, self.agent, None)
+
         # Define goto primitive behavior
         goto = GoTo('MA_GOTO_1')
         goto.setup(0, self.agent, self.item)
@@ -141,7 +152,7 @@ class MoveAway(Behaviour):
 
         # Define a sequence to combine the primitive behavior
         mt_sequence = Sequence('MA_SEQUENCE')
-        mt_sequence.add_children([goto, away, passable, deathable, move])
+        mt_sequence.add_children([adead, goto, away, passable, deathable, move])
 
         self.behaviour_tree = BehaviourTree(mt_sequence)
 
@@ -185,6 +196,10 @@ class CompositeSingleCarry(Behaviour):
         self.agent = agent
         self.item = item
 
+        # Check if agent is dead
+        adead = inverter(IsAgentDead)('MT_IsAgentDead_0')
+        adead.setup(0, self.agent, None)
+
         # First check if the item is carrable?
         carryable = IsCarryable('SC_IsCarryable_1')
         carryable.setup(0, self.agent, self.item)
@@ -199,7 +214,7 @@ class CompositeSingleCarry(Behaviour):
 
         # Define a sequence to combine the primitive behavior
         sc_sequence = Sequence('SC_SEQUENCE')
-        sc_sequence.add_children([carryable, issinglecarry, singlecarry])
+        sc_sequence.add_children([adead, carryable, issinglecarry, singlecarry])
 
         self.behaviour_tree = BehaviourTree(sc_sequence)
 
@@ -242,6 +257,10 @@ class CompositeMultipleCarry(Behaviour):
         """
         self.agent = agent
         self.item = item
+
+        # Check if agent is dead
+        adead = inverter(IsAgentDead)('MT_IsAgentDead_0')
+        adead.setup(0, self.agent, None)
 
         # Root node from the multiple carry behavior tree
         root = Sequence("MC_Sequence")
@@ -288,7 +307,7 @@ class CompositeMultipleCarry(Behaviour):
         attached before. Finally, check if there are enought agents/strenght
         to lift the object up.
         """
-        root.add_children([carryable, sequence_branch])
+        root.add_children([adead, carryable, sequence_branch])
         self.behaviour_tree = BehaviourTree(root)
 
     def initialise(self):
@@ -331,6 +350,10 @@ class CompositeDrop(Behaviour):
         self.agent = agent
         self.item = item
 
+        # Check if agent is dead
+        adead = inverter(IsAgentDead)('MT_IsAgentDead_0')
+        adead.setup(0, self.agent, None)
+
         dropseq = Sequence('CD_Sequence')
 
         iscarrying = IsCarrying('CD_IsCarrying')
@@ -339,7 +362,7 @@ class CompositeDrop(Behaviour):
         drop = Drop('CD_Drop')
         drop.setup(0, self.agent, self.item)
 
-        dropseq.add_children([iscarrying, drop])
+        dropseq.add_children([adead, iscarrying, drop])
 
         self.behaviour_tree = BehaviourTree(dropseq)
 
@@ -383,6 +406,10 @@ class CompositeDropPartial(Behaviour):
         self.agent = agent
         self.item = item
 
+        # Check if agent is dead
+        adead = inverter(IsAgentDead)('MT_IsAgentDead_0')
+        adead.setup(0, self.agent, None)
+
         dropseq = Sequence('CDP_Sequence')
 
         iscarrying = IsInPartialAttached('CDP_IsInPartial')
@@ -391,7 +418,7 @@ class CompositeDropPartial(Behaviour):
         drop = DropPartial('CDP_DropPartial')
         drop.setup(0, self.agent, self.item)
 
-        dropseq.add_children([iscarrying, drop])
+        dropseq.add_children([aded, iscarrying, drop])
 
         self.behaviour_tree = BehaviourTree(dropseq)
 
@@ -434,6 +461,10 @@ class Explore(Behaviour):
         self.agent = agent
         self.item = item
 
+        # Check if agent is dead
+        adead = inverter(IsAgentDead)('MT_IsAgentDead_0')
+        adead.setup(0, self.agent, None)
+
         # Define the root for the BT
         root = Sequence("Ex_Sequence")
 
@@ -448,11 +479,13 @@ class Explore(Behaviour):
         deathable = inverter(IsDeathable)('Ex_Deathable')        
         deathable.setup(0, self.agent, 'Traps')
 
-
         high = Move('Ex_Move')
         high.setup(0, self.agent)
 
-        root.add_children([low, passable, deathable, high])
+        chkdead = AgentDead('Adead')
+        chkdead.setup(0, self.agent)
+
+        root.add_children([adead, low, passable, deathable, high, chkdead])
 
         self.behaviour_tree = BehaviourTree(root)
 
@@ -497,6 +530,10 @@ class CompositeSendSignal(Behaviour):
         self.agent = agent
         self.item = item
 
+        # Check if agent is dead
+        adead = inverter(IsAgentDead)('MT_IsAgentDead_0')
+        adead.setup(0, self.agent, None)
+
         # Define the root for the BT
         root = Sequence('CSS_Sequence')
 
@@ -506,7 +543,7 @@ class CompositeSendSignal(Behaviour):
         s2 = SendSignal('CSS_SendSignal')
         s2.setup(0, self.agent, self.item)
 
-        root.add_children([s1, s2])
+        root.add_children([adead, s1, s2])
 
         self.behaviour_tree = BehaviourTree(root)
 
@@ -549,6 +586,10 @@ class CompositeReceiveSignal(Behaviour):
         self.agent = agent
         self.item = item
 
+        # Check if agent is dead
+        adead = inverter(IsAgentDead)('MT_IsAgentDead_0')
+        adead.setup(0, self.agent, None)
+
         # Define the root for the BT
         root = Sequence('CRS_Sequence')
 
@@ -558,7 +599,7 @@ class CompositeReceiveSignal(Behaviour):
         s2 = ReceiveSignal('CRS_ReceiveSignal')
         s2.setup(0, self.agent, 'Signal')
 
-        root.add_children([s1, s2])
+        root.add_children([adead, s1, s2])
 
         self.behaviour_tree = BehaviourTree(root)
 
@@ -601,6 +642,10 @@ class CompositeDropCue(Behaviour):
         self.agent = agent
         self.item = item
 
+        # Check if agent is dead
+        adead = inverter(IsAgentDead)('MT_IsAgentDead_0')
+        adead.setup(0, self.agent, None)
+
         # Define the root for the BT
         root = Sequence('CDC_Sequence')
 
@@ -610,7 +655,7 @@ class CompositeDropCue(Behaviour):
         c2 = DropCue('CDC_DropCue')
         c2.setup(0, self.agent, self.item)
 
-        root.add_children([c1, c2])
+        root.add_children([adead, c1, c2])
 
         self.behaviour_tree = BehaviourTree(root)
 
@@ -653,6 +698,10 @@ class CompositePickCue(Behaviour):
         self.agent = agent
         self.item = item
 
+        # Check if agent is dead
+        adead = inverter(IsAgentDead)('MT_IsAgentDead_0')
+        adead.setup(0, self.agent, None)
+
         # Define the root for the BT
         root = Sequence('CPC_Sequence')
 
@@ -662,7 +711,7 @@ class CompositePickCue(Behaviour):
         c2 = PickCue('CPS_PickCue')
         c2.setup(0, self.agent, 'Cue')
 
-        root.add_children([c1, c2])
+        root.add_children([adead, c1, c2])
 
         self.behaviour_tree = BehaviourTree(root)
 
@@ -677,3 +726,55 @@ class CompositePickCue(Behaviour):
         """
         self.behaviour_tree.tick()
         return self.behaviour_tree.root.status
+
+
+class AgentDead(Behaviour):
+    """Make agent dead if in contact with deathable objects.
+
+    Inherits the Behaviors class from py_trees. This
+    behavior combines the privitive behaviors to succesfully make the agent dead.
+    """
+
+    def __init__(self, name):
+        """Init method for the SendSignal behavior."""
+        super(AgentDead, self).__init__(name)
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+
+    def setup(self, timeout, agent, item=None):
+        """Have defined the setup method.
+
+        This method defines the other objects required for the
+        behavior. Agent is the actor in the environment,
+        Item should have deathable attribute.
+        """
+        self.agent = agent
+        self.item = item
+
+        # Define the root for the BT
+        root = Sequence('AD_Sequence')
+
+        c1 = ObjectsOnGrid('AD_SearchDeathable')
+        c1.setup(0, self.agent, 'Traps')
+
+        c2 = IsDeathable('AD_IsDeathable')
+        c2.setup(0, self.agent, 'Traps')
+
+        c3 = MakeAgentDead('AD_MakeDead')
+        c3.setup(0, self.agent, None)
+
+        root.add_children([c1, c2, c3])
+
+        self.behaviour_tree = BehaviourTree(root)
+
+    def initialise(self):
+        """Everytime initialization. Not required for now."""
+        pass
+
+    def update(self):
+        """Just call the tick method for the sequence.
+
+        This will execute the primitive behaviors defined in the sequence
+        """
+        self.behaviour_tree.tick()
+        return self.behaviour_tree.root.status        
