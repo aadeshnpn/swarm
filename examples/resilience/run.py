@@ -5,8 +5,8 @@ from swarms.utils.jsonhandler import JsonPhenotypeData
 from swarms.utils.ui import UI
 # from joblib import Parallel, delayed
 # Global variables for width and height
-width = 400
-height = 400
+width = 1200
+height = 800
 viewer = True
 
 
@@ -16,7 +16,7 @@ def main():
 
     # Create a test environment to visualize
     env = SimForgModel(
-        50, width, height, 10, iter=iteration, xmlstrings=[123], pname='/tmp/', viewer=True)
+        50, width, height, 5, iter=iteration, xmlstrings=[123], pname='/tmp/', viewer=True)
     env.build_environment_from_json()
 
     # for all agents store the information about hub

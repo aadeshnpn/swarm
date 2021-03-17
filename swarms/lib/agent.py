@@ -43,6 +43,7 @@ class Agent:
         self.attached_objects = []
         self.partial_attached_objects = []
         self.signals = []
+        self.dead = False
 
     def step(self):
         """Represent a single step of the agent."""

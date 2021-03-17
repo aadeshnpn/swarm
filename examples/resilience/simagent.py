@@ -71,6 +71,13 @@ class SimForgAgent(Agent):
 
         dseq.add_children([neighhub, drop])
 
+        ## Obstacles and Trap
+        # neighobst = NeighbourObjects('NeighbourObjects_Obstacles')
+        # neighobst.setup(0, self, 'Obstacles')
+
+        # neightrap = NeighbourObjects('NeighbourObjects_Traps')
+        # neightrap.setup(0, self, 'Traps')
+
         # Carry branch
         cseq = py_trees.composites.Sequence('CSequence')
 
@@ -99,6 +106,7 @@ class SimForgAgent(Agent):
         gotosite = MoveTowards('MoveTowards_Sites')
         gotosite.setup(0, self, 'Sites')
 
+        # siteseq.add_children([neighobst, neightrap, sitefound, invcarrying, gotosite])        
         siteseq.add_children([sitefound, invcarrying, gotosite])
         # siteseq.add_children([invcarrying])
 
@@ -108,7 +116,8 @@ class SimForgAgent(Agent):
         gotohub = MoveTowards('MoveTowards_Hub')
         gotohub.setup(0, self, 'Hub')
 
-        hubseq.add_children([iscarrying, gotohub])
+        # hubseq.add_children([neighobst, neightrap, iscarrying, gotohub])
+        hubseq.add_children([iscarrying, gotohub])        
 
         sitenotfound = py_trees.meta.inverter(IsVisitedBefore)(
             'IsVisitedBefore_Sites')
@@ -118,7 +127,8 @@ class SimForgAgent(Agent):
         explore.setup(0, self)
 
         randwalk = py_trees.composites.Sequence('Randwalk')
-        randwalk.add_children([sitenotfound, explore])
+        # randwalk.add_children([neighobst, neightrap, sitenotfound, explore])
+        randwalk.add_children([sitenotfound, explore])        
 
         locoselect = py_trees.composites.Selector('Move')
         locoselect.add_children([siteseq, hubseq, explore])

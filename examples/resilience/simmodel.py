@@ -150,6 +150,7 @@ class SimForgModel(Model):
 
         self.hub = self.render.objects['hub'][0]
         self.obstacles = self.render.objects['obstacles']
+        self.traps = self.render.objects['traps']        
         try:
             self.site = self.render.objects['sites'][0]
             self.foods = []
@@ -163,19 +164,19 @@ class SimForgModel(Model):
             pass
 
         # Add trap
-        try:
-            x,y = self.site.location
-            x = self.random.randint(x+20, x+40)
-            y = self.random.randint(y+20, y+40)
-            # print(self.site.location, x, y)
-            self.traps = []
-            f = Traps(
-                i, location=(x,y), radius=self.site.radius)
-            f.agent_name = None
-            self.grid.add_object_to_grid(f.location, f)
-            self.traps.append(f)
-        except KeyError:
-            pass
+        # try:
+        #     # x,y = self.site.location
+        #     # x = self.random.randint(x+20, x+40)
+        #     # y = self.random.randint(y+20, y+40)
+        #     # # print(self.site.location, x, y)
+        #     # self.traps = []
+        #     # f = Traps(
+        #     #     i, location=(x,y), radius=20)
+        #     # f.agent_name = None
+        #     # self.grid.add_object_to_grid(f.location, f)
+        #     # self.traps.append(f)
+        # except KeyError:
+        #     pass
 
         if self.viewer:
             self.ui = UI(

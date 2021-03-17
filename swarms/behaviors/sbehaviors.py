@@ -98,7 +98,8 @@ class NeighbourObjects(Behaviour):
                 # Is the item is not carrable, its location
                 # and property doesnot change. So we can commit its
                 # information to memory
-                if item.carryable is False:
+                # if (item.carryable is False and item.passable is True and item.deathable is False):
+                if (item.carryable is False):                
                     try:
                         self.agent.shared_content[name].add(item)
                     except KeyError:
@@ -109,6 +110,81 @@ class NeighbourObjects(Behaviour):
                         self.blackboard.shared_content[name].add(item)
                     except KeyError:
                         self.blackboard.shared_content[name] = {item}
+            return Status.SUCCESS
+        else:
+            return Status.FAILURE
+
+
+
+class ObjectsOnGrid(Behaviour):
+    """Localized sense behavior for the agents.
+
+    Inherits the Behaviors class from py_trees. This
+    behavior implements the localized sense function for the agents. This allows
+    the agents to sense objects in the grid the agent is in.
+    """
+
+    def __init__(self, name):
+        """Init method for the sense behavior."""
+        super(ObjectsOnGrid, self).__init__(name)
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+
+    def setup(self, timeout, agent, item=None):
+        """Have defined the setup method.
+
+        This method defines the other objects required for the
+        behavior. Agent is the actor in the environment,
+        item is the name of the item we are trying to find in the
+        environment and timeout defines the execution time for the
+        behavior.
+        """
+        self.agent = agent
+        self.item = item
+
+    def initialise(self):
+        """Everytime initialization. Not required for now."""
+        pass
+
+    def receive_signals(self):
+        """Receive signals from other agents.
+
+        Since this is the primary behavior for the agents to sense
+        the environment, we include the receive signal method here.
+        The agents will be able to
+        sense the environment and check if
+        it receives any signals from other agents.
+        """
+
+    def update(self):
+        """
+        Sense the neighborhood.
+
+        This method gets the grid values based on the current location and
+        radius. The grids are used to search the environment. If the agents
+        find any objects, it is stored in the behavior tree blackboard which
+        is a dictionary with sets as values.
+        """
+        grids = self.agent.model.grid.get_neighborhood(
+            self.agent.location, self.agent.model.grid.grid_size)
+
+        objects = self.agent.model.grid.get_objects_from_list_of_grid(
+            self.item, grids)
+        
+        # Need to reset blackboard contents after each sense
+        self.blackboard.shared_content = dict()
+
+        if len(objects) >= 1:
+            for item in objects:
+                name = type(item).__name__
+                # Is the item is not carrable, its location
+                # and property doesnot change. So we can commit its
+                # information to memory
+                name = name + str(self.agent.name)
+                try:
+                    self.blackboard.shared_content[name].add(item)
+                except KeyError:
+                    self.blackboard.shared_content[name] = {item}
             return Status.SUCCESS
         else:
             return Status.FAILURE
@@ -1294,3 +1370,36 @@ class IsDeathable(Behaviour):
                 return Status.FAILURE
         except (AttributeError, IndexError):
             return Status.FAILURE     
+
+
+# Behavior to make an agent dead after falling into trap
+class AgentDead(Behaviour):
+    """Make the agent dead deathable attribute of the item."""
+
+    def __init__(self, name):
+        """Initialize."""
+        super(IsDeathable, self).__init__(name)
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+
+    def setup(self, timeout, agent, thing):
+        """Setup."""
+        self.agent = agent
+        self.thing = thing
+
+    def initialise(self):
+        """Pass."""
+        pass
+
+    def update(self):
+        """Check deathable property."""
+        try:
+            objects = ObjectsStore.find(
+                self.blackboard.shared_content, self.agent.shared_content,
+                self.thing, self.agent.name)[0]
+            if objects.deathable:
+                return Status.SUCCESS
+            else:
+                return Status.FAILURE
+        except (AttributeError, IndexError):
+            return Status.FAILURE                    

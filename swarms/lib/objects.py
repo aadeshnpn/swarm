@@ -38,7 +38,7 @@ class Sites(EnvironmentObject):
         super().__init__(id, location, radius)
         self.q_value = q_value
         self.carryable = False
-        self.passable = True
+        self.passable = False
 
 
 # Class to define source object
@@ -54,7 +54,7 @@ class Source(EnvironmentObject):
         # self.food_units = self.q_value * 1000
         self.food_units = food_units
         self.carryable = False
-        self.passable = True
+        self.passable = False
 
 
 # Class to define obstacle
@@ -88,6 +88,8 @@ class Carryable(EnvironmentObject):
         self.motion = False
         self.agents = dict()
         self.direction = 0
+        self.passable = False
+        self.deathable = False
 
     def calc_relative_weight(self):
         """Compute relative weight of the object."""
