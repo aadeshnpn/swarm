@@ -11,7 +11,8 @@ class EnvironmentObject:
         self.id = id
         self.location = location
         self.radius = radius
-
+        self.passable = False
+        self.deathable = False
 
 # Class to define hub object
 class Hub(EnvironmentObject):
@@ -22,6 +23,7 @@ class Hub(EnvironmentObject):
         super().__init__(id, location, radius)
         self.carryable = False
         self.dropable = True
+        self.passable = True
 
 
 # Class to define site object
@@ -36,6 +38,7 @@ class Sites(EnvironmentObject):
         super().__init__(id, location, radius)
         self.q_value = q_value
         self.carryable = False
+        self.passable = True
 
 
 # Class to define source object
@@ -51,6 +54,7 @@ class Source(EnvironmentObject):
         # self.food_units = self.q_value * 1000
         self.food_units = food_units
         self.carryable = False
+        self.passable = True
 
 
 # Class to define obstacle
@@ -63,6 +67,7 @@ class Obstacles(EnvironmentObject):
         self.potential_field = None
         self.carryable = False
         self.dropable = True
+        self.passable = False
 
 
 # Class to define carryable property
@@ -175,6 +180,8 @@ class Traps(EnvironmentObject):
         """Initialize."""
         super().__init__(id, location, radius)
         self.carryable = False
+        self.passable = False
+        self.deathable = True
 
 
 # Class to define Food

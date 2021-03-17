@@ -1224,3 +1224,73 @@ class PickCue(Behaviour):
             return Status.SUCCESS
         except (IndexError, AttributeError):
             return Status.FAILURE
+
+
+
+# Start of Obstacles and Trap related behaviors
+
+
+# Behavior to check passable attribute of an object
+class IsPassable(Behaviour):
+    """Check passable attribute of the item."""
+
+    def __init__(self, name):
+        """Initialize."""
+        super(IsPassable, self).__init__(name)
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+
+    def setup(self, timeout, agent, thing):
+        """Setup."""
+        self.agent = agent
+        self.thing = thing
+
+    def initialise(self):
+        """Pass."""
+        pass
+
+    def update(self):
+        """Check passable property."""
+        try:
+            objects = ObjectsStore.find(
+                self.blackboard.shared_content, self.agent.shared_content,
+                self.thing, self.agent.name)[0]
+            if objects.passable:
+                return Status.SUCCESS
+            else:
+                return Status.FAILURE
+        except (AttributeError, IndexError):
+            return Status.SUCCESS
+
+
+# Behavior to check deathable attribute of an object
+class IsDeathable(Behaviour):
+    """Check deathable attribute of the item."""
+
+    def __init__(self, name):
+        """Initialize."""
+        super(IsDeathable, self).__init__(name)
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+
+    def setup(self, timeout, agent, thing):
+        """Setup."""
+        self.agent = agent
+        self.thing = thing
+
+    def initialise(self):
+        """Pass."""
+        pass
+
+    def update(self):
+        """Check deathable property."""
+        try:
+            objects = ObjectsStore.find(
+                self.blackboard.shared_content, self.agent.shared_content,
+                self.thing, self.agent.name)[0]
+            if objects.deathable:
+                return Status.SUCCESS
+            else:
+                return Status.FAILURE
+        except (AttributeError, IndexError):
+            return Status.FAILURE     

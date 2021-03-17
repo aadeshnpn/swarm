@@ -12,13 +12,14 @@ feature rich behaviors.
 from py_trees import Behaviour, Blackboard
 from py_trees.composites import Sequence, Selector
 from py_trees.trees import BehaviourTree
+from py_trees.meta import inverter
 from swarms.behaviors.sbehaviors import (
     GoTo, Towards, Move, Away,
     IsCarryable, IsSingleCarry, SingleCarry,
     IsMultipleCarry, IsInPartialAttached, IsEnoughStrengthToCarry,
     InitiateMultipleCarry, IsCarrying, Drop, RandomWalk, DropPartial,
     SignalDoesNotExists, SendSignal, NeighbourObjects, ReceiveSignal,
-    CueDoesNotExists, DropCue, PickCue
+    CueDoesNotExists, DropCue, PickCue, IsPassable, IsDeathable
     )
 
 # Start of mid-level behaviors. These behaviors are the
@@ -62,13 +63,21 @@ class MoveTowards(Behaviour):
         towards = Towards('MT_TOWARDS_2')
         towards.setup(0, self.agent)
 
+        # Only move if its passable
+        passable = IsPassable('MT_Passable_3')
+        passable.setup(0, self.agent, 'Obstacles')
+
+        # Only move if its not deathable 
+        deathable = inverter(IsDeathable)('MT_Deathable_4')        
+        deathable.setup(0, self.agent, 'Traps')
+
         # Define move behavior
-        move = Move('MT_MOVE_3')
+        move = Move('MT_MOVE_5')
         move.setup(0, self.agent)
 
         # Define a sequence to combine the primitive behavior
         mt_sequence = Sequence('MT_SEQUENCE')
-        mt_sequence.add_children([goto, towards, move])
+        mt_sequence.add_children([goto, towards, passable, deathable, move])
 
         self.behaviour_tree = BehaviourTree(mt_sequence)
 
@@ -118,13 +127,21 @@ class MoveAway(Behaviour):
         away = Away('MA_Away_2')
         away.setup(0, self.agent)
 
+        # Only move if its passable
+        passable = IsPassable('MT_Passable_3')
+        passable.setup(0, self.agent, 'Obstacles')
+
+        # Only move if its not deathable 
+        deathable = inverter(IsDeathable)('MT_Deathable_4')        
+        deathable.setup(0, self.agent, 'Traps')
+
         # Define move behavior
-        move = Move('MA_MOVE_3')
+        move = Move('MA_MOVE_5')
         move.setup(0, self.agent)
 
         # Define a sequence to combine the primitive behavior
         mt_sequence = Sequence('MA_SEQUENCE')
-        mt_sequence.add_children([goto, away, move])
+        mt_sequence.add_children([goto, away, passable, deathable, move])
 
         self.behaviour_tree = BehaviourTree(mt_sequence)
 
@@ -423,10 +440,19 @@ class Explore(Behaviour):
         low = RandomWalk('Ex_RandomWalk')
         low.setup(0, self.agent)
 
+        # Only move if its passable
+        passable = IsPassable('Ex_Passable')
+        passable.setup(0, self.agent, 'Obstacles')
+
+        # Only move if its not deathable 
+        deathable = inverter(IsDeathable)('Ex_Deathable')        
+        deathable.setup(0, self.agent, 'Traps')
+
+
         high = Move('Ex_Move')
         high.setup(0, self.agent)
 
-        root.add_children([low, high])
+        root.add_children([low, passable, deathable, high])
 
         self.behaviour_tree = BehaviourTree(root)
 
