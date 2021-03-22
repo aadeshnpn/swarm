@@ -48,7 +48,7 @@ def simulate_forg(env, iteration):
     threshold = 1.0
 
     sim = SimForgModel(
-        100, 100, 100, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1], viewer=True)
+        50, 200, 200, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1], viewer=False)
     sim.build_environment_from_json()
 
     # for all agents store the information about hub
@@ -61,7 +61,7 @@ def simulate_forg(env, iteration):
         phenotypes[0]
         )
 
-    simresults.save_phenotype()
+    # simresults.save_phenotype()
     simresults.save_to_file()
 
     # Iterate and execute each step in the environment
@@ -80,8 +80,8 @@ def simulate_forg(env, iteration):
             )
         simresults.save_to_file()
 
-    # print ('food at site', len(sim.food_in_loc(sim.site.location)))
-    # print ('food at hub', len(sim.food_in_loc(sim.hub.location)))
+    print ('food at site', len(sim.food_in_loc(sim.site.location)))
+    print ('food at hub', len(sim.food_in_loc(sim.hub.location)))
     # print("Total food in the hub", len(food_objects))
 
     # food_objects = sim.food_in_loc(sim.hub.location)
@@ -99,8 +99,8 @@ def simulate_forg(env, iteration):
     # sim.experiment.update_experiment_simulation(foraging_percent, sucess)
 
     # Plot the fitness in the graph
-    graph = GraphACC(sim.pname, 'simulation.csv')
-    graph.gen_plot()
+    # graph = GraphACC(sim.pname, 'simulation.csv')
+    # graph.gen_plot()
 
 
 def main(iter):
