@@ -149,8 +149,9 @@ class SimForgModel(Model):
                 jsondata, obj)
 
         self.hub = self.render.objects['hub'][0]
-        self.obstacles = self.render.objects['obstacles']
-        self.traps = self.render.objects['traps']        
+        self.obstacles = self.render.objects['obstacles'][0]
+        # print(self.obstacles.passable)
+        self.traps = self.render.objects['traps'][0]        
         try:
             self.site = self.render.objects['sites'][0]
             self.foods = []

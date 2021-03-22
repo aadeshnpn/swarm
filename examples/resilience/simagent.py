@@ -53,6 +53,9 @@ class SimForgAgent(Agent):
 
         # self.bt.xmlstring = xmlstring
         # self.bt.construct()
+        # 
+        # neighobst = NeighbourObjects('NeighbourObjects_Obstacles')
+        # neighobst.setup(0, self, 'Obstacles')
 
         # Drop branch
         dseq = py_trees.composites.Sequence('DSequence')

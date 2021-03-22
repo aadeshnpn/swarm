@@ -70,8 +70,11 @@ class MoveTowards(Behaviour):
         towards.setup(0, self.agent)
 
         # Only move if its passable
-        passable = IsPassable('MT_Passable_3')
-        passable.setup(0, self.agent, 'Obstacles')
+        # passable = IsPassable('MT_Passable_3')
+        # passable.setup(0, self.agent, 'Obstacles')
+        passable = ObstacleStuck('MT_Passable_3')
+        passable.setup(0, self.agent, 'Obstacles')        
+
 
         # Only move if its not deathable 
         deathable = inverter(IsDeathable)('MT_Deathable_4')        
@@ -139,8 +142,10 @@ class MoveAway(Behaviour):
         away.setup(0, self.agent)
 
         # Only move if its passable
-        passable = IsPassable('MT_Passable_3')
-        passable.setup(0, self.agent, 'Obstacles')
+        # passable = IsPassable('MT_Passable_3')
+        # passable.setup(0, self.agent, 'Obstacles')
+        passable = ObstacleStuck('MT_Passable_3')
+        passable.setup(0, self.agent, 'Obstacles')        
 
         # Only move if its not deathable 
         deathable = inverter(IsDeathable)('MT_Deathable_4')        
@@ -472,8 +477,10 @@ class Explore(Behaviour):
         low.setup(0, self.agent)
 
         # Only move if its passable
-        passable = IsPassable('Ex_Passable')
-        passable.setup(0, self.agent, 'Obstacles')
+        # passable = IsPassable('Ex_Passable')
+        # passable.setup(0, self.agent, 'Obstacles')
+        passable = ObstacleStuck('MT_Passable_3')
+        passable.setup(0, self.agent, 'Obstacles')        
 
         # Only move if its not deathable 
         deathable = inverter(IsDeathable)('Ex_Deathable')        
@@ -777,4 +784,59 @@ class AgentDead(Behaviour):
         This will execute the primitive behaviors defined in the sequence
         """
         self.behaviour_tree.tick()
+        return self.behaviour_tree.root.status        
+
+
+class ObstacleStuck(Behaviour):
+    """Make agent stuck if in contact with obstacles objects.
+
+    Inherits the Behaviors class from py_trees. This
+    behavior combines the privitive behaviors to succesfully navigate Obstacles.
+    """
+
+    def __init__(self, name):
+        """Init method for the SendSignal behavior."""
+        super(ObstacleStuck, self).__init__(name)
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+
+    def setup(self, timeout, agent, item=None):
+        """Have defined the setup method.
+
+        This method defines the other objects required for the
+        behavior. Agent is the actor in the environment,
+        Item should have passable attribute.
+        """
+        self.agent = agent
+        self.item = item
+
+        # Define the root for the BT
+        root = Selector('OS_Selector')
+        c0 = Sequence('OS_Sequence')
+
+        c1 = inverter(NeighbourObjects)('OS_Obstacles')
+        c1.setup(0, self.agent, 'Obstacles')
+
+        c2 = inverter(IsPassable)('OS_IsPassable')
+        c2.setup(0, self.agent, 'Obstacles')
+
+        c3 = Away('OS_Away')
+        c3.setup(0, self.agent)
+        
+        c0.add_children([c2, c3])
+        root.add_children([c1, c0])
+
+        self.behaviour_tree = BehaviourTree(root)
+
+    def initialise(self):
+        """Everytime initialization. Not required for now."""
+        pass
+
+    def update(self):
+        """Just call the tick method for the sequence.
+
+        This will execute the primitive behaviors defined in the sequence
+        """
+        self.behaviour_tree.tick()
+        self.blackboard.shared_content[self.item] = dict()
         return self.behaviour_tree.root.status        
