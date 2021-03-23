@@ -80,8 +80,8 @@ def read_data_n_agent(n=100, agent='SimForgAgentWith'):
 
 
 
-def boxplot():
-    data = [read_data_n_agent(n)[:,-1] for n in [50, 100, 200, 300, 400]]
+def boxplot(agent='SimForgAgentWith'):
+    data = [read_data_n_agent(n, agent)[:,-1] for n in [50, 100, 200, 300, 400]]
     fig = plt.figure()
 
     ax1 = fig.add_subplot(1, 1, 1)
@@ -122,7 +122,7 @@ def boxplot():
     plt.tight_layout()
 
     maindir = '/tmp/swarm/data/experiments/'
-    fname = 'agentscompwith'
+    fname = 'agentscomp' + agent
 
     fig.savefig(
         maindir + '/' + fname + '.png')
@@ -132,8 +132,13 @@ def boxplot():
 
 
 def main():
-    plotgraph()
-    # boxplot()
+    agents = [50, 100, 200, 300, 400]
+    atype = ['SimForgAgentWith', 'SimForgAgentWithout']
+    for n in agents:
+        for t in atype:
+            plotgraph(n=n, agent=t)
+    for t in atype:
+        boxplot(t)
 
 
 # import os
