@@ -7,7 +7,7 @@ from swarms.lib.space import Grid
 from swarms.utils.jsonhandler import JsonData
 from swarms.utils.results import Experiment
 from swarms.utils.db import Connect
-from simagent import SimForgAgent
+from simagent import SimForgAgentWithout, SimForgAgentWith
 from swarms.lib.objects import Hub, Sites, Food, Debris, Obstacles, Traps
 import os
 import imp
@@ -28,7 +28,7 @@ class SimForgModel(Model):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            xmlstrings=None, seed=None, viewer=False, pname=None):
+            xmlstrings=None, seed=None, viewer=False, pname=None, agent=SimForgAgentWithout):
         """Initialize the attributes."""
         if seed is None:
             super(SimForgModel, self).__init__(seed=None)
@@ -50,6 +50,7 @@ class SimForgModel(Model):
         self.xmlstrings = xmlstrings
 
         self.viewer = viewer
+        self.agent = agent
 
         # # Create db connection
         # try:
@@ -92,7 +93,7 @@ class SimForgModel(Model):
         # Create agents
         for i in range(self.num_agents):
             # print (i, j, self.xmlstrings[j])
-            a = SimForgAgent(i, self, xmlstring=self.xmlstrings[j])
+            a = self.agent(i, self, xmlstring=self.xmlstrings[j])
             self.schedule.add(a)
             # Add the agent to a random grid cell
             # x = self.random.randint(

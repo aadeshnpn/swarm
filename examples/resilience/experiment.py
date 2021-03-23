@@ -7,6 +7,7 @@ from swarms.utils.graph import GraphACC
 from joblib import Parallel, delayed    # noqa : F401
 from swarms.utils.results import SimulationResults
 from swarms.utils.jsonhandler import JsonPhenotypeData
+from simagent import SimForgAgentWith, SimForgAgentWithout
 # Global variables for width and height
 width = 100
 height = 100
@@ -42,13 +43,13 @@ def extract_phenotype(agents, filename, method='ratio'):
     return selected_phenotype
 
 
-def simulate_forg(env, iteration):
+def simulate_forg(env, iteration, agent=SimForgAgentWith):
     """Test the performane of evolved behavior."""
     phenotypes = env[0]
     threshold = 1.0
 
     sim = SimForgModel(
-        50, 200, 200, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1], viewer=False)
+        50, 200, 200, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1], viewer=False, agent=agent)
     sim.build_environment_from_json()
 
     # for all agents store the information about hub
@@ -80,8 +81,8 @@ def simulate_forg(env, iteration):
             )
         simresults.save_to_file()
 
-    print ('food at site', len(sim.food_in_loc(sim.site.location)))
-    print ('food at hub', len(sim.food_in_loc(sim.hub.location)))
+    # print ('food at site', len(sim.food_in_loc(sim.site.location)))
+    # print ('food at hub', len(sim.food_in_loc(sim.hub.location)))
     # print("Total food in the hub", len(food_objects))
 
     # food_objects = sim.food_in_loc(sim.hub.location)
@@ -111,14 +112,16 @@ def main(iter):
     pname = '/tmp/'    
 
     # for N in range(16):
-    # steps = [5000 for i in range(16)]
+    steps = [500 for i in range(50)]
     # env = (env.phenotypes, env.pname)
     # aname = pname + '/' + str(N)
     env = (['123', '123'], pname)
-    # Parallel(n_jobs=16)(delayed(simulate_ct)(env, i) for i in steps)
+    Parallel(n_jobs=4)(delayed(simulate_forg)(env, i) for i in steps)
     # Parallel(n_jobs=16)(delayed(simulate_nm)(env, i) for i in steps)
-    simulate_forg(env, 500)
+    # simulate_forg(env, 500)
     # print('=======End=========')
+
+
 
 
 if __name__ == '__main__':

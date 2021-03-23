@@ -5,21 +5,96 @@ import numpy as np
 from swarms.utils.bt import BTConstruct
 
 # from swarms.utils.results import Results
-# from py_trees import Status
+from py_trees import Behaviour, Blackboard
 # import copy
+from py_trees.meta import inverter
 import py_trees
+from py_trees.composites import Sequence, Selector
+from py_trees.trees import BehaviourTree
 
 from swarms.behaviors.sbehaviors import (
     NeighbourObjects, IsVisitedBefore,
-    IsCarrying, IsInPartialAttached, ObjectsOnGrid
+    IsCarrying, IsInPartialAttached, ObjectsOnGrid, IsAgentDead,
+    RandomWalk, Move
     )
 
 from swarms.behaviors.scbehaviors import (
     CompositeDrop, CompositeSingleCarry, MoveTowards,
-    Explore, CompositeDropPartial, CompositeMultipleCarry, AgentDead
+    Explore, CompositeDropPartial, CompositeMultipleCarry, AgentDead, 
+    AvoidTrap, ObstacleStuck
 )
 
 # import py_trees
+
+
+class ExploreWithout(Behaviour):
+    """Explore behavior for the agents.
+
+    Inherits the Behaviors class from py_trees. This
+    behavior combines the privitive behaviors to succesfully explore the
+    environment. It combines Randomwalk and Move behaviors.
+    """
+
+    def __init__(self, name):
+        """Init method for the Explore behavior."""
+        super(ExploreWithout, self).__init__(name)
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+
+    def setup(self, timeout, agent, item=None):
+        """Have defined the setup method.
+
+        This method defines the other objects required for the
+        behavior. Agent is the actor in the environment,
+        item is the name of the item we are trying to find in the
+        environment and timeout defines the execution time for the
+        behavior.
+        """
+        self.agent = agent
+        self.item = item
+
+        # Check if agent is dead
+        adead = inverter(IsAgentDead)('MT_IsAgentDead_0')
+        adead.setup(0, self.agent, None)
+
+        # Define the root for the BT
+        root = Sequence("Ex_Sequence")
+
+        low = RandomWalk('Ex_RandomWalk')
+        low.setup(0, self.agent)
+
+        # Only move if its passable
+        passable = ObstacleStuck('MT_Passable_3')
+        passable.setup(0, self.agent, 'Obstacles')        
+
+        # Only move if its not deathable 
+        # deathable = inverter(IsDeathable)('Ex_Deathable')        
+        # deathable.setup(0, self.agent, 'Traps')
+        # deathable = AvoidTrap('AvoidTrap')
+        # deathable.setup(0, self.agent, 'Traps')
+
+        high = Move('Ex_Move')
+        high.setup(0, self.agent)
+
+        chkdead = AgentDead('Adead')
+        chkdead.setup(0, self.agent)
+
+        # root.add_children([adead, low, passable, deathable, high, chkdead])
+        root.add_children([adead, low, passable, high, chkdead])        
+
+        self.behaviour_tree = BehaviourTree(root)
+
+    def initialise(self):
+        """Everytime initialization. Not required for now."""
+        pass
+
+    def update(self):
+        """Just call the tick method for the sequence.
+
+        This will execute the primitive behaviors defined in the sequence
+        """
+        self.behaviour_tree.tick()
+        return self.behaviour_tree.root.status
 
 
 class SimForgAgentWithout(Agent):
@@ -129,12 +204,12 @@ class SimForgAgentWithout(Agent):
             'IsVisitedBefore_Sites')
         sitenotfound.setup(0, self, 'Sites')
 
-        explore = Explore('Explore')
+        explore = ExploreWithout('Explore')
         explore.setup(0, self)
 
-        randwalk = py_trees.composites.Sequence('Randwalk')
+        # randwalk = py_trees.composites.Sequence('Randwalk')
         # randwalk.add_children([neighobst, neightrap, sitenotfound, explore])
-        randwalk.add_children([sitenotfound, explore])        
+        # randwalk.add_children([sitenotfound, explore])        
 
         locoselect = py_trees.composites.Selector('Move')
         locoselect.add_children([siteseq, hubseq, explore])
@@ -270,9 +345,9 @@ class SimForgAgentWith(Agent):
         explore = Explore('Explore')
         explore.setup(0, self)
 
-        randwalk = py_trees.composites.Sequence('Randwalk')
+        # randwalk = py_trees.composites.Sequence('Randwalk')
         # randwalk.add_children([neighobst, neightrap, sitenotfound, explore])
-        randwalk.add_children([sitenotfound, explore])        
+        # randwalk.add_children([sitenotfound, avoidt, explore])        
 
         locoselect = py_trees.composites.Selector('Move')
         locoselect.add_children([siteseq, hubseq, explore])

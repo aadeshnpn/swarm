@@ -477,13 +477,13 @@ class Explore(Behaviour):
         low.setup(0, self.agent)
 
         # Only move if its passable
-        # passable = IsPassable('Ex_Passable')
-        # passable.setup(0, self.agent, 'Obstacles')
         passable = ObstacleStuck('MT_Passable_3')
         passable.setup(0, self.agent, 'Obstacles')        
 
         # Only move if its not deathable 
-        deathable = inverter(IsDeathable)('Ex_Deathable')        
+        # deathable = inverter(IsDeathable)('Ex_Deathable')        
+        # deathable.setup(0, self.agent, 'Traps')
+        deathable = AvoidTrap('AvoidTrap')
         deathable.setup(0, self.agent, 'Traps')
 
         high = Move('Ex_Move')
@@ -492,7 +492,8 @@ class Explore(Behaviour):
         chkdead = AgentDead('Adead')
         chkdead.setup(0, self.agent)
 
-        root.add_children([adead, low, passable, deathable, high, chkdead])
+        # root.add_children([adead, low, passable, deathable, high, chkdead])
+        root.add_children([adead, low, passable, deathable, high, chkdead])        
 
         self.behaviour_tree = BehaviourTree(root)
 
@@ -819,6 +820,61 @@ class ObstacleStuck(Behaviour):
 
         c2 = inverter(IsPassable)('OS_IsPassable')
         c2.setup(0, self.agent, 'Obstacles')
+
+        c3 = Away('OS_Away')
+        c3.setup(0, self.agent)
+        
+        c0.add_children([c2, c3])
+        root.add_children([c1, c0])
+
+        self.behaviour_tree = BehaviourTree(root)
+
+    def initialise(self):
+        """Everytime initialization. Not required for now."""
+        pass
+
+    def update(self):
+        """Just call the tick method for the sequence.
+
+        This will execute the primitive behaviors defined in the sequence
+        """
+        self.behaviour_tree.tick()
+        self.blackboard.shared_content[self.item] = dict()
+        return self.behaviour_tree.root.status        
+
+
+class AvoidTrap(Behaviour):
+    """Make agent avoid trap if it can sense it.
+
+    Inherits the Behaviors class from py_trees. This
+    behavior combines the privitive behaviors to avoid traps.
+    """
+
+    def __init__(self, name):
+        """Init method for the SendSignal behavior."""
+        super(AvoidTrap, self).__init__(name)
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+
+    def setup(self, timeout, agent, item=None):
+        """Have defined the setup method.
+
+        This method defines the other objects required for the
+        behavior. Agent is the actor in the environment,
+        Item should have passable attribute.
+        """
+        self.agent = agent
+        self.item = item
+
+        # Define the root for the BT
+        root = Selector('AT_Selector')
+        c0 = Sequence('AT_Sequence')
+
+        c1 = inverter(NeighbourObjects)('AT_Traps')
+        c1.setup(0, self.agent, 'Traps')
+
+        c2 = IsDeathable('AT_IsDeathable')
+        c2.setup(0, self.agent, 'Traps')
 
         c3 = Away('OS_Away')
         c3.setup(0, self.agent)
