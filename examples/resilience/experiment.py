@@ -113,21 +113,23 @@ def main(args):
     # pname = '/home/aadeshnpn/Documents/BYU/HCMI/research/handcoded/nm'
     # pname = '/home/aadeshnpn/Documents/BYU/hcmi/hri/handcoded/ct'
     # directory = '/tmp/goal/data/experiments/' + str(args.n) + '/' + args.agent.__name__ + '/'
-    agent = SimForgAgentWith if args.agent == 0 else SimForgAgentWithout
-    dname = os.path.join('/tmp', 'swarm', 'data', 'experiments', str(args.n), agent.__name__)
-    pathlib.Path(dname).mkdir(parents=True, exist_ok=True)
-    # pname = '/tmp/'    
+    n = args.n
+    agent = args.agent
+    runs = args.runs
+    def exp(n, agent, runs):
+        agent = SimForgAgentWith if agent == 0 else SimForgAgentWithout
+        dname = os.path.join('/tmp', 'swarm', 'data', 'experiments', str(n), agent.__name__)
+        pathlib.Path(dname).mkdir(parents=True, exist_ok=True)
+        steps = [500 for i in range(args.runs)]
+        env = (['123', '123'], dname)
+        Parallel(n_jobs=8)(delayed(simulate_forg)(env, i, agent=agent, N=n) for i in steps)
 
-    # for N in range(16):
-    steps = [500 for i in range(args.runs)]
-    # env = (env.phenotypes, env.pname)
-    # aname = pname + '/' + str(N)
-    env = (['123', '123'], dname)
-    Parallel(n_jobs=4)(delayed(simulate_forg)(env, i, agent=agent, N=args.n) for i in steps)
-    # Parallel(n_jobs=16)(delayed(simulate_nm)(env, i) for i in steps)
-    # simulate_forg(env, 500)
-    # print('=======End=========')
-
+    if args.all:
+        for agent in [0, 1]:
+            for n in [50, 100, 200, 300, 400]:
+                exp(n, agent, runs)
+    else:
+        exp(n, agent, runs)
 
 
 
@@ -142,6 +144,7 @@ if __name__ == '__main__':
     # [SimForgAgentWith, SimForgAgentWithout])        
     parser.add_argument('--agent', default=0, choices=[0, 1])
     parser.add_argument('--runs', default=50, type=int)
+    parser.add_argument('--all', default=False)
     args = parser.parse_args()
     print(args)
     main(args)
