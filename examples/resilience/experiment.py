@@ -8,6 +8,9 @@ from joblib import Parallel, delayed    # noqa : F401
 from swarms.utils.results import SimulationResults
 from swarms.utils.jsonhandler import JsonPhenotypeData
 from simagent import SimForgAgentWith, SimForgAgentWithout
+import argparse
+import os
+import pathlib
 # Global variables for width and height
 width = 100
 height = 100
@@ -43,13 +46,13 @@ def extract_phenotype(agents, filename, method='ratio'):
     return selected_phenotype
 
 
-def simulate_forg(env, iteration, agent=SimForgAgentWith):
+def simulate_forg(env, iteration, agent=SimForgAgentWith, N=100):
     """Test the performane of evolved behavior."""
     phenotypes = env[0]
     threshold = 1.0
 
     sim = SimForgModel(
-        50, 200, 200, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1], viewer=False, agent=agent)
+        N, 200, 200, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1], viewer=False, agent=agent)
     sim.build_environment_from_json()
 
     # for all agents store the information about hub
@@ -104,19 +107,22 @@ def simulate_forg(env, iteration, agent=SimForgAgentWith):
     # graph.gen_plot()
 
 
-def main(iter):
+def main(args):
     """Block for the main function."""
     # print('=======Start=========')
     # pname = '/home/aadeshnpn/Documents/BYU/HCMI/research/handcoded/nm'
     # pname = '/home/aadeshnpn/Documents/BYU/hcmi/hri/handcoded/ct'
-    pname = '/tmp/'    
+    # directory = '/tmp/goal/data/experiments/' + str(args.n) + '/' + args.agent.__name__ + '/'
+    dname = os.path.join('/tmp', 'swarm', 'data', 'experiments', str(args.n), args.agent.__name__)
+    pathlib.Path(dname).mkdir(parents=True, exist_ok=True)
+    # pname = '/tmp/'    
 
     # for N in range(16):
     steps = [500 for i in range(50)]
     # env = (env.phenotypes, env.pname)
     # aname = pname + '/' + str(N)
-    env = (['123', '123'], pname)
-    Parallel(n_jobs=4)(delayed(simulate_forg)(env, i) for i in steps)
+    env = (['123', '123'], dname)
+    Parallel(n_jobs=4)(delayed(simulate_forg)(env, i, agent=args.agent, N=args.n) for i in steps)
     # Parallel(n_jobs=16)(delayed(simulate_nm)(env, i) for i in steps)
     # simulate_forg(env, 500)
     # print('=======End=========')
@@ -129,4 +135,10 @@ if __name__ == '__main__':
     # steps = [100000 for i in range(50)]
     # Parallel(n_jobs=8)(delayed(main)(i) for i in steps)
     # Parallel(n_jobs=16)(delayed(main)(i) for i in range(1000, 100000, 2000))
-    main(10)
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--n', default=100, type=int)
+    parser.add_argument('--agent', default=SimForgAgentWithout, choices=[SimForgAgentWith, SimForgAgentWithout])
+    args = parser.parse_args()
+
+    main(args)
