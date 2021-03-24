@@ -1,6 +1,6 @@
 """Experiment script to run GEESE algorithm for foraging."""
 
-from simmodel import SimForgModel, EvolModel
+from simmodel import SimForgModel, EvolModel, SimModel
 
 # from swarms.utils.jsonhandler import JsonData
 from swarms.utils.graph import GraphACC
@@ -65,8 +65,85 @@ def evolve(iteration, agent='EvolAgent', N=100):
     return env
 
 
+def simulate(env, iteration):
+    """Test the performane of evolved behavior."""
+    # phenotype = agent.individual[0].phenotype
+    # phenotypes = extract_phenotype(agents)
+    phenotypes = env[0]
+    threshold = 1.0
+
+    sim = SimModel(
+        100, 200, 200, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1],
+        expname='MSFCommSimulate', agent='SimAgent')
+    sim.build_environment_from_json()
+
+    # for all agents store the information about hub
+    for agent in sim.agents:
+        agent.shared_content['Hub'] = {sim.hub}
+        # agent.shared_content['Sites'] = {sim.site}
+
+    simresults = SimulationResults(
+        sim.pname, sim.connect, sim.sn, sim.stepcnt, sim.food_in_hub(),
+        phenotypes[0]
+        )
+
+    simresults.save_phenotype()
+    simresults.save_to_file()
+
+    # Iterate and execute each step in the environment
+    for i in range(iteration):
+        # For every iteration we need to store the results
+        # Save them into db or a file
+        sim.step()
+        simresults = SimulationResults(
+            sim.pname, sim.connect, sim.sn, sim.stepcnt, sim.food_in_hub(),
+            phenotypes[0]
+            )
+        simresults.save_to_file()
+
+    # print ('food at site', len(sim.food_in_loc(sim.site.location)))
+    # print ('food at hub', len(sim.food_in_loc(sim.hub.location)))
+    # print("Total food in the hub", len(food_objects))
+
+    food_objects = sim.food_in_loc(sim.hub.location)
+
+    for food in food_objects:
+        print('simulate phenotye:', dir(food))
+    value = sim.food_in_hub()
+
+    foraging_percent = (
+        value * 100.0) / (sim.num_agents * 2.0)
+
+    sucess = False
+    print('Foraging percent', value)
+
+    if foraging_percent >= threshold:
+        print('Foraging success')
+        sucess = True
+
+    # sim.experiment.update_experiment_simulation(value, sucess)
+
+    # Plot the fitness in the graph
+    graph = GraphACC(sim.pname, 'simulation.csv')
+    graph.gen_plot()
+
+
 def main(args):
-    evolve(args.iteration)
+    env = evolve(args.iteration)
+    print('Evolution Finished')
+    if len(env.phenotypes) >= 1:
+        steps = [5000 for i in range(args.runs)]
+        env = (env.phenotypes, env.pname)
+        for step in steps:
+            print('Simulation the evolved phenotypes')
+            simulate(env, step)
+            # simulate_res1(env, step)
+            # simulate_res2(env, step)
+        # Parallel(n_jobs=4)(delayed(simulate)(env, i) for i in steps)
+        # Parallel(n_jobs=4)(delayed(simulate_res1)(env, i) for i in steps)
+        # Parallel(n_jobs=4)(delayed(simulate_res2)(env, i) for i in steps)
+        # simulate(env, 10000)
+    print('=======End=========')
 
 
 if __name__ == '__main__':

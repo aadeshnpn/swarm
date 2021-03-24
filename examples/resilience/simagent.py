@@ -597,3 +597,67 @@ class EvolAgent(Agent):
     def advance(self):
         """Require for staged activation."""
         pass
+
+
+class SimAgent(Agent):
+    """Simulation agent.
+
+    An minimalistic behavior tree for swarm agent
+    implementing carry and drop behavior.
+    """
+
+    def __init__(self, name, model, xmlstring=None):
+        super().__init__(name, model)
+        self.location = ()
+
+        self.direction = model.random.rand() * (2 * np.pi)
+        self.speed = 2
+        self.radius = 3
+
+        self.moveable = True
+        self.shared_content = dict()
+
+        self.carryable = False
+        # Define a BTContruct object
+        self.bt = BTConstruct(None, self)
+
+        class DummyIndividual:
+            def __init__(self):
+                self.phenotype = None
+        dummyind = DummyIndividual()
+        self.individual = [dummyind]
+        self.individual[0].phenotype = xmlstring
+
+        self.bt.xmlstring = xmlstring
+        self.bt.construct()
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # py_trees.display.print_ascii_tree(select)
+
+    def step(self):
+        self.bt.behaviour_tree.tick()
+
+    def advance(self):
+        pass
+
+    def replace_nodes(self):
+        dummy_bt = copy.copy(self.bt)
+        # dummy_bt.behaviour_tree.tick()
+        root = dummy_bt.behaviour_tree.root
+
+        # For now dummpy node is move but it could be different
+        name = 'Dummy' + str(self.model.random.randint(0, 1000, 1)[0])
+        dummynode = Dummymove(name)
+
+        def replace(roots, node):
+            if type(node).__name__ == 'Move':
+                roots.replace_child(node, dummynode)
+
+        for node in root.iterate():
+            try:
+                innerroot = node.behaviour_tree.root
+                for innernode in innerroot.iterate():
+                    replace(innerroot, innernode)
+            except AttributeError:
+                replace(root, node)
+
+        return dummy_bt
