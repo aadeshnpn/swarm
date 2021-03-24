@@ -259,7 +259,7 @@ class EvolModel(Model):
 
         # self.pname = '/'.join(os.getcwd().split('/')[:-2]) + '/results/' \
         #     + self.runid + expname
-        self.pname = os.path.join('/tmp', 'swarm', 'data', 'experiments',str(N), agent, str(self.runid)+expname)
+        self.pname = os.path.join('/tmp', 'swarm', 'data', 'experiments',str(N), agent, str(iter),  str(self.runid)+expname)
         pathlib.Path(self.pname).mkdir(parents=True, exist_ok=True)
         self.stepcnt = 1
         self.iter = iter
@@ -472,7 +472,7 @@ class SimModel(Model):
         #     self.pname = pname + '/' + self.runid + expname
 
         if pname is None:
-            self.pname = os.path.join('/tmp', 'swarm', 'data', 'experiments',str(N), agent, str(self.runid)+expname)            
+            self.pname = os.path.join('/tmp', 'swarm', 'data', 'experiments',str(N), agent, str(iter), str(self.runid)+expname)            
         else:
             self.pname = os.path.join(pname, str(self.runid) + expname)
 

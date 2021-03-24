@@ -129,10 +129,11 @@ def simulate(env, iteration):
 
 
 def main(args):
-    env = evolve(args.iteration)
+    # env = evolve(args.iteration)
+    env = evolve(args)
     print('Evolution Finished')
     if len(env.phenotypes) >= 1:
-        steps = [5000 for i in range(args.runs)]
+        steps = [5000 for i in range(50)]
         env = (env.phenotypes, env.pname)
         for step in steps:
             print('Simulation the evolved phenotypes')
@@ -161,4 +162,5 @@ if __name__ == '__main__':
     parser.add_argument('--all', default=False)
     args = parser.parse_args()
     print(args)
-    main(args)
+    # main(args)
+    Parallel(n_jobs=8)(delayed(main)(i) for i in range(1000, 100000, 2000))    
