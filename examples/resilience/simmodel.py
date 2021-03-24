@@ -262,17 +262,18 @@ class EvolModel(Model):
         self.iter = iter
         self.top = None
         # Create db connection
-        connect = Connect('swarm', 'swarm', 'swarm', 'localhost')
-        self.connect = connect.tns_connect()
+        self.connect = None
+        # connect = Connect('swarm', 'swarm', 'swarm', 'localhost')
+        # self.connect = connect.tns_connect()
 
-        # Fill out the experiment table
-        self.experiment = Experiment(
-            self.connect, self.runid, N, seed, expname,
-            iter, width, height, grid)
-        self.experiment.insert_experiment()
+        # # Fill out the experiment table
+        # self.experiment = Experiment(
+        #     self.connect, self.runid, N, seed, expname,
+        #     iter, width, height, grid)
+        # self.experiment.insert_experiment()
 
-        self.sn = self.experiment.sn
-
+        # self.sn = self.experiment.sn
+        self.sn = 1
         # Create a folder to store results
         os.mkdir(self.pname)
 
