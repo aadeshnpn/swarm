@@ -1,6 +1,6 @@
 """Experiment script to run handcoded simulation."""
 
-from simmodel import SimForgModel
+from simmodel import SimForgModel, EvolModel
 
 # from swarms.utils.jsonhandler import JsonData
 from swarms.utils.graph import GraphACC

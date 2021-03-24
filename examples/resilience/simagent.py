@@ -26,6 +26,13 @@ from swarms.behaviors.scbehaviors import (
 
 # import py_trees
 
+from ponyge.operators.initialisation import initialisation
+from ponyge.fitness.evaluation import evaluate_fitness
+from ponyge.operators.crossover import crossover
+from ponyge.operators.mutation import mutation
+from ponyge.operators.replacement import replacement
+from ponyge.operators.selection import selection
+
 
 class ExploreWithout(Behaviour):
     """Explore behavior for the agents.

@@ -7,9 +7,11 @@ from swarms.lib.space import Grid
 from swarms.utils.jsonhandler import JsonData
 from swarms.utils.results import Experiment
 from swarms.utils.db import Connect
-from simagent import SimForgAgentWithout, SimForgAgentWith
+from swarms.utils.results import Best
+from simagent import SimForgAgentWithout, SimForgAgentWith, EvolAgent
 from swarms.lib.objects import Hub, Sites, Food, Debris, Obstacles, Traps
 import os
+import pathlib
 import imp
 import datetime
 import numpy as np
@@ -255,9 +257,10 @@ class EvolModel(Model):
         self.runid = datetime.datetime.now().strftime(
             "%s") + str(self.random.randint(1, 1000, 1)[0])
 
-        self.pname = '/'.join(os.getcwd().split('/')[:-2]) + '/results/' \
-            + self.runid + expname
-
+        # self.pname = '/'.join(os.getcwd().split('/')[:-2]) + '/results/' \
+        #     + self.runid + expname
+        self.pname = os.path.join('/tmp', 'swarm', 'data', 'experiments',str(N), agent, str(self.runid)+expname)
+        pathlib.Path(self.pname).mkdir(parents=True, exist_ok=True)
         self.stepcnt = 1
         self.iter = iter
         self.top = None
@@ -275,7 +278,7 @@ class EvolModel(Model):
         # self.sn = self.experiment.sn
         self.sn = 1
         # Create a folder to store results
-        os.mkdir(self.pname)
+        # os.mkdir(self.pname)
 
         self.num_agents = N
 
