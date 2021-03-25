@@ -154,7 +154,7 @@ class SimForgModel(Model):
         self.hub = self.render.objects['hub'][0]
         self.obstacles = self.render.objects['obstacles'][0]
         # print(self.obstacles.passable)
-        self.traps = self.render.objects['traps'][0]        
+        self.traps = self.render.objects['traps'][0]
         try:
             self.site = self.render.objects['sites'][0]
             self.foods = []
@@ -472,7 +472,7 @@ class SimModel(Model):
         #     self.pname = pname + '/' + self.runid + expname
 
         if pname is None:
-            self.pname = os.path.join('/tmp', 'swarm', 'data', 'experiments',str(N), agent, str(iter), str(self.runid)+expname)            
+            self.pname = os.path.join('/tmp', 'swarm', 'data', 'experiments',str(N), agent, str(iter), str(self.runid)+expname)
         else:
             self.pname = os.path.join(pname, str(self.runid) + expname)
 
@@ -483,6 +483,7 @@ class SimModel(Model):
         self.stepcnt = 1
         self.iter = iter
         self.xmlstrings = xmlstrings
+        print(xmlstrings, type(xmlstrings))
 
         self.viewer = viewer
 
