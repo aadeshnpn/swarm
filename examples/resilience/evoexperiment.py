@@ -48,7 +48,7 @@ def evolve(iteration, agent='EvolAgent', N=100):
     env.phenotypes = []
     for food in food_objects:
         print(food.phenotype)
-        env.phenotypes += list(food.phenotype.values())
+        env.phenotypes += list(food.phenotype.keys())
 
     jfilename = env.pname + '/' + env.runid + '.json'
 
@@ -155,12 +155,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--n', default=100, type=int)
-    # [SimForgAgentWith, SimForgAgentWithout])        
+    # [SimForgAgentWith, SimForgAgentWithout])
     parser.add_argument('--agent', default=0, choices=[0, 1])
     parser.add_argument('--runs', default=50, type=int)
-    parser.add_argument('--iteration', default=6000, type=int)    
+    parser.add_argument('--iteration', default=6000, type=int)
     parser.add_argument('--all', default=False)
     args = parser.parse_args()
     print(args)
     # main(args)
-    Parallel(n_jobs=8)(delayed(main)(i) for i in range(1000, 100000, 2000))    
+    Parallel(n_jobs=8)(delayed(main)(i) for i in range(1000, 100000, 2000))
