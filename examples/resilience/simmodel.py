@@ -154,7 +154,6 @@ class SimForgModel(Model):
         self.hub = self.render.objects['hub'][0]
         self.obstacles = self.render.objects['obstacles'][0]
         # print(self.obstacles.passable)
-<<<<<<< HEAD
         self.traps = self.render.objects['traps'][0]  
 
         # add site
@@ -165,9 +164,6 @@ class SimForgModel(Model):
 
         self.grid.add_object_to_grid(location, self.site)
 
-=======
-        self.traps = self.render.objects['traps'][0]
->>>>>>> 68325df11355d1c69d9b7060a8bb88fda18a4b8d
         try:
             # self.site = self.render.objects['sites'][0]
             self.foods = []

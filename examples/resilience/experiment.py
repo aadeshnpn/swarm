@@ -140,8 +140,9 @@ def main(args):
 
     if args.all:
         for agent in [0, 1]:
-            for n in [50, 100, 200, 300, 400]:
-                exp(n, agent, runs)
+            # for n in [50, 100, 200, 300, 400]:
+            for n in [200, 300, 400]:            
+                exp(n, agent, runs, site)
     else:
         exp(n, agent, runs, site)
 
@@ -156,9 +157,9 @@ if __name__ == '__main__':
     parser.add_argument(
         '--n', default=100, type=int)
     # [SimForgAgentWith, SimForgAgentWithout])        
-    parser.add_argument('--agent', default=0, choices=[0, 1])
+    parser.add_argument('--agent', default=1, choices=[0, 1])
     parser.add_argument('--runs', default=50, type=int)
-    parser.add_argument('--site', default=0, type=int)    
+    parser.add_argument('--site', default=7, type=int)    
     parser.add_argument('--all', default=False)
     args = parser.parse_args()
     print(args)
