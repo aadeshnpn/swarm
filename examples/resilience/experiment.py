@@ -135,8 +135,8 @@ def main(args):
         pathlib.Path(dname).mkdir(parents=True, exist_ok=True)
         steps = [500 for i in range(args.runs)]
         env = (['123', '123'], dname)
-        # Parallel(n_jobs=8)(delayed(simulate_forg)(env, i, agent=agent, N=n, site=site) for i in steps)
-        simulate_forg(env, 20, agent=agent, N=n, site=site)
+        Parallel(n_jobs=8)(delayed(simulate_forg)(env, i, agent=agent, N=n, site=site) for i in steps)
+        # simulate_forg(env, 20, agent=agent, N=n, site=site)
 
     if args.all:
         for agent in [0, 1]:
