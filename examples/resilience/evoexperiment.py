@@ -147,6 +147,42 @@ def main(args):
     print('=======End=========')
 
 
+def readjson():
+    # jfilename = '/tmp/behavior.json'
+    # jfilename = '/tmp/1617336611651.json'
+    # data = JsonPhenotypeData.load_json_file(jfilename)    
+    # print(data)
+
+    fo = open("/tmp/swarmbehaviors.txt", "r+")
+    # print ("Name of the file: ", fo.name)
+    phenotypes = {}
+    i = 0
+    while True:
+        line = fo.readline()
+        phenotypes.update(eval(line))
+        # print ("Read Line: %s" % (line))
+        i += 1
+        if i == 48:
+            break
+    # {k: d[k] for k in sorted(d, key=d.get)}        
+    phenotypeslist = [k for k in sorted(phenotypes, key=phenotypes.get, reverse=True)]
+    # print(phenotypeslist, len(phenotypeslist))
+
+    # line = fo.readline(5)
+    # print ("Read Line: %s" % (line))    
+    return phenotypeslist
+
+
+def run_phenotype_exp():
+    phenotypes = readjson()
+    # steps = [5000 for i in range(50)]
+    env = (phenotypes, '/tmp/swarm/data/experiment/')
+    # for step in steps:
+    print('Simulation the evolved phenotypes')
+    simulate(env, 2000)
+
+
+
 if __name__ == '__main__':
     # Running 50 experiments in parallel
     # steps = [100000 for i in range(50)]
@@ -163,4 +199,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     print(args)
     # main(args)
-    Parallel(n_jobs=8)(delayed(main)(i) for i in range(1000, 100000, 2000))
+    # Parallel(n_jobs=8)(delayed(main)(i) for i in range(1000, 100000, 2000))
+    # readjson()
+    run_phenotype_exp()
