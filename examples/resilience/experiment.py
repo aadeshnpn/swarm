@@ -46,13 +46,13 @@ def extract_phenotype(agents, filename, method='ratio'):
     return selected_phenotype
 
 
-def simulate_forg(env, iteration, agent=SimForgAgentWith, N=100):
+def simulate_forg(env, iteration, agent=SimForgAgentWith, N=100, site=None):
     """Test the performane of evolved behavior."""
     phenotypes = env[0]
     threshold = 1.0
 
     sim = SimForgModel(
-        N, 200, 200, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1], viewer=False, agent=agent)
+        N, 200, 200, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1], viewer=False, agent=agent, expsite=site)
     sim.build_environment_from_json()
 
     # for all agents store the information about hub
@@ -116,20 +116,35 @@ def main(args):
     n = args.n
     agent = args.agent
     runs = args.runs
-    def exp(n, agent, runs):
+    
+    sitelocation  = [ 
+        {"x":50, "y":-50, "radius":10, "q_value":0.9},
+        {"x":50, "y":50, "radius":10, "q_value":0.9},        
+        {"x":-50, "y":50, "radius":10, "q_value":0.9},                
+        {"x":30, "y":-30, "radius":10, "q_value":0.9},
+        {"x":30, "y":30, "radius":10, "q_value":0.9},        
+        {"x":-30, "y":30, "radius":10, "q_value":0.9},                        
+        {"x":90, "y":-90, "radius":10, "q_value":0.9},
+        {"x":-90, "y":90, "radius":10, "q_value":0.9}, 
+    ]
+    site = sitelocation[args.site]
+
+    def exp(n, agent, runs, site):
         agent = SimForgAgentWith if agent == 0 else SimForgAgentWithout
-        dname = os.path.join('/tmp', 'swarm', 'data', 'experiments', str(n), agent.__name__)
+        dname = os.path.join('/tmp', 'swarm', 'data', 'experiments', str(n), agent.__name__, str(site['x'])+str(site['y']))
         pathlib.Path(dname).mkdir(parents=True, exist_ok=True)
         steps = [500 for i in range(args.runs)]
         env = (['123', '123'], dname)
-        Parallel(n_jobs=8)(delayed(simulate_forg)(env, i, agent=agent, N=n) for i in steps)
+        Parallel(n_jobs=8)(delayed(simulate_forg)(env, i, agent=agent, N=n, site=site) for i in steps)
+        # simulate_forg(env, 20, agent=agent, N=n, site=site)
 
     if args.all:
         for agent in [0, 1]:
-            for n in [50, 100, 200, 300, 400]:
-                exp(n, agent, runs)
+            # for n in [50, 100, 200, 300, 400]:
+            for n in [200, 300, 400]:            
+                exp(n, agent, runs, site)
     else:
-        exp(n, agent, runs)
+        exp(n, agent, runs, site)
 
 
 
@@ -142,8 +157,9 @@ if __name__ == '__main__':
     parser.add_argument(
         '--n', default=100, type=int)
     # [SimForgAgentWith, SimForgAgentWithout])        
-    parser.add_argument('--agent', default=0, choices=[0, 1])
+    parser.add_argument('--agent', default=1, choices=[0, 1])
     parser.add_argument('--runs', default=50, type=int)
+    parser.add_argument('--site', default=7, type=int)    
     parser.add_argument('--all', default=False)
     args = parser.parse_args()
     print(args)

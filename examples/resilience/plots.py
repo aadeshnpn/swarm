@@ -79,6 +79,21 @@ def read_data_n_agent(n=100, agent='SimForgAgentWith'):
     return data
 
 
+def read_data_n_agent_site(n=100, agent='SimForgAgentWith', site='5050'):
+    maindir = '/tmp/swarm/data/experiments/'
+    nadir = os.path.join(maindir, str(n), agent, site)
+    folders = pathlib.Path(nadir).glob("*ForagingSim*")
+    flist = []
+    data = []
+    for f in folders:
+        flist = [p for p in pathlib.Path(f).iterdir() if p.is_file()]
+        _, _, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+        data.append(d)
+    data = np.array(data)
+    # print(data.shape)
+    return data    
+
+
 
 def boxplot(agent='SimForgAgentWith'):
     data = [read_data_n_agent(n, agent)[:,-1] for n in [50, 100, 200, 300, 400]]
@@ -131,14 +146,74 @@ def boxplot(agent='SimForgAgentWith'):
     plt.close(fig)
 
 
+
+def boxplotsiteloc(agent='SimForgAgentWith'):
+    # sites = ['-3030', '30-30', '3030', '-5050', '50-50', '5050', '-9090', '90-90']
+    agents = [100, 200, 300, 400]
+    data = [read_data_n_agent_site(n, agent, site='90-90')[:,-1] for n in agents]
+    fig = plt.figure()
+
+    ax1 = fig.add_subplot(1, 1, 1)
+    colordict = {
+        0: 'forestgreen', 
+        1: 'indianred',
+        2: 'gold', 
+        3: 'tomato', 
+        4: 'royalblue',
+        5: 'orchid',
+        6: 'olivedrab',
+        7: 'peru',
+        8: 'linen'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']    
+    # colordict = {
+    #     0: 'bisque',
+    #     1: 'darkorange',
+    #     2: 'orangered',
+    #     3: 'seagreen'
+    # }
+
+    # labels = ['Agent-Key', 'Key-Door', 'Door-Goal', 'Total']
+    # labels = ['30', '30', '30', '50', '50', '50', '90', '90']
+    labels = ['100', '200', '300', '400']
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    # data = [data[:, i] for i in range(4)]
+    bp1 = ax1.boxplot(
+        data, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops)
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+    # plt.xlim(0, len(mean))
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
+    ax1.set_xticklabels(labels)
+    ax1.set_xlabel('Agent size')
+    ax1.set_ylabel('Foraging Percentage')
+    ax1.set_title('Swarm Foraging with distance 90')
+
+    plt.tight_layout()
+
+    maindir = '/tmp/swarm/data/experiments/'
+    fname = 'agentsitecomp' + agent
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
 def main():
     agents = [50, 100, 200, 300, 400]
     atype = ['SimForgAgentWith', 'SimForgAgentWithout']
-    for n in agents:
-        for t in atype:
-            plotgraph(n=n, agent=t)
-    for t in atype:
-        boxplot(t)
+    # for n in agents:
+    #     for t in atype:
+    #         plotgraph(n=n, agent=t)
+    # for t in atype:
+    #     boxplot(t)
+    boxplotsiteloc(atype[1])
 
 
 # import os

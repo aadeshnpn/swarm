@@ -30,7 +30,7 @@ class SimForgModel(Model):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            xmlstrings=None, seed=None, viewer=False, pname=None, agent=SimForgAgentWithout):
+            xmlstrings=None, seed=None, viewer=False, pname=None, agent=SimForgAgentWithout, expsite=None):
         """Initialize the attributes."""
         if seed is None:
             super(SimForgModel, self).__init__(seed=None)
@@ -53,7 +53,7 @@ class SimForgModel(Model):
 
         self.viewer = viewer
         self.agent = agent
-
+        self.expsite = expsite
         # # Create db connection
         # try:
         #     connect = Connect('swarm', 'swarm', 'swarm', 'localhost')
@@ -154,9 +154,18 @@ class SimForgModel(Model):
         self.hub = self.render.objects['hub'][0]
         self.obstacles = self.render.objects['obstacles'][0]
         # print(self.obstacles.passable)
-        self.traps = self.render.objects['traps'][0]
+        self.traps = self.render.objects['traps'][0]  
+
+        # add site
+        location = (self.expsite["x"], self.expsite["y"])
+        self.site = Sites(
+                0, location, self.expsite["radius"], q_value=self.expsite[
+                    "q_value"])
+
+        self.grid.add_object_to_grid(location, self.site)
+
         try:
-            self.site = self.render.objects['sites'][0]
+            # self.site = self.render.objects['sites'][0]
             self.foods = []
             for i in range(self.num_agents * 1):
                 f = Food(
@@ -483,7 +492,7 @@ class SimModel(Model):
         self.stepcnt = 1
         self.iter = iter
         self.xmlstrings = xmlstrings
-        print(xmlstrings, type(xmlstrings))
+        # print(xmlstrings, type(xmlstrings))
 
         self.viewer = viewer
 
@@ -569,12 +578,22 @@ class SimModel(Model):
                 jsondata, obj)
 
         self.hub = self.render.objects['hub'][0]
+
+        # add site
+        # location = (self.expsite["x"], self.expsite["y"])
+        self.site = Sites(
+                0, (30, -30), 10, q_value=0.9)
+
+        self.grid.add_object_to_grid((30, -30), self.site)
+
         try:
             self.foods = []
-            for site in self.render.objects['sites']:
-                self.site = site  # self.render.objects['sites'][0]
+            # for site in self.render.objects['sites']:
+            for site in [self.site]:                
+                # self.site = site  # self.render.objects['sites'][0]
 
                 for i in range(self.num_agents):
+
                     f = Food(
                         i, location=self.site.location,
                         radius=self.site.radius)
