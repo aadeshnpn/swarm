@@ -80,8 +80,10 @@ def simulate(env, iteration):
     # for all agents store the information about hub
     for agent in sim.agents:
         agent.shared_content['Hub'] = {sim.hub}
+        # print(agent.bt.behaviour_tree.root)
         # agent.shared_content['Sites'] = {sim.site}
 
+    # print(sim.hub, sim.site, sim.foods)
     simresults = SimulationResults(
         sim.pname, sim.connect, sim.sn, sim.stepcnt, sim.food_in_hub(),
         phenotypes[0]
@@ -105,6 +107,7 @@ def simulate(env, iteration):
     # print ('food at hub', len(sim.food_in_loc(sim.hub.location)))
     # print("Total food in the hub", len(food_objects))
 
+    # print([food.location for food in sim.foods])
     food_objects = sim.food_in_loc(sim.hub.location)
 
     for food in food_objects:
@@ -153,23 +156,25 @@ def readjson():
     # data = JsonPhenotypeData.load_json_file(jfilename)    
     # print(data)
 
-    fo = open("/tmp/swarmbehaviors.txt", "r+")
+    fo = open("/tmp/swarmbehaviors1.txt", "r+")
     # print ("Name of the file: ", fo.name)
     phenotypes = {}
     i = 0
     while True:
         line = fo.readline()
         phenotypes.update(eval(line))
+        # print(i, len(phenotypes.keys()))
         # print ("Read Line: %s" % (line))
         i += 1
-        if i == 48:
+        if i == 14:
             break
     # {k: d[k] for k in sorted(d, key=d.get)}        
     phenotypeslist = [k for k in sorted(phenotypes, key=phenotypes.get, reverse=True)]
+    # print(phenotypeslist)
     # print(phenotypeslist, len(phenotypeslist))
 
     # line = fo.readline(5)
-    # print ("Read Line: %s" % (line))    
+    # print ("Read Line: %s" % (line))  
     return phenotypeslist
 
 
@@ -179,7 +184,7 @@ def run_phenotype_exp():
     env = (phenotypes, '/tmp/swarm/data/experiment/')
     # for step in steps:
     print('Simulation the evolved phenotypes')
-    simulate(env, 2000)
+    simulate(env, 6000)
 
 
 

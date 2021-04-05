@@ -630,8 +630,9 @@ class SimAgent(Agent):
 
         self.bt.xmlstring = xmlstring
         self.bt.construct()
+        # print(self.name, self.bt.xmlstring, self.bt.behaviour_tree.root)
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
-        # py_trees.display.print_ascii_tree(select)
+        # py_trees.display.print_ascii_tree(self.bt.behaviour_tree.root)
 
     def step(self):
         self.bt.behaviour_tree.tick()
