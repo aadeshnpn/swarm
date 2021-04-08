@@ -19,7 +19,7 @@ from swarms.behaviors.sbehaviors import (
     IsMultipleCarry, IsInPartialAttached, IsEnoughStrengthToCarry,
     InitiateMultipleCarry, IsCarrying, Drop, RandomWalk, DropPartial,
     SignalDoesNotExists, SendSignal, NeighbourObjects, ReceiveSignal,
-    CueDoesNotExists, DropCue, PickCue, IsPassable, IsDeathable, 
+    CueDoesNotExists, DropCue, PickCue, IsPassable, IsDeathable,
     IsAgentDead, ObjectsOnGrid, MakeAgentDead
     )
 
@@ -73,11 +73,11 @@ class MoveTowards(Behaviour):
         # passable = IsPassable('MT_Passable_3')
         # passable.setup(0, self.agent, 'Obstacles')
         passable = ObstacleStuck('MT_Passable_3')
-        passable.setup(0, self.agent, 'Obstacles')        
+        passable.setup(0, self.agent, 'Obstacles')
 
 
-        # Only move if its not deathable 
-        deathable = inverter(IsDeathable)('MT_Deathable_4')        
+        # Only move if its not deathable
+        deathable = inverter(IsDeathable)('MT_Deathable_4')
         deathable.setup(0, self.agent, 'Traps')
 
         # Define move behavior
@@ -145,10 +145,10 @@ class MoveAway(Behaviour):
         # passable = IsPassable('MT_Passable_3')
         # passable.setup(0, self.agent, 'Obstacles')
         passable = ObstacleStuck('MT_Passable_3')
-        passable.setup(0, self.agent, 'Obstacles')        
+        passable.setup(0, self.agent, 'Obstacles')
 
-        # Only move if its not deathable 
-        deathable = inverter(IsDeathable)('MT_Deathable_4')        
+        # Only move if its not deathable
+        deathable = inverter(IsDeathable)('MT_Deathable_4')
         deathable.setup(0, self.agent, 'Traps')
 
         # Define move behavior
@@ -423,7 +423,7 @@ class CompositeDropPartial(Behaviour):
         drop = DropPartial('CDP_DropPartial')
         drop.setup(0, self.agent, self.item)
 
-        dropseq.add_children([aded, iscarrying, drop])
+        dropseq.add_children([adead, iscarrying, drop])
 
         self.behaviour_tree = BehaviourTree(dropseq)
 
@@ -478,10 +478,10 @@ class Explore(Behaviour):
 
         # Only move if its passable
         passable = ObstacleStuck('MT_Passable_3')
-        passable.setup(0, self.agent, 'Obstacles')        
+        passable.setup(0, self.agent, 'Obstacles')
 
-        # Only move if its not deathable 
-        # deathable = inverter(IsDeathable)('Ex_Deathable')        
+        # Only move if its not deathable
+        # deathable = inverter(IsDeathable)('Ex_Deathable')
         # deathable.setup(0, self.agent, 'Traps')
         deathable = AvoidTrap('AvoidTrap')
         deathable.setup(0, self.agent, 'Traps')
@@ -493,7 +493,7 @@ class Explore(Behaviour):
         chkdead.setup(0, self.agent)
 
         # root.add_children([adead, low, passable, deathable, high, chkdead])
-        root.add_children([adead, low, passable, deathable, high, chkdead])        
+        root.add_children([adead, low, passable, deathable, high, chkdead])
 
         self.behaviour_tree = BehaviourTree(root)
 
@@ -785,7 +785,7 @@ class AgentDead(Behaviour):
         This will execute the primitive behaviors defined in the sequence
         """
         self.behaviour_tree.tick()
-        return self.behaviour_tree.root.status        
+        return self.behaviour_tree.root.status
 
 
 class ObstacleStuck(Behaviour):
@@ -823,7 +823,7 @@ class ObstacleStuck(Behaviour):
 
         c3 = Away('OS_Away')
         c3.setup(0, self.agent)
-        
+
         c0.add_children([c2, c3])
         root.add_children([c1, c0])
 
@@ -840,7 +840,7 @@ class ObstacleStuck(Behaviour):
         """
         self.behaviour_tree.tick()
         self.blackboard.shared_content[self.item] = dict()
-        return self.behaviour_tree.root.status        
+        return self.behaviour_tree.root.status
 
 
 class AvoidTrap(Behaviour):
@@ -878,7 +878,7 @@ class AvoidTrap(Behaviour):
 
         c3 = Away('OS_Away')
         c3.setup(0, self.agent)
-        
+
         c0.add_children([c2, c3])
         root.add_children([c1, c0])
 
@@ -895,4 +895,4 @@ class AvoidTrap(Behaviour):
         """
         self.behaviour_tree.tick()
         self.blackboard.shared_content[self.item] = dict()
-        return self.behaviour_tree.root.status        
+        return self.behaviour_tree.root.status

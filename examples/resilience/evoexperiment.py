@@ -23,8 +23,8 @@ def evolve(iteration, agent='EvolAgent', N=100):
     # iteration = 10000
 
     env = EvolModel(
-        N, 200, 200, 10, iter=iteration, expname='ForgeEvolve',
-        agent=agent, parm='swarm_comm.txt')
+        N, width, height, 10, iter=iteration, expname='ForgeEvolve',
+        agent=agent, parm='res.txt')
     env.build_environment_from_json()
 
     # for all agents store the information about hub
@@ -73,7 +73,7 @@ def simulate(env, iteration):
     threshold = 1.0
 
     sim = SimModel(
-        100, 200, 200, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1],
+        100, width, height, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1],
         expname='MSFCommSimulate', agent='SimAgent')
     sim.build_environment_from_json()
 
@@ -138,6 +138,7 @@ def main(args):
     if len(env.phenotypes) >= 1:
         steps = [5000 for i in range(50)]
         env = (env.phenotypes, env.pname)
+        print(env)
         for step in steps:
             print('Simulation the evolved phenotypes')
             simulate(env, step)
@@ -153,7 +154,7 @@ def main(args):
 def readjson():
     # jfilename = '/tmp/behavior.json'
     # jfilename = '/tmp/1617336611651.json'
-    # data = JsonPhenotypeData.load_json_file(jfilename)    
+    # data = JsonPhenotypeData.load_json_file(jfilename)
     # print(data)
 
     fo = open("/tmp/swarmbehaviors1.txt", "r+")
@@ -168,13 +169,13 @@ def readjson():
         i += 1
         if i == 14:
             break
-    # {k: d[k] for k in sorted(d, key=d.get)}        
+    # {k: d[k] for k in sorted(d, key=d.get)}
     phenotypeslist = [k for k in sorted(phenotypes, key=phenotypes.get, reverse=True)]
     # print(phenotypeslist)
     # print(phenotypeslist, len(phenotypeslist))
 
     # line = fo.readline(5)
-    # print ("Read Line: %s" % (line))  
+    # print ("Read Line: %s" % (line))
     return phenotypeslist
 
 
@@ -204,6 +205,11 @@ if __name__ == '__main__':
     args = parser.parse_args()
     print(args)
     # main(args)
-    # Parallel(n_jobs=8)(delayed(main)(i) for i in range(1000, 100000, 2000))
+    iterations = list(range(1000, 50000, 2000))
+    itlist = []
+    for i in iterations:
+        itlist += [i] * 16
+    print(itlist)
+    Parallel(n_jobs=8)(delayed(main)(i) for i in itlist)
     # readjson()
-    run_phenotype_exp()
+    # run_phenotype_exp()

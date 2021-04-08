@@ -20,7 +20,7 @@ from swarms.behaviors.sbehaviors import (
 
 from swarms.behaviors.scbehaviors import (
     CompositeDrop, CompositeSingleCarry, MoveTowards,
-    Explore, CompositeDropPartial, CompositeMultipleCarry, AgentDead, 
+    Explore, CompositeDropPartial, CompositeMultipleCarry, AgentDead,
     AvoidTrap, ObstacleStuck
 )
 
@@ -72,10 +72,10 @@ class ExploreWithout(Behaviour):
 
         # Only move if its passable
         passable = ObstacleStuck('MT_Passable_3')
-        passable.setup(0, self.agent, 'Obstacles')        
+        passable.setup(0, self.agent, 'Obstacles')
 
-        # Only move if its not deathable 
-        # deathable = inverter(IsDeathable)('Ex_Deathable')        
+        # Only move if its not deathable
+        # deathable = inverter(IsDeathable)('Ex_Deathable')
         # deathable.setup(0, self.agent, 'Traps')
         # deathable = AvoidTrap('AvoidTrap')
         # deathable.setup(0, self.agent, 'Traps')
@@ -87,7 +87,7 @@ class ExploreWithout(Behaviour):
         chkdead.setup(0, self.agent)
 
         # root.add_children([adead, low, passable, deathable, high, chkdead])
-        root.add_children([adead, low, passable, high, chkdead])        
+        root.add_children([adead, low, passable, high, chkdead])
 
         self.behaviour_tree = BehaviourTree(root)
 
@@ -135,7 +135,7 @@ class SimForgAgentWithout(Agent):
 
         # self.bt.xmlstring = xmlstring
         # self.bt.construct()
-        # 
+        #
         # neighobst = NeighbourObjects('NeighbourObjects_Obstacles')
         # neighobst.setup(0, self, 'Obstacles')
 
@@ -194,7 +194,7 @@ class SimForgAgentWithout(Agent):
         gotosite = MoveTowards('MoveTowards_Sites')
         gotosite.setup(0, self, 'Sites')
 
-        # siteseq.add_children([neighobst, neightrap, sitefound, invcarrying, gotosite])        
+        # siteseq.add_children([neighobst, neightrap, sitefound, invcarrying, gotosite])
         siteseq.add_children([sitefound, invcarrying, gotosite, adead])
         # siteseq.add_children([invcarrying])
 
@@ -205,7 +205,7 @@ class SimForgAgentWithout(Agent):
         gotohub.setup(0, self, 'Hub')
 
         # hubseq.add_children([neighobst, neightrap, iscarrying, gotohub])
-        hubseq.add_children([iscarrying, gotohub, adead])        
+        hubseq.add_children([iscarrying, gotohub, adead])
 
         sitenotfound = py_trees.meta.inverter(IsVisitedBefore)(
             'IsVisitedBefore_Sites')
@@ -216,7 +216,7 @@ class SimForgAgentWithout(Agent):
 
         # randwalk = py_trees.composites.Sequence('Randwalk')
         # randwalk.add_children([neighobst, neightrap, sitenotfound, explore])
-        # randwalk.add_children([sitenotfound, explore])        
+        # randwalk.add_children([sitenotfound, explore])
 
         locoselect = py_trees.composites.Selector('Move')
         locoselect.add_children([siteseq, hubseq, explore])
@@ -273,7 +273,7 @@ class SimForgAgentWith(Agent):
 
         # self.bt.xmlstring = xmlstring
         # self.bt.construct()
-        # 
+        #
         # neighobst = NeighbourObjects('NeighbourObjects_Obstacles')
         # neighobst.setup(0, self, 'Obstacles')
 
@@ -332,7 +332,7 @@ class SimForgAgentWith(Agent):
         gotosite = MoveTowards('MoveTowards_Sites')
         gotosite.setup(0, self, 'Sites')
 
-        # siteseq.add_children([neighobst, neightrap, sitefound, invcarrying, gotosite])        
+        # siteseq.add_children([neighobst, neightrap, sitefound, invcarrying, gotosite])
         siteseq.add_children([sitefound, invcarrying, gotosite, adead])
         # siteseq.add_children([invcarrying])
 
@@ -343,7 +343,7 @@ class SimForgAgentWith(Agent):
         gotohub.setup(0, self, 'Hub')
 
         # hubseq.add_children([neighobst, neightrap, iscarrying, gotohub])
-        hubseq.add_children([iscarrying, gotohub, adead])        
+        hubseq.add_children([iscarrying, gotohub, adead])
 
         sitenotfound = py_trees.meta.inverter(IsVisitedBefore)(
             'IsVisitedBefore_Sites')
@@ -354,7 +354,7 @@ class SimForgAgentWith(Agent):
 
         # randwalk = py_trees.composites.Sequence('Randwalk')
         # randwalk.add_children([neighobst, neightrap, sitenotfound, explore])
-        # randwalk.add_children([sitenotfound, avoidt, explore])        
+        # randwalk.add_children([sitenotfound, avoidt, explore])
 
         locoselect = py_trees.composites.Selector('Move')
         locoselect.add_children([siteseq, hubseq, explore])
