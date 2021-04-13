@@ -150,13 +150,13 @@ def main(args):
     print('=======End=========')
 
 
-def readjson():
+def readtxt():
     # jfilename = '/tmp/behavior.json'
     # jfilename = '/tmp/1617336611651.json'
     # data = JsonPhenotypeData.load_json_file(jfilename)    
     # print(data)
 
-    fo = open("/tmp/swarmbehaviors1.txt", "r+")
+    fo = open("/tmp/swarmnewbehaviors1.txt", "r+")
     # print ("Name of the file: ", fo.name)
     phenotypes = {}
     i = 0
@@ -166,25 +166,30 @@ def readjson():
         # print(i, len(phenotypes.keys()))
         # print ("Read Line: %s" % (line))
         i += 1
-        if i == 14:
+        if i == 16:
             break
     # {k: d[k] for k in sorted(d, key=d.get)}        
     phenotypeslist = [k for k in sorted(phenotypes, key=phenotypes.get, reverse=True)]
-    # print(phenotypeslist)
+    print(phenotypeslist)
     # print(phenotypeslist, len(phenotypeslist))
 
     # line = fo.readline(5)
     # print ("Read Line: %s" % (line))  
     return phenotypeslist
 
+def readjson():
+    jfilename = '/home/aadeshnpn/Desktop/sforaging/154342259348167-8000EvoSForge/154342259348167-3999.json'
+    data = JsonPhenotypeData.load_json_file(jfilename)    
+    return data['phenotypes']
 
 def run_phenotype_exp():
+    # phenotypes = readtxt()
     phenotypes = readjson()
     # steps = [5000 for i in range(50)]
     env = (phenotypes, '/tmp/swarm/data/experiment/')
     # for step in steps:
     print('Simulation the evolved phenotypes')
-    simulate(env, 6000)
+    simulate(env, 1000)
 
 
 
