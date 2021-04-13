@@ -70,6 +70,7 @@ def simulate(env, iteration):
     # phenotype = agent.individual[0].phenotype
     # phenotypes = extract_phenotype(agents)
     phenotypes = env[0]
+    print('phenotype length',len(phenotypes))
     threshold = 1.0
 
     sim = SimModel(
@@ -103,8 +104,8 @@ def simulate(env, iteration):
             )
         simresults.save_to_file()
 
-    # print ('food at site', len(sim.food_in_loc(sim.site.location)))
-    # print ('food at hub', len(sim.food_in_loc(sim.hub.location)))
+    print ('food at site', len(sim.food_in_loc(sim.site.location)))
+    print ('food at hub', len(sim.food_in_loc(sim.hub.location)))
     # print("Total food in the hub", len(food_objects))
 
     # print([food.location for food in sim.foods])
@@ -179,7 +180,7 @@ def readtxt():
     return phenotypeslist
 
 def readjson():
-    jfilename = '/home/aadeshnpn/Desktop/sforaging/154342259348167-8000EvoSForge/154342259348167-3999.json'
+    jfilename = '/home/aadeshnpn/Desktop/sforaging/07777SForagingSimulation/1538473090382007.json'
     data = JsonPhenotypeData.load_json_file(jfilename)    
     return data['phenotypes']
 
@@ -190,7 +191,7 @@ def run_phenotype_exp():
     env = (phenotypes, '/tmp/swarm/data/experiment/')
     # for step in steps:
     print('Simulation the evolved phenotypes')
-    simulate(env, 1000)
+    simulate(env, 5000)
 
 
 
@@ -215,6 +216,6 @@ if __name__ == '__main__':
     for i in iterations:
         itlist += [i] * 16
     print(itlist)
-    Parallel(n_jobs=8)(delayed(main)(i) for i in itlist)
+    # Parallel(n_jobs=8)(delayed(main)(i) for i in itlist)
     # readjson()
-    # run_phenotype_exp()
+    run_phenotype_exp()

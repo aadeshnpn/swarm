@@ -14,14 +14,14 @@ from py_trees.trees import BehaviourTree
 
 from swarms.behaviors.sbehaviors import (
     NeighbourObjects, IsVisitedBefore,
-    IsCarrying, IsInPartialAttached, ObjectsOnGrid, IsAgentDead,
-    RandomWalk, Move
+    IsCarrying, IsInPartialAttached, RandomWalk, Move
+    # ObjectsOnGrid, IsAgentDead,    
     )
 
 from swarms.behaviors.scbehaviors import (
     CompositeDrop, CompositeSingleCarry, MoveTowards,
-    Explore, CompositeDropPartial, CompositeMultipleCarry, AgentDead,
-    AvoidTrap, ObstacleStuck
+    Explore, CompositeDropPartial, CompositeMultipleCarry
+    # , AgentDead, AvoidTrap, ObstacleStuck
 )
 
 # import py_trees

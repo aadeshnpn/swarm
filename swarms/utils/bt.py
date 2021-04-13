@@ -9,11 +9,13 @@ from swarms.behaviors.scbehaviors import (      # noqa: F401
     MoveTowards, MoveAway, Explore, CompositeSingleCarry,
     CompositeMultipleCarry, CompositeDrop, CompositeDropCue,
     CompositePickCue, CompositeSendSignal, CompositeReceiveSignal,
-    CompositeDropPartial, AvoidTrap, MakeAgentDead
+    CompositeDropPartial
+    # , AvoidTrap, MakeAgentDead
     )
 from swarms.behaviors.sbehaviors import (       # noqa: F401
     IsCarrying, NeighbourObjects, Move, IsDropable,
-    IsVisitedBefore, IsInPartialAttached, IsAgentDead, IsPassable, IsDeathable
+    IsVisitedBefore, IsInPartialAttached
+    # , IsAgentDead, IsPassable, IsDeathable
     )
 
 
