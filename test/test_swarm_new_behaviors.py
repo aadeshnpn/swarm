@@ -5,7 +5,7 @@ from swarms.lib.time import SimultaneousActivation
 from swarms.lib.space import Grid
 from swarms.behaviors.sbehaviors import (
     GoTo, RandomWalk, NeighbourObjects,
-    Away, Towards, DoNotMove, Move
+    Away, Towards, DoNotMove, Move, AvoidSObjects
     )
 from swarms.lib.objects import Sites, Hub, Obstacles
 import py_trees
@@ -24,7 +24,7 @@ class SwarmAgentGoTo(Agent):
 
         self.direction = model.random.rand() * (2 * np.pi)
         self.speed = 2
-        self.radius = 3
+        self.radius = 5
 
         self.moveable = True
         self.shared_content = dict()
@@ -97,3 +97,101 @@ class TestGoToSwarmSmallGrid(TestCase):
     def test_agent_path(self):
         self.assertEqual(self.environment.agent.location, (-1, -1))
 
+
+# Class to tets the avoid behavior for the agent
+class SwarmAgentAvoid(Agent):
+    """ An minimalistic behavior tree for swarm agent implementing goto
+    behavior
+    """
+    def __init__(self, name, model):
+        super().__init__(name, model)
+        self.location = ()
+
+        self.direction = model.random.rand() * (2 * np.pi)
+        self.speed = 2
+        self.radius = 5
+        self.moveable = True
+        self.carryable = False
+        self.shared_content = dict()
+
+        root = py_trees.composites.Sequence("Sequence")
+
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+
+        self.shared_content[type(model.target).__name__] = {model.target}
+
+        low = GoTo('1')
+        low.setup(0, self, type(model.target).__name__)
+        medium = NeighbourObjects('2')
+        medium.setup(0, self, item=None)        
+        med = AvoidSObjects('3')
+        med.setup(0, self, type(model.obstacle).__name__)        
+        high = Move('4')
+        high.setup(0, self)
+        root.add_children([low, medium, med, high])
+        self.behaviour_tree = py_trees.trees.BehaviourTree(root)
+        # py_trees.display.print_ascii_tree(root)
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+
+    def step(self):
+        self.behaviour_tree.tick()
+
+
+
+class AvoidSwarmEnvironmentModel(Model):
+    """ A environemnt to model swarms """
+    def __init__(self, N, width, height, grid=10, seed=None):
+        if seed is None:
+            super(AvoidSwarmEnvironmentModel, self).__init__(seed=None)
+        else:
+            super(AvoidSwarmEnvironmentModel, self).__init__(seed)
+
+        self.num_agents = N
+
+        self.grid = Grid(width, height, grid)
+
+        self.schedule = SimultaneousActivation(self)
+
+        self.obstacle = Obstacles(id=2, location=(9, 9), radius=5)
+
+        self.target = Sites(id=1, location=(45, 45), radius=5, q_value=0.5)
+
+        self.grid.add_object_to_grid(self.target.location, self.target)
+        self.grid.add_object_to_grid(self.obstacle.location, self.obstacle)
+
+        for i in range(self.num_agents):
+            a = SwarmAgentAvoid(i, self)
+            self.schedule.add(a)
+            x = -45
+            y = -45
+            a.location = (x, y)
+            a.direction = -2.3561944901923448
+            self.grid.add_object_to_grid((x, y), a)
+
+        self.agent = a
+
+    def step(self):
+        self.schedule.step()
+
+
+
+class TestAvoidSwarmSmallGrid(TestCase):
+
+    def setUp(self):
+        self.environment = AvoidSwarmEnvironmentModel(1, 100, 100, 10, 123)
+
+        for i in range(120):
+            self.environment.step()
+            print(i, self.environment.agent.location)
+
+    def test_agent_path(self):
+        self.assertEqual(self.environment.agent.location, (45, 45))
+
+
+    def test_agent_goal(self):
+        site = self.environment.grid.get_objects(
+            'Sites', self.environment.grid.find_grid(self.environment.agent.location)[1]
+            )
+        self.assertGreater(len(site), 0)
+        

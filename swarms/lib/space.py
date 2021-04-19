@@ -213,7 +213,7 @@ class Grid:
     # Using fancy search to find the object in the particular grid
     def get_objects(self, object_name, grid_value):
         """Use fancy search to find objects in a grid."""
-        if object_name:
+        if object_name is not None:
             return list(filter(
                 lambda x: type(x).__name__ == object_name,
                 self.grid_objects[grid_value]))
