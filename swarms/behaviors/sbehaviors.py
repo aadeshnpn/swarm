@@ -355,18 +355,19 @@ class Move(Behaviour):
                 self.agent.direction) * self.agent.velocity)
             new_location, direction = self.agent.model.grid.check_limits(
                 (x, y), self.agent.direction)
-            self.agent.model.grid.move_object(
-                self.agent.location, self.agent, new_location)
+            
+            if self.agent.model.grid.move_object(
+                self.agent.location, self.agent, new_location):
 
-            # Now the agent location has been updated, update the signal grids
-            self.update_signals(self.agent.location, new_location)
+                # Now the agent location has been updated, update the signal grids
+                self.update_signals(self.agent.location, new_location)
 
-            self.agent.location = new_location
-            self.agent.direction = direction
+                self.agent.location = new_location
+                self.agent.direction = direction
 
-            # Full carried object moves along the agent
-            for item in self.agent.attached_objects:
-                item.location = self.agent.location
+                # Full carried object moves along the agent
+                for item in self.agent.attached_objects:
+                    item.location = self.agent.location
 
         else:
             new_location = self.agent.partial_attached_objects[0].location
