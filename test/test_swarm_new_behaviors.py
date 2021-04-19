@@ -7,7 +7,7 @@ from swarms.behaviors.sbehaviors import (
     GoTo, RandomWalk, NeighbourObjects,
     Away, Towards, DoNotMove, Move, AvoidSObjects
     )
-from swarms.lib.objects import Sites, Hub, Obstacles
+from swarms.lib.objects import Sites, Hub, Obstacles, Traps
 import py_trees
 from py_trees import Blackboard
 import numpy as np
@@ -183,7 +183,7 @@ class TestAvoidSwarmSmallGrid(TestCase):
 
         for i in range(120):
             self.environment.step()
-            print(i, self.environment.agent.location)
+            print(i, self.environment.agent.location, self.environment.agent.dead)
 
     def test_agent_path(self):
         self.assertEqual(self.environment.agent.location, (45, 45))
@@ -195,3 +195,83 @@ class TestAvoidSwarmSmallGrid(TestCase):
             )
         self.assertGreater(len(site), 0)
         
+
+# Class to tets agent dead in trap
+class SwarmAgentTrap(Agent):
+    """ An minimalistic behavior tree for swarm agent implementing goto
+    behavior
+    """
+    def __init__(self, name, model):
+        super().__init__(name, model)
+        self.location = ()
+
+        self.direction = model.random.rand() * (2 * np.pi)
+        self.speed = 2
+        self.radius = 5
+
+        self.moveable = True
+        self.shared_content = dict()
+
+        root = py_trees.composites.Sequence("Sequence")
+
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+
+        self.shared_content[type(model.target).__name__] = {model.target}
+
+        low = GoTo('1')
+        low.setup(0, self, type(model.target).__name__)
+        high = Move('2')
+        high.setup(0, self)
+        root.add_children([low, high])
+        self.behaviour_tree = py_trees.trees.BehaviourTree(root)
+
+    def step(self):
+        self.behaviour_tree.tick()
+
+
+
+class TrapSwarmEnvironmentModel(Model):
+    """ A environemnt to model swarms """
+    def __init__(self, N, width, height, grid=10, seed=None):
+        if seed is None:
+            super(TrapSwarmEnvironmentModel, self).__init__(seed=None)
+        else:
+            super(TrapSwarmEnvironmentModel, self).__init__(seed)
+
+        self.num_agents = N
+
+        self.grid = Grid(width, height, grid)
+
+        self.schedule = SimultaneousActivation(self)
+
+        self.target = Traps(id=1, location=(20,20), radius=8)
+        self.grid.add_object_to_grid(self.target.location, self.target)
+
+        for i in range(self.num_agents):
+            a = SwarmAgentTrap(i, self)
+            self.schedule.add(a)
+            x = -45
+            y = -45
+            a.location = (x, y)
+            a.direction = -2.3561944901923448
+            self.grid.add_object_to_grid((x, y), a)
+
+        self.agent = a
+
+    def step(self):
+        self.schedule.step()
+
+
+
+class TestTrapSwarmSmallGrid(TestCase):
+
+    def setUp(self):
+        self.environment = TrapSwarmEnvironmentModel(1, 100, 100, 10, 123)
+
+        for i in range(50):
+            self.environment.step()
+            print(i, self.environment.agent.location)
+
+    def test_agent_path(self):
+        self.assertEqual(self.environment.agent.location, (19, 19))         
