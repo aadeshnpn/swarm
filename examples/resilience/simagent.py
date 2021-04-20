@@ -20,7 +20,8 @@ from swarms.behaviors.sbehaviors import (
 
 from swarms.behaviors.scbehaviors import (
     CompositeDrop, CompositeSingleCarry, MoveTowards,
-    Explore, CompositeDropPartial, CompositeMultipleCarry
+    Explore, CompositeDropPartial, CompositeMultipleCarry,
+    NewExplore, NewMoveAway, NewMoveTowards
     # , AgentDead, AvoidTrap, ObstacleStuck
 )
 
@@ -216,20 +217,20 @@ class SimForgAgentWith(Agent):
         dseq.add_children([neighhub, drop])
 
         # ## Obstacles and Trap
-        neighobs = NeighbourObjects('NeighbourObjects_Obs')
-        neighobs.setup(0, self, 'Obstacle')
+        # neighobs = NeighbourObjects('NeighbourObjects_Obs')
+        # neighobs.setup(0, self, 'Obstacle')
 
-        neightrap = NeighbourObjects('NeighbourObjects_Trap')
-        neightrap.setup(0, self, 'Traps')        
+        # neightrap = NeighbourObjects('NeighbourObjects_Trap')
+        # neightrap.setup(0, self, 'Traps')        
 
-        avoidobstacle = AvoidSObjects('Obstacle')
-        avoidobstacle.setup(0, agent)
+        # avoidobstacle = AvoidSObjects('Obstacle')
+        # avoidobstacle.setup(0, agent)
 
-        avoidtrap = AvoidSObjects('Trap')
-        avoidtrap.setup(0, agent, item='Traps')        
+        # avoidtrap = AvoidSObjects('Trap')
+        # avoidtrap.setup(0, agent, item='Traps')        
         
-        otseq = py_trees.composites.Sequence('OTSequence')
-        otseq.add_children([neighobs, avoidobstacle, neightrap, avoidtrap])
+        # otseq = py_trees.composites.Sequence('OTSequence')
+        # otseq.add_children([neighobs, avoidobstacle, neightrap, avoidtrap])
 
         # Carry branch
         cseq = py_trees.composites.Sequence('CSequence')
@@ -256,7 +257,7 @@ class SimForgAgentWith(Agent):
         sitefound = IsVisitedBefore('IsVisitedBefore_Sites')
         sitefound.setup(0, self, 'Sites')
 
-        gotosite = MoveTowards('MoveTowards_Sites')
+        gotosite = NewMoveTowards('MoveTowards_Sites')
         gotosite.setup(0, self, 'Sites')
 
         # siteseq.add_children([neighobst, neightrap, sitefound, invcarrying, gotosite])
@@ -266,7 +267,7 @@ class SimForgAgentWith(Agent):
         # Move to hub
         hubseq = py_trees.composites.Sequence('HubSeq')
 
-        gotohub = MoveTowards('MoveTowards_Hub')
+        gotohub = NewMoveTowards('MoveTowards_Hub')
         gotohub.setup(0, self, 'Hub')
 
         # hubseq.add_children([neighobst, neightrap, iscarrying, gotohub])
@@ -276,7 +277,7 @@ class SimForgAgentWith(Agent):
             'IsVisitedBefore_Sites')
         sitenotfound.setup(0, self, 'Sites')
 
-        explore = Explore('Explore')
+        explore = NewExplore('Explore')
         explore.setup(0, self)
 
         # randwalk = py_trees.composites.Sequence('Randwalk')
