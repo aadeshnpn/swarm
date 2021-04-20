@@ -7,6 +7,10 @@ from swarms.behaviors.sbehaviors import (
     GoTo, RandomWalk, NeighbourObjects,
     Away, Towards, DoNotMove, Move, AvoidSObjects
     )
+
+from swarms.behaviors.scbehaviors import (
+    AvoidTrapObstaclesBehaviour
+    )    
 from swarms.lib.objects import Sites, Hub, Obstacles, Traps
 import py_trees
 from py_trees import Blackboard
@@ -123,13 +127,16 @@ class SwarmAgentAvoid(Agent):
 
         low = GoTo('1')
         low.setup(0, self, type(model.target).__name__)
-        medium = NeighbourObjects('2')
-        medium.setup(0, self, item=None)        
-        med = AvoidSObjects('3')
-        med.setup(0, self, type(model.obstacle).__name__)        
+        # medium = NeighbourObjects('2')
+        # medium.setup(0, self, item=None)        
+        # med = AvoidSObjects('3')
+        # med.setup(0, self, type(model.obstacle).__name__)       
+        medium = AvoidTrapObstaclesBehaviour('2')
+        medium.setup(0, self)        
         high = Move('4')
         high.setup(0, self)
-        root.add_children([low, medium, med, high])
+        # root.add_children([low, medium, med, high])
+        root.add_children([low, medium, high])        
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
         # py_trees.display.print_ascii_tree(root)
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
@@ -303,13 +310,19 @@ class SwarmAgentAvoidTrap(Agent):
 
         low = GoTo('1')
         low.setup(0, self, type(model.target).__name__)
-        medium = NeighbourObjects('2')
-        medium.setup(0, self, item=None)        
-        med = AvoidSObjects('3')
-        med.setup(0, self, type(model.trap).__name__)        
+        
+        # medium = NeighbourObjects('2')
+        # medium.setup(0, self, item=None)        
+        # med = AvoidSObjects('3')
+        # med.setup(0, self, type(model.trap).__name__)       
+        
+        medium = AvoidTrapObstaclesBehaviour('2')
+        medium.setup(0, self)
+
         high = Move('4')
         high.setup(0, self)
-        root.add_children([low, medium, med, high])
+        # root.add_children([low, medium, med, high])
+        root.add_children([low, medium, high])        
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
         # py_trees.display.print_ascii_tree(root)
         # py_trees.logging.level = py_trees.logging.Level.DEBUG

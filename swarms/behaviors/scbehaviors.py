@@ -18,7 +18,7 @@ from swarms.behaviors.sbehaviors import (
     IsMultipleCarry, IsInPartialAttached, IsEnoughStrengthToCarry,
     InitiateMultipleCarry, IsCarrying, Drop, RandomWalk, DropPartial,
     SignalDoesNotExists, SendSignal, NeighbourObjects, ReceiveSignal,
-    CueDoesNotExists, DropCue, PickCue
+    CueDoesNotExists, DropCue, PickCue, AvoidSObjects
     )
 
 # Start of mid-level behaviors. These behaviors are the
@@ -637,6 +637,62 @@ class CompositePickCue(Behaviour):
         c2.setup(0, self.agent, 'Cue')
 
         root.add_children([c1, c2])
+
+        self.behaviour_tree = BehaviourTree(root)
+
+    def initialise(self):
+        """Everytime initialization. Not required for now."""
+        pass
+
+    def update(self):
+        """Just call the tick method for the sequence.
+
+        This will execute the primitive behaviors defined in the sequence
+        """
+        self.behaviour_tree.tick()
+        return self.behaviour_tree.root.status
+
+
+class AvoidTrapObstaclesBehaviour(Behaviour):
+    """Avoid both obstacles and trap for the agents.
+
+    Inherits the Behaviors class from py_trees. This
+    behavior combines the privitive behaviors to succesfully avoid traps
+    and obstacles in the environment.
+    """
+
+    def __init__(self, name):
+        """Init method for the AvoidTrapObstacles behavior."""
+        super(AvoidTrapObstaclesBehaviour, self).__init__(name)
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+
+    def setup(self, timeout, agent, item=None):
+        """Have defined the setup method.
+
+        This method defines the other objects required for the
+        behavior. Agent is the actor in the environment,
+        item is the name of the item we are trying to find in the
+        environment and timeout defines the execution time for the
+        behavior.
+        """
+        self.agent = agent
+        self.item = item
+
+        # Define the root for the BT
+        root = Sequence('ATO_Sequence')
+        
+        m1 = NeighbourObjects('ATO_SearchTrap')
+        m1.setup(0, self.agent, item=None)        
+        m2 = AvoidSObjects('ATO_AvoidTrap')
+        m2.setup(0, self.agent, 'Traps')   
+        # m3 = NeighbourObjects('ATO_SearchObstacles')
+        # m3.setup(0, self.agent, item=None)
+        m4 = AvoidSObjects('ATO_AvoidObstacle')
+        m4.setup(0, self.agent, 'Obstacles')           
+
+        root.add_children([m1, m2, m4])
+        # root.add_children([m3, m4])        
 
         self.behaviour_tree = BehaviourTree(root)
 
