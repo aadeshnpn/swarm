@@ -133,15 +133,16 @@ def main(args):
         agent = SimForgAgentWith if agent == 0 else SimForgAgentWithout
         dname = os.path.join('/tmp', 'swarm', 'data', 'experiments', str(n), agent.__name__, str(site['x'])+str(site['y']))
         pathlib.Path(dname).mkdir(parents=True, exist_ok=True)
-        steps = [500 for i in range(args.runs)]
+        steps = [5000 for i in range(args.runs)]
         env = (['123', '123'], dname)
         Parallel(n_jobs=8)(delayed(simulate_forg)(env, i, agent=agent, N=n, site=site) for i in steps)
         # simulate_forg(env, 20, agent=agent, N=n, site=site)
 
     if args.all:
-        for agent in [0, 1]:
-            # for n in [50, 100, 200, 300, 400]:
-            for n in [200, 300, 400]:            
+        # for agent in [0, 1]:
+        for agent in [1]:        
+            # for n in [50, 100, 200, 300, 400, 500]:
+            for n in [100, 200, 300, 400]:            
                 exp(n, agent, runs, site)
     else:
         exp(n, agent, runs, site)
@@ -157,7 +158,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--n', default=100, type=int)
     # [SimForgAgentWith, SimForgAgentWithout])        
-    parser.add_argument('--agent', default=1, choices=[0, 1])
+    parser.add_argument('--agent', default=1, choices=[0, 1], type=int)
     parser.add_argument('--runs', default=50, type=int)
     parser.add_argument('--site', default=7, type=int)    
     parser.add_argument('--all', default=False)

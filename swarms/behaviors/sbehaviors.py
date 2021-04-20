@@ -86,19 +86,22 @@ class NeighbourObjects(Behaviour):
         is a dictionary with sets as values.
         """
         grids = self.agent.model.grid.get_neighborhood(
-            self.agent.location, self.agent.radius)
+            self.agent.location, self.agent.radius*3)
         objects = self.agent.model.grid.get_objects_from_list_of_grid(
             self.item, grids)
         # Need to reset blackboard contents after each sense
         self.blackboard.shared_content = dict()
 
         if len(objects) >= 1:
+            if self.agent in objects:
+                objects.remove(self.agent)
+
             for item in objects:
                 name = type(item).__name__
                 # Is the item is not carrable, its location
                 # and property doesnot change. So we can commit its
                 # information to memory
-                if item.carryable is False:
+                if item.carryable is False and item.passable is True:
                     try:
                         self.agent.shared_content[name].add(item)
                     except KeyError:
@@ -355,18 +358,19 @@ class Move(Behaviour):
                 self.agent.direction) * self.agent.velocity)
             new_location, direction = self.agent.model.grid.check_limits(
                 (x, y), self.agent.direction)
-            self.agent.model.grid.move_object(
-                self.agent.location, self.agent, new_location)
+            
+            if self.agent.model.grid.move_object(
+                self.agent.location, self.agent, new_location):
 
-            # Now the agent location has been updated, update the signal grids
-            self.update_signals(self.agent.location, new_location)
+                # Now the agent location has been updated, update the signal grids
+                self.update_signals(self.agent.location, new_location)
 
-            self.agent.location = new_location
-            self.agent.direction = direction
+                self.agent.location = new_location
+                self.agent.direction = direction
 
-            # Full carried object moves along the agent
-            for item in self.agent.attached_objects:
-                item.location = self.agent.location
+                # Full carried object moves along the agent
+                for item in self.agent.attached_objects:
+                    item.location = self.agent.location
 
         else:
             new_location = self.agent.partial_attached_objects[0].location
@@ -1224,3 +1228,50 @@ class PickCue(Behaviour):
             return Status.SUCCESS
         except (IndexError, AttributeError):
             return Status.FAILURE
+
+
+class AvoidSObjects(Behaviour):
+    """Avoid Static objects in the environment.
+
+    This is a avoid behaviors where the agents avoids 
+    the static objects that are not passable. 
+    """
+
+    def __init__(self, name):
+        """Initialize."""
+        super(AvoidSObjects, self).__init__(name)
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+
+    def setup(self, timeout, agent, item='Obstacles'):
+        """Setup."""
+        self.agent = agent
+        self.item = item
+
+    def initialise(self):
+        """Pass."""
+        pass
+
+    def update(self):
+        """Logic for pickup cue."""
+
+        try:
+            # print(self.agent.shared_content, self.blackboard.shared_content, self.item)
+            objects = ObjectsStore.find(
+                self.blackboard.shared_content, self.agent.shared_content,
+                self.item, self.agent.name)[0]
+            print('avoid obstacles', self.item)
+            # Get the collision angle and add np.pi in the opposite direction
+            # self.agent.direction = get_direction(
+            #     objects.communicated_location, self.agent.location)
+            alpha = get_direction(objects.location, self.agent.location)
+            theta = self.agent.direction
+            # self.agent.direction = np.clip(alpha  - theta - np.pi/2, -2*np.pi, 2*np.pi) + self.agent.model.random.rand()
+            if self.agent.direction < np.pi/2:
+                self.agent.direction = np.clip(alpha  - theta - np.pi/2, -2*np.pi, 2*np.pi) 
+            else:
+                self.agent.direction = np.clip(alpha  - theta + np.pi/2, -2*np.pi, 2*np.pi) 
+            print(alpha, theta, self.agent.direction)            
+            return Status.SUCCESS
+        except (IndexError, AttributeError):
+            return Status.SUCCESS            

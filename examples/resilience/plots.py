@@ -25,7 +25,9 @@ def plotgraph(n=100, agent='SimForgAgentWith'):
     # data = np.array(data)
     # print(data.shape)
 
-    data = read_data_n_agent(n=n, agent=agent)
+    # data = read_data_n_agent(n=n, agent=agent)
+    data = read_data_n_agent_site(n=n, agent=agent, site='-9090')
+    print(data.shape)
     median = np.quantile(data, 0.5, axis=0)
     # print(median)
     q1 = np.quantile(data, 0.25, axis=0)
@@ -87,10 +89,14 @@ def read_data_n_agent_site(n=100, agent='SimForgAgentWith', site='5050'):
     data = []
     for f in folders:
         flist = [p for p in pathlib.Path(f).iterdir() if p.is_file()]
-        _, _, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
-        data.append(d)
+        try:
+            # print(flist)
+            _, _, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+            data.append(d)
+        except IndexError:
+            pass
+    # print(data)
     data = np.array(data)
-    # print(data.shape)
     return data    
 
 
@@ -206,14 +212,15 @@ def boxplotsiteloc(agent='SimForgAgentWith'):
 
 
 def main():
-    agents = [50, 100, 200, 300, 400]
-    atype = ['SimForgAgentWith', 'SimForgAgentWithout']
+    # agents = [50, 100, 200, 300, 400]
+    # atype = ['SimForgAgentWith', 'SimForgAgentWithout']
+    # boxplotsiteloc(atype[1])
+    plotgraph(n=100, agent='SimForgAgentWithout')
     # for n in agents:
     #     for t in atype:
     #         plotgraph(n=n, agent=t)
     # for t in atype:
     #     boxplot(t)
-    boxplotsiteloc(atype[1])
 
 
 # import os

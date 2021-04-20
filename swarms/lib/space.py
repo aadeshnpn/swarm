@@ -7,6 +7,7 @@ Grid: base grid, a simple dictionary.
 """
 import math
 import numpy as np
+import re
 
 
 class Grid:
@@ -156,6 +157,11 @@ class Grid:
         """Add object to a given grid."""
         grid_values = self.get_neighborhood(point, objects.radius)
         for grid in grid_values:
+            gridobjects = self.get_objects(None, grid)
+            for gobject in gridobjects:
+                if not re.match('.*Agent.*' , type(gobject).__name__): 
+                    if gobject.deathable and re.match('.*Agent.*' , type(objects).__name__):
+                        objects.dead = True
             self.grid_objects[grid].append(objects)
 
     # Remove object to the given grid
@@ -170,8 +176,17 @@ class Grid:
         grid_key, grid_value = self.find_grid(point)
         new_grid_key, new_grid_value = self.find_grid(newpoint)
         if grid_value != new_grid_value:
-            self.remove_object_from_grid(point, objects)
-            self.add_object_to_grid(newpoint, objects)
+            if re.match('.*Agent.*' , type(objects).__name__) and objects.dead: 
+                return False
+            else:
+                if self.check_grid_objects_constraints(new_grid_value):
+                    self.remove_object_from_grid(point, objects)
+                    self.add_object_to_grid(newpoint, objects)
+                    return True
+                else:
+                    return False
+        else:
+            return True
 
     # Check limits for the environment boundary
     def check_limits(self, i, d):
@@ -191,10 +206,22 @@ class Grid:
             d = np.pi + d
         return ((x, y), d)
 
+    def check_grid_objects_constraints(self, new_grid_value):
+        """Check the constraints on the next location."""
+        # grid_key, grid_value = self.find_grid(source_obj.location)
+        # new_grid_key, new_grid_value = self.find_grid(next_loc)
+        passable = True
+        objects_in_next_grid = self.get_objects(None, new_grid_value)
+        for obj in objects_in_next_grid:
+            if not obj.passable:
+                passable = False
+                break
+        return passable
+
     # Using fancy search to find the object in the particular grid
     def get_objects(self, object_name, grid_value):
         """Use fancy search to find objects in a grid."""
-        if object_name:
+        if object_name is not None:
             return list(filter(
                 lambda x: type(x).__name__ == object_name,
                 self.grid_objects[grid_value]))

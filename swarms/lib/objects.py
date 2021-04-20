@@ -11,8 +11,11 @@ class EnvironmentObject:
         self.id = id
         self.location = location
         self.radius = radius
+        self.dropable = False
+        self.carryable = False
         self.passable = False
         self.deathable = False
+        self.moveable = False
 
 # Class to define hub object
 class Hub(EnvironmentObject):
@@ -21,9 +24,11 @@ class Hub(EnvironmentObject):
     def __init__(self, id=1, location=(0, 0), radius=20):
         """Initialize."""
         super().__init__(id, location, radius)
-        self.carryable = False
         self.dropable = True
+        self.carryable = False
         self.passable = True
+        self.deathable = False
+        self.moveable = False
 
 
 # Class to define site object
@@ -37,8 +42,11 @@ class Sites(EnvironmentObject):
         """
         super().__init__(id, location, radius)
         self.q_value = q_value
+        self.dropable = False
         self.carryable = False
-        self.passable = False
+        self.passable = True
+        self.deathable = False
+        self.moveable = False
 
 
 # Class to define source object
@@ -53,9 +61,11 @@ class Source(EnvironmentObject):
         super().__init__(id, location, radius)
         # self.food_units = self.q_value * 1000
         self.food_units = food_units
+        self.dropable = False
         self.carryable = False
-        self.passable = False
-
+        self.passable = True
+        self.deathable = False
+        self.moveable = False
 
 # Class to define obstacle
 class Obstacles(EnvironmentObject):
@@ -65,9 +75,11 @@ class Obstacles(EnvironmentObject):
         """Initialize."""
         super().__init__(id, location, radius)
         self.potential_field = None
-        self.carryable = False
         self.dropable = True
+        self.carryable = False
         self.passable = False
+        self.deathable = False
+        self.moveable = False
 
 
 # Class to define carryable property
@@ -83,13 +95,16 @@ class Carryable(EnvironmentObject):
         super().__init__(id, location, radius)
         # Carryable boolen value
         self.carryable = True
+        self.dropable = False
+        self.passable = True
+        self.deathable = False
+        self.moveable = False
+
         self.weight = int(self.radius / 2)
         self.capacity = self.weight
         self.motion = False
         self.agents = dict()
         self.direction = 0
-        self.passable = False
-        self.deathable = False
 
     def calc_relative_weight(self):
         """Compute relative weight of the object."""
@@ -151,7 +166,12 @@ class Communication(EnvironmentObject):
         # Communication parameters for signal
         self.communicated_object = object_to_communicate
         self.communicated_location = self.communicated_object.location
+
+        self.dropable = False
         self.carryable = False
+        self.passable = False
+        self.deathable = False
+        self.moveable = False
 
 
 # Class to define signal
@@ -162,6 +182,11 @@ class Signal(Communication):
             0, 0), radius=20, object_to_communicate=None):
         """Initialize."""
         super().__init__(id, None, radius, object_to_communicate)
+        self.dropable = False
+        self.carryable = False
+        self.passable = False
+        self.deathable = False
+        self.moveable = False
 
 
 # Class to define Cue
@@ -172,6 +197,11 @@ class Cue(Communication):
             0, 0), radius=20, object_to_communicate=None):
         """Initialize."""
         super().__init__(id, location, radius, object_to_communicate)
+        self.dropable = False
+        self.carryable = False
+        self.passable = True
+        self.deathable = False
+        self.moveable = False
 
 
 # Class to define Traps
@@ -181,9 +211,11 @@ class Traps(EnvironmentObject):
     def __init__(self, id=1, location=(0, 0), radius=20):
         """Initialize."""
         super().__init__(id, location, radius)
+        self.dropable = False
         self.carryable = False
         self.passable = False
         self.deathable = True
+        self.moveable = False
 
 
 # Class to define Food

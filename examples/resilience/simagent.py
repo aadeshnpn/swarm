@@ -14,7 +14,7 @@ from py_trees.trees import BehaviourTree
 
 from swarms.behaviors.sbehaviors import (
     NeighbourObjects, IsVisitedBefore,
-    IsCarrying, IsInPartialAttached, RandomWalk, Move
+    IsCarrying, IsInPartialAttached, RandomWalk, Move, AvoidSObjects
     # ObjectsOnGrid, IsAgentDead,    
     )
 
@@ -32,76 +32,6 @@ from ponyge.operators.crossover import crossover
 from ponyge.operators.mutation import mutation
 from ponyge.operators.replacement import replacement
 from ponyge.operators.selection import selection
-
-
-class ExploreWithout(Behaviour):
-    """Explore behavior for the agents.
-
-    Inherits the Behaviors class from py_trees. This
-    behavior combines the privitive behaviors to succesfully explore the
-    environment. It combines Randomwalk and Move behaviors.
-    """
-
-    def __init__(self, name):
-        """Init method for the Explore behavior."""
-        super(ExploreWithout, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
-
-    def setup(self, timeout, agent, item=None):
-        """Have defined the setup method.
-
-        This method defines the other objects required for the
-        behavior. Agent is the actor in the environment,
-        item is the name of the item we are trying to find in the
-        environment and timeout defines the execution time for the
-        behavior.
-        """
-        self.agent = agent
-        self.item = item
-
-        # Check if agent is dead
-        adead = inverter(IsAgentDead)('MT_IsAgentDead_0')
-        adead.setup(0, self.agent, None)
-
-        # Define the root for the BT
-        root = Sequence("Ex_Sequence")
-
-        low = RandomWalk('Ex_RandomWalk')
-        low.setup(0, self.agent)
-
-        # Only move if its passable
-        passable = ObstacleStuck('MT_Passable_3')
-        passable.setup(0, self.agent, 'Obstacles')
-
-        # Only move if its not deathable
-        # deathable = inverter(IsDeathable)('Ex_Deathable')
-        # deathable.setup(0, self.agent, 'Traps')
-        # deathable = AvoidTrap('AvoidTrap')
-        # deathable.setup(0, self.agent, 'Traps')
-
-        high = Move('Ex_Move')
-        high.setup(0, self.agent)
-
-        chkdead = AgentDead('Adead')
-        chkdead.setup(0, self.agent)
-
-        # root.add_children([adead, low, passable, deathable, high, chkdead])
-        root.add_children([adead, low, passable, high, chkdead])
-
-        self.behaviour_tree = BehaviourTree(root)
-
-    def initialise(self):
-        """Everytime initialization. Not required for now."""
-        pass
-
-    def update(self):
-        """Just call the tick method for the sequence.
-
-        This will execute the primitive behaviors defined in the sequence
-        """
-        self.behaviour_tree.tick()
-        return self.behaviour_tree.root.status
 
 
 class SimForgAgentWithout(Agent):
@@ -123,6 +53,7 @@ class SimForgAgentWithout(Agent):
         self.shared_content = dict()
 
         self.carryable = False
+        self.passable = True
         # Define a BTContruct object
         self.bt = BTConstruct(None, self)
 
@@ -156,16 +87,6 @@ class SimForgAgentWithout(Agent):
 
         dseq.add_children([neighhub, drop])
 
-        # ## Obstacles and Trap
-        # neighobst = ObjectsOnGrid('ObjectsOnGrid_Obstacles')
-        # neighobst.setup(0, self, 'Obstacles')
-
-        # neightrap = ObjectsOnGrid('NeighbourObjects_Traps')
-        # neightrap.setup(0, self, 'Traps')
-
-        adead = AgentDead('Adead')
-        adead.setup(0, self)
-
         # Carry branch
         cseq = py_trees.composites.Sequence('CSequence')
 
@@ -195,7 +116,7 @@ class SimForgAgentWithout(Agent):
         gotosite.setup(0, self, 'Sites')
 
         # siteseq.add_children([neighobst, neightrap, sitefound, invcarrying, gotosite])
-        siteseq.add_children([sitefound, invcarrying, gotosite, adead])
+        siteseq.add_children([sitefound, invcarrying, gotosite])
         # siteseq.add_children([invcarrying])
 
         # Move to hub
@@ -205,13 +126,13 @@ class SimForgAgentWithout(Agent):
         gotohub.setup(0, self, 'Hub')
 
         # hubseq.add_children([neighobst, neightrap, iscarrying, gotohub])
-        hubseq.add_children([iscarrying, gotohub, adead])
+        hubseq.add_children([iscarrying, gotohub])
 
         sitenotfound = py_trees.meta.inverter(IsVisitedBefore)(
             'IsVisitedBefore_Sites')
         sitenotfound.setup(0, self, 'Sites')
 
-        explore = ExploreWithout('Explore')
+        explore = Explore('Explore')
         explore.setup(0, self)
 
         # randwalk = py_trees.composites.Sequence('Randwalk')
@@ -295,14 +216,20 @@ class SimForgAgentWith(Agent):
         dseq.add_children([neighhub, drop])
 
         # ## Obstacles and Trap
-        # neighobst = ObjectsOnGrid('ObjectsOnGrid_Obstacles')
-        # neighobst.setup(0, self, 'Obstacles')
+        neighobs = NeighbourObjects('NeighbourObjects_Obs')
+        neighobs.setup(0, self, 'Obstacle')
 
-        # neightrap = ObjectsOnGrid('NeighbourObjects_Traps')
-        # neightrap.setup(0, self, 'Traps')
+        neightrap = NeighbourObjects('NeighbourObjects_Trap')
+        neightrap.setup(0, self, 'Traps')        
 
-        adead = AgentDead('Adead')
-        adead.setup(0, self)
+        avoidobstacle = AvoidSObjects('Obstacle')
+        avoidobstacle.setup(0, agent)
+
+        avoidtrap = AvoidSObjects('Trap')
+        avoidtrap.setup(0, agent, item='Traps')        
+        
+        otseq = py_trees.composites.Sequence('OTSequence')
+        otseq.add_children([neighobs, avoidobstacle, neightrap, avoidtrap])
 
         # Carry branch
         cseq = py_trees.composites.Sequence('CSequence')
@@ -333,7 +260,7 @@ class SimForgAgentWith(Agent):
         gotosite.setup(0, self, 'Sites')
 
         # siteseq.add_children([neighobst, neightrap, sitefound, invcarrying, gotosite])
-        siteseq.add_children([sitefound, invcarrying, gotosite, adead])
+        siteseq.add_children([sitefound, invcarrying, gotosite])
         # siteseq.add_children([invcarrying])
 
         # Move to hub
