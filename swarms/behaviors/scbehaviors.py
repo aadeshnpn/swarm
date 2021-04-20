@@ -707,3 +707,120 @@ class AvoidTrapObstaclesBehaviour(Behaviour):
         """
         self.behaviour_tree.tick()
         return self.behaviour_tree.root.status
+
+
+class NewMoveTowards(Behaviour):
+    """MoveTowards behavior for the agents.
+
+    Inherits the Behaviors class from py_trees. This
+    behavior combines the privitive behaviors GoTo, Towards and Move. This
+    allows agents actually to move towards the object of interest.
+    """
+
+    def __init__(self, name):
+        """Init method for the MoveTowards behavior."""
+        super(NewMoveTowards, self).__init__(name)
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+
+    def setup(self, timeout, agent, item):
+        """Have defined the setup method.
+
+        This method defines the other objects required for the
+        behavior. Agent is the actor in the environment,
+        item is the name of the item we are trying to find in the
+        environment and timeout defines the execution time for the
+        behavior.
+        """
+        self.agent = agent
+        self.item = item
+        # Define goto primitive behavior
+        goto = GoTo('MT_GOTO_1')
+        goto.setup(0, self.agent, self.item)
+
+        # Define towards behavior
+        towards = Towards('MT_TOWARDS_2')
+        towards.setup(0, self.agent)
+
+        # Avoid Traps and Obstacles
+        avoidto = AvoidTrapObstaclesBehaviour('MT_AVOID_3')
+        avoidto.setup(0, self.agent)
+
+        # Define move behavior
+        move = Move('MT_MOVE_4')
+        move.setup(0, self.agent)
+
+        # Define a sequence to combine the primitive behavior
+        mt_sequence = Sequence('MT_SEQUENCE')
+        mt_sequence.add_children([goto, towards, avoidto, move])
+
+        self.behaviour_tree = BehaviourTree(mt_sequence)
+
+    def initialise(self):
+        """Everytime initialization. Not required for now."""
+        pass
+
+    def update(self):
+        """Just call the tick method for the sequence.
+
+        This will execute the primitive behaviors defined in the sequence
+        """
+        self.behaviour_tree.tick()
+        return self.behaviour_tree.root.status
+
+
+class NewExplore(Behaviour):
+    """Explore behavior for the agents.
+
+    Inherits the Behaviors class from py_trees. This
+    behavior combines the privitive behaviors to succesfully explore the
+    environment. It combines Randomwalk and Move behaviors.
+    """
+
+    def __init__(self, name):
+        """Init method for the Explore behavior."""
+        super(NewExplore, self).__init__(name)
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+
+    def setup(self, timeout, agent, item=None):
+        """Have defined the setup method.
+
+        This method defines the other objects required for the
+        behavior. Agent is the actor in the environment,
+        item is the name of the item we are trying to find in the
+        environment and timeout defines the execution time for the
+        behavior.
+        """
+        self.agent = agent
+        self.item = item
+
+        # Define the root for the BT
+        root = Sequence("Ex_Sequence")
+
+        low = RandomWalk('Ex_RandomWalk')
+        low.setup(0, self.agent)
+        
+        # Avoid Traps and Obstacles
+        avoidto = AvoidTrapObstaclesBehaviour('MT_AVOID_3')
+        avoidto.setup(0, self.agent)
+
+        high = Move('Ex_Move')
+        high.setup(0, self.agent)
+
+        root.add_children([low, avoidto, high])
+
+        self.behaviour_tree = BehaviourTree(root)
+
+    def initialise(self):
+        """Everytime initialization. Not required for now."""
+        pass
+
+    def update(self):
+        """Just call the tick method for the sequence.
+
+        This will execute the primitive behaviors defined in the sequence
+        """
+        self.behaviour_tree.tick()
+        return self.behaviour_tree.root.status
+
