@@ -9,7 +9,8 @@ from swarms.behaviors.sbehaviors import (
     )
 
 from swarms.behaviors.scbehaviors import (
-    AvoidTrapObstaclesBehaviour, NewMoveTowards, NewExplore
+    AvoidTrapObstaclesBehaviour, NewMoveTowards, NewExplore,
+    NewMoveAway
     )    
 from swarms.lib.objects import Sites, Hub, Obstacles, Traps
 import py_trees
@@ -569,5 +570,94 @@ class TestExploreNewSwarmSmallGrid(TestCase):
             print(i, self.environment.agent.location)
 
     def test_agent_path(self):
-        self.assertEqual(self.environment.agent.location, (19, 19))
+        self.assertEqual(self.environment.agent.location, (-9, 18))
 
+
+# Class to tets the avoid trap behavior for the agent
+class SwarmAgentMoveAway(Agent):
+    """ An minimalistic behavior tree for swarm agent implementing 
+    move away behavior.
+    """
+    def __init__(self, name, model):
+        super().__init__(name, model)
+        self.location = ()
+
+        self.direction = model.random.rand() * (2 * np.pi)
+        self.speed = 2
+        self.radius = 5
+        self.moveable = True
+        self.carryable = False
+        self.shared_content = dict()
+
+        root = py_trees.composites.Sequence("Sequence")
+
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+
+        self.shared_content[type(model.target).__name__] = {model.target}
+
+        low = NewMoveAway('1')
+        # low = NewMoveTowards('1')        
+        low.setup(0, self, type(model.target).__name__)
+
+        # root.add_children([low, medium, med, high])
+        root.add_children([low])        
+        self.behaviour_tree = py_trees.trees.BehaviourTree(root)
+        # py_trees.display.print_ascii_tree(root)
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+
+    def step(self):
+        self.behaviour_tree.tick()
+
+
+
+class MoveAwaySwarmEnvironmentModel(Model):
+    """ A environemnt to model swarms """
+    def __init__(self, N, width, height, grid=10, seed=None):
+        if seed is None:
+            super(MoveAwaySwarmEnvironmentModel, self).__init__(seed=None)
+        else:
+            super(MoveAwaySwarmEnvironmentModel, self).__init__(seed)
+
+        self.num_agents = N
+
+        self.grid = Grid(width, height, grid)
+
+        self.schedule = SimultaneousActivation(self)
+
+        self.obstacle = Obstacles(id=2, location=(9, 9), radius=5)
+
+        self.target = Sites(id=1, location=(45, 45), radius=5, q_value=0.5)
+
+        self.grid.add_object_to_grid(self.target.location, self.target)
+        self.grid.add_object_to_grid(self.obstacle.location, self.obstacle)
+
+        for i in range(self.num_agents):
+            a = SwarmAgentMoveAway(i, self)
+            self.schedule.add(a)
+            x = 35
+            y = 35
+            a.location = (x, y)
+            a.direction = -2.3561944901923448
+            self.grid.add_object_to_grid((x, y), a)
+
+        self.agent = a
+
+    def step(self):
+        self.schedule.step()
+
+
+
+class TestMoveAwaySwarmSmallGrid(TestCase):
+
+    def setUp(self):
+        self.environment = MoveAwaySwarmEnvironmentModel(1, 100, 100, 10, 123)
+
+        for i in range(60):
+            self.environment.step()
+            print(i, self.environment.agent.location, self.environment.agent.dead)
+
+    def test_agent_path(self):
+        self.assertEqual(self.environment.agent.location, (-24, -30))
+
+                

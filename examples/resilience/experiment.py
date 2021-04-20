@@ -139,9 +139,10 @@ def main(args):
         # simulate_forg(env, 20, agent=agent, N=n, site=site)
 
     if args.all:
-        for agent in [0, 1]:
-            # for n in [50, 100, 200, 300, 400]:
-            for n in [200, 300, 400]:            
+        # for agent in [0, 1]:
+        for agent in [1]:        
+            # for n in [50, 100, 200, 300, 400, 500]:
+            for n in [100, 200, 300, 400]:            
                 exp(n, agent, runs, site)
     else:
         exp(n, agent, runs, site)
