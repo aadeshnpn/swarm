@@ -4,27 +4,11 @@
     "y":0,
     "radius":10
   }],
-
-    "sites": [
-      {
-        "x":25,
-        "y":-25,
-        "radius":10,
-        "q_value":0.9
-      }
-    ],
     "obstacles": [
       {
         "x":50,
         "y":50,
-        "radius":5
-      }
-    ],
-    "traps": [
-      {
-        "x":-50,
-        "y":-50,
-        "radius":5
+        "radius":21
       }
     ]
 }

@@ -156,7 +156,7 @@ if __name__ == '__main__':
     # Parallel(n_jobs=16)(delayed(main)(i) for i in range(1000, 100000, 2000))
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--n', default=100, type=int)
+        '--n', default=50, type=int)
     # [SimForgAgentWith, SimForgAgentWithout])        
     parser.add_argument('--agent', default=1, choices=[0, 1], type=int)
     parser.add_argument('--runs', default=50, type=int)

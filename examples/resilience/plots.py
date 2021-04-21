@@ -26,7 +26,7 @@ def plotgraph(n=100, agent='SimForgAgentWith'):
     # print(data.shape)
 
     # data = read_data_n_agent(n=n, agent=agent)
-    data = read_data_n_agent_site(n=n, agent=agent, site='-9090')
+    data = read_data_n_agent_site(n=n, agent=agent, site='50-50')
     print(data.shape)
     median = np.quantile(data, 0.5, axis=0)
     # print(median)
@@ -102,7 +102,8 @@ def read_data_n_agent_site(n=100, agent='SimForgAgentWith', site='5050'):
 
 
 def boxplot(agent='SimForgAgentWith'):
-    data = [read_data_n_agent(n, agent)[:,-1] for n in [50, 100, 200, 300, 400]]
+    # data = [read_data_n_agent(n, agent)[:,-1] for n in [50, 100, 200, 300, 400]]
+    data = [read_data_n_agent(n, agent)[:,-1] for n in [100, 200, 300, 400]]    
     fig = plt.figure()
 
     ax1 = fig.add_subplot(1, 1, 1)
@@ -123,7 +124,8 @@ def boxplot(agent='SimForgAgentWith'):
     # }
 
     # labels = ['Agent-Key', 'Key-Door', 'Door-Goal', 'Total']
-    labels = [50, 100, 200, 300, 400]
+    # labels = [50, 100, 200, 300, 400]
+    labels = [100, 200, 300, 400]    
     medianprops = dict(linewidth=2.5, color='firebrick')
     meanprops = dict(linewidth=2.5, color='#ff7f0e')
     # data = [data[:, i] for i in range(4)]
@@ -156,7 +158,7 @@ def boxplot(agent='SimForgAgentWith'):
 def boxplotsiteloc(agent='SimForgAgentWith'):
     # sites = ['-3030', '30-30', '3030', '-5050', '50-50', '5050', '-9090', '90-90']
     agents = [100, 200, 300, 400]
-    data = [read_data_n_agent_site(n, agent, site='90-90')[:,-1] for n in agents]
+    data = [read_data_n_agent_site(n, agent, site='50-50')[:,-1] for n in agents]
     fig = plt.figure()
 
     ax1 = fig.add_subplot(1, 1, 1)
@@ -197,7 +199,7 @@ def boxplotsiteloc(agent='SimForgAgentWith'):
     ax1.set_xticklabels(labels)
     ax1.set_xlabel('Agent size')
     ax1.set_ylabel('Foraging Percentage')
-    ax1.set_title('Swarm Foraging with distance 90')
+    ax1.set_title('Swarm Foraging with distance 50')
 
     plt.tight_layout()
 
@@ -213,9 +215,12 @@ def boxplotsiteloc(agent='SimForgAgentWith'):
 
 def main():
     # agents = [50, 100, 200, 300, 400]
-    # atype = ['SimForgAgentWith', 'SimForgAgentWithout']
-    # boxplotsiteloc(atype[1])
-    plotgraph(n=100, agent='SimForgAgentWithout')
+    atype = ['SimForgAgentWith', 'SimForgAgentWithout']
+    boxplotsiteloc(atype[1])
+    # boxplot(atype[1])    
+    # agents = [100, 200, 300, 400]
+    # for n in agents:
+    #     plotgraph(n=n, agent=atype[1])
     # for n in agents:
     #     for t in atype:
     #         plotgraph(n=n, agent=t)

@@ -3,6 +3,7 @@
 from simmodel import SimForgModel
 from swarms.utils.jsonhandler import JsonPhenotypeData
 from swarms.utils.ui import UI
+from simagent import SimForgAgentWithout, SimForgAgentWith
 # from joblib import Parallel, delayed
 # Global variables for width and height
 width = 400
@@ -12,11 +13,13 @@ viewer = True
 
 def main():
     """Block main."""
-    iteration = 5000
+    iteration = 2500
 
     # Create a test environment to visualize
     env = SimForgModel(
-        50, width, height, 10, iter=iteration, xmlstrings=[123], pname='/tmp/', viewer=True)
+        50, width, height, 10, iter=iteration, xmlstrings=[123], 
+        pname='/tmp/', viewer=True, agent=SimForgAgentWithout, 
+        expsite={"x":50, "y":-50, "radius":10, "q_value":0.9})
     env.build_environment_from_json()
 
     # for all agents store the information about hub
@@ -26,7 +29,7 @@ def main():
     # Overiding the default viewer properties
     env.ui = UI(
         (width, height), [env.hub], env.agents,
-        [env.site], food=env.foods, traps=[env.traps], obstacles=[env.obstacles])
+        [env.site], food=env.foods, traps=[], obstacles=[env.obstacles])
     
     # Iterate and execute each step in the environment
     for i in range(iteration):

@@ -183,6 +183,7 @@ class SimForgAgentWith(Agent):
         self.shared_content = dict()
 
         self.carryable = False
+        self.passable = True
         # Define a BTContruct object
         self.bt = BTConstruct(None, self)
 
@@ -271,7 +272,7 @@ class SimForgAgentWith(Agent):
         gotohub.setup(0, self, 'Hub')
 
         # hubseq.add_children([neighobst, neightrap, iscarrying, gotohub])
-        hubseq.add_children([iscarrying, gotohub, adead])
+        hubseq.add_children([iscarrying, gotohub])
 
         sitenotfound = py_trees.meta.inverter(IsVisitedBefore)(
             'IsVisitedBefore_Sites')
