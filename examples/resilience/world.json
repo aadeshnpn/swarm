@@ -8,14 +8,14 @@
       {
         "x":25,
         "y":25,
-        "radius":10
+        "radius":8
       }
     ],
     "traps": [
       {
         "x":-25,
         "y":-25,
-        "radius":10
+        "radius":8
       }
     ]
 }

@@ -5,7 +5,7 @@ This file name is sbehaviors coz `s` stands for swarms.
 
 from py_trees import Behaviour, Status, Blackboard
 import numpy as np
-from swarms.utils.distangle import get_direction
+from swarms.utils.distangle import get_direction, point_distance
 from swarms.lib.objects import Signal, Cue
 
 
@@ -85,6 +85,10 @@ class NeighbourObjects(Behaviour):
         find any objects, it is stored in the behavior tree blackboard which
         is a dictionary with sets as values.
         """
+        # if self.item is None:
+        #     grids = self.agent.model.grid.get_neighborhood(
+        #         self.agent.location, self.agent.radius*4)
+        # else:
         grids = self.agent.model.grid.get_neighborhood(
             self.agent.location, self.agent.radius*3)
         objects = self.agent.model.grid.get_objects_from_list_of_grid(
@@ -1261,18 +1265,27 @@ class AvoidSObjects(Behaviour):
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
                 self.item, self.agent.name)[0]
-            # print('avoid obstacles', self.item)
+            # print('avoid obstacles', self.item, self.agent, self.agent.dead, point_distance(self.agent.location, objects.location), self.agent.location, objects.location)
+
             # print('avoid sobjects', objects)
             # Get the collision angle and add np.pi in the opposite direction
             # self.agent.direction = get_direction(
             #     objects.communicated_location, self.agent.location)
             alpha = get_direction(objects.location, self.agent.location)
             theta = self.agent.direction
+
+            # self.agent.direction = (self.agent.direction + np.pi) % (2 * np.pi)            
             # self.agent.direction = np.clip(alpha  - theta - np.pi/2, -2*np.pi, 2*np.pi) + self.agent.model.random.rand()
             # if self.agent.direction < np.pi/2:
-            self.agent.direction = np.clip(alpha  - theta - np.pi/2, -2*np.pi, 2*np.pi) 
+            # self.agent.direction = np.clip(alpha  - theta - np.pi/2, -2*np.pi, 2*np.pi) 
             # else:
-            #     self.agent.direction = np.clip(alpha  - theta + np.pi/2, -2*np.pi, 2*np.pi) 
+            #     self.agent.direction = np.clip(alpha  - theta + np.pi/2, -2*np.pi, 2*np.pi)             
+            if self.agent.direction < np.pi/2:
+                self.agent.direction = np.clip(alpha - theta - np.pi/2, -2*np.pi, 2*np.pi)                 
+                # self.agent.direction = (alpha - theta - np.pi/2)  %  (2 * np.pi)  
+            else:
+                self.agent.direction = np.clip(alpha - theta + np.pi/2, -2*np.pi, 2*np.pi)                             
+                # self.agent.direction = (alpha -theta + np.pi/2)  %  (2 * np.pi)
             # print(alpha, theta, self.agent.direction)            
             return Status.SUCCESS
         except (IndexError, AttributeError):

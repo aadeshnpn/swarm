@@ -179,6 +179,7 @@ class Grid:
             if re.match('.*Agent.*' , type(objects).__name__) and objects.dead: 
                 return False
             elif re.match('.*Agent.*' , type(objects).__name__) and not objects.dead: 
+                # print(point, newpoint, grid_value, new_grid_value)
                 if self.check_grid_deathable_constraints(new_grid_value):
                     objects.dead = True
                     self.remove_object_from_grid(point, objects)                    

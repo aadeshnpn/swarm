@@ -687,7 +687,7 @@ class AvoidTrapObstaclesBehaviour(Behaviour):
         m2 = AvoidSObjects('ATO_AvoidTrap')
         m2.setup(0, self.agent, 'Traps')   
         # m3 = NeighbourObjects('ATO_SearchObstacles')
-        # m3.setup(0, self.agent, item=None)
+        # m3.setup(0, self.agent, item='Obstacles')
         m4 = AvoidSObjects('ATO_AvoidObstacle')
         m4.setup(0, self.agent, 'Obstacles')           
 

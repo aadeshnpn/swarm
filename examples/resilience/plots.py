@@ -231,7 +231,7 @@ def main():
         {"x":90, "y":-90, "radius":10, "q_value":0.9},
         {"x":-90, "y":90, "radius":10, "q_value":0.9}, 
     ]    
-    i = 2
+    i = 1
     sitename = str(sitelocation[i]['x']) + str(sitelocation[i]['y'])
     print(sitename)
     plotgraph(n=100, agent=atype[1], site=sitename)    
