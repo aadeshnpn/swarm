@@ -133,7 +133,7 @@ class SwarmAgentAvoid(Agent):
         # med = AvoidSObjects('3')
         # med.setup(0, self, type(model.obstacle).__name__)       
         medium = AvoidTrapObstaclesBehaviour('2')
-        medium.setup(0, self)        
+        medium.setup(0, self, None)        
         high = Move('4')
         high.setup(0, self)
         # root.add_children([low, medium, med, high])
@@ -191,7 +191,7 @@ class TestAvoidSwarmSmallGrid(TestCase):
 
         for i in range(120):
             self.environment.step()
-            print(i, self.environment.agent.location, self.environment.agent.dead)
+            print(i, self.environment.agent.location)   
 
     def test_agent_path(self):
         self.assertEqual(self.environment.agent.location, (45, 45))
@@ -279,10 +279,13 @@ class TestTrapSwarmSmallGrid(TestCase):
 
         for i in range(50):
             self.environment.step()
-            print(i, self.environment.agent.location)
+            print(i, self.environment.agent.location, self.environment.agent.dead)
 
     def test_agent_path(self):
-        self.assertEqual(self.environment.agent.location, (19, 19))         
+        self.assertEqual(self.environment.agent.location, (22, 20))         
+
+    def test_agent_dead(self):
+        self.assertEqual(self.environment.agent.dead, True)                 
 
 
 
@@ -653,11 +656,11 @@ class TestMoveAwaySwarmSmallGrid(TestCase):
     def setUp(self):
         self.environment = MoveAwaySwarmEnvironmentModel(1, 100, 100, 10, 123)
 
-        for i in range(60):
+        for i in range(50):
             self.environment.step()
             print(i, self.environment.agent.location, self.environment.agent.dead)
 
     def test_agent_path(self):
-        self.assertEqual(self.environment.agent.location, (-24, -30))
+        self.assertEqual(self.environment.agent.location, (-14, -20))
 
                 

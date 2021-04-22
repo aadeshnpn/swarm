@@ -213,7 +213,7 @@ class Traps(EnvironmentObject):
         super().__init__(id, location, radius)
         self.dropable = False
         self.carryable = False
-        self.passable = False
+        self.passable = True
         self.deathable = True
         self.moveable = False
 

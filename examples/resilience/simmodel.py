@@ -154,7 +154,7 @@ class SimForgModel(Model):
         self.hub = self.render.objects['hub'][0]
         self.obstacles = self.render.objects['obstacles'][0]
         # print(self.obstacles.passable)
-        # self.traps = self.render.objects['traps'][0]  
+        self.traps = self.render.objects['traps'][0]  
 
         # add site
         location = (self.expsite["x"], self.expsite["y"])

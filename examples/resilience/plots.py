@@ -216,8 +216,10 @@ def boxplotsiteloc(agent='SimForgAgentWith'):
 def main():
     # agents = [50, 100, 200, 300, 400]
     atype = ['SimForgAgentWith', 'SimForgAgentWithout']
-    boxplotsiteloc(atype[1])
+    # boxplotsiteloc(atype[1])
     # boxplot(atype[1])    
+    plotgraph(n=100, agent=atype[1])    
+    plotgraph(n=100, agent=atype[0])        
     # agents = [100, 200, 300, 400]
     # for n in agents:
     #     plotgraph(n=n, agent=atype[1])
