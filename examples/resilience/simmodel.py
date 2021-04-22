@@ -54,6 +54,7 @@ class SimForgModel(Model):
         self.viewer = viewer
         self.agent = agent
         self.expsite = expsite
+        print('agent type', agent)
         # # Create db connection
         # try:
         #     connect = Connect('swarm', 'swarm', 'swarm', 'localhost')

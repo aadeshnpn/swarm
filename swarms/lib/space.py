@@ -157,11 +157,11 @@ class Grid:
         """Add object to a given grid."""
         grid_values = self.get_neighborhood(point, objects.radius)
         for grid in grid_values:
-            gridobjects = self.get_objects(None, grid)
-            for gobject in gridobjects:
-                if not re.match('.*Agent.*' , type(gobject).__name__): 
-                    if gobject.deathable and re.match('.*Agent.*' , type(objects).__name__):
-                        objects.dead = True
+            # gridobjects = self.get_objects(None, grid)
+            # for gobject in gridobjects:
+            #     if not re.match('.*Agent.*' , type(gobject).__name__): 
+            #         if gobject.deathable and re.match('.*Agent.*' , type(objects).__name__):
+            #             objects.dead = True
             self.grid_objects[grid].append(objects)
 
     # Remove object to the given grid
@@ -178,6 +178,19 @@ class Grid:
         if grid_value != new_grid_value:
             if re.match('.*Agent.*' , type(objects).__name__) and objects.dead: 
                 return False
+            elif re.match('.*Agent.*' , type(objects).__name__) and not objects.dead: 
+                if self.check_grid_deathable_constraints(new_grid_value):
+                    objects.dead = True
+                    self.remove_object_from_grid(point, objects)                    
+                    self.add_object_to_grid(newpoint, objects)
+                    return True                    
+                else:
+                    if self.check_grid_objects_constraints(new_grid_value):
+                        self.remove_object_from_grid(point, objects)
+                        self.add_object_to_grid(newpoint, objects)
+                        return True
+                    else:
+                        return False
             else:
                 if self.check_grid_objects_constraints(new_grid_value):
                     self.remove_object_from_grid(point, objects)
@@ -217,6 +230,21 @@ class Grid:
                 passable = False
                 break
         return passable
+
+    def check_grid_deathable_constraints(self, new_grid_value):
+        """Check the constraints on the next location."""
+        # grid_key, grid_value = self.find_grid(source_obj.location)
+        # new_grid_key, new_grid_value = self.find_grid(next_loc)
+        dead = False
+        objects_in_next_grid = self.get_objects(None, new_grid_value)
+        for obj in objects_in_next_grid:
+            try:
+                if obj.deathable:
+                    dead = True
+                    break
+            except:
+                pass
+        return dead    
 
     # Using fancy search to find the object in the particular grid
     def get_objects(self, object_name, grid_value):

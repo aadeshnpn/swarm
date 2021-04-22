@@ -5,7 +5,7 @@ from simmodel import SimForgModel, EvolModel
 # from swarms.utils.jsonhandler import JsonData
 from swarms.utils.graph import GraphACC
 from joblib import Parallel, delayed    # noqa : F401
-from swarms.utils.results import SimulationResults
+from swarms.utils.results import SimulationResults, SimulationResultsTraps
 from swarms.utils.jsonhandler import JsonPhenotypeData
 from simagent import SimForgAgentWith, SimForgAgentWithout
 import argparse
@@ -60,9 +60,9 @@ def simulate_forg(env, iteration, agent=SimForgAgentWith, N=100, site=None):
         agent.shared_content['Hub'] = {sim.hub}
         # agent.shared_content['Sites'] = {sim.site}
 
-    simresults = SimulationResults(
+    simresults = SimulationResultsTraps(
         sim.pname, sim.connect, sim.sn, sim.stepcnt, sim.food_in_hub(),
-        phenotypes[0]
+        phenotypes[0], sum([1 if a.dead else 0 for a in sim.agents])
         )
 
     # simresults.save_phenotype()
@@ -73,15 +73,15 @@ def simulate_forg(env, iteration, agent=SimForgAgentWith, N=100, site=None):
         # For every iteration we need to store the results
         # Save them into db or a file
         sim.step()
-        print("total dead agents",i, sum([1 if a.dead else 0 for a in sim.agents]))        
+        # print("total dead agents",i, )        
         value = sim.food_in_hub()
 
         foraging_percent = (
             value * 100.0) / (sim.num_agents * 1)
 
-        simresults = SimulationResults(
+        simresults = SimulationResultsTraps(
             sim.pname, sim.connect, sim.sn, sim.stepcnt, foraging_percent,
-            phenotypes[0]
+            phenotypes[0], sum([1 if a.dead else 0 for a in sim.agents])
             )
         simresults.save_to_file()
 
@@ -136,8 +136,8 @@ def main(args):
         pathlib.Path(dname).mkdir(parents=True, exist_ok=True)
         steps = [1500 for i in range(args.runs)]
         env = (['123', '123'], dname)
-        Parallel(n_jobs=8)(delayed(simulate_forg)(env, i, agent=agent, N=n, site=site) for i in steps)
-        # simulate_forg(env, 20, agent=agent, N=n, site=site)
+        # Parallel(n_jobs=8)(delayed(simulate_forg)(env, i, agent=agent, N=n, site=site) for i in steps)
+        simulate_forg(env, 1500, agent=agent, N=n, site=site)
 
     if args.all:
         # for agent in [0, 1]:
@@ -161,7 +161,7 @@ if __name__ == '__main__':
         '--n', default=50, type=int)
     # [SimForgAgentWith, SimForgAgentWithout])        
     parser.add_argument('--agent', default=1, choices=[0, 1], type=int)
-    parser.add_argument('--runs', default=100, type=int)
+    parser.add_argument('--runs', default=20, type=int)
     parser.add_argument('--site', default=7, type=int)    
     parser.add_argument('--all', default=False)
     args = parser.parse_args()

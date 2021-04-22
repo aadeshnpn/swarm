@@ -258,7 +258,7 @@ class SimForgAgentWith(Agent):
         sitefound = IsVisitedBefore('IsVisitedBefore_Sites')
         sitefound.setup(0, self, 'Sites')
 
-        gotosite = NewMoveTowards('MoveTowards_Sites')
+        gotosite = NewMoveTowards('NewMoveTowards_Sites')
         gotosite.setup(0, self, 'Sites')
 
         # siteseq.add_children([neighobst, neightrap, sitefound, invcarrying, gotosite])
@@ -268,7 +268,7 @@ class SimForgAgentWith(Agent):
         # Move to hub
         hubseq = py_trees.composites.Sequence('HubSeq')
 
-        gotohub = NewMoveTowards('MoveTowards_Hub')
+        gotohub = NewMoveTowards('NewMoveTowards_Hub')
         gotohub.setup(0, self, 'Hub')
 
         # hubseq.add_children([neighobst, neightrap, iscarrying, gotohub])
@@ -278,7 +278,7 @@ class SimForgAgentWith(Agent):
             'IsVisitedBefore_Sites')
         sitenotfound.setup(0, self, 'Sites')
 
-        explore = NewExplore('Explore')
+        explore = NewExplore('NewExplore')
         explore.setup(0, self)
 
         # randwalk = py_trees.composites.Sequence('Randwalk')

@@ -251,7 +251,7 @@ class SimulationResultsTraps:
     """
 
     def __init__(
-        self, foldername, connect, id, step, foraging, phenotype, deadagent
+        self, foldername, connect, id, step, fitness, phenotype, deadagent
             ):
         """Initialize the attributes."""
         self.foldername = foldername

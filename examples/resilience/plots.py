@@ -12,7 +12,7 @@ import glob
 import pathlib
 
 
-def plotgraph(n=100, agent='SimForgAgentWith'):
+def plotgraph(n=100, agent='SimForgAgentWith', site='50-50'):
     # folders = pathlib.Path(folder).glob("1616*")
     # # print(folders)
     # flist = []
@@ -26,12 +26,12 @@ def plotgraph(n=100, agent='SimForgAgentWith'):
     # print(data.shape)
 
     # data = read_data_n_agent(n=n, agent=agent)
-    data = read_data_n_agent_site(n=n, agent=agent, site='50-50')
-    print(data.shape)
-    median = np.quantile(data, 0.5, axis=0)
+    dataf, datad = read_data_n_agent_site(n=n, agent=agent, site=site)
+    # print(data.shape)
+    median = np.quantile(dataf, 0.5, axis=0)
     # print(median)
-    q1 = np.quantile(data, 0.25, axis=0)
-    q3 = np.quantile(data, 0.75, axis=0)
+    q1 = np.quantile(dataf, 0.25, axis=0)
+    q3 = np.quantile(dataf, 0.75, axis=0)
     # print(median.shape, q1.shape, q3.shape)
     color = [
         'forestgreen', 'indianred',
@@ -42,7 +42,7 @@ def plotgraph(n=100, agent='SimForgAgentWith'):
     plt.style.use('fivethirtyeight')
     fig = plt.figure()
     ax1 = fig.add_subplot(1, 1, 1)
-    xvalues = range(data.shape[1])
+    xvalues = range(dataf.shape[1])
     ax1.plot(
         xvalues, median, color=color[0],
         linewidth=1.0)
@@ -86,18 +86,21 @@ def read_data_n_agent_site(n=100, agent='SimForgAgentWith', site='5050'):
     nadir = os.path.join(maindir, str(n), agent, site)
     folders = pathlib.Path(nadir).glob("*ForagingSim*")
     flist = []
-    data = []
+    dataf = []
+    datad = []
     for f in folders:
         flist = [p for p in pathlib.Path(f).iterdir() if p.is_file()]
         try:
             # print(flist)
-            _, _, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
-            data.append(d)
+            _, _, f, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+            dataf.append(f)
+            datad.append(d)
         except IndexError:
             pass
     # print(data)
-    data = np.array(data)
-    return data    
+    dataf = np.array(dataf)
+    datad = np.array(datad)    
+    return dataf, datad    
 
 
 
@@ -218,8 +221,21 @@ def main():
     atype = ['SimForgAgentWith', 'SimForgAgentWithout']
     # boxplotsiteloc(atype[1])
     # boxplot(atype[1])    
-    plotgraph(n=100, agent=atype[1])    
-    plotgraph(n=100, agent=atype[0])        
+    sitelocation  = [ 
+        {"x":50, "y":-50, "radius":10, "q_value":0.9},
+        {"x":50, "y":50, "radius":10, "q_value":0.9},        
+        {"x":-50, "y":50, "radius":10, "q_value":0.9},                
+        {"x":30, "y":-30, "radius":10, "q_value":0.9},
+        {"x":30, "y":30, "radius":10, "q_value":0.9},        
+        {"x":-30, "y":30, "radius":10, "q_value":0.9},                        
+        {"x":90, "y":-90, "radius":10, "q_value":0.9},
+        {"x":-90, "y":90, "radius":10, "q_value":0.9}, 
+    ]    
+    i = 2
+    sitename = str(sitelocation[i]['x']) + str(sitelocation[i]['y'])
+    print(sitename)
+    plotgraph(n=100, agent=atype[1], site=sitename)    
+    plotgraph(n=100, agent=atype[0], site=sitename)        
     # agents = [100, 200, 300, 400]
     # for n in agents:
     #     plotgraph(n=n, agent=atype[1])

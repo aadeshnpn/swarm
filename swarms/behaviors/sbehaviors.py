@@ -1262,16 +1262,17 @@ class AvoidSObjects(Behaviour):
                 self.blackboard.shared_content, self.agent.shared_content,
                 self.item, self.agent.name)[0]
             # print('avoid obstacles', self.item)
+            # print('avoid sobjects', objects)
             # Get the collision angle and add np.pi in the opposite direction
             # self.agent.direction = get_direction(
             #     objects.communicated_location, self.agent.location)
             alpha = get_direction(objects.location, self.agent.location)
             theta = self.agent.direction
             # self.agent.direction = np.clip(alpha  - theta - np.pi/2, -2*np.pi, 2*np.pi) + self.agent.model.random.rand()
-            if self.agent.direction < np.pi/2:
-                self.agent.direction = np.clip(alpha  - theta - np.pi/2, -2*np.pi, 2*np.pi) 
-            else:
-                self.agent.direction = np.clip(alpha  - theta + np.pi/2, -2*np.pi, 2*np.pi) 
+            # if self.agent.direction < np.pi/2:
+            self.agent.direction = np.clip(alpha  - theta - np.pi/2, -2*np.pi, 2*np.pi) 
+            # else:
+            #     self.agent.direction = np.clip(alpha  - theta + np.pi/2, -2*np.pi, 2*np.pi) 
             # print(alpha, theta, self.agent.direction)            
             return Status.SUCCESS
         except (IndexError, AttributeError):

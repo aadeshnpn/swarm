@@ -380,7 +380,7 @@ class TestAvoidTrapSwarmSmallGrid(TestCase):
 
         for i in range(120):
             self.environment.step()
-            # print(i, self.environment.agent.location, self.environment.agent.dead)
+            print(i, self.environment.agent.location, self.environment.agent.dead)
 
     def test_agent_path(self):
         self.assertEqual(self.environment.agent.location, (45, 45))
