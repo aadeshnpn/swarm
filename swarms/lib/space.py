@@ -220,7 +220,7 @@ class Grid:
         elif y < (self.height / 2) * -1:
             y = y - (y + self.y_limit) + 2
             d = np.pi + d
-        return ((x, y), d)
+        return ((int(x), int(y)), d)
 
     def check_grid_objects_constraints(self, new_grid_value):
         """Check the constraints on the next location."""

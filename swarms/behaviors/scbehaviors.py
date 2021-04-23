@@ -12,6 +12,7 @@ feature rich behaviors.
 from py_trees import Behaviour, Blackboard
 from py_trees.composites import Sequence, Selector
 from py_trees.trees import BehaviourTree
+from py_trees.meta import failure_is_success
 from swarms.behaviors.sbehaviors import (
     GoTo, Towards, Move, Away,
     IsCarryable, IsSingleCarry, SingleCarry,
@@ -744,7 +745,7 @@ class NewMoveTowards(Behaviour):
         towards.setup(0, self.agent)
 
         # Avoid Traps and Obstacles
-        avoidto = AvoidTrapObstaclesBehaviour('MT_AVOID_3')
+        avoidto = failure_is_success(AvoidTrapObstaclesBehaviour)('MT_AVOID_3')        
         avoidto.setup(0, self.agent)
 
         # Define move behavior
@@ -803,7 +804,7 @@ class NewExplore(Behaviour):
         low.setup(0, self.agent)
         
         # Avoid Traps and Obstacles
-        avoidto = AvoidTrapObstaclesBehaviour('EX_AVOID')
+        avoidto = failure_is_success(AvoidTrapObstaclesBehaviour)('EX_AVOID')        
         avoidto.setup(0, self.agent)
 
         high = Move('Ex_Move')
@@ -860,7 +861,7 @@ class NewMoveAway(Behaviour):
         away.setup(0, self.agent)
 
         # Avoid Traps and Obstacles
-        avoidto = AvoidTrapObstaclesBehaviour('MA_AVOID_3')
+        avoidto = failure_is_success(AvoidTrapObstaclesBehaviour)('MA_AVOID_3')        
         avoidto.setup(0, self.agent)
 
         # Define move behavior

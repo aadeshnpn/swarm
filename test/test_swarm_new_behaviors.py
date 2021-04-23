@@ -16,6 +16,7 @@ from swarms.lib.objects import Sites, Hub, Obstacles, Traps
 import py_trees
 from py_trees import Blackboard
 import numpy as np
+from py_trees.meta import failure_is_success
 
 
 # Class to tets Passable attribute for agents
@@ -97,7 +98,7 @@ class TestGoToSwarmSmallGrid(TestCase):
 
         for i in range(25):
             self.environment.step()
-            print(i, self.environment.agent.location)
+            # print(i, self.environment.agent.location)
 
     def test_agent_path(self):
         self.assertEqual(self.environment.agent.location, (-1, 7))
@@ -128,13 +129,9 @@ class SwarmAgentAvoid(Agent):
 
         low = GoTo('1')
         low.setup(0, self, type(model.target).__name__)
-        # medium = NeighbourObjects('2')
-        # medium.setup(0, self, item=None)        
-        # med = AvoidSObjects('3')
-        # med.setup(0, self, type(model.obstacle).__name__)       
-        medium = AvoidTrapObstaclesBehaviour('2')
+        medium = failure_is_success(AvoidTrapObstaclesBehaviour)('2')        
         medium.setup(0, self, None)        
-        high = Move('4')
+        high = Move('3')
         high.setup(0, self)
         # root.add_children([low, medium, med, high])
         root.add_children([low, medium, high])        
@@ -189,19 +186,18 @@ class TestAvoidSwarmSmallGrid(TestCase):
     def setUp(self):
         self.environment = AvoidSwarmEnvironmentModel(1, 100, 100, 10, 123)
 
-        for i in range(103):
+        for i in range(77):
             self.environment.step()
-            print(i, self.environment.agent.location)   
+            # print(i, self.environment.agent.location)   
 
     def test_agent_path(self):
         self.assertEqual(self.environment.agent.location, (45, 45))
 
+    def test_agent_grid(self):
+        self.assertIsInstance(
+            self.environment.grid.get_objects_from_grid('Sites',self.environment.agent.location)[0], Sites)
 
-    # def test_agent_goal(self):
-    #     site = self.environment.grid.get_objects(
-    #         'Sites', self.environment.grid.find_grid(self.environment.agent.location)[1]
-    #         )
-    #     self.assertGreater(len(site), 0)
+
         
 
 # Class to tets agent dead in trap
@@ -315,15 +311,10 @@ class SwarmAgentAvoidTrap(Agent):
         low = GoTo('1')
         low.setup(0, self, type(model.target).__name__)
         
-        # medium = NeighbourObjects('2')
-        # medium.setup(0, self, item=None)        
-        # med = AvoidSObjects('3')
-        # med.setup(0, self, type(model.trap).__name__)       
-        
-        medium = AvoidTrapObstaclesBehaviour('2')
+        medium = failure_is_success(AvoidTrapObstaclesBehaviour)('2')                
         medium.setup(0, self)
 
-        high = Move('4')
+        high = Move('3')
         high.setup(0, self)
         # root.add_children([low, medium, med, high])
         root.add_children([low, medium, high])        
@@ -380,18 +371,16 @@ class TestAvoidTrapSwarmSmallGrid(TestCase):
 
         for i in range(120):
             self.environment.step()
-            print(i, self.environment.agent.location, self.environment.agent.dead)
+            # print(i, self.environment.agent.location, self.environment.agent.dead)
 
     def test_agent_path(self):
         self.assertEqual(self.environment.agent.location, (45, 45))
 
 
     def test_agent_goal(self):
-        site = self.environment.grid.get_objects(
-            'Sites', self.environment.grid.find_grid(self.environment.agent.location)[1]
-            )
-        self.assertGreater(len(site), 0)
-        
+        self.assertIsInstance(
+            self.environment.grid.get_objects_from_grid(
+                'Sites',self.environment.agent.location)[0], Sites)        
 
 
 # Class to tets the avoid trap behavior for the agent
@@ -482,11 +471,10 @@ class TestAvoidTrapNewSwarmSmallGrid(TestCase):
 
 
     def test_agent_goal(self):
-        site = self.environment.grid.get_objects(
-            'Sites', self.environment.grid.find_grid(self.environment.agent.location)[1]
-            )
-        self.assertGreater(len(site), 0)
-                
+        self.assertIsInstance(
+            self.environment.grid.get_objects_from_grid(
+                'Sites',self.environment.agent.location)[0], Sites)        
+
 
 
 # Class to tets the avoid trap behavior for the agent
@@ -573,7 +561,7 @@ class TestExploreNewSwarmSmallGrid(TestCase):
             # print(i, self.environment.agent.location)
 
     def test_agent_path(self):
-        self.assertEqual(self.environment.agent.location, (-9, 18))
+        self.assertEqual(self.environment.agent.location, (34, -33))
 
 
 # Class to tets the avoid trap behavior for the agent
@@ -656,12 +644,12 @@ class TestMoveAwaySwarmSmallGrid(TestCase):
     def setUp(self):
         self.environment = MoveAwaySwarmEnvironmentModel(1, 100, 100, 10, 123)
 
-        for i in range(50):
+        for i in range(75):
             self.environment.step()
             # print(i, self.environment.agent.location, self.environment.agent.dead)
 
     def test_agent_path(self):
-        self.assertEqual(self.environment.agent.location, (-14, -20))
+        self.assertEqual(self.environment.agent.location, (-48, -48))
 
                 
 class SwarmAgentExplore(Agent):
