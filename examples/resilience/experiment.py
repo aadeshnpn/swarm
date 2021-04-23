@@ -62,7 +62,7 @@ def simulate_forg(env, iteration, agent=SimForgAgentWith, N=100, site=None):
 
     simresults = SimulationResultsTraps(
         sim.pname, sim.connect, sim.sn, sim.stepcnt, sim.food_in_hub(),
-        phenotypes[0], sum([1 if a.dead else 0 for a in sim.agents])
+        phenotypes[0], sim.no_agent_dead()
         )
 
     # simresults.save_phenotype()
@@ -81,17 +81,17 @@ def simulate_forg(env, iteration, agent=SimForgAgentWith, N=100, site=None):
 
         simresults = SimulationResultsTraps(
             sim.pname, sim.connect, sim.sn, sim.stepcnt, foraging_percent,
-            phenotypes[0], sum([1 if a.dead else 0 for a in sim.agents])
+            phenotypes[0], sim.no_agent_dead()
             )
         simresults.save_to_file()
 
-    print ('food at site', len(sim.food_in_loc(sim.site.location)))
-    print ('food at hub', len(sim.food_in_loc(sim.hub.location)))
+    # print ('food at site', len(sim.food_in_loc(sim.site.location)))
+    # print ('food at hub', len(sim.food_in_loc(sim.hub.location)))
     # print("Total food in the hub", len(food_objects))
-    print("total dead agents", sum([1 if a.dead else 0 for a in sim.agents]))
-    for a in sim.agents:
-        if len(a.attached_objects) >=1:
-            print(a, a.attached_objects, a.location, sim.grid.find_grid(a.location)[1], sim.obstacles.location)
+    # print("total dead agents", sim.no_agent_dead())
+    # for a in sim.agents:
+    #     if len(a.attached_objects) >=1:
+    #         print(a, a.attached_objects, a.location, sim.grid.find_grid(a.location)[1], sim.obstacles.location)
     # food_objects = sim.food_in_loc(sim.hub.location)
 
     # for food in food_objects:
@@ -137,18 +137,19 @@ def main(args):
         agent = SimForgAgentWith if agent == 0 else SimForgAgentWithout
         dname = os.path.join('/tmp', 'swarm', 'data', 'experiments', str(n), agent.__name__, str(site['x'])+str(site['y']))
         pathlib.Path(dname).mkdir(parents=True, exist_ok=True)
-        steps = [3000 for i in range(args.runs)]
+        steps = [1500 for i in range(args.runs)]
         env = (['123', '123'], dname)
-        Parallel(n_jobs=2)(delayed(simulate_forg)(env, i, agent=agent, N=n, site=site) for i in steps)
+        Parallel(n_jobs=8)(delayed(simulate_forg)(env, i, agent=agent, N=n, site=site) for i in steps)
         # simulate_forg(env, 500, agent=agent, N=n, site=site)
 
     if args.all:
         # for agent in [0, 1]:
-        for agent in [0, 1]:        
-            # for n in [50, 100, 200, 300, 400, 500]:
-            # for n in [100, 200, 300, 400]:            
-            for n in [2]:                        
-                exp(n, agent, runs, site)
+        for site in sitelocation:
+            for agent in [0, 1]:        
+                # for n in [50, 100, 200, 300, 400, 500]:
+                for n in [100]:            
+                # for n in [100]:                        
+                    exp(n, agent, runs, site)
     else:
         exp(n, agent, runs, site)
 

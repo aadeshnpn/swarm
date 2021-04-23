@@ -54,7 +54,7 @@ class SimForgModel(Model):
         self.viewer = viewer
         self.agent = agent
         self.expsite = expsite
-        print('agent type', agent)
+        # print('agent type', agent)
         # # Create db connection
         # try:
         #     connect = Connect('swarm', 'swarm', 'swarm', 'localhost')
@@ -155,7 +155,7 @@ class SimForgModel(Model):
         self.hub = self.render.objects['hub'][0]
         self.obstacles = self.render.objects['obstacles'][0]
         # print(self.obstacles.passable)
-        # self.traps = self.render.objects['traps'][0]  
+        self.traps = self.render.objects['traps'][0]  
 
         # add site
         location = (self.expsite["x"], self.expsite["y"])
@@ -250,6 +250,13 @@ class SimForgModel(Model):
         neighbours = grid.get_neighborhood(loc, 10)
         food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
         return food_objects
+
+    def no_agent_dead(self):
+        grid = self.grid
+        trap_loc = self.traps.location
+        neighbours = grid.get_neighborhood(trap_loc, 10)
+        agents = grid.get_objects_from_list_of_grid(type(self.agents[0]).__name__, neighbours)
+        return sum([1 if a.dead else 0 for a in agents])     
 
 
 class EvolModel(Model):

@@ -4,11 +4,18 @@
     "y":0,
     "radius":10
   }],
-    "obstacles": [
-      {
-        "x":20,
-        "y":24,
-        "radius":5
-      }
-    ]
+  "obstacles": [
+    {
+      "x":20,
+      "y":24,
+      "radius":5
+    }
+  ],
+  "traps": [
+    {
+      "x":0,
+      "y":-25,
+      "radius":5
+    }
+  ]  
 }
