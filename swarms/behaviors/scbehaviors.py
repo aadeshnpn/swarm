@@ -18,7 +18,7 @@ from swarms.behaviors.sbehaviors import (
     IsMultipleCarry, IsInPartialAttached, IsEnoughStrengthToCarry,
     InitiateMultipleCarry, IsCarrying, Drop, RandomWalk, DropPartial,
     SignalDoesNotExists, SendSignal, NeighbourObjects, ReceiveSignal,
-    CueDoesNotExists, DropCue, PickCue, AvoidSObjects
+    CueDoesNotExists, DropCue, PickCue, AvoidSObjects, NeighbourObjectsDist
     )
 
 # Start of mid-level behaviors. These behaviors are the
@@ -682,7 +682,8 @@ class AvoidTrapObstaclesBehaviour(Behaviour):
         # Define the root for the BT
         root = Sequence('ATO_Sequence')
         
-        m1 = NeighbourObjects('ATO_SearchTrap')
+        # m1 = NeighbourObjects('ATO_SearchTrap')
+        m1 = NeighbourObjectsDist('ATO_Search')
         m1.setup(0, self.agent, item=None)        
         m2 = AvoidSObjects('ATO_AvoidTrap')
         m2.setup(0, self.agent, 'Traps')   

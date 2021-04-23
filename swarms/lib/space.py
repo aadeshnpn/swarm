@@ -152,6 +152,7 @@ class Grid:
             all_grid = [grid for grid in all_grid if grid > 0 and
                         grid <= self.grid_len]
         return list(set(all_grid))
+       
 
     def add_object_to_grid(self, point, objects):
         """Add object to a given grid."""
@@ -162,6 +163,7 @@ class Grid:
             #     if not re.match('.*Agent.*' , type(gobject).__name__): 
             #         if gobject.deathable and re.match('.*Agent.*' , type(objects).__name__):
             #             objects.dead = True
+            # print(grid, objects)
             self.grid_objects[grid].append(objects)
 
     # Remove object to the given grid

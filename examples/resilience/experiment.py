@@ -91,7 +91,7 @@ def simulate_forg(env, iteration, agent=SimForgAgentWith, N=100, site=None):
     print("total dead agents", sum([1 if a.dead else 0 for a in sim.agents]))
     for a in sim.agents:
         if len(a.attached_objects) >=1:
-            print(a, a.attached_objects, a.location)
+            print(a, a.attached_objects, a.location, sim.grid.find_grid(a.location)[1], sim.obstacles.location)
     # food_objects = sim.food_in_loc(sim.hub.location)
 
     # for food in food_objects:
@@ -122,14 +122,14 @@ def main(args):
     runs = args.runs
     
     sitelocation  = [ 
-        {"x":50, "y":-50, "radius":10, "q_value":0.9},
-        {"x":50, "y":50, "radius":10, "q_value":0.9},        
-        {"x":-50, "y":50, "radius":10, "q_value":0.9},                
-        {"x":30, "y":-30, "radius":10, "q_value":0.9},
-        {"x":30, "y":30, "radius":10, "q_value":0.9},        
-        {"x":-30, "y":30, "radius":10, "q_value":0.9},                        
-        {"x":90, "y":-90, "radius":10, "q_value":0.9},
-        {"x":-90, "y":90, "radius":10, "q_value":0.9}, 
+        {"x":51, "y":-51, "radius":10, "q_value":0.9},
+        {"x":51, "y":51, "radius":10, "q_value":0.9},        
+        {"x":-51, "y":51, "radius":10, "q_value":0.9},                
+        {"x":31, "y":-31, "radius":10, "q_value":0.9},
+        {"x":31, "y":31, "radius":10, "q_value":0.9},        
+        {"x":-31, "y":31, "radius":10, "q_value":0.9},                        
+        {"x":91, "y":-91, "radius":10, "q_value":0.9},
+        {"x":-91, "y":91, "radius":10, "q_value":0.9}, 
     ]
     site = sitelocation[args.site]
 
@@ -137,7 +137,7 @@ def main(args):
         agent = SimForgAgentWith if agent == 0 else SimForgAgentWithout
         dname = os.path.join('/tmp', 'swarm', 'data', 'experiments', str(n), agent.__name__, str(site['x'])+str(site['y']))
         pathlib.Path(dname).mkdir(parents=True, exist_ok=True)
-        steps = [200 for i in range(args.runs)]
+        steps = [3000 for i in range(args.runs)]
         env = (['123', '123'], dname)
         Parallel(n_jobs=2)(delayed(simulate_forg)(env, i, agent=agent, N=n, site=site) for i in steps)
         # simulate_forg(env, 500, agent=agent, N=n, site=site)
@@ -147,7 +147,7 @@ def main(args):
         for agent in [0, 1]:        
             # for n in [50, 100, 200, 300, 400, 500]:
             # for n in [100, 200, 300, 400]:            
-            for n in [5]:                        
+            for n in [2]:                        
                 exp(n, agent, runs, site)
     else:
         exp(n, agent, runs, site)

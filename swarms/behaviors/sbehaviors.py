@@ -90,7 +90,7 @@ class NeighbourObjects(Behaviour):
         #         self.agent.location, self.agent.radius*4)
         # else:
         grids = self.agent.model.grid.get_neighborhood(
-            self.agent.location, self.agent.radius*3)
+            self.agent.location, self.agent.radius)
         objects = self.agent.model.grid.get_objects_from_list_of_grid(
             self.item, grids)
         # Need to reset blackboard contents after each sense
@@ -117,6 +117,104 @@ class NeighbourObjects(Behaviour):
                         self.blackboard.shared_content[name].add(item)
                     except KeyError:
                         self.blackboard.shared_content[name] = {item}
+            return Status.SUCCESS
+        else:
+            return Status.FAILURE
+
+
+class NeighbourObjectsDist(Behaviour):
+    """Sense behavior for the agents.
+
+    Inherits the Behaviors class from py_trees. This
+    behavior implements the sense function for the agents. This allows
+    the agents to sense the nearby environment based on the their
+    sense radius.
+    """
+
+    def __init__(self, name):
+        """Init method for the sense behavior."""
+        super(NeighbourObjectsDist, self).__init__(name)
+        self.blackboard = Blackboard()
+        self.blackboard.shared_content = dict()
+
+    def setup(self, timeout, agent, item):
+        """Have defined the setup method.
+
+        This method defines the other objects required for the
+        behavior. Agent is the actor in the environment,
+        item is the name of the item we are trying to find in the
+        environment and timeout defines the execution time for the
+        behavior.
+        """
+        self.agent = agent
+        self.item = item
+
+    def initialise(self):
+        """Everytime initialization. Not required for now."""
+        pass
+
+    def receive_signals(self):
+        """Receive signals from other agents.
+
+        Since this is the primary behavior for the agents to sense
+        the environment, we include the receive signal method here.
+        The agents will be able to
+        sense the environment and check if
+        it receives any signals from other agents.
+        """
+
+    def update(self):
+        """
+        Sense the neighborhood.
+
+        This method gets the grid values based on the current location and
+        radius. The grids are used to search the environment. If the agents
+        find any objects, it is stored in the behavior tree blackboard which
+        is a dictionary with sets as values.
+        """
+        # if self.item is None:
+        #     grids = self.agent.model.grid.get_neighborhood(
+        #         self.agent.location, self.agent.radius*4)
+        # else:
+        # grids = self.agent.model.grid.get_neighborhood(
+        #     self.agent.location, self.agent.radius)
+        grids = []
+        for i in range(1, self.agent.model.grid.grid_size):
+            x = int(self.agent.location[0] + np.cos(
+                self.agent.direction) * i)
+            y = int(self.agent.location[1] + np.sin(
+                self.agent.direction) * i)
+            new_location, direction = self.agent.model.grid.check_limits(
+                (x, y), self.agent.direction)
+            grids += self.agent.model.grid.get_neighborhood(new_location, 1)
+        grids = list(set(grids))
+        # midpoint = ((self.agent.location[0] + new_location[0])//2, (self.agent.location[1] + new_location[1])//2)        
+        # grid2 = self.agent.model.grid.get_neighborhood(midpoint, 1)        
+        # grid3 = self.agent.model.grid.get_neighborhood(self.agent.location, 1)        
+        # grids = list(set(grid1 + grid2 + grid3))
+        # grids = grid3 + grid2 + grid1
+        # print('nighbourdist', grids)
+        objects = self.agent.model.grid.get_objects_from_list_of_grid(
+            self.item, grids)
+        # print('nighbourdist', grids, objects, self.agent.location, (new_location))            
+        # Need to reset blackboard contents after each sense
+        self.blackboard.shared_content = dict()
+
+        if len(objects) >= 1:
+            if self.agent in objects:
+                objects.remove(self.agent)
+
+            for item in objects:
+                name = type(item).__name__
+                # Is the item is not carrable, its location
+                # and property doesnot change. So we can commit its
+                # information to memory
+                # if item.carryable is False and item.deathable is False:
+                name = name + str(self.agent.name)
+                try:
+                    self.blackboard.shared_content[name].add(item)
+                except KeyError:
+                    self.blackboard.shared_content[name] = {item}
             return Status.SUCCESS
         else:
             return Status.FAILURE
@@ -1271,22 +1369,27 @@ class AvoidSObjects(Behaviour):
             # Get the collision angle and add np.pi in the opposite direction
             # self.agent.direction = get_direction(
             #     objects.communicated_location, self.agent.location)
-            alpha = get_direction(objects.location, self.agent.location)
+            alpha = get_direction(self.agent.location, objects.location)
             theta = self.agent.direction
-
-            # self.agent.direction = (self.agent.direction + np.pi) % (2 * np.pi)            
-            # self.agent.direction = np.clip(alpha  - theta - np.pi/2, -2*np.pi, 2*np.pi) + self.agent.model.random.rand()
-            # if self.agent.direction < np.pi/2:
-            # self.agent.direction = np.clip(alpha  - theta - np.pi/2, -2*np.pi, 2*np.pi) 
+            angle_diff = theta-alpha
+            # print(alpha, theta, angle_diff)
+            # if angle_diff < np.pi/2:
+            #     if angle_diff < 0:
+            #         self.agent.direction = (alpha - np.pi/2)
+            #     elif angle_diff > 0:
+            #         self.agent.direction = (alpha + np.pi/2)                
+            #     else:
+            #         self.agent.direction = alpha + np.pi/2 + self.agent.model.random.rand()
             # else:
-            #     self.agent.direction = np.clip(alpha  - theta + np.pi/2, -2*np.pi, 2*np.pi)             
-            if self.agent.direction < np.pi/2:
-                self.agent.direction = np.clip(alpha - theta - np.pi/2, -2*np.pi, 2*np.pi)                 
-                # self.agent.direction = (alpha - theta - np.pi/2)  %  (2 * np.pi)  
-            else:
-                self.agent.direction = np.clip(alpha - theta + np.pi/2, -2*np.pi, 2*np.pi)                             
-                # self.agent.direction = (alpha -theta + np.pi/2)  %  (2 * np.pi)
+            #     pass
+            # if self.agent.direction < np.pi/2:
+            #     # self.agent.direction = np.clip(alpha - theta - np.pi/2, -2*np.pi, 2*np.pi) 
+            #     # self.agent.direction = (alpha - theta - np.pi/2)  %  (2 * np.pi)  
+            # else:
+            #     # self.agent.direction = np.clip(alpha - theta + np.pi/2, -2*np.pi, 2*np.pi) 
+            #     # self.agent.direction = (alpha -theta + np.pi/2)  %  (2 * np.pi)
             # print(alpha, theta, self.agent.direction)            
+            self.agent.direction += np.pi/2
             return Status.SUCCESS
         except (IndexError, AttributeError):
             return Status.SUCCESS            
