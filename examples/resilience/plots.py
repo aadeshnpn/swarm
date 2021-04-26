@@ -227,7 +227,7 @@ def boxplotsiteloc(agent='SimForgAgentWith', site='5050'):
     for patch, color in zip(bp2['boxes'], colordict.values()):
         patch.set_facecolor(color)
     # plt.xlim(0, len(mean))
-    ax2.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
+    ax2.legend(zip(bp2['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
     ax2.set_xticklabels(labels)
     ax2.set_xlabel('Agent size')
     ax2.set_ylabel('No. Dead Agents')
@@ -240,6 +240,90 @@ def boxplotsiteloc(agent='SimForgAgentWith', site='5050'):
 
     fig.savefig(
         nadir + 'agentsitecomp' + '.png')
+    # fig.savefig(
+    #     maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
+def boxplotallsites(agent='SimForgAgentWith'):
+    sites = ['-3131', '31-31', '3131', '-5151', '51-51', '5151', '-9191', '91-91']
+    agents = [50, 100, 200, 300, 400]
+    # print(agent, site)
+    datasf = []
+    datasd = []
+    for n in agents:
+        # print(site)
+        dataf = [read_data_n_agent_site(n, agent, site=site)[0][:,-1] for site in sites]
+        datad = [read_data_n_agent_site(n, agent, site=site)[1][:,-1] for site in sites]    
+        # print(n, np.hstack(dataf).shape, np.hstack(datad).shape)
+        datasf.append(dataf)
+        datasd.append(datad)
+    fig = plt.figure()
+
+    ax1 = fig.add_subplot(2, 1, 1)
+    colordict = {
+        0: 'forestgreen', 
+        1: 'indianred',
+        2: 'gold', 
+        3: 'tomato', 
+        4: 'royalblue',
+        5: 'orchid',
+        6: 'olivedrab',
+        7: 'peru',
+        8: 'linen'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']    
+    # colordict = {
+    #     0: 'bisque',
+    #     1: 'darkorange',
+    #     2: 'orangered',
+    #     3: 'seagreen'
+    # }
+
+    # labels = ['Agent-Key', 'Key-Door', 'Door-Goal', 'Total']
+    # labels = ['30', '30', '30', '50', '50', '50', '90', '90']
+    labels = ['50', '100', '200', '300', '400']
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    # data = [data[:, i] for i in range(4)]
+    bp1 = ax1.boxplot(
+        datasf, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops)
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+    # plt.xlim(0, len(mean))
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
+    ax1.set_xticklabels(labels)
+    ax1.set_xlabel('Agent size')
+    ax1.set_ylabel('Foraging Percentage')
+    ax1.set_title('Swarm Foraging with distance '+ site[-2:])
+
+
+    ax2 = fig.add_subplot(2, 1, 2)
+    bp2 = ax2.boxplot(
+        datasd, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops)
+    for patch, color in zip(bp2['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+    # plt.xlim(0, len(mean))
+    ax2.legend(zip(bp2['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
+    ax2.set_xticklabels(labels)
+    ax2.set_xlabel('Agent size')
+    ax2.set_ylabel('No. Dead Agents')
+    # ax2.set_title('Swarm Foraging with distance '+ site[-2:])
+    plt.tight_layout()
+
+    maindir = '/tmp/swarm/data/experiments/'
+    # fname = 'agentsitecomp' + agent
+    nadir = os.path.join(maindir, str(50), agent, site)    
+
+    fig.savefig(
+        nadir + 'agentallsitecomp' + '.png')
     # fig.savefig(
     #     maindir + '/' + fname + '.png')
     # pylint: disable = E1101
@@ -274,12 +358,13 @@ def main():
     #         print(sitename, n)            
 
 
-    for i in range(len(sitelocation)):
-        sitename = str(sitelocation[i]['x']) + str(sitelocation[i]['y'])    
-        for t in atype:
-            boxplotsiteloc(agent=t, site=sitename)
+    # for i in range(len(sitelocation)):
+    #     sitename = str(sitelocation[i]['x']) + str(sitelocation[i]['y'])    
+    #     for t in atype:
+    #         boxplotsiteloc(agent=t, site=sitename)
 
 
+    boxplotallsites()
 # import os
 # dname = os.path.join('/tmp', 'pygoal', 'data', 'experiments')
 # pathlib.Path(dname).mkdir(parents=True, exist_ok=True)
