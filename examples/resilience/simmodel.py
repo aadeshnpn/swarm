@@ -38,7 +38,7 @@ class SimForgModel(Model):
             super(SimForgModel, self).__init__(seed)
 
         self.runid = datetime.datetime.now().strftime(
-            "%s") + str(self.random.randint(1, 1000, 1)[0])
+            "%s") + str(self.random.randint(1, 10000, 1)[0])
 
         if pname is None:
             self.pname = os.getcwd() + '/' + self.runid + "SForagingSimulation"

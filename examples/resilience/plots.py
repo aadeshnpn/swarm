@@ -74,7 +74,7 @@ def plotgraph(n=100, agent='SimForgAgentWith', site='50-50'):
     maindir = '/tmp/swarm/data/experiments/'
     nadir = os.path.join(maindir, str(n), agent)    
     fig.savefig(
-        nadir + 'foraging' + '.png')
+        nadir + str(site) + 'foraging' + '.png')
     plt.close(fig)
 
 
@@ -243,11 +243,15 @@ def main():
         {"x":91, "y":-91, "radius":10, "q_value":0.9},
         {"x":-91, "y":91, "radius":10, "q_value":0.9}, 
     ]    
-    i = 0
-    sitename = str(sitelocation[i]['x']) + str(sitelocation[i]['y'])
-    print(sitename)
-    plotgraph(n=100, agent=atype[1], site=sitename)    
-    plotgraph(n=100, agent=atype[0], site=sitename)        
+    i = 7
+    # sitename = str(sitelocation[i]['x']) + str(sitelocation[i]['y'])
+    # print(sitename)
+    for i in range(len(sitelocation)):
+        sitename = str(sitelocation[i]['x']) + str(sitelocation[i]['y'])
+        for n in [50, 100, 200, 300, 400]:
+            plotgraph(n=n, agent=atype[1], site=sitename)    
+            plotgraph(n=n, agent=atype[0], site=sitename)        
+            print(sitename, n)            
     # agents = [100, 200, 300, 400]
     # for n in agents:
     #     plotgraph(n=n, agent=atype[1])
