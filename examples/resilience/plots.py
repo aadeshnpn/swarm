@@ -236,10 +236,10 @@ def boxplotsiteloc(agent='SimForgAgentWith', site='5050'):
 
     maindir = '/tmp/swarm/data/experiments/'
     # fname = 'agentsitecomp' + agent
-    nadir = os.path.join(maindir, str(50), agent, site)    
+    nadir = os.path.join(maindir, str(50))    
 
     fig.savefig(
-        nadir + 'agentsitecomp' + '.png')
+        nadir + agent + site +'agentsitecomp' + '.png')
     # fig.savefig(
     #     maindir + '/' + fname + '.png')
     # pylint: disable = E1101
@@ -258,8 +258,8 @@ def boxplotallsites(agent='SimForgAgentWith'):
         dataf = [read_data_n_agent_site(n, agent, site=site)[0][:,-1] for site in sites]
         datad = [read_data_n_agent_site(n, agent, site=site)[1][:,-1] for site in sites]    
         # print(n, np.hstack(dataf).shape, np.hstack(datad).shape)
-        datasf.append(dataf)
-        datasd.append(datad)
+        datasf.append(np.hstack(dataf))
+        datasd.append(np.hstack(datad))
     fig = plt.figure()
 
     ax1 = fig.add_subplot(2, 1, 1)
@@ -300,7 +300,7 @@ def boxplotallsites(agent='SimForgAgentWith'):
     ax1.set_xticklabels(labels)
     ax1.set_xlabel('Agent size')
     ax1.set_ylabel('Foraging Percentage')
-    ax1.set_title('Swarm Foraging with distance '+ site[-2:])
+    # ax1.set_title('Swarm Foraging with distance '+ site[-2:])
 
 
     ax2 = fig.add_subplot(2, 1, 2)
@@ -320,7 +320,7 @@ def boxplotallsites(agent='SimForgAgentWith'):
 
     maindir = '/tmp/swarm/data/experiments/'
     # fname = 'agentsitecomp' + agent
-    nadir = os.path.join(maindir, str(50), agent, site)    
+    nadir = os.path.join(maindir, str(50), agent)    
 
     fig.savefig(
         nadir + 'agentallsitecomp' + '.png')
@@ -358,13 +358,13 @@ def main():
     #         print(sitename, n)            
 
 
-    # for i in range(len(sitelocation)):
-    #     sitename = str(sitelocation[i]['x']) + str(sitelocation[i]['y'])    
-    #     for t in atype:
-    #         boxplotsiteloc(agent=t, site=sitename)
+    for i in range(len(sitelocation)):
+        sitename = str(sitelocation[i]['x']) + str(sitelocation[i]['y'])    
+        for t in atype:
+            boxplotsiteloc(agent=t, site=sitename)
 
-
-    boxplotallsites()
+    # for a in atype:
+    #     boxplotallsites(a)
 # import os
 # dname = os.path.join('/tmp', 'pygoal', 'data', 'experiments')
 # pathlib.Path(dname).mkdir(parents=True, exist_ok=True)
