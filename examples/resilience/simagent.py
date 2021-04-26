@@ -337,6 +337,7 @@ class EvolAgent(Agent):
         self.shared_content = dict()
         # self.shared_content = dict(
         self.carryable = False
+        self.passable = True        
         self.beta = 0.0001
         self.food_collected = 0
         # Grammatical Evolution part
@@ -544,6 +545,7 @@ class SimAgent(Agent):
         self.radius = 3
 
         self.moveable = True
+        self.passable = True
         self.shared_content = dict()
 
         self.carryable = False

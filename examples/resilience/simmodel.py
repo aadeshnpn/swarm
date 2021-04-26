@@ -356,10 +356,15 @@ class EvolModel(Model):
                 jsondata, obj)
 
         self.hub = self.render.objects['hub'][0]
+        self.site = Sites(
+                0, (30, -30), 10, q_value=0.9)
+
+        self.grid.add_object_to_grid((30, -30), self.site)
+
         try:
             self.foods = []
-            for site in self.render.objects['sites']:
-                self.site = site  # self.render.objects['sites'][0]
+            for site in [self.site]:
+                # self.site = site  # self.render.objects['sites'][0]
 
                 for i in range(self.num_agents):
                     f = Food(

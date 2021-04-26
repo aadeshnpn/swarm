@@ -111,8 +111,8 @@ def simulate(env, iteration):
     # print([food.location for food in sim.foods])
     food_objects = sim.food_in_loc(sim.hub.location)
 
-    for food in food_objects:
-        print('simulate phenotye:', dir(food))
+    # for food in food_objects:
+    #     print('simulate phenotye:', dir(food))
     value = sim.food_in_hub()
 
     foraging_percent = (
@@ -216,6 +216,6 @@ if __name__ == '__main__':
     for i in iterations:
         itlist += [i] * 16
     print(itlist)
-    # Parallel(n_jobs=8)(delayed(main)(i) for i in itlist)
+    Parallel(n_jobs=8)(delayed(main)(i) for i in itlist)
     # readjson()
-    run_phenotype_exp()
+    # run_phenotype_exp()
