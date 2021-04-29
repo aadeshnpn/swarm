@@ -44,11 +44,15 @@ def evolve(iteration, agent='EvolAgent', N=100):
     # Find if food has been deposited in the hub
 
     food_objects = env.food_in_loc(env.hub.location)
-    # print('Total food in the hub evolution:', len(food_objects))
-    env.phenotypes = []
-    for food in food_objects:
-        print(food.phenotype)
-        env.phenotypes += list(food.phenotype.keys())
+    print('Total food in the hub evolution:', len(food_objects))
+    env.phenotypes = []    
+    if len(food_objects) > 1:
+        # print('behavior sampling', phenotypes)
+        for food in food_objects:
+            print(food.phenotype)
+            env.phenotypes += list(food.phenotype.keys())
+        phenotypes = env.behavior_sampling_objects()
+        env.phenotypes += phenotypes
 
     jfilename = env.pname + '/' + env.runid + '.json'
 
@@ -109,7 +113,7 @@ def simulate(env, iteration):
     # print("Total food in the hub", len(food_objects))
 
     # print([food.location for food in sim.foods])
-    food_objects = sim.food_in_loc(sim.hub.location)
+    # food_objects = sim.food_in_loc(sim.hub.location)
 
     # for food in food_objects:
     #     print('simulate phenotye:', dir(food))
@@ -137,7 +141,7 @@ def main(args):
     env = evolve(args)
     print('Evolution Finished')
     if len(env.phenotypes) >= 1:
-        steps = [5000 for i in range(50)]
+        steps = [5000 for i in range(10)]
         env = (env.phenotypes, env.pname)
         print(env)
         for step in steps:

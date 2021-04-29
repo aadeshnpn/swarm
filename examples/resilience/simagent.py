@@ -315,7 +315,8 @@ class EvolAgent(Agent):
         """Initialize the agent."""
         super().__init__(name, model)
         self.location = ()
-
+        self.phenotypes = dict()
+        
         self.direction = model.random.rand() * (2 * np.pi)
         self.speed = 2
         self.radius = 3
@@ -486,6 +487,10 @@ class EvolAgent(Agent):
         # Computes overall fitness using Beta function
         self.overall_fitness()
 
+        self.phenotypes = dict()
+        self.phenotypes[self.individual[0].phenotype] = (
+            self.individual[0].fitness)
+            
         cellmates = self.model.grid.get_objects_from_grid(
             type(self).__name__, self.location)
 
@@ -544,7 +549,7 @@ class SimAgent(Agent):
         self.speed = 2
         self.radius = 3
 
-        self.moveable = True
+        # self.moveable = True
         self.passable = True
         self.shared_content = dict()
 

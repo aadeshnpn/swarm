@@ -15,7 +15,7 @@ These instructions will get you a copy of the project up and running on your loc
 What things you need to install the software and how to install them
 
 ```
-pip install matplotlib numpy scipy scikit-learn pandas
+pip install matplotlib numpy scipy scikit-learn pandas psycopg2-binary==2.8.6
 ```
 
 ### Installing
