@@ -43,6 +43,8 @@ class Agent:
         self.attached_objects = []
         self.partial_attached_objects = []
         self.signals = []
+        self.carrable = False
+        self.passable = True
         self.dead = False
 
     def step(self):

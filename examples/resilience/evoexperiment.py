@@ -18,6 +18,84 @@ height = 100
 UI = False
 
 
+def validation_loop(
+        phenotypes, iteration, parentname=None, ratio=1, threshold=10.0):
+    """Validate the evolved behaviors."""
+    # Create a validation environment instance
+    # print('len of phenotype', len(set(phenotypes)))
+    valid = ValidationModel(
+        100, width, height, 10, iter=iteration, parent=parentname, ratio=ratio)
+    # print('parent:', parentname, ' children:', valid.runid)
+    # Build the environment
+    valid.build_environment_from_json()
+    # Create the agents in the environment from the sampled behaviors
+    valid.create_agents(phenotypes=phenotypes)
+    # print('total food units', valid.total_food_units)
+    # Print the BT
+    # py_trees.display.print_ascii_tree(valid.agents[1].bt.behaviour_tree.root)
+    # py_trees.logging.level = py_trees.logging.Level.DEBUG
+
+    for i in range(iteration):
+        valid.step()
+        # print ([agent.location for agent in valid.agents])
+        validresults = SimulationResults(
+            valid.pname, valid.connect, valid.sn, valid.stepcnt,
+            valid.foraging_percent(), phenotypes[0]
+        )
+        validresults.save_to_file()
+
+    # print('food in the hub', valid.agents[0].get_food_in_hub(False))
+    # Save the phenotype to json file
+    phenotype_to_json(valid.pname, valid.runid + '-' + str(i), phenotypes)
+
+    # Plot the result in the graph
+    graph = GraphACC(valid.pname, 'simulation.csv')
+    graph.gen_plot()
+
+    # Return true if the sample behavior achieves a threshold
+    if valid.foraging_percent() > threshold:
+        return True
+    else:
+        return False
+
+
+def test_loop(phenotypes, iteration, parentname=None, ratio=1):
+    """Test the phenotypes in a completely different environment."""
+    # Create a validation environment instance
+    test = TestModel(
+        100, width, height, 10, iter=iteration, parent=parentname, ratio=ratio)
+    # Build the environment
+    test.build_environment_from_json()
+    # Create the agents in the environment from the sampled behaviors
+    test.create_agents(phenotypes=phenotypes)
+    # Store the initial result
+    testresults = SimulationResults(
+        test.pname, test.connect, test.sn, test.stepcnt,
+        test.foraging_percent(), phenotypes[0]
+        )
+    # Save the phenotype to a json file
+    testresults.save_phenotype()
+    # Save the data in a result csv file
+    testresults.save_to_file()
+    # Save the phenotype of json file
+    phenotype_to_json(test.pname, test.runid, phenotypes)
+    # Execute the BT in the environment
+    for i in range(iteration):
+        test.step()
+
+        testresults = SimulationResults(
+            test.pname, test.connect, test.sn, test.stepcnt,
+            test.foraging_percent(), phenotypes[0]
+        )
+        testresults.save_to_file()
+
+    # Plot the result in the graph
+    graph = GraphACC(test.pname, 'simulation.csv')
+    graph.gen_plot()
+
+    # print('FP',test.foraging_percent())
+
+
 def evolve(iteration, agent='EvolAgent', N=100):
     """Learning Algorithm block."""
     # iteration = 10000
