@@ -15,7 +15,7 @@ from py_trees.trees import BehaviourTree
 from swarms.behaviors.sbehaviors import (
     NeighbourObjects, IsVisitedBefore,
     IsCarrying, IsInPartialAttached, RandomWalk, Move, AvoidSObjects
-    # ObjectsOnGrid, IsAgentDead,    
+    # ObjectsOnGrid, IsAgentDead,
     )
 
 from swarms.behaviors.scbehaviors import (
@@ -222,14 +222,14 @@ class SimForgAgentWith(Agent):
         # neighobs.setup(0, self, 'Obstacle')
 
         # neightrap = NeighbourObjects('NeighbourObjects_Trap')
-        # neightrap.setup(0, self, 'Traps')        
+        # neightrap.setup(0, self, 'Traps')
 
         # avoidobstacle = AvoidSObjects('Obstacle')
         # avoidobstacle.setup(0, agent)
 
         # avoidtrap = AvoidSObjects('Trap')
-        # avoidtrap.setup(0, agent, item='Traps')        
-        
+        # avoidtrap.setup(0, agent, item='Traps')
+
         # otseq = py_trees.composites.Sequence('OTSequence')
         # otseq.add_children([neighobs, avoidobstacle, neightrap, avoidtrap])
 
@@ -316,7 +316,7 @@ class EvolAgent(Agent):
         super().__init__(name, model)
         self.location = ()
         self.phenotypes = dict()
-        
+
         self.direction = model.random.rand() * (2 * np.pi)
         self.speed = 2
         self.radius = 3
@@ -338,7 +338,7 @@ class EvolAgent(Agent):
         self.shared_content = dict()
         # self.shared_content = dict(
         self.carryable = False
-        self.passable = True        
+        self.passable = True
         self.beta = 0.0001
         self.food_collected = 0
         # Grammatical Evolution part
@@ -490,7 +490,7 @@ class EvolAgent(Agent):
         self.phenotypes = dict()
         self.phenotypes[self.individual[0].phenotype] = (
             self.individual[0].fitness)
-            
+
         cellmates = self.model.grid.get_objects_from_grid(
             type(self).__name__, self.location)
 

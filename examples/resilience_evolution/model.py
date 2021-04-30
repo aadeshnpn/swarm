@@ -10,7 +10,7 @@ from swarms.utils.db import Connect
 from swarms.utils.ui import UI
 from agent import LearningAgent, ExecutingAgent  # noqa : F041
 from swarms.lib.objects import (    # noqa : F401
-    Hub, Sites, Food, Debris, Obstacles)
+    Hub, Sites, Food, Debris, Obstacles, Traps)
 import os
 from pathlib import Path
 # import imp
@@ -247,7 +247,7 @@ class EvolveModel(ForagingModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="EvoSForge", viewer=False):
+            seed=None, name="EvoSForgeNew", viewer=False):
         """Initialize the attributes."""
         super(EvolveModel, self).__init__(
             N, width, height, grid, iter, seed, name, viewer)
@@ -385,7 +385,7 @@ class ValidationModel(ForagingModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="ValidateSForge", viewer=False,
+            seed=None, name="ValidateSForgeNew", viewer=False,
             parent=None, ratio=1.0):
         """Initialize the attributes."""
         super(ValidationModel, self).__init__(
@@ -435,7 +435,7 @@ class TestModel(ForagingModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="TestSForge", viewer=False,
+            seed=None, name="TestSForgeNew", viewer=False,
             parent=None, ratio=1.0):
         """Initialize the attributes."""
         super(TestModel, self).__init__(
@@ -482,7 +482,7 @@ class ViewerModel(ForagingModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="TestSForge", viewer=True):
+            seed=None, name="ViewerSForgeNew", viewer=True):
         """Initialize the attributes."""
         super(ViewerModel, self).__init__(
             N, width, height, grid, iter, seed, name, viewer)
