@@ -1,6 +1,6 @@
 """Experiment script to run Single source foraging simulation."""
 
-# import numpy as np
+import numpy as np
 # import pdb
 # import hashlib
 import sys
@@ -8,7 +8,7 @@ from model import EvolveModel, ValidationModel, TestModel
 from swarms.utils.jsonhandler import JsonPhenotypeData
 from swarms.utils.graph import Graph, GraphACC  # noqa : F401
 from joblib import Parallel, delayed    # noqa : F401
-from swarms.utils.results import SimulationResults
+from swarms.utils.results import SimulationResults, SimulationResultsTraps
 # import py_trees
 # Global variables for width and height
 width = 100
@@ -71,9 +71,9 @@ def test_loop(phenotypes, iteration, parentname=None, ratio=1):
     # Create the agents in the environment from the sampled behaviors
     test.create_agents(phenotypes=phenotypes)
     # Store the initial result
-    testresults = SimulationResults(
+    testresults = SimulationResultsTraps(
         test.pname, test.connect, test.sn, test.stepcnt,
-        test.foraging_percent(), phenotypes[0]
+        test.foraging_percent(), phenotypes[0], test.no_agent_dead()
         )
     # Save the phenotype to a json file
     testresults.save_phenotype()
@@ -85,9 +85,9 @@ def test_loop(phenotypes, iteration, parentname=None, ratio=1):
     for i in range(iteration):
         test.step()
 
-        testresults = SimulationResults(
+        testresults = SimulationResultsTraps(
             test.pname, test.connect, test.sn, test.stepcnt,
-            test.foraging_percent(), phenotypes[0]
+            test.foraging_percent(), phenotypes[0], test.no_agent_dead()
         )
         testresults.save_to_file()
 
@@ -232,6 +232,22 @@ def test_top_phenotype(jsonlist):
         n_jobs=16)(delayed(test_loop)(
             phenotypes[i], 5000) for i in range(len(phenotypes)))
 
+
+def test_all_phenotype(idfile='/tmp/experiments/id.txt'):
+    ids = np.genfromtxt(idfile, autostrip=True, unpack=True, dtype=np.int64)
+    rootdirs = ['/tmp/experiments/50/12000/' + str(id) +'EvoSForgeNew/'+str(id)+'-10999.json' for id in ids]
+    phenotypes = []
+    for jname in rootdirs:
+        phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
+        phenotypes.append(phenotype[0])
+
+    Parallel(
+        n_jobs=4)(delayed(test_loop)(
+            phenotypes, 5000) for i in range(50))
+
+    print(len(phenotypes))
+
+
 if __name__ == '__main__':
     # Running 50 experiments in parallel
     # Parallel(n_jobs=8)(delayed(main)(i) for i in range(2000, 100000, 2000))
@@ -239,7 +255,10 @@ if __name__ == '__main__':
     # main(12000)
     # json = '1550083569946511-all.json'
     # test_json_phenotype(json)
-    Parallel(n_jobs=4)(delayed(main)(12000) for i in range(128))
+
+    # Parallel(n_jobs=8)(delayed(main)(23000) for i in range(512))
+
+    test_all_phenotype()
     # jsonlist = sys.argv
     # print ('jsonlist',len(jsonlist))
     # test_top_phenotype(jsonlist[1:])

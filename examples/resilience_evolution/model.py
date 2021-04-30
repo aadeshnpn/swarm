@@ -118,6 +118,8 @@ class ForagingModel(Model):
                 jsondata, obj)
 
         self.hub = self.render.objects['hub'][0]
+        self.traps = self.render.objects['traps'][0]
+        self.obstacles = self.render.objects['obstacles'][0]
         self.total_food_units = 0
         self.foods = []
         try:
@@ -240,6 +242,13 @@ class ForagingModel(Model):
         food_objects = set(food_objects)
         total_food_weights = sum([food.weight for food in food_objects])
         return ((total_food_weights * 1.0) / self.total_food_units) * 100
+
+    def no_agent_dead(self):
+        grid = self.grid
+        trap_loc = self.traps.location
+        neighbours = grid.get_neighborhood(trap_loc, 10)
+        agents = grid.get_objects_from_list_of_grid(type(self.agents[0]).__name__, neighbours)
+        return sum([1 if a.dead else 0 for a in agents])
 
 
 class EvolveModel(ForagingModel):

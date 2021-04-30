@@ -263,7 +263,7 @@ class SimulationResultsTraps:
             ("id", id),
             ("step", step),
             ("fitness", float(fitness)),
-            ("deadagent", deadagent),            
+            ("deadagent", deadagent),
         ])
 
         self.template = """{id}|{step}|{fitness}|{deadagent}

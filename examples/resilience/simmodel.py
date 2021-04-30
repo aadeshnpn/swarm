@@ -155,7 +155,7 @@ class SimForgModel(Model):
         self.hub = self.render.objects['hub'][0]
         self.obstacles = self.render.objects['obstacles'][0]
         # print(self.obstacles.passable)
-        self.traps = self.render.objects['traps'][0]  
+        self.traps = self.render.objects['traps'][0]
 
         # add site
         location = (self.expsite["x"], self.expsite["y"])
@@ -256,7 +256,7 @@ class SimForgModel(Model):
         trap_loc = self.traps.location
         neighbours = grid.get_neighborhood(trap_loc, 10)
         agents = grid.get_objects_from_list_of_grid(type(self.agents[0]).__name__, neighbours)
-        return sum([1 if a.dead else 0 for a in agents])     
+        return sum([1 if a.dead else 0 for a in agents])
 
 
 class EvolModel(Model):
@@ -519,8 +519,8 @@ class EvolModel(Model):
             except (AttributeError, ValueError):
                 pass
         # print ('phenotypes for attached objects', phenotypes)
-        return phenotypes  
-              
+        return phenotypes
+
 
 class SimModel(Model):
     """A environemnt to model swarms."""
@@ -652,7 +652,7 @@ class SimModel(Model):
         try:
             self.foods = []
             # for site in self.render.objects['sites']:
-            for site in [self.site]:                
+            for site in [self.site]:
                 # self.site = site  # self.render.objects['sites'][0]
 
                 for i in range(self.num_agents):
