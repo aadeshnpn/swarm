@@ -233,19 +233,29 @@ def test_top_phenotype(jsonlist):
             phenotypes[i], 5000) for i in range(len(phenotypes)))
 
 
-def test_all_phenotype(idfile='/tmp/experiments/id.txt'):
-    ids = np.genfromtxt(idfile, autostrip=True, unpack=True, dtype=np.int64)
-    rootdirs = ['/tmp/experiments/50/12000/' + str(id) +'EvoSForgeNew/'+str(id)+'-10999.json' for id in ids]
+def test_all_phenotype(idfile='/tmp/experiments/idvalid.txt'):
+    # ids = np.genfromtxt(idfile, autostrip=True, unpack=True, dtype=np.int64)
+    dirs, ids = np.genfromtxt('/tmp/experiments/links.txt', autostrip=True, unpack=True, dtype=np.str_, delimiter=',')
+    # print(len(ids), len(dirs))
+    # rootdirs = ['/tmp/experiments/50/12000/' + str(id) +'EvoSForgeNew/'+str(id)+'-10999.json' for id in ids]
+
+    rootdirs = [str(dirs[i])+'/'+str(ids[i])+'-4999.json' for i in range(len(ids))]
+
     phenotypes = []
     for jname in rootdirs:
-        phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
-        phenotypes.append(phenotype[0])
+        try:
+            phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
+            phenotypes.append(phenotype[0])
+        except FileNotFoundError:
+            pass
+
+    print(len(phenotypes))
 
     Parallel(
         n_jobs=4)(delayed(test_loop)(
             phenotypes, 5000) for i in range(50))
 
-    print(len(phenotypes))
+
 
 
 if __name__ == '__main__':
@@ -256,9 +266,9 @@ if __name__ == '__main__':
     # json = '1550083569946511-all.json'
     # test_json_phenotype(json)
 
-    # Parallel(n_jobs=8)(delayed(main)(23000) for i in range(512))
+    Parallel(n_jobs=8)(delayed(main)(12000) for i in range(512))
 
-    test_all_phenotype()
+    # test_all_phenotype()
     # jsonlist = sys.argv
     # print ('jsonlist',len(jsonlist))
     # test_top_phenotype(jsonlist[1:])

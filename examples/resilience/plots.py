@@ -34,7 +34,7 @@ def plotgraph(n=100, agent='SimForgAgentWith', site='50-50'):
 
     mediand = np.quantile(datad, 0.5, axis=0)
     q1d = np.quantile(datad, 0.25, axis=0)
-    q3d = np.quantile(datad, 0.75, axis=0)    
+    q3d = np.quantile(datad, 0.75, axis=0)
     # print(median.shape, q1.shape, q3.shape)
     color = [
         'forestgreen', 'indianred',
@@ -58,7 +58,7 @@ def plotgraph(n=100, agent='SimForgAgentWith', site='50-50'):
         linewidth=1.0, label='Dead Agents')
     ax1.fill_between(
         xvalues, q3d, q1d,
-        color=colorshade[1], alpha=0.3)        
+        color=colorshade[1], alpha=0.3)
     plt.title('Foraging')
     # ax1.legend(title='$\it{m}$')
     ax1.set_xlabel('Steps')
@@ -72,7 +72,7 @@ def plotgraph(n=100, agent='SimForgAgentWith', site='50-50'):
     # fig.savefig(
     #     '/tmp/goal/data/experiments/' + pname + '.pdf')
     maindir = '/tmp/swarm/data/experiments/'
-    nadir = os.path.join(maindir, str(n), agent)    
+    nadir = os.path.join(maindir, str(n), agent)
     fig.savefig(
         nadir + str(site) + 'foraging' + '.png')
     plt.close(fig)
@@ -110,27 +110,27 @@ def read_data_n_agent_site(n=100, agent='SimForgAgentWith', site='5050'):
             pass
     # print(data)
     dataf = np.array(dataf)
-    datad = np.array(datad)    
+    datad = np.array(datad)
     # print(dataf.shape, datad.shape)
-    return dataf, datad    
+    return dataf, datad
 
 
 
 def boxplot(agent='SimForgAgentWith'):
     # data = [read_data_n_agent(n, agent)[:,-1] for n in [50, 100, 200, 300, 400]]
-    data = [read_data_n_agent(n, agent)[:,-1] for n in [100, 200, 300, 400]]    
+    data = [read_data_n_agent(n, agent)[:,-1] for n in [100, 200, 300, 400]]
     fig = plt.figure()
 
     ax1 = fig.add_subplot(1, 1, 1)
     colordict = {
-        0: 'forestgreen', 
+        0: 'forestgreen',
         1: 'indianred',
-        2: 'gold', 
-        3: 'tomato', 
+        2: 'gold',
+        3: 'tomato',
         4: 'royalblue'}
     colorshade = [
         'springgreen', 'lightcoral',
-        'khaki', 'lightsalmon', 'deepskyblue']    
+        'khaki', 'lightsalmon', 'deepskyblue']
     # colordict = {
     #     0: 'bisque',
     #     1: 'darkorange',
@@ -140,7 +140,7 @@ def boxplot(agent='SimForgAgentWith'):
 
     # labels = ['Agent-Key', 'Key-Door', 'Door-Goal', 'Total']
     # labels = [50, 100, 200, 300, 400]
-    labels = [100, 200, 300, 400]    
+    labels = [100, 200, 300, 400]
     medianprops = dict(linewidth=2.5, color='firebrick')
     meanprops = dict(linewidth=2.5, color='#ff7f0e')
     # data = [data[:, i] for i in range(4)]
@@ -175,15 +175,15 @@ def boxplotsiteloc(agent='SimForgAgentWith', site='5050'):
     agents = [50, 100, 200, 300, 400]
     print(agent, site)
     dataf = [read_data_n_agent_site(n, agent, site=site)[0][:,-1] for n in agents]
-    datad = [read_data_n_agent_site(n, agent, site=site)[1][:,-1] for n in agents]    
+    datad = [read_data_n_agent_site(n, agent, site=site)[1][:,-1] for n in agents]
     fig = plt.figure()
 
     ax1 = fig.add_subplot(2, 1, 1)
     colordict = {
-        0: 'forestgreen', 
+        0: 'forestgreen',
         1: 'indianred',
-        2: 'gold', 
-        3: 'tomato', 
+        2: 'gold',
+        3: 'tomato',
         4: 'royalblue',
         5: 'orchid',
         6: 'olivedrab',
@@ -191,7 +191,7 @@ def boxplotsiteloc(agent='SimForgAgentWith', site='5050'):
         8: 'linen'}
     colorshade = [
         'springgreen', 'lightcoral',
-        'khaki', 'lightsalmon', 'deepskyblue']    
+        'khaki', 'lightsalmon', 'deepskyblue']
     # colordict = {
     #     0: 'bisque',
     #     1: 'darkorange',
@@ -236,7 +236,7 @@ def boxplotsiteloc(agent='SimForgAgentWith', site='5050'):
 
     maindir = '/tmp/swarm/data/experiments/'
     # fname = 'agentsitecomp' + agent
-    nadir = os.path.join(maindir, str(50))    
+    nadir = os.path.join(maindir, str(50))
 
     fig.savefig(
         nadir + agent + site +'agentsitecomp' + '.png')
@@ -256,7 +256,7 @@ def boxplotallsites(agent='SimForgAgentWith'):
     for n in agents:
         # print(site)
         dataf = [read_data_n_agent_site(n, agent, site=site)[0][:,-1] for site in sites]
-        datad = [read_data_n_agent_site(n, agent, site=site)[1][:,-1] for site in sites]    
+        datad = [read_data_n_agent_site(n, agent, site=site)[1][:,-1] for site in sites]
         # print(n, np.hstack(dataf).shape, np.hstack(datad).shape)
         datasf.append(np.hstack(dataf))
         datasd.append(np.hstack(datad))
@@ -264,10 +264,10 @@ def boxplotallsites(agent='SimForgAgentWith'):
 
     ax1 = fig.add_subplot(2, 1, 1)
     colordict = {
-        0: 'forestgreen', 
+        0: 'forestgreen',
         1: 'indianred',
-        2: 'gold', 
-        3: 'tomato', 
+        2: 'gold',
+        3: 'tomato',
         4: 'royalblue',
         5: 'orchid',
         6: 'olivedrab',
@@ -275,7 +275,7 @@ def boxplotallsites(agent='SimForgAgentWith'):
         8: 'linen'}
     colorshade = [
         'springgreen', 'lightcoral',
-        'khaki', 'lightsalmon', 'deepskyblue']    
+        'khaki', 'lightsalmon', 'deepskyblue']
     # colordict = {
     #     0: 'bisque',
     #     1: 'darkorange',
@@ -320,7 +320,7 @@ def boxplotallsites(agent='SimForgAgentWith'):
 
     maindir = '/tmp/swarm/data/experiments/'
     # fname = 'agentsitecomp' + agent
-    nadir = os.path.join(maindir, str(50), agent)    
+    nadir = os.path.join(maindir, str(50), agent)
 
     fig.savefig(
         nadir + 'agentallsitecomp' + '.png')
@@ -335,31 +335,31 @@ def main():
     # agents = [50, 100, 200, 300, 400]
     atype = ['SimForgAgentWith', 'SimForgAgentWithout']
     # boxplotsiteloc(atype[1])
-    # boxplot(atype[1])    
-    sitelocation  = [ 
+    # boxplot(atype[1])
+    sitelocation  = [
         {"x":51, "y":-51, "radius":10, "q_value":0.9},
-        {"x":51, "y":51, "radius":10, "q_value":0.9},        
-        {"x":-51, "y":51, "radius":10, "q_value":0.9},                
+        {"x":51, "y":51, "radius":10, "q_value":0.9},
+        {"x":-51, "y":51, "radius":10, "q_value":0.9},
         {"x":31, "y":-31, "radius":10, "q_value":0.9},
-        {"x":31, "y":31, "radius":10, "q_value":0.9},        
-        {"x":-31, "y":31, "radius":10, "q_value":0.9},                        
+        {"x":31, "y":31, "radius":10, "q_value":0.9},
+        {"x":-31, "y":31, "radius":10, "q_value":0.9},
         {"x":91, "y":-91, "radius":10, "q_value":0.9},
-        {"x":-91, "y":91, "radius":10, "q_value":0.9}, 
-    ]    
+        {"x":-91, "y":91, "radius":10, "q_value":0.9},
+    ]
     i = 7
     # sitename = str(sitelocation[i]['x']) + str(sitelocation[i]['y'])
     # print(sitename)
-    
+
     # for i in range(len(sitelocation)):
     #     sitename = str(sitelocation[i]['x']) + str(sitelocation[i]['y'])
     #     for n in [50, 100, 200, 300, 400]:
-    #         plotgraph(n=n, agent=atype[1], site=sitename)    
-    #         plotgraph(n=n, agent=atype[0], site=sitename)        
-    #         print(sitename, n)            
+    #         plotgraph(n=n, agent=atype[1], site=sitename)
+    #         plotgraph(n=n, agent=atype[0], site=sitename)
+    #         print(sitename, n)
 
 
     for i in range(len(sitelocation)):
-        sitename = str(sitelocation[i]['x']) + str(sitelocation[i]['y'])    
+        sitename = str(sitelocation[i]['x']) + str(sitelocation[i]['y'])
         for t in atype:
             boxplotsiteloc(agent=t, site=sitename)
 
