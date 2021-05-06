@@ -12,6 +12,8 @@ from ponyge.operators.selection import selection
 
 import py_trees
 
+from flloat.parser.ltlf import LTLfParser
+
 
 class ForagingAgent(Agent):
     """An minimalistic foraging swarm agent."""
@@ -107,6 +109,14 @@ class ForagingAgent(Agent):
             return 0
         else:
             return locations - 1
+
+    """Function related to LTLf and goals."""
+    def evaluate_trace(self, goalspec, trace):
+        # Evaluate the trace
+        parser = LTLfParser()
+        parsed_formula = parser(goalspec)
+        result = parsed_formula.truth(trace)
+        return result
 
 
 class LearningAgent(ForagingAgent):

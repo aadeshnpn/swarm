@@ -30,6 +30,14 @@ cd PonyGE2
 pip install .
 ```
 
+FLLOAT
+
+```
+git clone htts://github.com/whitemech/flloat.git
+cd flloat
+pip install .
+```
+
 And for py_trees
 
 ```
@@ -37,6 +45,7 @@ git clone https://github.com/aadeshnpn/py_trees
 cd py_trees
 pip install .
 ```
+
 
 Now all the dependencies are installed
 
@@ -97,4 +106,3 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 ## Acknowledgments
 
 * Mesa team
-
