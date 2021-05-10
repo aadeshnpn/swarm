@@ -27,7 +27,7 @@ class ForagingModel(Model):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name='SForaging', viewer=False, parent=None, ratio=1.0):
+            seed=None, name='SForagingLTLf', viewer=False, parent=None, ratio=1.0):
         """Initialize the attributes."""
         if seed is None:
             super(ForagingModel, self).__init__(seed=None)
@@ -256,7 +256,7 @@ class EvolveModel(ForagingModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="EvoSForgeNew", viewer=False):
+            seed=None, name="EvoSForgeNewLTLf", viewer=False):
         """Initialize the attributes."""
         super(EvolveModel, self).__init__(
             N, width, height, grid, iter, seed, name, viewer)
@@ -394,7 +394,7 @@ class ValidationModel(ForagingModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="ValidateSForgeNew", viewer=False,
+            seed=None, name="ValidateSForgeNewLTLf", viewer=False,
             parent=None, ratio=1.0):
         """Initialize the attributes."""
         super(ValidationModel, self).__init__(
@@ -444,7 +444,7 @@ class TestModel(ForagingModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="TestSForgeNew", viewer=False,
+            seed=None, name="TestSForgeNewLTLf", viewer=False,
             parent=None, ratio=1.0):
         """Initialize the attributes."""
         super(TestModel, self).__init__(
@@ -491,7 +491,7 @@ class ViewerModel(ForagingModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="ViewerSForgeNew", viewer=True):
+            seed=None, name="ViewerSForgeNewLTLf", viewer=True):
         """Initialize the attributes."""
         super(ViewerModel, self).__init__(
             N, width, height, grid, iter, seed, name, viewer)

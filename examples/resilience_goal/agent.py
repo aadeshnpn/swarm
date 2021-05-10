@@ -48,7 +48,8 @@ class ForagingAgent(Agent):
         self.keys = ['o', 'e', 'p']
         self.goalspecs = {
             self.keys[0]: 'F (o)',
-            self.keys[1]: 'G (e)',
+            # self.keys[1]: 'G (e)',
+            self.keys[1]: 'e',
             self.keys[2]: '(G (F p))'
             }
         # self.trace = [{k:list() for k in self.keys}]
@@ -181,11 +182,19 @@ class LearningAgent(ForagingAgent):
 
     def evaluate_goals(self):
         goals = []
+
+        # print('from evaluate goals', self.trace)
         for key, value in self.goalspecs.items():
             parser = LTLfParser()
             formula = parser(value)
-            goals += [formual.truth(self.trace)]
-
+            if key == 'e':
+                goals += [formula.truth(self.trace, len(self.trace)-1)]
+            else:
+                goals += [formula.truth(self.trace)]
+        #     if self.name ==1:
+        #         print(key, value)
+        # if self.name ==1:
+        # print('from evalutate goals', self.name, goals, end=' ')
         return sum(goals)
 
 
@@ -256,6 +265,9 @@ class LearningAgent(ForagingAgent):
         self.individual = [individuals[0]]
         self.individual[0].fitness = 0
         self.genome_storage = []
+        self.trace = []
+        self.trace.append({k:self.functions[k]() for k in self.keys})
+
 
     def genetic_step(self):
         """Additional procedures called after genecti step."""
@@ -278,8 +290,6 @@ class LearningAgent(ForagingAgent):
         self.timestamp = 0
         self.diversity_fitness = self.individual[0].fitness
         self.generation += 1
-        self.trace = []
-        self.trace.append({k:self.functions[k]() for k in self.keys})
 
     def overall_fitness(self):
         """Compute complete fitness.
@@ -304,7 +314,7 @@ class LearningAgent(ForagingAgent):
 
         # Goal Specification Fitness
         self.individual[0].fitness = (1 - self.beta) * self.delayed_reward \
-            self.evaluate_goals()
+            + self.evaluate_goals()
 
     def get_food_in_hub(self, agent_name=True):
         """Get the food in the hub stored by the agent."""
@@ -338,6 +348,9 @@ class LearningAgent(ForagingAgent):
         self.prev_location = copy.copy(self.location)
         # Increase beta
         # self.beta = self.timestamp / self.model.iter
+        # if self.name ==1:
+        # print(self.timestamp, self.name, len(self.trace))
+
         # Compute the behavior tree
         self.bt.behaviour_tree.tick()
 
@@ -359,7 +372,7 @@ class LearningAgent(ForagingAgent):
 
         # Computes overall fitness using Beta function
         self.overall_fitness()
-
+        # print(self.name, self.individual[0].fitness)
         # Debugging
         # decodedata = "b\'" + self.individual[0].phenotype + "\'"
         # encode = self.individual[0].phenotype.encode('utf-8')
