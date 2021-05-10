@@ -11,7 +11,7 @@ from ponyge.operators.replacement import replacement
 from ponyge.operators.selection import selection
 
 import py_trees
-
+import copy
 from flloat.parser.ltlf import LTLfParser
 
 
@@ -22,6 +22,7 @@ class ForagingAgent(Agent):
         """Initialize the agent."""
         super().__init__(name, model)
         self.location = ()
+        self.prev_location = ()
         # Agent attributes for motion
         self.direction = model.random.rand() * (2 * np.pi)
         self.speed = 2
@@ -50,9 +51,8 @@ class ForagingAgent(Agent):
             self.keys[1]: 'G (e)',
             self.keys[2]: '(G (F p))'
             }
-        self.trace = [{k:list() for k in self.keys}]
-
-
+        # self.trace = [{k:list() for k in self.keys}]
+        self.trace = []
 
     def init_evolution_algo(self):
         """Agent's GE algorithm operation defination."""
@@ -141,6 +141,53 @@ class LearningAgent(ForagingAgent):
         super().__init__(name, model)
         self.delayed_reward = 0
         self.phenotypes = dict()
+        self.functions = {
+            self.keys[0]: self.proposition_o,
+            self.keys[1]: self.proposition_e,
+            self.keys[2]: self.proposition_p,
+            }
+        self.trace.append({k:self.functions[k]() for k in self.keys})
+
+    def proposition_o(self):
+        grid = self.model.grid
+        hub_loc = self.model.hub.location
+        neighbours = grid.get_neighborhood(hub_loc, self.model.hub.radius)
+        food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+        agent_food_objects = []
+        prop_o = False
+        for food in food_objects:
+            # print('p keys', self.name, food.phenotype.keys())
+            if (
+                food.agent_name == self.name and (
+                    self.individual[0].phenotype in list(
+                        food.phenotype.keys())
+                    )):
+                prop_o = True
+                break
+        return prop_o
+
+    def proposition_e(self):
+        if self.location != self.prev_location:
+            return True
+        else:
+            return False
+
+    def proposition_p(self):
+        if len(self.attached_objects) > 0:
+            return True
+        else:
+            return False
+
+
+    def evaluate_goals(self):
+        goals = []
+        for key, value in self.goalspecs.items():
+            parser = LTLfParser()
+            formula = parser(value)
+            goals += [formual.truth(self.trace)]
+
+        return sum(goals)
+
 
     def init_evolution_algo(self):
         """Agent's GE algorithm operation defination."""
@@ -231,6 +278,8 @@ class LearningAgent(ForagingAgent):
         self.timestamp = 0
         self.diversity_fitness = self.individual[0].fitness
         self.generation += 1
+        self.trace = []
+        self.trace.append({k:self.functions[k]() for k in self.keys})
 
     def overall_fitness(self):
         """Compute complete fitness.
@@ -249,10 +298,13 @@ class LearningAgent(ForagingAgent):
         # self.individual[0].fitness = (
         #     self.ef + self.cf * 4 + self.food_collected * 8)
 
-        self.individual[0].fitness = (1 - self.beta) * self.delayed_reward \
-            + self.ef + self.cf \
-            + self.food_collected
+        # self.individual[0].fitness = (1 - self.beta) * self.delayed_reward \
+        #     + self.ef + self.cf \
+        #     + self.food_collected
 
+        # Goal Specification Fitness
+        self.individual[0].fitness = (1 - self.beta) * self.delayed_reward \
+            self.evaluate_goals()
 
     def get_food_in_hub(self, agent_name=True):
         """Get the food in the hub stored by the agent."""
@@ -283,7 +335,7 @@ class LearningAgent(ForagingAgent):
         # Couting variables
         self.timestamp += 1
         self.step_count += 1
-
+        self.prev_location = copy.copy(self.location)
         # Increase beta
         # self.beta = self.timestamp / self.model.iter
         # Compute the behavior tree
@@ -292,6 +344,9 @@ class LearningAgent(ForagingAgent):
         # Maintain location history
         _, gridval = self.model.grid.find_grid(self.location)
         self.location_history.add(gridval)
+
+        # Add to trace
+        self.trace.append({k:self.functions[k]() for k in self.keys})
 
         # Find the no.of food collected from the BT execution
         self.food_collected = self.get_food_in_hub()  # * self.get_food_in_hub(
