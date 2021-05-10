@@ -40,6 +40,20 @@ class ForagingAgent(Agent):
 
         self.fitness_name = True
 
+        # Goal related attributes
+        # P is prospective, C is communication
+        # T is trap, and O is obstacle
+        # self.keys = ['p', 'c', 't', 'o']
+        self.keys = ['o', 'e', 'p']
+        self.goalspecs = {
+            self.keys[0]: 'F (o)',
+            self.keys[1]: 'G (e)',
+            self.keys[2]: '(G (F p))'
+            }
+        self.trace = [{k:list() for k in self.keys}]
+
+
+
     def init_evolution_algo(self):
         """Agent's GE algorithm operation defination."""
         # This is a abstract class. Only the agents
