@@ -176,9 +176,10 @@ def boxplotsiteloc(agent='SimForgAgentWith', site='5050'):
     print(agent, site)
     dataf = [read_data_n_agent_site(n, agent, site=site)[0][:,-1] for n in agents]
     datad = [read_data_n_agent_site(n, agent, site=site)[1][:,-1] for n in agents]
+    datadp = [(datad[i]/agents[i])*100 for i in range(len(agents))]
     fig = plt.figure()
 
-    ax1 = fig.add_subplot(2, 1, 1)
+    ax1 = fig.add_subplot(3, 1, 1)
     colordict = {
         0: 'forestgreen',
         1: 'indianred',
@@ -219,7 +220,7 @@ def boxplotsiteloc(agent='SimForgAgentWith', site='5050'):
     ax1.set_title('Swarm Foraging with distance '+ site[-2:])
 
 
-    ax2 = fig.add_subplot(2, 1, 2)
+    ax2 = fig.add_subplot(3, 1, 2)
     bp2 = ax2.boxplot(
         datad, 0, 'gD', showmeans=True, meanline=True,
         patch_artist=True, medianprops=medianprops,
@@ -227,10 +228,23 @@ def boxplotsiteloc(agent='SimForgAgentWith', site='5050'):
     for patch, color in zip(bp2['boxes'], colordict.values()):
         patch.set_facecolor(color)
     # plt.xlim(0, len(mean))
-    ax2.legend(zip(bp2['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
+    # ax2.legend(zip(bp2['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
     ax2.set_xticklabels(labels)
     ax2.set_xlabel('Agent size')
     ax2.set_ylabel('No. Dead Agents')
+
+    ax3 = fig.add_subplot(3, 1, 3)
+    bp3 = ax3.boxplot(
+        datadp, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops)
+    for patch, color in zip(bp3['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+    # plt.xlim(0, len(mean))
+    # ax3.legend(zip(bp3['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
+    ax3.set_xticklabels(labels)
+    ax3.set_xlabel('Agent size')
+    ax3.set_ylabel('Dead Agents %')
     # ax2.set_title('Swarm Foraging with distance '+ site[-2:])
     plt.tight_layout()
 
