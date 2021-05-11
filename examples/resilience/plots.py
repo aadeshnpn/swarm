@@ -267,16 +267,19 @@ def boxplotallsites(agent='SimForgAgentWith'):
     # print(agent, site)
     datasf = []
     datasd = []
+    datasdp = []
     for n in agents:
         # print(site)
         dataf = [read_data_n_agent_site(n, agent, site=site)[0][:,-1] for site in sites]
         datad = [read_data_n_agent_site(n, agent, site=site)[1][:,-1] for site in sites]
+        datadp = [(d/n)*100.0 for d in datad]
         # print(n, np.hstack(dataf).shape, np.hstack(datad).shape)
         datasf.append(np.hstack(dataf))
         datasd.append(np.hstack(datad))
+        datasdp.append(np.hstack(datadp))
     fig = plt.figure()
 
-    ax1 = fig.add_subplot(2, 1, 1)
+    ax1 = fig.add_subplot(3, 1, 1)
     colordict = {
         0: 'forestgreen',
         1: 'indianred',
@@ -317,7 +320,7 @@ def boxplotallsites(agent='SimForgAgentWith'):
     # ax1.set_title('Swarm Foraging with distance '+ site[-2:])
 
 
-    ax2 = fig.add_subplot(2, 1, 2)
+    ax2 = fig.add_subplot(3, 1, 2)
     bp2 = ax2.boxplot(
         datasd, 0, 'gD', showmeans=True, meanline=True,
         patch_artist=True, medianprops=medianprops,
@@ -325,10 +328,23 @@ def boxplotallsites(agent='SimForgAgentWith'):
     for patch, color in zip(bp2['boxes'], colordict.values()):
         patch.set_facecolor(color)
     # plt.xlim(0, len(mean))
-    ax2.legend(zip(bp2['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
+    # ax2.legend(zip(bp2['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
     ax2.set_xticklabels(labels)
     ax2.set_xlabel('Agent size')
     ax2.set_ylabel('No. Dead Agents')
+
+    ax3 = fig.add_subplot(3, 1, 3)
+    bp3 = ax3.boxplot(
+        datasdp, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops)
+    for patch, color in zip(bp3['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+    # plt.xlim(0, len(mean))
+    # ax3.legend(zip(bp3['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
+    ax3.set_xticklabels(labels)
+    ax3.set_xlabel('Agent size')
+    ax3.set_ylabel('Dead Agents %')
     # ax2.set_title('Swarm Foraging with distance '+ site[-2:])
     plt.tight_layout()
 
@@ -372,13 +388,13 @@ def main():
     #         print(sitename, n)
 
 
-    for i in range(len(sitelocation)):
-        sitename = str(sitelocation[i]['x']) + str(sitelocation[i]['y'])
-        for t in atype:
-            boxplotsiteloc(agent=t, site=sitename)
+    # for i in range(len(sitelocation)):
+    #     sitename = str(sitelocation[i]['x']) + str(sitelocation[i]['y'])
+    #     for t in atype:
+    #         boxplotsiteloc(agent=t, site=sitename)
 
-    # for a in atype:
-    #     boxplotallsites(a)
+    for a in atype:
+        boxplotallsites(a)
 # import os
 # dname = os.path.join('/tmp', 'pygoal', 'data', 'experiments')
 # pathlib.Path(dname).mkdir(parents=True, exist_ok=True)
