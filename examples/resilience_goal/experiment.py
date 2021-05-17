@@ -214,6 +214,7 @@ def test_json_phenotype(json):
     phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
     print(len(phenotype))
     # phenotype = ' '
+
     test_loop(phenotype, 5000)
     # if validation_loop(phenotype, 2000, 1):
     #    print('foraging success')
@@ -267,7 +268,7 @@ if __name__ == '__main__':
     # test_json_phenotype(json)
 
     # Parallel(n_jobs=8)(delayed(main)(12000) for i in range(512))
-    main(5000)
+    main(12000)
     # test_all_phenotype()
     # jsonlist = sys.argv
     # print ('jsonlist',len(jsonlist))

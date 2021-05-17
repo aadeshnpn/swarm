@@ -16,6 +16,8 @@ from pathlib import Path
 # import imp
 import datetime
 import numpy as np
+from flloat.parser.ltlf import LTLfParser
+
 
 # filename = os.path.join(imp.find_module("swarms")[1] + "/utils/world.json")
 projectdir = "/home/aadeshnpn/Documents/BYU/HCMI/resilience/swarm/examples"
@@ -260,6 +262,7 @@ class EvolveModel(ForagingModel):
         """Initialize the attributes."""
         super(EvolveModel, self).__init__(
             N, width, height, grid, iter, seed, name, viewer)
+        self.parser = LTLfParser()
 
     def create_agents(self, random_init=True, phenotypes=None):
         """Initialize agents in the environment."""

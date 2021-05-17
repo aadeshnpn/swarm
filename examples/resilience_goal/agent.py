@@ -45,12 +45,13 @@ class ForagingAgent(Agent):
         # P is prospective, C is communication
         # T is trap, and O is obstacle
         # self.keys = ['p', 'c', 't', 'o']
-        self.keys = ['o', 'e', 'p']
+        # self.keys = ['o', 'e', 'p']
+        self.keys = ['p']
         self.goalspecs = {
-            self.keys[0]: 'F (o)',
-            # self.keys[1]: 'G (e)',
-            self.keys[1]: 'e',
-            self.keys[2]: '(G (F p))'
+            # self.keys[0]: 'F (o)',
+            # self.keys[1]: 'e',
+            # self.keys[2]: '(G (F p))'
+            self.keys[0]: '(G (F p))'
             }
         # self.trace = [{k:list() for k in self.keys}]
         self.trace = [None] * model.iter
@@ -143,9 +144,10 @@ class LearningAgent(ForagingAgent):
         self.delayed_reward = 0
         self.phenotypes = dict()
         self.functions = {
-            self.keys[0]: self.proposition_o,
-            self.keys[1]: self.proposition_e,
-            self.keys[2]: self.proposition_p,
+            # self.keys[0]: self.proposition_o,
+            # self.keys[1]: self.proposition_e,
+            # self.keys[2]: self.proposition_p,
+            self.keys[0]: self.proposition_p,
             }
         # self.trace.append({k:self.functions[k]() for k in self.keys})
         self.trace[self.step_count] = {k:self.functions[k]() for k in self.keys}
@@ -183,15 +185,14 @@ class LearningAgent(ForagingAgent):
 
     def evaluate_goals(self):
         goals = []
-
         # print('from evaluate goals', self.trace)
+        trace = list(filter(None.__ne__, self.trace))
         for key, value in self.goalspecs.items():
-            parser = LTLfParser()
-            formula = parser(value)
+            formula = self.model.parser(value)
             if key == 'e':
-                goals += [formula.truth(self.trace, len(self.trace)-1)]
+                goals += [formula.truth(trace, len(trace)-1)]
             else:
-                goals += [formula.truth(self.trace)]
+                goals += [formula.truth(trace)]
         #     if self.name ==1:
         #         print(key, value)
         # if self.name ==1:
@@ -309,13 +310,14 @@ class LearningAgent(ForagingAgent):
         # self.individual[0].fitness = (
         #     self.ef + self.cf * 4 + self.food_collected * 8)
 
-        self.individual[0].fitness = (1 - self.beta) * self.delayed_reward \
-            + self.ef + self.cf \
-            + self.food_collected
+        # self.individual[0].fitness = (1 - self.beta) * self.delayed_reward \
+        #     + self.ef + self.cf \
+        #     + self.food_collected
 
         # Goal Specification Fitness
-        # self.individual[0].fitness = (1 - self.beta) * self.delayed_reward \
-        #     + self.evaluate_goals() + self.ef
+        self.individual[0].fitness = (1 - self.beta) * self.delayed_reward \
+            + self.evaluate_goals()
+
 
     def get_food_in_hub(self, agent_name=True):
         """Get the food in the hub stored by the agent."""
