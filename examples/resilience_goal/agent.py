@@ -53,7 +53,7 @@ class ForagingAgent(Agent):
             self.keys[2]: '(G (F p))'
             }
         # self.trace = [{k:list() for k in self.keys}]
-        self.trace = []
+        self.trace = [None] * model.iter
 
     def init_evolution_algo(self):
         """Agent's GE algorithm operation defination."""
@@ -147,7 +147,8 @@ class LearningAgent(ForagingAgent):
             self.keys[1]: self.proposition_e,
             self.keys[2]: self.proposition_p,
             }
-        self.trace.append({k:self.functions[k]() for k in self.keys})
+        # self.trace.append({k:self.functions[k]() for k in self.keys})
+        self.trace[self.step_count] = {k:self.functions[k]() for k in self.keys}
 
     def proposition_o(self):
         grid = self.model.grid
@@ -265,7 +266,7 @@ class LearningAgent(ForagingAgent):
         self.individual = [individuals[0]]
         self.individual[0].fitness = 0
         self.genome_storage = []
-        self.trace = []
+        self.trace = [None] * self.model.iter
         self.trace.append({k:self.functions[k]() for k in self.keys})
 
 
@@ -308,13 +309,13 @@ class LearningAgent(ForagingAgent):
         # self.individual[0].fitness = (
         #     self.ef + self.cf * 4 + self.food_collected * 8)
 
-        # self.individual[0].fitness = (1 - self.beta) * self.delayed_reward \
-        #     + self.ef + self.cf \
-        #     + self.food_collected
+        self.individual[0].fitness = (1 - self.beta) * self.delayed_reward \
+            + self.ef + self.cf \
+            + self.food_collected
 
         # Goal Specification Fitness
-        self.individual[0].fitness = (1 - self.beta) * self.delayed_reward \
-            + self.evaluate_goals()
+        # self.individual[0].fitness = (1 - self.beta) * self.delayed_reward \
+        #     + self.evaluate_goals() + self.ef
 
     def get_food_in_hub(self, agent_name=True):
         """Get the food in the hub stored by the agent."""
@@ -359,7 +360,9 @@ class LearningAgent(ForagingAgent):
         self.location_history.add(gridval)
 
         # Add to trace
-        self.trace.append({k:self.functions[k]() for k in self.keys})
+        # self.trace.append({k:self.functions[k]() for k in self.keys})
+        # print(len(self.trace))
+        self.trace[self.step_count] = {k:self.functions[k]() for k in self.keys}
 
         # Find the no.of food collected from the BT execution
         self.food_collected = self.get_food_in_hub()  # * self.get_food_in_hub(
