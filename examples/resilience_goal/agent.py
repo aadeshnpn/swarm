@@ -52,12 +52,14 @@ class ForagingAgent(Agent):
         # T is trap, and O is obstacle
         # self.keys = ['p', 'c', 't', 'o']
         # self.keys = ['o', 'e', 'p']
-        self.keys = ['p']
+        # iscarrying, issignalactive, avoided trap, avoided obstacle, food dropped at hub
+        self.keys = ['c', 's', 'at', 'ao', 'f']
         self.goalspecs = {
-            # self.keys[0]: 'F (o)',
-            # self.keys[1]: 'e',
-            # self.keys[2]: '(G (F p))'
-            self.keys[0]: '(G (F p))'
+            self.keys[0]: 'c',
+            self.keys[1]: 's',
+            self.keys[2]: 'at',
+            self.keys[3]: 'ao',
+            self.keys[4]: 'f'
             }
         # self.trace = [{k:list() for k in self.keys}]
         self.trace = [None] * model.iter
@@ -158,15 +160,35 @@ class LearningAgent(ForagingAgent):
         self.delayed_reward = 0
         self.phenotypes = dict()
         self.functions = {
-            # self.keys[0]: self.proposition_o,
-            # self.keys[1]: self.proposition_e,
-            # self.keys[2]: self.proposition_p,
-            self.keys[0]: self.proposition_p,
+            self.keys[0]: self.proposition_c,
+            self.keys[1]: self.proposition_s,
+            self.keys[2]: self.proposition_at,
+            self.keys[3]: self.proposition_ao,
+            self.keys[4]: self.proposition_f
             }
         # self.trace.append({k:self.functions[k]() for k in self.keys})
         self.trace[self.step_count] = {k:self.functions[k]() for k in self.keys}
 
-    def proposition_o(self):
+
+    def proposition_c(self):
+        if len(self.attached_objects) > 0:
+            return True
+        else:
+            return False
+
+    def proposition_s(self):
+        if len(self.signals) > 0:
+            return True
+        else:
+            return False
+
+    def proposition_at(self):
+        if len(self.signals) > 0:
+            return True
+        else:
+            return False
+
+    def proposition_f(self):
         grid = self.model.grid
         hub_loc = self.model.hub.location
         neighbours = grid.get_neighborhood(hub_loc, self.model.hub.radius)
@@ -184,29 +206,18 @@ class LearningAgent(ForagingAgent):
                 break
         return prop_o
 
-    def proposition_e(self):
-        if self.location != self.prev_location:
-            return True
-        else:
-            return False
-
-    def proposition_p(self):
-        if len(self.attached_objects) > 0:
-            return True
-        else:
-            return False
-
-
     def evaluate_goals(self):
         goals = []
         # print('from evaluate goals', self.trace)
         trace = list(filter(None.__ne__, self.trace))
+        trace = trace[-1]
         for key, value in self.goalspecs.items():
             formula = self.model.parser(value)
-            if key == 'e':
-                goals += [formula.truth(trace, len(trace)-1)]
-            else:
-                goals += [formula.truth(trace)]
+            goals += [formula.truth(trace)]
+            # if key == 'e':
+            #     goals += [formula.truth(trace, len(trace)-1)]
+            # else:
+            #    goals += [formula.truth(trace)]
         #     if self.name ==1:
         #         print(key, value)
         # if self.name ==1:
@@ -281,9 +292,6 @@ class LearningAgent(ForagingAgent):
         self.individual = [individuals[0]]
         self.individual[0].fitness = 0
         self.genome_storage = []
-        self.trace = [None] * self.model.iter
-        self.trace.append({k:self.functions[k]() for k in self.keys})
-
 
     def genetic_step(self):
         """Additional procedures called after genecti step."""
@@ -301,8 +309,14 @@ class LearningAgent(ForagingAgent):
         self.exchange_chromosome()
         self.bt.xmlstring = self.individual[0].phenotype
         self.bt.construct()
+        # Reset the variables
         self.food_collected = 0
         self.location_history = set()
+        self.no_cue_dropped = 0
+        self.signal_time = 0
+        self.signals = []
+        self.trace = [None] * self.model.iter
+        self.trace.append({k:self.functions[k]() for k in self.keys})
         self.timestamp = 0
         self.diversity_fitness = self.individual[0].fitness
         self.generation += 1
