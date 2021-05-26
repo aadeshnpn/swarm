@@ -1,5 +1,5 @@
 from py_trees import common
-from swarms.behaviors.sbehaviors import DropCue, SendSignal
+from swarms.behaviors.sbehaviors import DropCue, SendSignal, ObjectsStore
 import numpy as np
 from swarms.lib.agent import Agent
 from swarms.utils.bt import BTConstruct
@@ -141,6 +141,7 @@ class ForagingAgent(Agent):
                 self.signal_time += 1
             if isinstance(child) == DropCue and child.status == py_trees.Status.SUCCESS:
                 self.no_cue_dropped += 1
+        return self.signal_time + self.no_cue_dropped
 
     """Function related to LTLf and goals."""
     def evaluate_trace(self, goalspec, trace):
@@ -169,6 +170,9 @@ class LearningAgent(ForagingAgent):
         # self.trace.append({k:self.functions[k]() for k in self.keys})
         self.trace[self.step_count] = {k:self.functions[k]() for k in self.keys}
 
+        # Flags to make the computation easier
+        self.avoid_trap = False
+        self.avoid_obs = False
 
     def proposition_c(self):
         if len(self.attached_objects) > 0:
@@ -183,10 +187,10 @@ class LearningAgent(ForagingAgent):
             return False
 
     def proposition_at(self):
-        if len(self.signals) > 0:
-            return True
-        else:
-            return False
+        return self.avoid_trap
+
+    def proposition_obs(self):
+        return self.avoid_obs
 
     def proposition_f(self):
         grid = self.model.grid
@@ -222,6 +226,7 @@ class LearningAgent(ForagingAgent):
         #         print(key, value)
         # if self.name ==1:
         # print('from evalutate goals', self.name, goals, end=' ')
+        goals += [1 if self.bt.root.Status == py_trees.Status.SUCCESS else 0]
         return sum(goals)
 
 
@@ -309,7 +314,7 @@ class LearningAgent(ForagingAgent):
         self.exchange_chromosome()
         self.bt.xmlstring = self.individual[0].phenotype
         self.bt.construct()
-        # Reset the variables
+        # Reset the variabes
         self.food_collected = 0
         self.location_history = set()
         self.no_cue_dropped = 0
@@ -344,7 +349,7 @@ class LearningAgent(ForagingAgent):
 
         # Goal Specification Fitness
         self.individual[0].fitness = (1 - self.beta) * self.delayed_reward \
-            + self.evaluate_goals() + self.ef
+            + self.evaluate_goals() + self.ef + self.scf
 
 
     def get_food_in_hub(self, agent_name=True):
@@ -402,6 +407,7 @@ class LearningAgent(ForagingAgent):
         # We need to move this from here to genetic step
         self.cf = self.carrying_fitness()
         self.ef = self.exploration_fitness()
+        self.scf = self.communication_fitness()
 
         # Computes overall fitness using Beta function
         self.overall_fitness()

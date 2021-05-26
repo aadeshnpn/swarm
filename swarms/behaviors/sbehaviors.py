@@ -1390,6 +1390,14 @@ class AvoidSObjects(Behaviour):
             #     # self.agent.direction = (alpha -theta + np.pi/2)  %  (2 * np.pi)
             # print(alpha, theta, self.agent.direction)
             self.agent.direction += np.pi/2
+            if self.item == 'Obstacles':
+                self.agent.avoid_obs = True
+            elif self.item == 'Traps':
+                self.agent.avoid_trap = True
             return Status.SUCCESS
         except (IndexError, AttributeError):
+            if self.item == 'Obstacles':
+                self.agent.avoid_obs = False
+            elif self.item == 'Traps':
+                self.agent.avoid_trap = False
             return Status.SUCCESS
