@@ -267,8 +267,8 @@ if __name__ == '__main__':
     # json = '1550083569946511-all.json'
     # test_json_phenotype(json)
 
-    # Parallel(n_jobs=8)(delayed(main)(12000) for i in range(512))
-    main(12000)
+    Parallel(n_jobs=8)(delayed(main)(12000) for i in range(512))
+    # main(12000)
     # test_all_phenotype()
     # jsonlist = sys.argv
     # print ('jsonlist',len(jsonlist))

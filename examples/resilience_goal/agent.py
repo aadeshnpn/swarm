@@ -1,3 +1,5 @@
+from py_trees import common
+from swarms.behaviors.sbehaviors import DropCue, SendSignal
 import numpy as np
 from swarms.lib.agent import Agent
 from swarms.utils.bt import BTConstruct
@@ -35,6 +37,10 @@ class ForagingAgent(Agent):
         self.bt = BTConstruct(None, self)
         # Location history
         self.location_history = set()
+
+        # Communication history
+        self.signal_time = 0
+        self.no_cue_dropped = 0
         # Step count
         self.timestamp = 0
         self.step_count = 0
@@ -125,6 +131,14 @@ class ForagingAgent(Agent):
             return 0
         else:
             return locations - 1
+
+    def communication_fitness(self):
+        """Compute communication fitness. """
+        for child in self.bt.root.children:
+            if isinstance(child) == SendSignal and child.status == py_trees.Status.SUCCESS:
+                self.signal_time += 1
+            if isinstance(child) == DropCue and child.status == py_trees.Status.SUCCESS:
+                self.no_cue_dropped += 1
 
     """Function related to LTLf and goals."""
     def evaluate_trace(self, goalspec, trace):
@@ -316,7 +330,7 @@ class LearningAgent(ForagingAgent):
 
         # Goal Specification Fitness
         self.individual[0].fitness = (1 - self.beta) * self.delayed_reward \
-            + self.evaluate_goals()
+            + self.evaluate_goals() + self.ef
 
 
     def get_food_in_hub(self, agent_name=True):

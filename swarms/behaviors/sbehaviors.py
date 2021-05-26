@@ -188,15 +188,15 @@ class NeighbourObjectsDist(Behaviour):
                 (x, y), self.agent.direction)
             grids += self.agent.model.grid.get_neighborhood(new_location, 1)
         grids = list(set(grids))
-        # midpoint = ((self.agent.location[0] + new_location[0])//2, (self.agent.location[1] + new_location[1])//2)        
-        # grid2 = self.agent.model.grid.get_neighborhood(midpoint, 1)        
-        # grid3 = self.agent.model.grid.get_neighborhood(self.agent.location, 1)        
+        # midpoint = ((self.agent.location[0] + new_location[0])//2, (self.agent.location[1] + new_location[1])//2)
+        # grid2 = self.agent.model.grid.get_neighborhood(midpoint, 1)
+        # grid3 = self.agent.model.grid.get_neighborhood(self.agent.location, 1)
         # grids = list(set(grid1 + grid2 + grid3))
         # grids = grid3 + grid2 + grid1
         # print('nighbourdist', grids)
         objects = self.agent.model.grid.get_objects_from_list_of_grid(
             self.item, grids)
-        # print('nighbourdist', grids, objects, self.agent.location, (new_location))            
+        # print('nighbourdist', grids, objects, self.agent.location, (new_location))
         # Need to reset blackboard contents after each sense
         self.blackboard.shared_content = dict()
 
@@ -461,7 +461,7 @@ class Move(Behaviour):
                 self.agent.direction) * self.agent.velocity)
             new_location, direction = self.agent.model.grid.check_limits(
                 (x, y), self.agent.direction)
-            
+
             if self.agent.model.grid.move_object(
                 self.agent.location, self.agent, new_location):
 
@@ -1336,8 +1336,8 @@ class PickCue(Behaviour):
 class AvoidSObjects(Behaviour):
     """Avoid Static objects in the environment.
 
-    This is a avoid behaviors where the agents avoids 
-    the static objects that are not passable. 
+    This is a avoid behaviors where the agents avoids
+    the static objects that are not passable.
     """
 
     def __init__(self, name):
@@ -1377,19 +1377,19 @@ class AvoidSObjects(Behaviour):
             #     if angle_diff < 0:
             #         self.agent.direction = (alpha - np.pi/2)
             #     elif angle_diff > 0:
-            #         self.agent.direction = (alpha + np.pi/2)                
+            #         self.agent.direction = (alpha + np.pi/2)
             #     else:
             #         self.agent.direction = alpha + np.pi/2 + self.agent.model.random.rand()
             # else:
             #     pass
             # if self.agent.direction < np.pi/2:
-            #     # self.agent.direction = np.clip(alpha - theta - np.pi/2, -2*np.pi, 2*np.pi) 
-            #     # self.agent.direction = (alpha - theta - np.pi/2)  %  (2 * np.pi)  
+            #     # self.agent.direction = np.clip(alpha - theta - np.pi/2, -2*np.pi, 2*np.pi)
+            #     # self.agent.direction = (alpha - theta - np.pi/2)  %  (2 * np.pi)
             # else:
-            #     # self.agent.direction = np.clip(alpha - theta + np.pi/2, -2*np.pi, 2*np.pi) 
+            #     # self.agent.direction = np.clip(alpha - theta + np.pi/2, -2*np.pi, 2*np.pi)
             #     # self.agent.direction = (alpha -theta + np.pi/2)  %  (2 * np.pi)
-            # print(alpha, theta, self.agent.direction)            
+            # print(alpha, theta, self.agent.direction)
             self.agent.direction += np.pi/2
             return Status.SUCCESS
         except (IndexError, AttributeError):
-            return Status.SUCCESS            
+            return Status.SUCCESS
