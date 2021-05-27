@@ -1,3 +1,4 @@
+from inspect import CO_ITERABLE_COROUTINE
 from py_trees import common
 from swarms.behaviors.sbehaviors import DropCue, SendSignal, ObjectsStore
 import numpy as np
@@ -62,7 +63,7 @@ class ForagingAgent(Agent):
             self.keys[4]: 'f'
             }
         # self.trace = [{k:list() for k in self.keys}]
-        self.trace = [None] * model.iter
+        self.trace = [None] * (model.iter+1)
 
     def init_evolution_algo(self):
         """Agent's GE algorithm operation defination."""
@@ -136,10 +137,12 @@ class ForagingAgent(Agent):
 
     def communication_fitness(self):
         """Compute communication fitness. """
-        for child in self.bt.root.children:
-            if isinstance(child) == SendSignal and child.status == py_trees.Status.SUCCESS:
+
+        childrens = list(self.bt.behaviour_tree.root.iterate())
+        for child in childrens:
+            if isinstance(child, SendSignal) and child.status == py_trees.Status.SUCCESS:
                 self.signal_time += 1
-            if isinstance(child) == DropCue and child.status == py_trees.Status.SUCCESS:
+            if isinstance(child, DropCue) and child.status == py_trees.Status.SUCCESS:
                 self.no_cue_dropped += 1
         return self.signal_time + self.no_cue_dropped
 
@@ -167,12 +170,12 @@ class LearningAgent(ForagingAgent):
             self.keys[3]: self.proposition_ao,
             self.keys[4]: self.proposition_f
             }
-        # self.trace.append({k:self.functions[k]() for k in self.keys})
-        self.trace[self.step_count] = {k:self.functions[k]() for k in self.keys}
-
         # Flags to make the computation easier
         self.avoid_trap = False
         self.avoid_obs = False
+
+        # self.trace.append({k:self.functions[k]() for k in self.keys})
+        self.trace[self.step_count] = {k:self.functions[k]() for k in self.keys}
 
     def proposition_c(self):
         if len(self.attached_objects) > 0:
@@ -189,7 +192,7 @@ class LearningAgent(ForagingAgent):
     def proposition_at(self):
         return self.avoid_trap
 
-    def proposition_obs(self):
+    def proposition_ao(self):
         return self.avoid_obs
 
     def proposition_f(self):
@@ -214,7 +217,7 @@ class LearningAgent(ForagingAgent):
         goals = []
         # print('from evaluate goals', self.trace)
         trace = list(filter(None.__ne__, self.trace))
-        trace = trace[-1]
+        trace = [trace[-1]]
         for key, value in self.goalspecs.items():
             formula = self.model.parser(value)
             goals += [formula.truth(trace)]
@@ -226,7 +229,7 @@ class LearningAgent(ForagingAgent):
         #         print(key, value)
         # if self.name ==1:
         # print('from evalutate goals', self.name, goals, end=' ')
-        goals += [1 if self.bt.root.Status == py_trees.Status.SUCCESS else 0]
+        goals += [1 if self.bt.behaviour_tree.root.status == py_trees.Status.SUCCESS else 0]
         return sum(goals)
 
 
