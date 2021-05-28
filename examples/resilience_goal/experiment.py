@@ -216,6 +216,7 @@ def test_json_phenotype(json):
     # phenotype = ' '
 
     test_loop(phenotype, 5000)
+    # validation_loop(phenotype, 5000, '/tmp/swarm/data/experiments/')
     # if validation_loop(phenotype, 2000, 1):
     #    print('foraging success')
 
@@ -236,27 +237,31 @@ def test_top_phenotype(jsonlist):
 
 def test_all_phenotype(idfile='/tmp/experiments/idvalid.txt'):
     # ids = np.genfromtxt(idfile, autostrip=True, unpack=True, dtype=np.int64)
-    dirs, ids = np.genfromtxt('/tmp/experiments/links.txt', autostrip=True, unpack=True, dtype=np.str_, delimiter=',')
+    dirs, ids = np.genfromtxt(idfile, autostrip=True, unpack=True, dtype=np.str_, delimiter=',')
     # print(len(ids), len(dirs))
     # rootdirs = ['/tmp/experiments/50/12000/' + str(id) +'EvoSForgeNew/'+str(id)+'-10999.json' for id in ids]
 
     rootdirs = [str(dirs[i])+'/'+str(ids[i])+'-4999.json' for i in range(len(ids))]
 
     phenotypes = []
+    # print(rootdirs)
     for jname in rootdirs:
         try:
             phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
+            # print(phenotype)
             phenotypes.append(phenotype[0])
         except FileNotFoundError:
             pass
 
     print(len(phenotypes))
 
+    # Parallel(
+    #     n_jobs=4)(delayed(test_loop)(
+    #         phenotypes, 5000) for i in range(4))
+
     Parallel(
-        n_jobs=4)(delayed(test_loop)(
-            phenotypes, 5000) for i in range(50))
-
-
+        n_jobs=4)(delayed(validation_loop)(
+            phenotypes, 5000, '/tmp/swarm/data/experiments/') for i in range(4))
 
 
 if __name__ == '__main__':
@@ -267,9 +272,9 @@ if __name__ == '__main__':
     # json = '1550083569946511-all.json'
     # test_json_phenotype(json)
 
-    # Parallel(n_jobs=8)(delayed(main)(12000) for i in range(512))
-    main(12000)
-    # test_all_phenotype()
+    Parallel(n_jobs=8)(delayed(main)(12000) for i in range(512))
+    # main(12000)
+    # test_all_phenotype('/tmp/links.txt')
     # jsonlist = sys.argv
     # print ('jsonlist',len(jsonlist))
     # test_top_phenotype(jsonlist[1:])
