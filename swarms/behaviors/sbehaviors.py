@@ -363,11 +363,11 @@ class IsMoveable(Behaviour):
         try:
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
-                self.item, self.agent.name)[0]
-            if objects.moveable:
-                return Status.SUCCESS
-            else:
-                return Status.FAILURE
+                self.item, self.agent.name)
+            for obj in objects:
+                if not objects.moveable:
+                    return Status.FAILURE
+            return Status.SUCCESS
         except (AttributeError, IndexError):
             return Status.FAILURE
 
@@ -1412,4 +1412,4 @@ class AvoidSObjects(Behaviour):
                 self.agent.avoid_obs = False
             elif self.item == 'Traps':
                 self.agent.avoid_trap = False
-            return Status.SUCCESS
+            return Status.FAILURE

@@ -14,7 +14,7 @@ from py_trees.composites import Sequence, Selector
 from py_trees.trees import BehaviourTree
 from py_trees.meta import failure_is_success
 from swarms.behaviors.sbehaviors import (
-    GoTo, Towards, Move, Away,
+    GoTo, IsMoveable, Towards, Move, Away,
     IsCarryable, IsSingleCarry, SingleCarry,
     IsMultipleCarry, IsInPartialAttached, IsEnoughStrengthToCarry,
     InitiateMultipleCarry, IsCarrying, Drop, RandomWalk, DropPartial,
@@ -55,7 +55,19 @@ class MoveTowards(Behaviour):
         """
         self.agent = agent
         self.item = item
+
         # Define goto primitive behavior
+        # This is the post condition
+        root = Selector('MT_Selector')
+        is_already_at_there = NeighbourObjects('MT_NeighbourObjects_0')
+        is_already_at_there.setup(0, self.agent, self.item)
+
+        is_no_blocked = NeighbourObjectsDist('MT_NeighbourObjectsDist')
+        is_no_blocked.setup(0, self.agent, None)
+
+        is_moveable = IsMoveable('MT_IsMoveable')
+        is_moveable.setup(0, self.agent, None)
+
         goto = GoTo('MT_GOTO_1')
         goto.setup(0, self.agent, self.item)
 
@@ -682,19 +694,19 @@ class AvoidTrapObstaclesBehaviour(Behaviour):
 
         # Define the root for the BT
         root = Sequence('ATO_Sequence')
-        
+
         # m1 = NeighbourObjects('ATO_SearchTrap')
         m1 = NeighbourObjectsDist('ATO_Search')
-        m1.setup(0, self.agent, item=None)        
+        m1.setup(0, self.agent, item=None)
         m2 = AvoidSObjects('ATO_AvoidTrap')
-        m2.setup(0, self.agent, 'Traps')   
+        m2.setup(0, self.agent, 'Traps')
         # m3 = NeighbourObjects('ATO_SearchObstacles')
         # m3.setup(0, self.agent, item='Obstacles')
         m4 = AvoidSObjects('ATO_AvoidObstacle')
-        m4.setup(0, self.agent, 'Obstacles')           
+        m4.setup(0, self.agent, 'Obstacles')
 
         root.add_children([m1, m2, m4])
-        # root.add_children([m3, m4])        
+        # root.add_children([m3, m4])
 
         self.behaviour_tree = BehaviourTree(root)
 
@@ -745,7 +757,7 @@ class NewMoveTowards(Behaviour):
         towards.setup(0, self.agent)
 
         # Avoid Traps and Obstacles
-        avoidto = failure_is_success(AvoidTrapObstaclesBehaviour)('MT_AVOID_3')        
+        avoidto = failure_is_success(AvoidTrapObstaclesBehaviour)('MT_AVOID_3')
         avoidto.setup(0, self.agent)
 
         # Define move behavior
@@ -802,9 +814,9 @@ class NewExplore(Behaviour):
 
         low = RandomWalk('Ex_RandomWalk')
         low.setup(0, self.agent)
-        
+
         # Avoid Traps and Obstacles
-        avoidto = failure_is_success(AvoidTrapObstaclesBehaviour)('EX_AVOID')        
+        avoidto = failure_is_success(AvoidTrapObstaclesBehaviour)('EX_AVOID')
         avoidto.setup(0, self.agent)
 
         high = Move('Ex_Move')
@@ -861,7 +873,7 @@ class NewMoveAway(Behaviour):
         away.setup(0, self.agent)
 
         # Avoid Traps and Obstacles
-        avoidto = failure_is_success(AvoidTrapObstaclesBehaviour)('MA_AVOID_3')        
+        avoidto = failure_is_success(AvoidTrapObstaclesBehaviour)('MA_AVOID_3')
         avoidto.setup(0, self.agent)
 
         # Define move behavior
