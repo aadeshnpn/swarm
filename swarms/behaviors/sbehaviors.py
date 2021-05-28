@@ -402,10 +402,15 @@ class Move(Behaviour):
         """
         try:
             for signal in self.agent.signals:
-                self.agent.model.grid.move_object(
-                    old_loc, signal, new_loc)
+                if self.agent.model.grid.move_object(
+                        old_loc, signal, new_loc):
+                    pass
+                else:
+                    return False
         except IndexError:
             pass
+
+        return True
 
     def update_partial_attached_objects(self):
         """Move logic for partially attached objects."""
@@ -466,7 +471,8 @@ class Move(Behaviour):
                 self.agent.location, self.agent, new_location):
 
                 # Now the agent location has been updated, update the signal grids
-                self.update_signals(self.agent.location, new_location)
+                if not self.update_signals(self.agent.location, new_location):
+                    return Status.FAILURE
 
                 self.agent.location = new_location
                 self.agent.direction = direction
@@ -474,16 +480,22 @@ class Move(Behaviour):
                 # Full carried object moves along the agent
                 for item in self.agent.attached_objects:
                     item.location = self.agent.location
+            else:
+                return Status.FAILURE
 
         else:
             new_location = self.agent.partial_attached_objects[0].location
             for agent in self.agent.partial_attached_objects[0].agents.keys():
-                agent.model.grid.move_object(
-                    agent.location, agent, new_location)
-                agent.location = new_location
+                if agent.model.grid.move_object(
+                        agent.location, agent,
+                        new_location):
+                    agent.location = new_location
+                else:
+                    return Status.FAILURE
 
             # Now the agent location has been updated, update the signal grids
-            self.update_signals(self.agent.location, new_location)
+            if not self.update_signals(self.agent.location, new_location):
+                return Status.FAILURE
 
         return Status.SUCCESS
 
