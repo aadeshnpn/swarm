@@ -62,11 +62,6 @@ class MoveTowards(Behaviour):
         postcond_is_already_at_there = NeighbourObjects('MT_NeighbourObjects_0')
         postcond_is_already_at_there.setup(0, self.agent, self.item)
 
-        const_is_no_blocked = NeighbourObjectsDist('MT_NeighbourObjectsDist')
-        const_is_no_blocked.setup(0, self.agent, None)
-
-        mt_sequence_0 = Sequence('MT_SEQUENCE_0')
-
         goto = GoTo('MT_GOTO_1')
         goto.setup(0, self.agent, self.item)
 
@@ -74,17 +69,19 @@ class MoveTowards(Behaviour):
         towards = Towards('MT_TOWARDS_2')
         towards.setup(0, self.agent)
 
+        # This is the constraint/pre-condition
+        const_is_no_blocked = failure_is_success(NeighbourObjectsDist('MT_NeighbourObjectsDist'))
+        const_is_no_blocked.setup(0, self.agent, None)
+
         # Define move behavior
         move = Move('MT_MOVE_3')
         move.setup(0, self.agent)
 
         # Define a sequence to combine the primitive behavior
         mt_sequence = Sequence('MT_SEQUENCE')
-        mt_sequence.add_children([goto, towards, move])
+        mt_sequence.add_children([goto, towards, const_is_no_blocked, move])
 
-        mt_sequence_0.add_children([const_is_no_blocked, mt_sequence])
-
-        selector.add_children([postcond_is_already_at_there, mt_sequence_0])
+        selector.add_children([postcond_is_already_at_there, mt_sequence])
 
         self.behaviour_tree = BehaviourTree(selector)
 
@@ -126,6 +123,16 @@ class MoveAway(Behaviour):
         """
         self.agent = agent
         self.item = item
+
+        # This is the post condition
+        selector = Selector('MA_Selector')
+        postcond_is_already_at_there = NeighbourObjects('MA_NeighbourObjects_0')
+        postcond_is_already_at_there.setup(0, self.agent, self.item)
+
+        # This is the constraint/pre-condition
+        const_is_no_blocked = failure_is_success(NeighbourObjectsDist('MA_NeighbourObjectsDist'))
+        const_is_no_blocked.setup(0, self.agent, None)
+
         # Define goto primitive behavior
         goto = GoTo('MA_GOTO_1')
         goto.setup(0, self.agent, self.item)
@@ -139,10 +146,12 @@ class MoveAway(Behaviour):
         move.setup(0, self.agent)
 
         # Define a sequence to combine the primitive behavior
-        mt_sequence = Sequence('MA_SEQUENCE')
-        mt_sequence.add_children([goto, away, move])
+        ma_sequence = Sequence('MA_SEQUENCE')
+        ma_sequence.add_children([goto, away, const_is_no_blocked, move])
 
-        self.behaviour_tree = BehaviourTree(mt_sequence)
+        selector.add_children([postcond_is_already_at_there, ma_sequence])
+
+        self.behaviour_tree = BehaviourTree(selector)
 
     def initialise(self):
         """Everytime initialization. Not required for now."""
