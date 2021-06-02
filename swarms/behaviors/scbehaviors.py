@@ -500,10 +500,33 @@ class Explore(Behaviour):
         low = RandomWalk('Ex_RandomWalk')
         low.setup(0, self.agent)
 
+        # This is the constraint/pre-condition
+        const_is_no_blocked_obs = NeighbourObjectsDist('EX_Blocked_Obs_CNT')
+        const_is_no_blocked_obs.setup(0, self.agent, 'Obstacles')
+        const_is_no_blocked_obs_inv = Inverter(const_is_no_blocked_obs)
+
+        const_is_no_blocked_trp = NeighbourObjectsDist('EX_Blocked_Trap_CNT')
+        const_is_no_blocked_trp.setup(0, self.agent, 'Traps')
+        const_is_no_blocked_trp_inv = Inverter(const_is_no_blocked_trp)
+
+        sequence_blocked = Sequence('EX_Blocked')
+        selector_blocked_obs = Selector('EX_Selector_Blocked_Obs')
+        avoid_obs = AvoidSObjects('EX_Avoid_Obstacles')
+        avoid_obs.setup(0, self.agent)
+
+        selector_blocked_trp = Selector('EX_Selector_Blocked_Trap')
+        avoid_trp = AvoidSObjects('EX_Avoid_Traps')
+        avoid_trp.setup(0, self.agent, item='Traps')
+
+        # selector_blocked.
+        selector_blocked_obs.add_children([const_is_no_blocked_obs_inv, avoid_obs])
+        selector_blocked_trp.add_children([const_is_no_blocked_trp_inv, avoid_trp])
+        sequence_blocked.add_children([selector_blocked_obs, selector_blocked_trp])
+
         high = Move('Ex_Move')
         high.setup(0, self.agent)
 
-        root.add_children([low, high])
+        root.add_children([low, sequence_blocked, high])
 
         self.behaviour_tree = BehaviourTree(root)
 
