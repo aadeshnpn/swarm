@@ -3,8 +3,13 @@
 This file name is sbehaviors coz `s` stands for swarms.
 """
 
-from py_trees import Behaviour, Status, Blackboard
 import numpy as np
+from py_trees.trees import BehaviourTree
+from py_trees.behaviour import Behaviour
+from py_trees.composites import Sequence, Selector, Parallel
+from py_trees import common, blackboard
+import py_trees
+
 from swarms.utils.distangle import get_direction, point_distance
 from swarms.lib.objects import Signal, Cue
 
@@ -47,8 +52,6 @@ class NeighbourObjects(Behaviour):
     def __init__(self, name):
         """Init method for the sense behavior."""
         super(NeighbourObjects, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
         """Have defined the setup method.
@@ -61,6 +64,8 @@ class NeighbourObjects(Behaviour):
         """
         self.agent = agent
         self.item = item
+        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.WRITE)
 
     def initialise(self):
         """Everytime initialization. Not required for now."""
@@ -94,7 +99,7 @@ class NeighbourObjects(Behaviour):
         objects = self.agent.model.grid.get_objects_from_list_of_grid(
             self.item, grids)
         # Need to reset blackboard contents after each sense
-        self.blackboard.shared_content = dict()
+        self.blackboard.neighbourobj = dict()
 
         if len(objects) >= 1:
             if self.agent in objects:
@@ -112,14 +117,15 @@ class NeighbourObjects(Behaviour):
                     except KeyError:
                         self.agent.shared_content[name] = {item}
                 else:
-                    name = name + str(self.agent.name)
+                    # name = name + str(self.agent.name)
                     try:
-                        self.blackboard.shared_content[name].add(item)
+                        self.blackboard.neighbourobj[name].add(item)
                     except KeyError:
-                        self.blackboard.shared_content[name] = {item}
-            return Status.SUCCESS
+                        self.blackboard.neighbourobj = dict()
+                        self.blackboard.neighbourobj[name] = {item}
+            return common.common.Status.SUCCESS
         else:
-            return Status.FAILURE
+            return common.common.Status.FAILURE
 
 
 class NeighbourObjectsDist(Behaviour):
@@ -134,8 +140,6 @@ class NeighbourObjectsDist(Behaviour):
     def __init__(self, name):
         """Init method for the sense behavior."""
         super(NeighbourObjectsDist, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
         """Have defined the setup method.
@@ -148,6 +152,8 @@ class NeighbourObjectsDist(Behaviour):
         """
         self.agent = agent
         self.item = item
+        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.WRITE)
 
     def initialise(self):
         """Everytime initialization. Not required for now."""
@@ -198,7 +204,7 @@ class NeighbourObjectsDist(Behaviour):
             self.item, grids)
         # print('nighbourdist', grids, objects, self.agent.location, (new_location))
         # Need to reset blackboard contents after each sense
-        self.blackboard.shared_content = dict()
+        self.blackboard.neighbourobj = dict()
 
         if len(objects) >= 1:
             if self.agent in objects:
@@ -210,14 +216,14 @@ class NeighbourObjectsDist(Behaviour):
                 # and property doesnot change. So we can commit its
                 # information to memory
                 # if item.carryable is False and item.deathable is False:
-                name = name + str(self.agent.name)
+                # name = name + str(self.agent.name)
                 try:
-                    self.blackboard.shared_content[name].add(item)
+                    self.blackboard.neighbourobj[name].add(item)
                 except KeyError:
-                    self.blackboard.shared_content[name] = {item}
-            return Status.SUCCESS
+                    self.blackboard.neighbourobj[name] = {item}
+            return common.common.Status.SUCCESS
         else:
-            return Status.FAILURE
+            return common.common.Status.FAILURE
 
 
 class GoTo(Behaviour):
@@ -232,8 +238,8 @@ class GoTo(Behaviour):
     def __init__(self, name):
         """Init method for the GoTo behavior."""
         super(GoTo, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
+        # self.blackboard = Blackboard()
+        # self.blackboard.neighbourobj = dict()
 
     def setup(self, timeout, agent, item):
         """Have defined the setup method.
@@ -246,6 +252,8 @@ class GoTo(Behaviour):
         """
         self.agent = agent
         self.item = item
+        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
         """Everytime initialization. Not required for now."""
@@ -263,13 +271,13 @@ class GoTo(Behaviour):
         """
         try:
             objects = ObjectsStore.find(
-                self.blackboard.shared_content, self.agent.shared_content,
+                self.blackboard.neighbourobj, self.agent.shared_content,
                 self.item, self.agent.name)[0]
             self.agent.direction = get_direction(
                 objects.location, self.agent.location)
-            return Status.SUCCESS
+            return common.common.Status.SUCCESS
         except (AttributeError, IndexError):
-            return Status.FAILURE
+            return common.common.Status.FAILURE
 
 
 # Behavior defined to move towards something
@@ -293,7 +301,7 @@ class Towards(Behaviour):
 
     def update(self):
         """Nothing much to do."""
-        return Status.SUCCESS
+        return common.common.Status.SUCCESS
 
 
 # Behavior defined to move away from something
@@ -315,7 +323,7 @@ class Away(Behaviour):
     def update(self):
         """Compute direction and negate it."""
         self.agent.direction = (self.agent.direction + np.pi) % (2 * np.pi)
-        return Status.SUCCESS
+        return common.common.Status.SUCCESS
 
 
 # Behavior defined for Randomwalk
@@ -338,7 +346,7 @@ class RandomWalk(Behaviour):
         """Compute random direction and set it to agent direction."""
         delta_d = self.agent.model.random.normal(0, .1)
         self.agent.direction = (self.agent.direction + delta_d) % (2 * np.pi)
-        return Status.SUCCESS
+        return common.common.Status.SUCCESS
 
 
 class IsMoveable(Behaviour):
@@ -347,12 +355,14 @@ class IsMoveable(Behaviour):
     def __init__(self, name):
         """Initialize."""
         super(IsMoveable, self).__init__(name)
-        self.blackboard = Blackboard()
+        # self.blackboard = Blackboard()
 
     def setup(self, timeout, agent, item):
         """Setup."""
         self.agent = agent
         self.item = item
+        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
         """Pass."""
@@ -362,14 +372,14 @@ class IsMoveable(Behaviour):
         """Get the object and check its movelable property."""
         try:
             objects = ObjectsStore.find(
-                self.blackboard.shared_content, self.agent.shared_content,
+                self.blackboard.neighbourobj, self.agent.shared_content,
                 self.item, self.agent.name)
             for obj in objects:
                 if not objects.moveable:
-                    return Status.FAILURE
-            return Status.SUCCESS
+                    return common.common.Status.FAILURE
+            return common.common.Status.SUCCESS
         except (AttributeError, IndexError):
-            return Status.FAILURE
+            return common.common.Status.FAILURE
 
 
 # Behavior defined to move
@@ -472,7 +482,7 @@ class Move(Behaviour):
 
                 # Now the agent location has been updated, update the signal grids
                 if not self.update_signals(self.agent.location, new_location):
-                    return Status.FAILURE
+                    return common.common.Status.FAILURE
 
                 self.agent.location = new_location
                 self.agent.direction = direction
@@ -481,7 +491,7 @@ class Move(Behaviour):
                 for item in self.agent.attached_objects:
                     item.location = self.agent.location
             else:
-                return Status.FAILURE
+                return common.common.Status.FAILURE
 
         else:
             new_location = self.agent.partial_attached_objects[0].location
@@ -491,13 +501,13 @@ class Move(Behaviour):
                         new_location):
                     agent.location = new_location
                 else:
-                    return Status.FAILURE
+                    return common.common.Status.FAILURE
 
             # Now the agent location has been updated, update the signal grids
             if not self.update_signals(self.agent.location, new_location):
-                return Status.FAILURE
+                return common.common.Status.FAILURE
 
-        return Status.SUCCESS
+        return common.common.Status.SUCCESS
 
 
 # Behavior define for donot move
@@ -519,7 +529,7 @@ class DoNotMove(Behaviour):
     def update(self):
         """Update agent moveable property."""
         self.agent.moveable = False
-        return Status.SUCCESS
+        return common.common.Status.SUCCESS
 
 
 # Behavior to check carryable attribute of an object
@@ -529,13 +539,13 @@ class IsCarryable(Behaviour):
     def __init__(self, name):
         """Initialize."""
         super(IsCarryable, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, thing):
         """Setup."""
         self.agent = agent
         self.thing = thing
+        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
         """Pass."""
@@ -545,14 +555,14 @@ class IsCarryable(Behaviour):
         """Check carryable property."""
         try:
             objects = ObjectsStore.find(
-                self.blackboard.shared_content, self.agent.shared_content,
+                self.blackboard.neighbourobj, self.agent.shared_content,
                 self.thing, self.agent.name)[0]
             if objects.carryable:
-                return Status.SUCCESS
+                return common.common.Status.SUCCESS
             else:
-                return Status.FAILURE
+                return common.common.Status.FAILURE
         except (AttributeError, IndexError):
-            return Status.FAILURE
+            return common.common.Status.FAILURE
 
 
 # Behavior to check carryable attribute of an object
@@ -562,13 +572,13 @@ class IsDropable(Behaviour):
     def __init__(self, name):
         """Initialize."""
         super(IsDropable, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, thing):
         """Setup."""
         self.agent = agent
         self.thing = thing
+        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
         """Pass."""
@@ -578,14 +588,14 @@ class IsDropable(Behaviour):
         """Check the dropable attribute."""
         try:
             objects = ObjectsStore.find(
-                self.blackboard.shared_content, self.agent.shared_content,
+                self.blackboard.neighbourobj, self.agent.shared_content,
                 self.thing, self.agent.name)[0]
             if objects.dropable:
-                return Status.SUCCESS
+                return common.common.Status.SUCCESS
             else:
-                return Status.FAILURE
+                return common.common.Status.FAILURE
         except (AttributeError, IndexError):
-            return Status.FAILURE
+            return common.common.Status.FAILURE
 
 
 # Behavior define to check is the item is carrable on its own
@@ -595,13 +605,13 @@ class IsSingleCarry(Behaviour):
     def __init__(self, name):
         """Initialize."""
         super(IsSingleCarry, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, thing):
         """Setup."""
         self.agent = agent
         self.thing = thing
+        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
         """Pass."""
@@ -612,17 +622,17 @@ class IsSingleCarry(Behaviour):
         # Logic to carry
         try:
             objects = ObjectsStore.find(
-                self.blackboard.shared_content, self.agent.shared_content,
+                self.blackboard.neighbourobj, self.agent.shared_content,
                 self.thing, self.agent.name)[0]
             if objects.weight:
                 if self.agent.get_capacity() > objects.calc_relative_weight():
-                    return Status.SUCCESS
+                    return common.common.Status.SUCCESS
                 else:
-                    return Status.FAILURE
+                    return common.common.Status.FAILURE
             else:
-                return Status.FAILURE
+                return common.common.Status.FAILURE
         except (AttributeError, IndexError):
-            return Status.FAILURE
+            return common.common.Status.FAILURE
 
 
 # Behavior define to check is the item is carrable on its own or not
@@ -632,13 +642,13 @@ class IsMultipleCarry(Behaviour):
     def __init__(self, name):
         """Initialize."""
         super(IsMultipleCarry, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, thing):
         """Setup."""
         self.agent = agent
         self.thing = thing
+        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
         """Pass."""
@@ -648,19 +658,19 @@ class IsMultipleCarry(Behaviour):
         """Logic for multiple carry by checking the weights."""
         try:
             # Logic to carry
-            # objects = self.blackboard.shared_content[self.thing].pop()
+            # objects = self.blackboard.neighbourobj[self.thing].pop()
             objects = ObjectsStore.find(
-                self.blackboard.shared_content, self.agent.shared_content,
+                self.blackboard.neighbourobj, self.agent.shared_content,
                 self.thing, self.agent.name)[0]
             if objects.weight:
                 if self.agent.get_capacity() < objects.weight:
-                    return Status.SUCCESS
+                    return common.Status.SUCCESS
                 else:
-                    return Status.FAILURE
+                    return common.Status.FAILURE
             else:
-                return Status.FAILURE
+                return common.Status.FAILURE
         except (AttributeError, IndexError):
-            return Status.FAILURE
+            return common.Status.FAILURE
 
 
 class IsCarrying(Behaviour):
@@ -669,8 +679,6 @@ class IsCarrying(Behaviour):
     def __init__(self, name):
         """Initialize."""
         super(IsCarrying, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
         """Setup."""
@@ -689,11 +697,11 @@ class IsCarrying(Behaviour):
                 things.append(type(item).__name__)
 
             if self.item in set(things):
-                return Status.SUCCESS
+                return common.Status.SUCCESS
             else:
-                return Status.FAILURE
+                return common.Status.FAILURE
         except (AttributeError, IndexError):
-            return Status.FAILURE
+            return common.Status.FAILURE
 
 
 # Behavior defined to drop the items currently carrying
@@ -703,8 +711,6 @@ class Drop(Behaviour):
     def __init__(self, name):
         """Initialize."""
         super(Drop, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
         """Setup."""
@@ -735,13 +741,13 @@ class Drop(Behaviour):
                 objects.phenotype = {
                     self.agent.individual[0].phenotype: self.agent.individual[
                         0].fitness}
-                return Status.SUCCESS
+                return common.Status.SUCCESS
             except AttributeError:
                 pass
             # objects.agents.remove(self.agent)
-            return Status.SUCCESS
+            return common.Status.SUCCESS
         except (AttributeError, IndexError):
-            return Status.FAILURE
+            return common.Status.FAILURE
 
 
 class DropPartial(Behaviour):
@@ -750,8 +756,6 @@ class DropPartial(Behaviour):
     def __init__(self, name):
         """Initialize."""
         super(DropPartial, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
         """Setup."""
@@ -784,14 +788,14 @@ class DropPartial(Behaviour):
                 objects.phenotype = {
                     self.agent.individual[0].phenotype: self.agent.individual[
                         0].fitness}
-                return Status.SUCCESS
+                return common.Status.SUCCESS
             except AttributeError:
                 pass
 
-            return Status.SUCCESS
+            return common.Status.SUCCESS
 
         except (AttributeError, IndexError):
-            return Status.FAILURE
+            return common.Status.FAILURE
 
 
 # Behavior defined to carry the items found
@@ -801,13 +805,13 @@ class SingleCarry(Behaviour):
     def __init__(self, name):
         """Initialize."""
         super(SingleCarry, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
         """Setup."""
         self.agent = agent
         self.item = item
+        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
         """Pass."""
@@ -817,7 +821,7 @@ class SingleCarry(Behaviour):
         """Carry logic to carry the object by the agent."""
         try:
             objects = ObjectsStore.find(
-                self.blackboard.shared_content, self.agent.shared_content,
+                self.blackboard.neighbourobj, self.agent.shared_content,
                 self.item, self.agent.name)[0]
             self.agent.attached_objects.append(objects)
             self.agent.model.grid.remove_object_from_grid(
@@ -834,12 +838,12 @@ class SingleCarry(Behaviour):
                         0].fitness}
             except AttributeError:
                 pass
-            return Status.SUCCESS
+            return common.Status.SUCCESS
         except (AttributeError, IndexError):
-            return Status.FAILURE
+            return common.Status.FAILURE
         except ValueError:
             self.agent.attached_objects.remove(objects)
-            return Status.FAILURE
+            return common.Status.FAILURE
 
 
 class InitiateMultipleCarry(Behaviour):
@@ -848,13 +852,13 @@ class InitiateMultipleCarry(Behaviour):
     def __init__(self, name):
         """Initialize."""
         super(InitiateMultipleCarry, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
         """Setup."""
         self.agent = agent
         self.item = item
+        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
         """Pass."""
@@ -863,9 +867,9 @@ class InitiateMultipleCarry(Behaviour):
     def update(self):
         """Logic to initiaite multiple carry process."""
         try:
-            # objects = self.blackboard.shared_content[self.thing].pop()
+            # objects = self.blackboard.neighbourobj[self.thing].pop()
             objects = ObjectsStore.find(
-                self.blackboard.shared_content, self.agent.shared_content,
+                self.blackboard.neighbourobj, self.agent.shared_content,
                 self.item, self.agent.name)[0]
             relative_weight = objects.calc_relative_weight()
             if relative_weight > 0:
@@ -881,7 +885,7 @@ class InitiateMultipleCarry(Behaviour):
                 # has attached to it
                 objects.agents[self.agent] = capacity_used
 
-                return Status.SUCCESS
+                return common.Status.SUCCESS
             else:
                 # Redistribute the weights to all the attached objects
                 average_weight = objects.redistribute_weights()
@@ -890,7 +894,7 @@ class InitiateMultipleCarry(Behaviour):
 
                 objects.agents[self.agent] = average_weight
 
-                return Status.SUCCESS
+                return common.Status.SUCCESS
             try:
                 objects.phenotype = {
                     self.agent.individual[0].phenotype: self.agent.individual[
@@ -899,7 +903,7 @@ class InitiateMultipleCarry(Behaviour):
                 pass
 
         except (KeyError, AttributeError, IndexError):
-            return Status.FAILURE
+            return common.Status.FAILURE
 
 
 class IsInPartialAttached(Behaviour):
@@ -908,8 +912,6 @@ class IsInPartialAttached(Behaviour):
     def __init__(self, name):
         """Initialize."""
         super(IsInPartialAttached, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
         """Setup."""
@@ -922,7 +924,7 @@ class IsInPartialAttached(Behaviour):
 
     def update(self):
         """Logic to check if the object is in partially attached list."""
-        # objects = self.blackboard.shared_content[self.thing].pop()
+        # objects = self.blackboard.neighbourobj[self.thing].pop()
         try:
             things = []
 
@@ -934,11 +936,11 @@ class IsInPartialAttached(Behaviour):
                 self.agent.partial_attached_objects))[0]
             if self.item in set(things) and \
                     self.agent in objects.agents:
-                    return Status.SUCCESS
+                    return common.Status.SUCCESS
             else:
-                return Status.FAILURE
+                return common.Status.FAILURE
         except IndexError:
-            return Status.FAILURE
+            return common.Status.FAILURE
 
 
 class IsEnoughStrengthToCarry(Behaviour):
@@ -947,13 +949,13 @@ class IsEnoughStrengthToCarry(Behaviour):
     def __init__(self, name):
         """Initialize."""
         super(IsEnoughStrengthToCarry, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
         """Setup."""
         self.agent = agent
         self.item = item
+        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
         """Pass."""
@@ -963,14 +965,14 @@ class IsEnoughStrengthToCarry(Behaviour):
         """Logic to check if the agent has enough strength to carry."""
         try:
             objects = ObjectsStore.find(
-                self.blackboard.shared_content, self.agent.shared_content,
+                self.blackboard.neighbourobj, self.agent.shared_content,
                 self.item, self.agent.name)[0]
             if self.agent.get_capacity() >= objects.calc_relative_weight():
-                return Status.SUCCESS
+                return common.Status.SUCCESS
             else:
-                return Status.FAILURE
+                return common.Status.FAILURE
         except IndexError:
-            return Status.FAILURE
+            return common.Status.FAILURE
 
 
 class IsMotionTrue(Behaviour):
@@ -979,8 +981,6 @@ class IsMotionTrue(Behaviour):
     def __init__(self, name):
         """Initialize."""
         super(IsMotionTrue, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
         """Setup."""
@@ -995,11 +995,11 @@ class IsMotionTrue(Behaviour):
         """Logic to check if the object is moving."""
         try:
             if self.agent.partial_attached_objects[0].motion is True:
-                return Status.SUCCESS
+                return common.Status.SUCCESS
             else:
-                return Status.FAILURE
+                return common.Status.FAILURE
         except (AttributeError, IndexError):
-            return Status.FAILURE
+            return common.Status.FAILURE
 
 
 class IsVisitedBefore(Behaviour):
@@ -1008,12 +1008,13 @@ class IsVisitedBefore(Behaviour):
     def __init__(self, name):
         """Initialize."""
         super(IsVisitedBefore, self).__init__(name)
-        self.blackboard = Blackboard()
 
     def setup(self, timeout, agent, item):
         """Setup."""
         self.agent = agent
         self.item = item
+        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
         """Pass."""
@@ -1023,14 +1024,14 @@ class IsVisitedBefore(Behaviour):
         """Logic to check is the object is visited before."""
         try:
             objects = ObjectsStore.find(
-                self.blackboard.shared_content, self.agent.shared_content,
+                self.blackboard.neighbourobj, self.agent.shared_content,
                 self.item, self.agent.name)[0]
             if objects:
-                return Status.SUCCESS
+                return common.Status.SUCCESS
             else:
-                return Status.FAILURE
+                return common.Status.FAILURE
         except (AttributeError, IndexError):
-            return Status.FAILURE
+            return common.Status.FAILURE
 
 
 class MultipleCarry(Behaviour):
@@ -1039,13 +1040,13 @@ class MultipleCarry(Behaviour):
     def __init__(self, name):
         """Initialize."""
         super(MultipleCarry, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
         """Setup."""
         self.agent = agent
         self.item = item
+        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
         """Pass."""
@@ -1055,14 +1056,14 @@ class MultipleCarry(Behaviour):
         """Logic for multiple carry."""
         try:
             objects = ObjectsStore.find(
-                self.blackboard.shared_content, self.agent.shared_content,
+                self.blackboard.neighbourobj, self.agent.shared_content,
                 self.item, self.agent.name)[0]
 
             self.agent.model.grid.remove_object_from_grid(
                 objects.location, objects)
-            return Status.SUCCESS
+            return common.Status.SUCCESS
         except IndexError:
-            return Status.FAILURE
+            return common.Status.FAILURE
 
 
 # Lets start some communication behaviors
@@ -1075,13 +1076,13 @@ class SignalDoesNotExists(Behaviour):
     def __init__(self, name):
         """Initialize."""
         super(SignalDoesNotExists, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
         """Setup."""
         self.agent = agent
         self.item = item
+        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
         """Pass."""
@@ -1092,7 +1093,7 @@ class SignalDoesNotExists(Behaviour):
         try:
             # Find the object the agent is trying to signal
             objects = ObjectsStore.find(
-                self.blackboard.shared_content, self.agent.shared_content,
+                self.blackboard.neighbourobj, self.agent.shared_content,
                 self.item, self.agent.name)[0]
 
             if len(self.agent.signals) > 0:
@@ -1102,14 +1103,14 @@ class SignalDoesNotExists(Behaviour):
                     signal_objects.append(signal.object_to_communicate)
 
                 if objects not in signal_objects:
-                    return Status.SUCCESS
+                    return common.Status.SUCCESS
                 else:
-                    return Status.FAILURE
+                    return common.Status.FAILURE
             else:
-                return Status.SUCCESS
+                return common.Status.SUCCESS
 
         except (IndexError, AttributeError):
-            return Status.FAILURE
+            return common.Status.FAILURE
 
 
 class SendSignal(Behaviour):
@@ -1123,13 +1124,13 @@ class SendSignal(Behaviour):
     def __init__(self, name):
         """Initialize."""
         super(SendSignal, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
         """Setup."""
         self.agent = agent
         self.item = item
+        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
         """Pass."""
@@ -1139,7 +1140,7 @@ class SendSignal(Behaviour):
         """Logic for sending signal."""
         try:
             objects = ObjectsStore.find(
-                self.blackboard.shared_content, self.agent.shared_content,
+                self.blackboard.neighbourobj, self.agent.shared_content,
                 self.item, self.agent.name)[0]
 
             # Initialize the signal object
@@ -1155,9 +1156,9 @@ class SendSignal(Behaviour):
             # Append the signal object to the agent signal list
             self.agent.signals.append(signal)
 
-            return Status.SUCCESS
+            return common.Status.SUCCESS
         except (IndexError, AttributeError):
-            return Status.FAILURE
+            return common.Status.FAILURE
 
 
 class ReceiveSignal(Behaviour):
@@ -1172,13 +1173,13 @@ class ReceiveSignal(Behaviour):
     def __init__(self, name):
         """Initialize."""
         super(ReceiveSignal, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item='Signal'):
         """Setup."""
         self.agent = agent
         self.item = item
+        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
         """Pass."""
@@ -1188,7 +1189,7 @@ class ReceiveSignal(Behaviour):
         """Logic for receiving signal."""
         try:
             objects = ObjectsStore.find(
-                self.blackboard.shared_content, self.agent.shared_content,
+                self.blackboard.neighbourobj, self.agent.shared_content,
                 self.item, self.agent.name)[0]
             # Extract the information from the signal object and
             # store into the agent memory
@@ -1198,9 +1199,9 @@ class ReceiveSignal(Behaviour):
                 self.agent.shared_content[name].add(objects)
             except KeyError:
                 self.agent.shared_content[name] = {objects}
-            return Status.SUCCESS
+            return common.Status.SUCCESS
         except (IndexError, AttributeError):
-            return Status.FAILURE
+            return common.Status.FAILURE
 
 
 class CueDoesNotExists(Behaviour):
@@ -1212,13 +1213,13 @@ class CueDoesNotExists(Behaviour):
     def __init__(self, name):
         """Initialize."""
         super(CueDoesNotExists, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
         """Setup."""
         self.agent = agent
         self.item = item
+        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
         """Pass."""
@@ -1236,19 +1237,19 @@ class CueDoesNotExists(Behaviour):
             if len(cue_objects) > 0:
                 # Check the agetns cue list for its exitance
                 objects = ObjectsStore.find(
-                    self.blackboard.shared_content, self.agent.shared_content,
+                    self.blackboard.neighbourobj, self.agent.shared_content,
                     self.item, self.agent.name)[0]
                 cue_in_list = [
                     cue.object_to_communicate for cue in cue_objects]
                 if objects not in cue_in_list:
-                    return Status.SUCCESS
+                    return common.Status.SUCCESS
                 else:
-                    return Status.FAILURE
+                    return common.Status.FAILURE
             else:
-                return Status.SUCCESS
+                return common.Status.SUCCESS
 
         except (IndexError, AttributeError):
-            return Status.FAILURE
+            return common.Status.FAILURE
 
 
 # Communication behaviors related to cue
@@ -1263,13 +1264,13 @@ class DropCue(Behaviour):
     def __init__(self, name):
         """Initialize."""
         super(DropCue, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
         """Setup."""
         self.agent = agent
         self.item = item
+        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
         """Pass."""
@@ -1279,7 +1280,7 @@ class DropCue(Behaviour):
         """Logic for dropping cue."""
         try:
             objects = ObjectsStore.find(
-                self.blackboard.shared_content, self.agent.shared_content,
+                self.blackboard.neighbourobj, self.agent.shared_content,
                 self.item, self.agent.name)[0]
 
             # Initialize the cue object
@@ -1295,9 +1296,9 @@ class DropCue(Behaviour):
             # We just drop the cue on the environment and don't keep track
             # of it. Instead of using cue here we can derive a class from cue
             # and call it pheromonone
-            return Status.SUCCESS
+            return common.Status.SUCCESS
         except (IndexError, AttributeError):
-            return Status.FAILURE
+            return common.Status.FAILURE
 
 
 class PickCue(Behaviour):
@@ -1310,13 +1311,13 @@ class PickCue(Behaviour):
     def __init__(self, name):
         """Initialize."""
         super(PickCue, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item='Cue'):
         """Setup."""
         self.agent = agent
         self.item = item
+        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
         """Pass."""
@@ -1326,7 +1327,7 @@ class PickCue(Behaviour):
         """Logic for pickup cue."""
         try:
             objects = ObjectsStore.find(
-                self.blackboard.shared_content, self.agent.shared_content,
+                self.blackboard.neighbourobj, self.agent.shared_content,
                 self.item, self.agent.name)[0]
 
             # Get information from the cue. For now, the agents orients
@@ -1340,9 +1341,9 @@ class PickCue(Behaviour):
             except KeyError:
                 self.agent.shared_content[name] = {objects}
 
-            return Status.SUCCESS
+            return common.Status.SUCCESS
         except (IndexError, AttributeError):
-            return Status.FAILURE
+            return common.Status.FAILURE
 
 
 class AvoidSObjects(Behaviour):
@@ -1355,13 +1356,13 @@ class AvoidSObjects(Behaviour):
     def __init__(self, name):
         """Initialize."""
         super(AvoidSObjects, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item='Obstacles'):
         """Setup."""
         self.agent = agent
         self.item = item
+        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
         """Pass."""
@@ -1371,9 +1372,9 @@ class AvoidSObjects(Behaviour):
         """Logic for pickup cue."""
 
         try:
-            # print(self.agent.shared_content, self.blackboard.shared_content, self.item)
+            # print(self.agent.shared_content, self.blackboard.neighbourobj, self.item)
             objects = ObjectsStore.find(
-                self.blackboard.shared_content, self.agent.shared_content,
+                self.blackboard.neighbourobj, self.agent.shared_content,
                 self.item, self.agent.name)[0]
             # print('avoid obstacles', self.item, self.agent, self.agent.dead, point_distance(self.agent.location, objects.location), self.agent.location, objects.location)
 
@@ -1406,10 +1407,10 @@ class AvoidSObjects(Behaviour):
                 self.agent.avoid_obs = True
             elif self.item == 'Traps':
                 self.agent.avoid_trap = True
-            return Status.SUCCESS
+            return common.Status.SUCCESS
         except (IndexError, AttributeError):
             if self.item == 'Obstacles':
                 self.agent.avoid_obs = False
             elif self.item == 'Traps':
                 self.agent.avoid_trap = False
-            return Status.FAILURE
+            return common.Status.FAILURE

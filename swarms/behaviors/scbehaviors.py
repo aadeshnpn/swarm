@@ -41,8 +41,6 @@ class MoveTowards(Behaviour):
     def __init__(self, name):
         """Init method for the MoveTowards behavior."""
         super(MoveTowards, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
         """Have defined the setup method.
@@ -109,8 +107,6 @@ class MoveAway(Behaviour):
     def __init__(self, name):
         """Init method for the MoveAway behavior."""
         super(MoveAway, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
         """Have defined the setup method.
@@ -178,8 +174,6 @@ class CompositeSingleCarry(Behaviour):
     def __init__(self, name):
         """Init method for the CompositeSingleCarry behavior."""
         super(CompositeSingleCarry, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
         """Have defined the setup method.
@@ -236,8 +230,6 @@ class CompositeMultipleCarry(Behaviour):
     def __init__(self, name):
         """Init method for the CompositeSingleCarry behavior."""
         super(CompositeMultipleCarry, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
         """Have defined the setup method.
@@ -324,8 +316,6 @@ class CompositeDrop(Behaviour):
     def __init__(self, name):
         """Init method for the CompositeDrop behavior."""
         super(CompositeDrop, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
         """Have defined the setup method.
@@ -376,8 +366,6 @@ class CompositeDropPartial(Behaviour):
     def __init__(self, name):
         """Init method for the CompositeDrop behavior."""
         super(CompositeDropPartial, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
         """Have defined the setup method.
@@ -427,8 +415,6 @@ class Explore(Behaviour):
     def __init__(self, name):
         """Init method for the Explore behavior."""
         super(Explore, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item=None):
         """Have defined the setup method.
@@ -481,8 +467,6 @@ class CompositeSendSignal(Behaviour):
     def __init__(self, name):
         """Init method for the SendSignal behavior."""
         super(CompositeSendSignal, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item=None):
         """Have defined the setup method.
@@ -533,8 +517,6 @@ class CompositeReceiveSignal(Behaviour):
     def __init__(self, name):
         """Init method for the SendSignal behavior."""
         super(CompositeReceiveSignal, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item=None):
         """Have defined the setup method.
@@ -585,8 +567,6 @@ class CompositeDropCue(Behaviour):
     def __init__(self, name):
         """Init method for the SendSignal behavior."""
         super(CompositeDropCue, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item=None):
         """Have defined the setup method.
@@ -637,8 +617,6 @@ class CompositePickCue(Behaviour):
     def __init__(self, name):
         """Init method for the SendSignal behavior."""
         super(CompositePickCue, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item=None):
         """Have defined the setup method.
@@ -689,8 +667,6 @@ class AvoidTrapObstaclesBehaviour(Behaviour):
     def __init__(self, name):
         """Init method for the AvoidTrapObstacles behavior."""
         super(AvoidTrapObstaclesBehaviour, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item=None):
         """Have defined the setup method.
@@ -746,8 +722,6 @@ class NewMoveTowards(Behaviour):
     def __init__(self, name):
         """Init method for the MoveTowards behavior."""
         super(NewMoveTowards, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
         """Have defined the setup method.
@@ -806,8 +780,6 @@ class NewExplore(Behaviour):
     def __init__(self, name):
         """Init method for the Explore behavior."""
         super(NewExplore, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item=None):
         """Have defined the setup method.
@@ -862,8 +834,6 @@ class NewMoveAway(Behaviour):
     def __init__(self, name):
         """Init method for the MoveAway behavior."""
         super(NewMoveAway, self).__init__(name)
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
     def setup(self, timeout, agent, item):
         """Have defined the setup method.
