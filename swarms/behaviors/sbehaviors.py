@@ -30,8 +30,11 @@ class ObjectsStore:
         in blackboard, then agent content is searched.
         """
         try:
-            objects = blackboard_content[name]
-            return list(objects)
+            if name is not None:
+                objects = blackboard_content[name]
+                return list(objects)
+            else:
+                return list(blackboard_content.values())
         except KeyError:
             try:
                 objects = agent_content[name]
@@ -592,16 +595,22 @@ class IsDropable(Behaviour):
 
     def update(self):
         """Check the dropable attribute."""
+        status = common.Status.FAILURE
         try:
             objects = ObjectsStore.find(
                 self.blackboard.neighbourobj, self.agent.shared_content,
-                self.thing, self.agent.name)[0]
-            if objects.dropable:
-                return common.Status.SUCCESS
+                self.thing, self.agent.name)
+            if len(objects) >= 1:
+                for obj in objects:
+                    if status == common.Status.SUCCESS:
+                        break
+                    if objects.dropable:
+                        status = common.Status.SUCCESS
+                return status
             else:
-                return common.Status.FAILURE
+                return common.Status.SUCCESS
         except (AttributeError, IndexError):
-            return common.Status.FAILURE
+            return common.Status.SUCCESS
 
 
 # Behavior define to check is the item is carrable on its own

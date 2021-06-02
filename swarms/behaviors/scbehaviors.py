@@ -9,6 +9,7 @@ flexibility for the user to use the primitive behaviors along with
 feature rich behaviors.
 """
 
+from py_trees import decorators
 from py_trees.trees import BehaviourTree
 from py_trees.behaviour import Behaviour
 from py_trees.composites import Sequence, Selector, Parallel
@@ -16,7 +17,7 @@ from py_trees import common, blackboard
 from py_trees.decorators import FailureIsSuccess, Inverter
 
 from swarms.behaviors.sbehaviors import (
-    GoTo, IsMoveable, Towards, Move, Away,
+    GoTo, IsDropable, IsMoveable, Towards, Move, Away,
     IsCarryable, IsSingleCarry, SingleCarry,
     IsMultipleCarry, IsInPartialAttached, IsEnoughStrengthToCarry,
     InitiateMultipleCarry, IsCarrying, Drop, RandomWalk, DropPartial,
@@ -228,12 +229,21 @@ class CompositeSingleCarry(Behaviour):
         self.agent = agent
         self.item = item
 
+        # PostCondition
+        selector = Selector('SC_Selector')
+        is_already_carrying = IsCarrying('SC_IsCarrying_PC')
+        is_already_carrying.setup(0, self.agent, self.item)
+
+        # Check if there is item to be carried
+        neigbourobjs = NeighbourObjects('SC_NeighbourObjects')
+        neigbourobjs.setup(0, self.agent, self.item)
+
         # First check if the item is carrable?
-        carryable = IsCarryable('SC_IsCarryable_1')
+        carryable = IsCarryable('SC_IsCarryable_1_CNT')
         carryable.setup(0, self.agent, self.item)
 
         # Then check if the item can be carried by a single agent
-        issinglecarry = IsSingleCarry('SC_IsSingleCarry_2')
+        issinglecarry = IsSingleCarry('SC_IsSingleCarry_2_CNT')
         issinglecarry.setup(0, self.agent, self.item)
 
         # Finally, carry the object
@@ -242,95 +252,10 @@ class CompositeSingleCarry(Behaviour):
 
         # Define a sequence to combine the primitive behavior
         sc_sequence = Sequence('SC_SEQUENCE')
-        sc_sequence.add_children([carryable, issinglecarry, singlecarry])
+        sc_sequence.add_children([neigbourobjs, carryable, issinglecarry, singlecarry])
+        selector.add_children([is_already_carrying, sc_sequence])
 
-        self.behaviour_tree = BehaviourTree(sc_sequence)
-
-    def initialise(self):
-        """Everytime initialization. Not required for now."""
-        pass
-
-    def update(self):
-        """Just call the tick method for the sequence.
-
-        This will execute the primitive behaviors defined in the sequence
-        """
-        self.behaviour_tree.tick()
-        return self.behaviour_tree.root.status
-
-
-class CompositeMultipleCarry(Behaviour):
-    """CompositeMultipleCarry behavior for the agents.
-
-    Inherits the Behaviors class from py_trees. This
-    behavior combines the privitive behaviors to succesfully carry any heavy
-    carryable object. It combines IsCarrable, IsMultipleCarry
-    and InitiateMultipleCarry primitive behaviors.
-    """
-
-    def __init__(self, name):
-        """Init method for the CompositeSingleCarry behavior."""
-        super(CompositeMultipleCarry, self).__init__(name)
-
-    def setup(self, timeout, agent, item):
-        """Have defined the setup method.
-
-        This method defines the other objects required for the
-        behavior. Agent is the actor in the environment,
-        item is the name of the item we are trying to find in the
-        environment and timeout defines the execution time for the
-        behavior.
-        """
-        self.agent = agent
-        self.item = item
-
-        # Root node from the multiple carry behavior tree
-        root = Sequence("MC_Sequence")
-
-        # Conditional behavior to check if the sensed object is carrable or not
-        carryable = IsCarryable('MC_IsCarryable')
-        carryable.setup(0, self.agent, self.item)
-
-        # Conditional behavior to check if the object is too heavy
-        # for single carry
-        is_mc = IsMultipleCarry('MC_IsMultipleCarry')
-        is_mc.setup(0, self.agent, self.item)
-
-        # Check if the object is alread attached to the object
-        partial_attached = IsInPartialAttached('MC_IsPartialAttached')
-        partial_attached.setup(0, self.agent, self.item)
-
-        # Initiate multiple carry process
-        initiate_mc_b = InitiateMultipleCarry('MC_InitiateMultipleCarry')
-        initiate_mc_b.setup(0, self.agent, self.item)
-
-        # Selector to select between intiate
-        # multiple carry and checking strength
-        initial_mc_sel = Selector("MC_Selector")
-        initial_mc_sel.add_children([partial_attached, initiate_mc_b])
-
-        strength = IsEnoughStrengthToCarry('MC_EnoughStrength')
-        strength.setup(0, self.agent, self.item)
-
-        strength_seq = Sequence("MC_StrenghtSeq")
-
-        strength_seq.add_children([strength])
-
-        # Main sequence branch where all the multiple carry logic takes place
-        sequence_branch = Sequence("MC_Sequence_branch")
-        sequence_branch.add_children([is_mc, initial_mc_sel, strength_seq])
-
-        # Main logic behind this composite multiple carry BT
-        """
-        First check if the object is carryable or not. If the object is
-        carryable then execute the sequence branch. In the sequence branch,
-        check is the object needs multiple agents to carry. If yes, execute
-        the initiate multiple carry sequence branch only if it has not been
-        attached before. Finally, check if there are enought agents/strenght
-        to lift the object up.
-        """
-        root.add_children([carryable, sequence_branch])
-        self.behaviour_tree = BehaviourTree(root)
+        self.behaviour_tree = BehaviourTree(selector)
 
     def initialise(self):
         """Everytime initialization. Not required for now."""
@@ -343,6 +268,92 @@ class CompositeMultipleCarry(Behaviour):
         """
         self.behaviour_tree.tick()
         return self.behaviour_tree.root.status
+
+
+# class CompositeMultipleCarry(Behaviour):
+#     """CompositeMultipleCarry behavior for the agents.
+
+#     Inherits the Behaviors class from py_trees. This
+#     behavior combines the privitive behaviors to succesfully carry any heavy
+#     carryable object. It combines IsCarrable, IsMultipleCarry
+#     and InitiateMultipleCarry primitive behaviors.
+#     """
+
+#     def __init__(self, name):
+#         """Init method for the CompositeSingleCarry behavior."""
+#         super(CompositeMultipleCarry, self).__init__(name)
+
+#     def setup(self, timeout, agent, item):
+#         """Have defined the setup method.
+
+#         This method defines the other objects required for the
+#         behavior. Agent is the actor in the environment,
+#         item is the name of the item we are trying to find in the
+#         environment and timeout defines the execution time for the
+#         behavior.
+#         """
+#         self.agent = agent
+#         self.item = item
+
+#         # Root node from the multiple carry behavior tree
+#         root = Sequence("MC_Sequence")
+
+#         # Conditional behavior to check if the sensed object is carrable or not
+#         carryable = IsCarryable('MC_IsCarryable')
+#         carryable.setup(0, self.agent, self.item)
+
+#         # Conditional behavior to check if the object is too heavy
+#         # for single carry
+#         is_mc = IsMultipleCarry('MC_IsMultipleCarry')
+#         is_mc.setup(0, self.agent, self.item)
+
+#         # Check if the object is alread attached to the object
+#         partial_attached = IsInPartialAttached('MC_IsPartialAttached')
+#         partial_attached.setup(0, self.agent, self.item)
+
+#         # Initiate multiple carry process
+#         initiate_mc_b = InitiateMultipleCarry('MC_InitiateMultipleCarry')
+#         initiate_mc_b.setup(0, self.agent, self.item)
+
+#         # Selector to select between intiate
+#         # multiple carry and checking strength
+#         initial_mc_sel = Selector("MC_Selector")
+#         initial_mc_sel.add_children([partial_attached, initiate_mc_b])
+
+#         strength = IsEnoughStrengthToCarry('MC_EnoughStrength')
+#         strength.setup(0, self.agent, self.item)
+
+#         strength_seq = Sequence("MC_StrenghtSeq")
+
+#         strength_seq.add_children([strength])
+
+#         # Main sequence branch where all the multiple carry logic takes place
+#         sequence_branch = Sequence("MC_Sequence_branch")
+#         sequence_branch.add_children([is_mc, initial_mc_sel, strength_seq])
+
+#         # Main logic behind this composite multiple carry BT
+#         """
+#         First check if the object is carryable or not. If the object is
+#         carryable then execute the sequence branch. In the sequence branch,
+#         check is the object needs multiple agents to carry. If yes, execute
+#         the initiate multiple carry sequence branch only if it has not been
+#         attached before. Finally, check if there are enought agents/strenght
+#         to lift the object up.
+#         """
+#         root.add_children([carryable, sequence_branch])
+#         self.behaviour_tree = BehaviourTree(root)
+
+#     def initialise(self):
+#         """Everytime initialization. Not required for now."""
+#         pass
+
+#     def update(self):
+#         """Just call the tick method for the sequence.
+
+#         This will execute the primitive behaviors defined in the sequence
+#         """
+#         self.behaviour_tree.tick()
+#         return self.behaviour_tree.root.status
 
 
 class CompositeDrop(Behaviour):
@@ -370,15 +381,29 @@ class CompositeDrop(Behaviour):
         self.agent = agent
         self.item = item
 
-        dropseq = Sequence('CD_Sequence')
+        # PostCondition
+        selector = Selector('SC_Selector')
+        is_carrying = IsCarrying('SC_IsCarrying_PC')
+        is_carrying.setup(0, self.agent, self.item)
+        is_dropped = Inverter(is_carrying)
 
-        iscarrying = IsCarrying('CD_IsCarrying')
+        dropseq = Sequence('CD_Sequence')
+        # Check if there is item to be carried
+        neigbourobjs = NeighbourObjects('CD_NeighbourObjects')
+        neigbourobjs.setup(0, self.agent, None)
+        neigbourobjs = FailureIsSuccess(neigbourobjs)
+
+        iscarrying = IsCarrying('CD_IsCarrying_CNT')
         iscarrying.setup(0, self.agent, self.item)
+
+        isdropable = IsDropable('CD_Dropable_CNT')
+        isdropable.setup(0, self.agent, None)
 
         drop = Drop('CD_Drop')
         drop.setup(0, self.agent, self.item)
 
-        dropseq.add_children([iscarrying, drop])
+        dropseq.add_children([neigbourobjs, iscarrying, isdropable, drop])
+        selector.add_children([is_dropped, dropseq])
 
         self.behaviour_tree = BehaviourTree(dropseq)
 
@@ -395,54 +420,54 @@ class CompositeDrop(Behaviour):
         return self.behaviour_tree.root.status
 
 
-class CompositeDropPartial(Behaviour):
-    """CompositeDropPartial behavior for the agents.
+# class CompositeDropPartial(Behaviour):
+#     """CompositeDropPartial behavior for the agents.
 
-    Inherits the Behaviors class from py_trees. This
-    behavior combines the privitive behaviors to succesfully drop any
-    objects carried with cooperation to a dropable surface. It
-    combines IsDropable, IsCarrying and DropPartial primitive behaviors.
-    """
+#     Inherits the Behaviors class from py_trees. This
+#     behavior combines the privitive behaviors to succesfully drop any
+#     objects carried with cooperation to a dropable surface. It
+#     combines IsDropable, IsCarrying and DropPartial primitive behaviors.
+#     """
 
-    def __init__(self, name):
-        """Init method for the CompositeDrop behavior."""
-        super(CompositeDropPartial, self).__init__(name)
+#     def __init__(self, name):
+#         """Init method for the CompositeDrop behavior."""
+#         super(CompositeDropPartial, self).__init__(name)
 
-    def setup(self, timeout, agent, item):
-        """Have defined the setup method.
+#     def setup(self, timeout, agent, item):
+#         """Have defined the setup method.
 
-        This method defines the other objects required for the
-        behavior. Agent is the actor in the environment,
-        item is the name of the item we are trying to find in the
-        environment and timeout defines the execution time for the
-        behavior.
-        """
-        self.agent = agent
-        self.item = item
+#         This method defines the other objects required for the
+#         behavior. Agent is the actor in the environment,
+#         item is the name of the item we are trying to find in the
+#         environment and timeout defines the execution time for the
+#         behavior.
+#         """
+#         self.agent = agent
+#         self.item = item
 
-        dropseq = Sequence('CDP_Sequence')
+#         dropseq = Sequence('CDP_Sequence')
 
-        iscarrying = IsInPartialAttached('CDP_IsInPartial')
-        iscarrying.setup(0, self.agent, self.item)
+#         iscarrying = IsInPartialAttached('CDP_IsInPartial')
+#         iscarrying.setup(0, self.agent, self.item)
 
-        drop = DropPartial('CDP_DropPartial')
-        drop.setup(0, self.agent, self.item)
+#         drop = DropPartial('CDP_DropPartial')
+#         drop.setup(0, self.agent, self.item)
 
-        dropseq.add_children([iscarrying, drop])
+#         dropseq.add_children([iscarrying, drop])
 
-        self.behaviour_tree = BehaviourTree(dropseq)
+#         self.behaviour_tree = BehaviourTree(dropseq)
 
-    def initialise(self):
-        """Everytime initialization. Not required for now."""
-        pass
+#     def initialise(self):
+#         """Everytime initialization. Not required for now."""
+#         pass
 
-    def update(self):
-        """Just call the tick method for the sequence.
+#     def update(self):
+#         """Just call the tick method for the sequence.
 
-        This will execute the primitive behaviors defined in the sequence
-        """
-        self.behaviour_tree.tick()
-        return self.behaviour_tree.root.status
+#         This will execute the primitive behaviors defined in the sequence
+#         """
+#         self.behaviour_tree.tick()
+#         return self.behaviour_tree.root.status
 
 
 class Explore(Behaviour):
