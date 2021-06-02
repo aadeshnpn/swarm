@@ -123,9 +123,9 @@ class NeighbourObjects(Behaviour):
                     except KeyError:
                         self.blackboard.neighbourobj = dict()
                         self.blackboard.neighbourobj[name] = {item}
-            return common.common.Status.SUCCESS
+            return common.Status.SUCCESS
         else:
-            return common.common.Status.FAILURE
+            return common.Status.FAILURE
 
 
 class NeighbourObjectsDist(Behaviour):
@@ -221,9 +221,9 @@ class NeighbourObjectsDist(Behaviour):
                     self.blackboard.neighbourobj[name].add(item)
                 except KeyError:
                     self.blackboard.neighbourobj[name] = {item}
-            return common.common.Status.SUCCESS
+            return common.Status.SUCCESS
         else:
-            return common.common.Status.FAILURE
+            return common.Status.FAILURE
 
 
 class GoTo(Behaviour):
@@ -275,9 +275,9 @@ class GoTo(Behaviour):
                 self.item, self.agent.name)[0]
             self.agent.direction = get_direction(
                 objects.location, self.agent.location)
-            return common.common.Status.SUCCESS
+            return common.Status.SUCCESS
         except (AttributeError, IndexError):
-            return common.common.Status.FAILURE
+            return common.Status.FAILURE
 
 
 # Behavior defined to move towards something
@@ -301,7 +301,7 @@ class Towards(Behaviour):
 
     def update(self):
         """Nothing much to do."""
-        return common.common.Status.SUCCESS
+        return common.Status.SUCCESS
 
 
 # Behavior defined to move away from something
@@ -323,7 +323,7 @@ class Away(Behaviour):
     def update(self):
         """Compute direction and negate it."""
         self.agent.direction = (self.agent.direction + np.pi) % (2 * np.pi)
-        return common.common.Status.SUCCESS
+        return common.Status.SUCCESS
 
 
 # Behavior defined for Randomwalk
@@ -346,7 +346,7 @@ class RandomWalk(Behaviour):
         """Compute random direction and set it to agent direction."""
         delta_d = self.agent.model.random.normal(0, .1)
         self.agent.direction = (self.agent.direction + delta_d) % (2 * np.pi)
-        return common.common.Status.SUCCESS
+        return common.Status.SUCCESS
 
 
 class IsMoveable(Behaviour):
@@ -376,10 +376,10 @@ class IsMoveable(Behaviour):
                 self.item, self.agent.name)
             for obj in objects:
                 if not objects.moveable:
-                    return common.common.Status.FAILURE
-            return common.common.Status.SUCCESS
+                    return common.Status.FAILURE
+            return common.Status.SUCCESS
         except (AttributeError, IndexError):
-            return common.common.Status.FAILURE
+            return common.Status.FAILURE
 
 
 # Behavior defined to move
@@ -482,7 +482,7 @@ class Move(Behaviour):
 
                 # Now the agent location has been updated, update the signal grids
                 if not self.update_signals(self.agent.location, new_location):
-                    return common.common.Status.FAILURE
+                    return common.Status.FAILURE
 
                 self.agent.location = new_location
                 self.agent.direction = direction
@@ -491,7 +491,7 @@ class Move(Behaviour):
                 for item in self.agent.attached_objects:
                     item.location = self.agent.location
             else:
-                return common.common.Status.FAILURE
+                return common.Status.FAILURE
 
         else:
             new_location = self.agent.partial_attached_objects[0].location
@@ -501,13 +501,13 @@ class Move(Behaviour):
                         new_location):
                     agent.location = new_location
                 else:
-                    return common.common.Status.FAILURE
+                    return common.Status.FAILURE
 
             # Now the agent location has been updated, update the signal grids
             if not self.update_signals(self.agent.location, new_location):
-                return common.common.Status.FAILURE
+                return common.Status.FAILURE
 
-        return common.common.Status.SUCCESS
+        return common.Status.SUCCESS
 
 
 # Behavior define for donot move
@@ -529,7 +529,7 @@ class DoNotMove(Behaviour):
     def update(self):
         """Update agent moveable property."""
         self.agent.moveable = False
-        return common.common.Status.SUCCESS
+        return common.Status.SUCCESS
 
 
 # Behavior to check carryable attribute of an object
@@ -558,11 +558,11 @@ class IsCarryable(Behaviour):
                 self.blackboard.neighbourobj, self.agent.shared_content,
                 self.thing, self.agent.name)[0]
             if objects.carryable:
-                return common.common.Status.SUCCESS
+                return common.Status.SUCCESS
             else:
-                return common.common.Status.FAILURE
+                return common.Status.FAILURE
         except (AttributeError, IndexError):
-            return common.common.Status.FAILURE
+            return common.Status.FAILURE
 
 
 # Behavior to check carryable attribute of an object
@@ -591,11 +591,11 @@ class IsDropable(Behaviour):
                 self.blackboard.neighbourobj, self.agent.shared_content,
                 self.thing, self.agent.name)[0]
             if objects.dropable:
-                return common.common.Status.SUCCESS
+                return common.Status.SUCCESS
             else:
-                return common.common.Status.FAILURE
+                return common.Status.FAILURE
         except (AttributeError, IndexError):
-            return common.common.Status.FAILURE
+            return common.Status.FAILURE
 
 
 # Behavior define to check is the item is carrable on its own
@@ -626,13 +626,13 @@ class IsSingleCarry(Behaviour):
                 self.thing, self.agent.name)[0]
             if objects.weight:
                 if self.agent.get_capacity() > objects.calc_relative_weight():
-                    return common.common.Status.SUCCESS
+                    return common.Status.SUCCESS
                 else:
-                    return common.common.Status.FAILURE
+                    return common.Status.FAILURE
             else:
-                return common.common.Status.FAILURE
+                return common.Status.FAILURE
         except (AttributeError, IndexError):
-            return common.common.Status.FAILURE
+            return common.Status.FAILURE
 
 
 # Behavior define to check is the item is carrable on its own or not
