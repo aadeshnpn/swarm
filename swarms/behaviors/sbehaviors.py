@@ -205,7 +205,7 @@ class NeighbourObjectsDist(Behaviour):
         # print('nighbourdist', grids, objects, self.agent.location, (new_location))
         # Need to reset blackboard contents after each sense
         self.blackboard.neighbourobj = dict()
-
+        status = common.Status.FAILURE
         if len(objects) >= 1:
             if self.agent in objects:
                 objects.remove(self.agent)
@@ -217,13 +217,18 @@ class NeighbourObjectsDist(Behaviour):
                 # information to memory
                 # if item.carryable is False and item.deathable is False:
                 # name = name + str(self.agent.name)
-                try:
-                    self.blackboard.neighbourobj[name].add(item)
-                except KeyError:
-                    self.blackboard.neighbourobj[name] = {item}
-            return common.Status.SUCCESS
+                if item.passable is False:
+                    try:
+                        self.blackboard.neighbourobj[name].add(item)
+                    except KeyError:
+                        self.blackboard.neighbourobj[name] = {item}
+                    if status == common.Status.SUCCESS:
+                        pass
+                    else:
+                        status = common.Status.SUCCESS
+            return status
         else:
-            return common.Status.FAILURE
+            return status
 
 
 class GoTo(Behaviour):

@@ -14,6 +14,11 @@ from swarms.behaviors.sbehaviors import (
     SingleCarry, IsSingleCarry
     )
 from swarms.lib.objects import Sites, Debris, Food
+from py_trees.trees import BehaviourTree
+from py_trees.behaviour import Behaviour
+from py_trees.composites import Sequence, Selector, Parallel
+from py_trees import common, blackboard
+from py_trees.decorators import FailureIsSuccess
 import py_trees
 import numpy as np
 
@@ -34,7 +39,7 @@ class SwarmMoveTowards(Agent):
         self.moveable = True
         self.shared_content = dict()
 
-        self.shared_content['Sites'] = [model.target]
+        self.shared_content['Sites'] = {model.target}
 
         # Defining the composite behavior
         movetowards = MoveTowards('MoveTowards')
@@ -44,15 +49,15 @@ class SwarmMoveTowards(Agent):
 
         # This behavior is just defined to check if the composite tree
         # can be combined with other primite behaviors
-        seq = py_trees.composites.Sequence('Seq')
+        seq = Sequence('Seq')
         seq.add_children([movetowards])
 
         # Since its root is a sequence, we can use it directly
-        self.behaviour_tree = py_trees.trees.BehaviourTree(seq)
+        self.behaviour_tree = BehaviourTree(seq)
 
         # Debugging stuffs for py_trees
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
-        # py_trees.display.print_ascii_tree(movetowards)
+        # print(py_trees.display.ascii_tree(movetowards))
 
     def step(self):
         self.behaviour_tree.tick()
@@ -100,7 +105,7 @@ class TestGoToSwarmSmallGrid(TestCase):
 
     def test_agent_path(self):
         # Checking if the agents reaches site or not
-        self.assertEqual(self.environment.agent.location, (45, 45))
+        self.assertEqual(self.environment.agent.location, (40, 40))
 
 
 # class SwarmMoveAway(Agent):

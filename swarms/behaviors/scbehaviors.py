@@ -9,10 +9,12 @@ flexibility for the user to use the primitive behaviors along with
 feature rich behaviors.
 """
 
-from py_trees import Behaviour, Blackboard
-from py_trees.composites import Sequence, Selector
 from py_trees.trees import BehaviourTree
-from py_trees.meta import failure_is_success
+from py_trees.behaviour import Behaviour
+from py_trees.composites import Sequence, Selector, Parallel
+from py_trees import common, blackboard
+from py_trees.decorators import FailureIsSuccess
+
 from swarms.behaviors.sbehaviors import (
     GoTo, IsMoveable, Towards, Move, Away,
     IsCarryable, IsSingleCarry, SingleCarry,
@@ -57,7 +59,7 @@ class MoveTowards(Behaviour):
         # Define goto primitive behavior
         # This is the post condition
         selector = Selector('MT_Selector')
-        postcond_is_already_at_there = NeighbourObjects('MT_NeighbourObjects_0')
+        postcond_is_already_at_there = NeighbourObjects('MT_AlreadyThere_0')
         postcond_is_already_at_there.setup(0, self.agent, self.item)
 
         goto = GoTo('MT_GOTO_1')
@@ -68,8 +70,9 @@ class MoveTowards(Behaviour):
         towards.setup(0, self.agent)
 
         # This is the constraint/pre-condition
-        const_is_no_blocked = failure_is_success(NeighbourObjectsDist('MT_NeighbourObjectsDist'))
-        const_is_no_blocked.setup(0, self.agent)
+        const_is_no_blocked = NeighbourObjectsDist('MT_Blocked')
+        const_is_no_blocked.setup(0, self.agent, None)
+        const_is_no_blocked = FailureIsSuccess(const_is_no_blocked)
 
         # Define move behavior
         move = Move('MT_MOVE_3')
@@ -126,8 +129,9 @@ class MoveAway(Behaviour):
         postcond_is_already_at_there.setup(0, self.agent, self.item)
 
         # This is the constraint/pre-condition
-        const_is_no_blocked = failure_is_success(NeighbourObjectsDist('MA_NeighbourObjectsDist'))
-        const_is_no_blocked.setup(0, self.agent, None)
+        const_is_no_blocked = NeighbourObjectsDist('MA_NeighbourObjectsDist')
+        const_is_no_blocked.setup(0, self.agent)
+        const_is_no_blocked = FailureIsSuccess(const_is_no_blocked)
 
         # Define goto primitive behavior
         goto = GoTo('MA_GOTO_1')
@@ -743,8 +747,9 @@ class NewMoveTowards(Behaviour):
         towards.setup(0, self.agent)
 
         # Avoid Traps and Obstacles
-        avoidto = failure_is_success(AvoidTrapObstaclesBehaviour)('MT_AVOID_3')
+        avoidto = AvoidTrapObstaclesBehaviour('MT_AVOID_3')
         avoidto.setup(0, self.agent)
+        avoidto = FailureIsSuccess(avoidto)
 
         # Define move behavior
         move = Move('MT_MOVE_4')
@@ -800,8 +805,9 @@ class NewExplore(Behaviour):
         low.setup(0, self.agent)
 
         # Avoid Traps and Obstacles
-        avoidto = failure_is_success(AvoidTrapObstaclesBehaviour)('EX_AVOID')
+        avoidto = AvoidTrapObstaclesBehaviour('EX_AVOID')
         avoidto.setup(0, self.agent)
+        avoidto = FailureIsSuccess(avoidto)
 
         high = Move('Ex_Move')
         high.setup(0, self.agent)
@@ -855,8 +861,9 @@ class NewMoveAway(Behaviour):
         away.setup(0, self.agent)
 
         # Avoid Traps and Obstacles
-        avoidto = failure_is_success(AvoidTrapObstaclesBehaviour)('MA_AVOID_3')
+        avoidto = AvoidTrapObstaclesBehaviour('MA_AVOID_3')
         avoidto.setup(0, self.agent)
+        avoidto = FailureIsSuccess(avoidto)
 
         # Define move behavior
         move = Move('MA_MOVE_4')
