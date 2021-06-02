@@ -543,431 +543,203 @@ class Explore(Behaviour):
         return self.behaviour_tree.root.status
 
 
-# Communication composite behaviors
-class CompositeSendSignal(Behaviour):
-    """Send signal behavior for the agents.
+# # Communication composite behaviors
+# class CompositeSendSignal(Behaviour):
+#     """Send signal behavior for the agents.
 
-    Inherits the Behaviors class from py_trees. This
-    behavior combines the privitive behaviors to succesfully send signals
-    in the environment. It combines SignalDoesNotExists and SendSignal
-    behaviors.
-    """
+#     Inherits the Behaviors class from py_trees. This
+#     behavior combines the privitive behaviors to succesfully send signals
+#     in the environment. It combines SignalDoesNotExists and SendSignal
+#     behaviors.
+#     """
 
-    def __init__(self, name):
-        """Init method for the SendSignal behavior."""
-        super(CompositeSendSignal, self).__init__(name)
+#     def __init__(self, name):
+#         """Init method for the SendSignal behavior."""
+#         super(CompositeSendSignal, self).__init__(name)
 
-    def setup(self, timeout, agent, item=None):
-        """Have defined the setup method.
+#     def setup(self, timeout, agent, item=None):
+#         """Have defined the setup method.
 
-        This method defines the other objects required for the
-        behavior. Agent is the actor in the environment,
-        item is the name of the item we are trying to find in the
-        environment and timeout defines the execution time for the
-        behavior.
-        """
-        self.agent = agent
-        self.item = item
+#         This method defines the other objects required for the
+#         behavior. Agent is the actor in the environment,
+#         item is the name of the item we are trying to find in the
+#         environment and timeout defines the execution time for the
+#         behavior.
+#         """
+#         self.agent = agent
+#         self.item = item
 
-        # Define the root for the BT
-        root = Sequence('CSS_Sequence')
+#         # Define the root for the BT
+#         root = Sequence('CSS_Sequence')
 
-        s1 = SignalDoesNotExists('CSS_SignalDoesNotExists')
-        s1.setup(0, self.agent, self.item)
+#         s1 = SignalDoesNotExists('CSS_SignalDoesNotExists')
+#         s1.setup(0, self.agent, self.item)
 
-        s2 = SendSignal('CSS_SendSignal')
-        s2.setup(0, self.agent, self.item)
+#         s2 = SendSignal('CSS_SendSignal')
+#         s2.setup(0, self.agent, self.item)
 
-        root.add_children([s1, s2])
+#         root.add_children([s1, s2])
 
-        self.behaviour_tree = BehaviourTree(root)
+#         self.behaviour_tree = BehaviourTree(root)
 
-    def initialise(self):
-        """Everytime initialization. Not required for now."""
-        pass
+#     def initialise(self):
+#         """Everytime initialization. Not required for now."""
+#         pass
 
-    def update(self):
-        """Just call the tick method for the sequence.
+#     def update(self):
+#         """Just call the tick method for the sequence.
 
-        This will execute the primitive behaviors defined in the sequence
-        """
-        self.behaviour_tree.tick()
-        return self.behaviour_tree.root.status
+#         This will execute the primitive behaviors defined in the sequence
+#         """
+#         self.behaviour_tree.tick()
+#         return self.behaviour_tree.root.status
 
 
-class CompositeReceiveSignal(Behaviour):
-    """Receive signal behavior for the agents.
+# class CompositeReceiveSignal(Behaviour):
+#     """Receive signal behavior for the agents.
 
-    Inherits the Behaviors class from py_trees. This
-    behavior combines the privitive behaviors to succesfully receive signals
-    in the environment. It combines Neighbour and ReceiveSignal behaviors.
-    """
+#     Inherits the Behaviors class from py_trees. This
+#     behavior combines the privitive behaviors to succesfully receive signals
+#     in the environment. It combines Neighbour and ReceiveSignal behaviors.
+#     """
 
-    def __init__(self, name):
-        """Init method for the SendSignal behavior."""
-        super(CompositeReceiveSignal, self).__init__(name)
+#     def __init__(self, name):
+#         """Init method for the SendSignal behavior."""
+#         super(CompositeReceiveSignal, self).__init__(name)
 
-    def setup(self, timeout, agent, item=None):
-        """Have defined the setup method.
+#     def setup(self, timeout, agent, item=None):
+#         """Have defined the setup method.
 
-        This method defines the other objects required for the
-        behavior. Agent is the actor in the environment,
-        item is the name of the item we are trying to find in the
-        environment and timeout defines the execution time for the
-        behavior.
-        """
-        self.agent = agent
-        self.item = item
+#         This method defines the other objects required for the
+#         behavior. Agent is the actor in the environment,
+#         item is the name of the item we are trying to find in the
+#         environment and timeout defines the execution time for the
+#         behavior.
+#         """
+#         self.agent = agent
+#         self.item = item
 
-        # Define the root for the BT
-        root = Sequence('CRS_Sequence')
+#         # Define the root for the BT
+#         root = Sequence('CRS_Sequence')
 
-        s1 = NeighbourObjects('CRS_NeighbourObjects')
-        s1.setup(0, self.agent, 'Signal')
+#         s1 = NeighbourObjects('CRS_NeighbourObjects')
+#         s1.setup(0, self.agent, 'Signal')
 
-        s2 = ReceiveSignal('CRS_ReceiveSignal')
-        s2.setup(0, self.agent, 'Signal')
+#         s2 = ReceiveSignal('CRS_ReceiveSignal')
+#         s2.setup(0, self.agent, 'Signal')
 
-        root.add_children([s1, s2])
+#         root.add_children([s1, s2])
 
-        self.behaviour_tree = BehaviourTree(root)
+#         self.behaviour_tree = BehaviourTree(root)
 
-    def initialise(self):
-        """Everytime initialization. Not required for now."""
-        pass
+#     def initialise(self):
+#         """Everytime initialization. Not required for now."""
+#         pass
 
-    def update(self):
-        """Just call the tick method for the sequence.
+#     def update(self):
+#         """Just call the tick method for the sequence.
 
-        This will execute the primitive behaviors defined in the sequence
-        """
-        self.behaviour_tree.tick()
-        return self.behaviour_tree.root.status
+#         This will execute the primitive behaviors defined in the sequence
+#         """
+#         self.behaviour_tree.tick()
+#         return self.behaviour_tree.root.status
 
 
-class CompositeDropCue(Behaviour):
-    """Drop cue behavior for the agents.
+# class CompositeDropCue(Behaviour):
+#     """Drop cue behavior for the agents.
 
-    Inherits the Behaviors class from py_trees. This
-    behavior combines the privitive behaviors to succesfully drop cue
-    in the environment. It combines CueDoesNotExists and DropCue behaviors.
-    """
+#     Inherits the Behaviors class from py_trees. This
+#     behavior combines the privitive behaviors to succesfully drop cue
+#     in the environment. It combines CueDoesNotExists and DropCue behaviors.
+#     """
 
-    def __init__(self, name):
-        """Init method for the SendSignal behavior."""
-        super(CompositeDropCue, self).__init__(name)
+#     def __init__(self, name):
+#         """Init method for the SendSignal behavior."""
+#         super(CompositeDropCue, self).__init__(name)
 
-    def setup(self, timeout, agent, item=None):
-        """Have defined the setup method.
+#     def setup(self, timeout, agent, item=None):
+#         """Have defined the setup method.
 
-        This method defines the other objects required for the
-        behavior. Agent is the actor in the environment,
-        item is the name of the item we are trying to find in the
-        environment and timeout defines the execution time for the
-        behavior.
-        """
-        self.agent = agent
-        self.item = item
+#         This method defines the other objects required for the
+#         behavior. Agent is the actor in the environment,
+#         item is the name of the item we are trying to find in the
+#         environment and timeout defines the execution time for the
+#         behavior.
+#         """
+#         self.agent = agent
+#         self.item = item
 
-        # Define the root for the BT
-        root = Sequence('CDC_Sequence')
+#         # Define the root for the BT
+#         root = Sequence('CDC_Sequence')
 
-        c1 = CueDoesNotExists('CDC_CueDoesNotExists')
-        c1.setup(0, self.agent, self.item)
+#         c1 = CueDoesNotExists('CDC_CueDoesNotExists')
+#         c1.setup(0, self.agent, self.item)
 
-        c2 = DropCue('CDC_DropCue')
-        c2.setup(0, self.agent, self.item)
+#         c2 = DropCue('CDC_DropCue')
+#         c2.setup(0, self.agent, self.item)
 
-        root.add_children([c1, c2])
+#         root.add_children([c1, c2])
 
-        self.behaviour_tree = BehaviourTree(root)
+#         self.behaviour_tree = BehaviourTree(root)
 
-    def initialise(self):
-        """Everytime initialization. Not required for now."""
-        pass
+#     def initialise(self):
+#         """Everytime initialization. Not required for now."""
+#         pass
 
-    def update(self):
-        """Just call the tick method for the sequence.
+#     def update(self):
+#         """Just call the tick method for the sequence.
 
-        This will execute the primitive behaviors defined in the sequence
-        """
-        self.behaviour_tree.tick()
-        return self.behaviour_tree.root.status
+#         This will execute the primitive behaviors defined in the sequence
+#         """
+#         self.behaviour_tree.tick()
+#         return self.behaviour_tree.root.status
 
 
-class CompositePickCue(Behaviour):
-    """Pick cue behavior for the agents.
+# class CompositePickCue(Behaviour):
+#     """Pick cue behavior for the agents.
 
-    Inherits the Behaviors class from py_trees. This
-    behavior combines the privitive behaviors to succesfully pick cue
-    from the environment. It combines NeighbourObjects and PickCue behaviors.
-    """
+#     Inherits the Behaviors class from py_trees. This
+#     behavior combines the privitive behaviors to succesfully pick cue
+#     from the environment. It combines NeighbourObjects and PickCue behaviors.
+#     """
 
-    def __init__(self, name):
-        """Init method for the SendSignal behavior."""
-        super(CompositePickCue, self).__init__(name)
+#     def __init__(self, name):
+#         """Init method for the SendSignal behavior."""
+#         super(CompositePickCue, self).__init__(name)
 
-    def setup(self, timeout, agent, item=None):
-        """Have defined the setup method.
+#     def setup(self, timeout, agent, item=None):
+#         """Have defined the setup method.
 
-        This method defines the other objects required for the
-        behavior. Agent is the actor in the environment,
-        item is the name of the item we are trying to find in the
-        environment and timeout defines the execution time for the
-        behavior.
-        """
-        self.agent = agent
-        self.item = item
+#         This method defines the other objects required for the
+#         behavior. Agent is the actor in the environment,
+#         item is the name of the item we are trying to find in the
+#         environment and timeout defines the execution time for the
+#         behavior.
+#         """
+#         self.agent = agent
+#         self.item = item
 
-        # Define the root for the BT
-        root = Sequence('CPC_Sequence')
+#         # Define the root for the BT
+#         root = Sequence('CPC_Sequence')
 
-        c1 = NeighbourObjects('CPS_SearchCue')
-        c1.setup(0, self.agent, 'Cue')
+#         c1 = NeighbourObjects('CPS_SearchCue')
+#         c1.setup(0, self.agent, 'Cue')
 
-        c2 = PickCue('CPS_PickCue')
-        c2.setup(0, self.agent, 'Cue')
+#         c2 = PickCue('CPS_PickCue')
+#         c2.setup(0, self.agent, 'Cue')
 
-        root.add_children([c1, c2])
+#         root.add_children([c1, c2])
 
-        self.behaviour_tree = BehaviourTree(root)
+#         self.behaviour_tree = BehaviourTree(root)
 
-    def initialise(self):
-        """Everytime initialization. Not required for now."""
-        pass
+#     def initialise(self):
+#         """Everytime initialization. Not required for now."""
+#         pass
 
-    def update(self):
-        """Just call the tick method for the sequence.
+#     def update(self):
+#         """Just call the tick method for the sequence.
 
-        This will execute the primitive behaviors defined in the sequence
-        """
-        self.behaviour_tree.tick()
-        return self.behaviour_tree.root.status
-
-
-class AvoidTrapObstaclesBehaviour(Behaviour):
-    """Avoid both obstacles and trap for the agents.
-
-    Inherits the Behaviors class from py_trees. This
-    behavior combines the privitive behaviors to succesfully avoid traps
-    and obstacles in the environment.
-    """
-
-    def __init__(self, name):
-        """Init method for the AvoidTrapObstacles behavior."""
-        super(AvoidTrapObstaclesBehaviour, self).__init__(name)
-
-    def setup(self, timeout, agent, item=None):
-        """Have defined the setup method.
-
-        This method defines the other objects required for the
-        behavior. Agent is the actor in the environment,
-        item is the name of the item we are trying to find in the
-        environment and timeout defines the execution time for the
-        behavior.
-        """
-        self.agent = agent
-        self.item = item
-
-        # Define the root for the BT
-        root = Sequence('ATO_Sequence')
-
-        # m1 = NeighbourObjects('ATO_SearchTrap')
-        m1 = NeighbourObjectsDist('ATO_Search')
-        m1.setup(0, self.agent, item=None)
-        m2 = AvoidSObjects('ATO_AvoidTrap')
-        m2.setup(0, self.agent, 'Traps')
-        # m3 = NeighbourObjects('ATO_SearchObstacles')
-        # m3.setup(0, self.agent, item='Obstacles')
-        m4 = AvoidSObjects('ATO_AvoidObstacle')
-        m4.setup(0, self.agent, 'Obstacles')
-
-        root.add_children([m1, m2, m4])
-        # root.add_children([m3, m4])
-
-        self.behaviour_tree = BehaviourTree(root)
-
-    def initialise(self):
-        """Everytime initialization. Not required for now."""
-        pass
-
-    def update(self):
-        """Just call the tick method for the sequence.
-
-        This will execute the primitive behaviors defined in the sequence
-        """
-        self.behaviour_tree.tick()
-        return self.behaviour_tree.root.status
-
-
-class NewMoveTowards(Behaviour):
-    """MoveTowards behavior for the agents.
-
-    Inherits the Behaviors class from py_trees. This
-    behavior combines the privitive behaviors GoTo, Towards and Move. This
-    allows agents actually to move towards the object of interest.
-    """
-
-    def __init__(self, name):
-        """Init method for the MoveTowards behavior."""
-        super(NewMoveTowards, self).__init__(name)
-
-    def setup(self, timeout, agent, item):
-        """Have defined the setup method.
-
-        This method defines the other objects required for the
-        behavior. Agent is the actor in the environment,
-        item is the name of the item we are trying to find in the
-        environment and timeout defines the execution time for the
-        behavior.
-        """
-        self.agent = agent
-        self.item = item
-        # Define goto primitive behavior
-        goto = GoTo('MT_GOTO_1')
-        goto.setup(0, self.agent, self.item)
-
-        # Define towards behavior
-        towards = Towards('MT_TOWARDS_2')
-        towards.setup(0, self.agent)
-
-        # Avoid Traps and Obstacles
-        avoidto = AvoidTrapObstaclesBehaviour('MT_AVOID_3')
-        avoidto.setup(0, self.agent)
-        avoidto = FailureIsSuccess(avoidto)
-
-        # Define move behavior
-        move = Move('MT_MOVE_4')
-        move.setup(0, self.agent)
-
-        # Define a sequence to combine the primitive behavior
-        mt_sequence = Sequence('MT_SEQUENCE')
-        mt_sequence.add_children([goto, towards, avoidto, move])
-
-        self.behaviour_tree = BehaviourTree(mt_sequence)
-
-    def initialise(self):
-        """Everytime initialization. Not required for now."""
-        pass
-
-    def update(self):
-        """Just call the tick method for the sequence.
-
-        This will execute the primitive behaviors defined in the sequence
-        """
-        self.behaviour_tree.tick()
-        return self.behaviour_tree.root.status
-
-
-class NewExplore(Behaviour):
-    """Explore behavior for the agents.
-
-    Inherits the Behaviors class from py_trees. This
-    behavior combines the privitive behaviors to succesfully explore the
-    environment. It combines Randomwalk and Move behaviors.
-    """
-
-    def __init__(self, name):
-        """Init method for the Explore behavior."""
-        super(NewExplore, self).__init__(name)
-
-    def setup(self, timeout, agent, item=None):
-        """Have defined the setup method.
-
-        This method defines the other objects required for the
-        behavior. Agent is the actor in the environment,
-        item is the name of the item we are trying to find in the
-        environment and timeout defines the execution time for the
-        behavior.
-        """
-        self.agent = agent
-        self.item = item
-
-        # Define the root for the BT
-        root = Sequence("Ex_Sequence")
-
-        low = RandomWalk('Ex_RandomWalk')
-        low.setup(0, self.agent)
-
-        # Avoid Traps and Obstacles
-        avoidto = AvoidTrapObstaclesBehaviour('EX_AVOID')
-        avoidto.setup(0, self.agent)
-        avoidto = FailureIsSuccess(avoidto)
-
-        high = Move('Ex_Move')
-        high.setup(0, self.agent)
-
-        root.add_children([low, avoidto, high])
-
-        self.behaviour_tree = BehaviourTree(root)
-
-    def initialise(self):
-        """Everytime initialization. Not required for now."""
-        pass
-
-    def update(self):
-        """Just call the tick method for the sequence.
-
-        This will execute the primitive behaviors defined in the sequence
-        """
-        self.behaviour_tree.tick()
-        return self.behaviour_tree.root.status
-
-
-class NewMoveAway(Behaviour):
-    """NewMoveAway behavior for the agents.
-
-    Inherits the Behaviors class from py_trees. This
-    behavior combines the privitive behaviors GoTo, Away and Move. This
-    allows agents actually to move away the object of interest.
-    """
-
-    def __init__(self, name):
-        """Init method for the MoveAway behavior."""
-        super(NewMoveAway, self).__init__(name)
-
-    def setup(self, timeout, agent, item):
-        """Have defined the setup method.
-
-        This method defines the other objects required for the
-        behavior. Agent is the actor in the environment,
-        item is the name of the item we are trying to find in the
-        environment and timeout defines the execution time for the
-        behavior.
-        """
-        self.agent = agent
-        self.item = item
-        # Define goto primitive behavior
-        goto = GoTo('MA_GOTO_1')
-        goto.setup(0, self.agent, self.item)
-
-        # Define away behavior
-        away = Away('MA_Away_2')
-        away.setup(0, self.agent)
-
-        # Avoid Traps and Obstacles
-        avoidto = AvoidTrapObstaclesBehaviour('MA_AVOID_3')
-        avoidto.setup(0, self.agent)
-        avoidto = FailureIsSuccess(avoidto)
-
-        # Define move behavior
-        move = Move('MA_MOVE_4')
-        move.setup(0, self.agent)
-
-        # Define a sequence to combine the primitive behavior
-        mt_sequence = Sequence('MA_SEQUENCE')
-        mt_sequence.add_children([goto, away, avoidto, move])
-
-        self.behaviour_tree = BehaviourTree(mt_sequence)
-
-    def initialise(self):
-        """Everytime initialization. Not required for now."""
-        pass
-
-    def update(self):
-        """Just call the tick method for the sequence.
-
-        This will execute the primitive behaviors defined in the sequence
-        """
-        self.behaviour_tree.tick()
-        return self.behaviour_tree.root.status
+#         This will execute the primitive behaviors defined in the sequence
+#         """
+#         self.behaviour_tree.tick()
+#         return self.behaviour_tree.root.status
