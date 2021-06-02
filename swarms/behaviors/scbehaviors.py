@@ -71,7 +71,7 @@ class MoveTowards(Behaviour):
 
         # This is the constraint/pre-condition
         const_is_no_blocked = failure_is_success(NeighbourObjectsDist('MT_NeighbourObjectsDist'))
-        const_is_no_blocked.setup(0, self.agent, None)
+        const_is_no_blocked.setup(0, self.agent)
 
         # Define move behavior
         move = Move('MT_MOVE_3')
