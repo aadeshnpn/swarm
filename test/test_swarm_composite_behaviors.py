@@ -6,13 +6,13 @@ from swarms.lib.model import Model
 from swarms.lib.time import SimultaneousActivation
 from swarms.lib.space import Grid
 from swarms.behaviors.scbehaviors import (
-    MoveTowards, MoveAway, Explore, CompositeSingleCarry
+    CompositeDrop, MoveTowards, MoveAway, Explore, CompositeSingleCarry
     )
 from swarms.behaviors.sbehaviors import (
     IsCarrying, NeighbourObjects, Move, IsCarryable,
     SingleCarry, IsSingleCarry
     )
-from swarms.lib.objects import Obstacles, Sites, Debris, Food, Traps
+from swarms.lib.objects import Obstacles, Sites, Debris, Food, Traps, Hub
 from py_trees.trees import BehaviourTree
 from py_trees.behaviour import Behaviour
 from py_trees.composites import Sequence, Selector, Parallel
@@ -229,11 +229,11 @@ class SwarmMoveAway(Agent):
         # Setup for the behavior
         moveaway.setup(0, self, 'Sites')
 
-        seq = py_trees.composites.Sequence('Seq')
+        seq = Sequence('Seq')
         seq.add_children([moveaway])
 
         # Since its root is a sequence, we can use it directly
-        self.behaviour_tree = py_trees.trees.BehaviourTree(seq)
+        self.behaviour_tree = BehaviourTree(seq)
 
         # Debugging stuffs for py_trees
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
@@ -411,11 +411,11 @@ class SwarmExplore(Agent):
         # Setup for the behavior
         explore.setup(0, self, None)
 
-        seq = py_trees.composites.Sequence('Seq')
+        seq = Sequence('Seq')
         seq.add_children([explore])
 
         # Since its root is a sequence, we can use it directly
-        self.behaviour_tree = py_trees.trees.BehaviourTree(seq)
+        self.behaviour_tree = BehaviourTree(seq)
 
     def step(self):
         self.behaviour_tree.tick()
@@ -523,86 +523,184 @@ class TestExploreObsSwarmSmallGrid(TestCase):
             (0, 0), (-1, -1), (3, -43), (2, -44), (1, -45)])
 
 
-# class SwarmSingleCarry(Agent):
-#     """An minimalistic behavior tree for swarm agent implementing
-#     CompositeCarry behavior
-#     """
-#     def __init__(self, name, model):
-#         super().__init__(name, model)
-#         self.location = ()
+class SwarmSingleCarry(Agent):
+    """An minimalistic behavior tree for swarm agent implementing
+    CompositeCarry behavior
+    """
+    def __init__(self, name, model):
+        super().__init__(name, model)
+        self.location = ()
 
-#         self.direction = model.random.rand() * (2 * np.pi)
-#         # self.speed = 2
-#         self.radius = 3
+        self.direction = model.random.rand() * (2 * np.pi)
+        # self.speed = 2
+        self.radius = 3
 
-#         self.moveable = True
-#         self.shared_content = dict()
+        self.moveable = True
+        self.shared_content = dict()
 
-#         root = py_trees.composites.Sequence("Sequence")
-#         # Sensing the environemnt to find object to carry
-#         lowest = NeighbourObjects('0')
-#         lowest.setup(0, self, 'Debris')
+        root = Sequence("Sequence")
 
-#         # Creating composite single carry object
-#         singlecarry = CompositeSingleCarry('SingleCarry')
-#         singlecarry.setup(0, self, 'Debris')
+        # Creating composite single carry object
+        singlecarry = CompositeSingleCarry('SingleCarry')
+        singlecarry.setup(0, self, 'Debris')
 
-#         root.add_children([lowest, singlecarry])
-#         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
+        root.add_children([singlecarry])
+        self.behaviour_tree = BehaviourTree(root)
 
-#         # Debugging stuffs for py_trees
-#         # py_trees.logging.level = py_trees.logging.Level.DEBUG
-#         # py_trees.display.print_ascii_tree(root)
+        # Debugging stuffs for py_trees
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # py_trees.display.print_ascii_tree(root)
 
-#     def step(self):
-#         self.behaviour_tree.tick()
+    def step(self):
+        self.behaviour_tree.tick()
 
 
-# class SingleCarryModel(Model):
-#     """ A environment to model swarms """
-#     def __init__(self, N, width, height, grid=10, seed=None):
-#         if seed is None:
-#             super(SingleCarryModel, self).__init__(seed=None)
-#         else:
-#             super(SingleCarryModel, self).__init__(seed)
+class SingleCarryModel(Model):
+    """ A environment to model swarms """
+    def __init__(self, N, width, height, grid=10, seed=None):
+        if seed is None:
+            super(SingleCarryModel, self).__init__(seed=None)
+        else:
+            super(SingleCarryModel, self).__init__(seed)
 
-#         self.num_agents = N
+        self.num_agents = N
 
-#         self.grid = Grid(width, height, grid)
+        self.grid = Grid(width, height, grid)
 
-#         self.schedule = SimultaneousActivation(self)
+        self.schedule = SimultaneousActivation(self)
 
-#         self.thing = Debris(id=1, location=(0, 0), radius=4)
+        self.thing = Debris(id=1, location=(0, 0), radius=4)
+        self.grid.add_object_to_grid(self.thing.location, self.thing)
 
-#         self.grid.add_object_to_grid(self.thing.location, self.thing)
+        for i in range(self.num_agents):
+            a = SwarmSingleCarry(i, self)
+            self.schedule.add(a)
+            x = 0
+            y = 0
+            a.location = (x, y)
+            a.direction = -2.3561944901923448
+            self.grid.add_object_to_grid((x, y), a)
 
-#         for i in range(self.num_agents):
-#             a = SwarmSingleCarry(i, self)
-#             self.schedule.add(a)
-#             x = 0
-#             y = 0
-#             a.location = (x, y)
-#             a.direction = -2.3561944901923448
-#             self.grid.add_object_to_grid((x, y), a)
+        self.agent = a
 
-#         self.agent = a
-
-#     def step(self):
-#         self.schedule.step()
+    def step(self):
+        self.schedule.step()
 
 
-# class TestSingleCarry(TestCase):
+class TestSingleCarry(TestCase):
 
-#     def setUp(self):
-#         self.environment = SingleCarryModel(
-#             1, 100, 100, 10, 123)
+    def setUp(self):
+        self.environment = SingleCarryModel(
+            1, 100, 100, 10, 123)
 
-#         for i in range(2):
-#             self.environment.step()
+        for i in range(2):
+            self.environment.step()
 
-#     def test_agent_path(self):
-#         self.assertEqual(
-#             self.environment.agent.attached_objects[0], self.environment.thing)
+    def test_agent_path(self):
+        self.assertEqual(
+            self.environment.agent.attached_objects[0], self.environment.thing)
+
+
+class SwarmSingleCarryDrop(Agent):
+    """An minimalistic behavior tree for swarm agent implementing
+    CompositeCarry behavior and CompositeDrop behavior
+    """
+    def __init__(self, name, model):
+        super().__init__(name, model)
+        self.location = ()
+
+        self.direction = model.random.rand() * (2 * np.pi)
+        # self.speed = 2
+        self.radius = 3
+
+        self.moveable = True
+        self.shared_content = dict()
+
+        name = type(model.hub).__name__
+        self.shared_content[name] = {model.hub}
+
+        root = Sequence("Sequence")
+
+        # Creating composite single carry object
+        singlecarry = CompositeSingleCarry('SingleCarry')
+        singlecarry.setup(0, self, 'Debris')
+
+        drop = CompositeDrop('Drop')
+        drop.setup(0, self, 'Debris')
+
+        movetowards = MoveTowards('MoveTowardsHub')
+        movetowards.setup(0, self, 'Hub')
+
+        root.add_children([singlecarry, movetowards, drop])
+        self.behaviour_tree = BehaviourTree(root)
+
+        # Debugging stuffs for py_trees
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # print(py_trees.display.ascii_tree(root))
+
+    def step(self):
+        self.behaviour_tree.tick()
+
+
+class SingleCarryDropModel(Model):
+    """ A environment to model swarms """
+    def __init__(self, N, width, height, grid=10, seed=None):
+        if seed is None:
+            super(SingleCarryDropModel, self).__init__(seed=None)
+        else:
+            super(SingleCarryDropModel, self).__init__(seed)
+
+        self.num_agents = N
+
+        self.grid = Grid(width, height, grid)
+
+        self.schedule = SimultaneousActivation(self)
+
+        self.thing = Debris(id=1, location=(30, 30), radius=4)
+        self.grid.add_object_to_grid(self.thing.location, self.thing)
+
+        self.target = Sites(id=1, location=(5, 5), radius=8, q_value=0.5)
+        self.grid.add_object_to_grid(self.target.location, self.target)
+
+        self.hub = Hub(id=1, location=(0, 0), radius=9)
+        self.grid.add_object_to_grid(self.hub.location, self.hub)
+
+        for i in range(self.num_agents):
+            a = SwarmSingleCarryDrop(i, self)
+            self.schedule.add(a)
+            x = 30
+            y = 30
+            a.location = (x, y)
+            a.direction = -2.3561944901923448
+            self.grid.add_object_to_grid((x, y), a)
+
+        self.agent = a
+
+    def step(self):
+        self.schedule.step()
+
+
+class TestSingleCarryDrop(TestCase):
+
+    def setUp(self):
+        self.environment = SingleCarryDropModel(
+            1, 100, 100, 10, 123)
+
+        for i in range(15):
+            print(self.environment.agent.location)
+            self.environment.step()
+
+    def test_agent_path(self):
+        self.assertEqual(
+            self.environment.agent.location, (8, 8))
+
+    def test_agent_dropped(self):
+        self.assertEqual(
+            self.environment.thing.location, (8, 8))
+
+    def test_agent_attached_obj(self):
+        self.assertEqual(
+            self.environment.agent.attached_objects, [])
 
 
 # class SwarmMultipleCarry(Agent):
