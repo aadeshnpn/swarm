@@ -5,7 +5,7 @@
 <execution>::=<conditions>[act]<action>[/act]
 <conditions>::=[cond]<condition>[/cond]<conditions>|[cond]<condition>[/cond]
 <condition>::=NeighbourObjects|IsDropable_<sobjects>|NeighbourObjects_<objects>|NeighbourObjects_<objects>_invert|IsVisitedBefore_<sobjects>|IsVisitedBefore_<sobjects>_invert|IsCarrying_<dobjects>|IsCarrying_<dobjects>_invert
-<action>::=NewMoveTowards_<sobjects>|NewExplore|CompositeSingleCarry_<dobjects>|CompositeDrop_<dobjects>|NewMoveAway_<sobjects>
+<action>::=MoveTowards_<sobjects>|Explore|CompositeSingleCarry_<dobjects>|CompositeDrop_<dobjects>|MoveAway_<sobjects>
 <sobjects>::=Hub|Sites
 <dobjects>::=Food
 <cobjects>::=Signal|Cue

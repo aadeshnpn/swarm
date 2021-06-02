@@ -8,6 +8,7 @@ human designers to effectively design new behaviors. It provides
 flexibility for the user to use the primitive behaviors along with
 feature rich behaviors.
 """
+import copy
 
 from py_trees import decorators
 from py_trees.trees import BehaviourTree
@@ -73,35 +74,34 @@ class MoveTowards(Behaviour):
         # This is the constraint/pre-condition
         const_is_no_blocked_obs = NeighbourObjectsDist('MT_Blocked_Obs_CNT')
         const_is_no_blocked_obs.setup(0, self.agent, 'Obstacles')
-        const_is_no_blocked_obs_inv = Inverter(const_is_no_blocked_obs)
 
         const_is_no_blocked_trp = NeighbourObjectsDist('MT_Blocked_Trap_CNT')
         const_is_no_blocked_trp.setup(0, self.agent, 'Traps')
-        const_is_no_blocked_trp_inv = Inverter(const_is_no_blocked_trp)
 
         sequence_blocked = Sequence('MT_Blocked')
-        selector_blocked_obs = Selector('MT_Selector_Blocked_Obs')
+        sequence_blocked_obs = Sequence('MT_Selector_Blocked_Obs')
         avoid_obs = AvoidSObjects('MT_Avoid_Obstacles')
         avoid_obs.setup(0, self.agent)
 
-        selector_blocked_trp = Selector('MT_Selector_Blocked_Trap')
+        sequence_blocked_trp = Sequence('MT_Selector_Blocked_Trap')
         avoid_trp = AvoidSObjects('MT_Avoid_Traps')
         avoid_trp.setup(0, self.agent, item='Traps')
-
-        # selector_blocked.
-        selector_blocked_obs.add_children([const_is_no_blocked_obs_inv, avoid_obs])
-        selector_blocked_trp.add_children([const_is_no_blocked_trp_inv, avoid_trp])
-        sequence_blocked.add_children([selector_blocked_obs, selector_blocked_trp])
 
         # Define move behavior
         move = Move('MT_MOVE_ACT')
         move.setup(0, self.agent)
 
+        # selector_blocked.
+        sequence_blocked_obs.add_children([const_is_no_blocked_obs, avoid_obs, copy.copy(move)])
+        sequence_blocked_trp.add_children([const_is_no_blocked_trp, avoid_trp, copy.copy(move)])
+
         # Define a sequence to combine the primitive behavior
         mt_sequence = Sequence('MT_SEQUENCE')
-        mt_sequence.add_children([goto, towards, sequence_blocked, move])
+        const_is_no_blocked_obs_inv = Inverter(copy.copy(const_is_no_blocked_obs))
+        const_is_no_blocked_trp_inv = Inverter(copy.copy(const_is_no_blocked_trp))
+        mt_sequence.add_children([goto, towards, const_is_no_blocked_obs_inv, const_is_no_blocked_trp_inv, move])
 
-        selector.add_children([postcond_is_already_at_there, mt_sequence])
+        selector.add_children([postcond_is_already_at_there, mt_sequence, sequence_blocked_obs, sequence_blocked_trp])
 
         self.behaviour_tree = BehaviourTree(selector)
 
@@ -154,40 +154,39 @@ class MoveAway(Behaviour):
 
         # Define towards behavior
         away = Away('MA_AWAY_2')
-        away.setup(0, self.agent, None)
+        away.setup(0, self.agent)
 
         # This is the constraint/pre-condition
         const_is_no_blocked_obs = NeighbourObjectsDist('MA_Blocked_Obs_CNT')
         const_is_no_blocked_obs.setup(0, self.agent, 'Obstacles')
-        const_is_no_blocked_obs_inv = Inverter(const_is_no_blocked_obs)
 
         const_is_no_blocked_trp = NeighbourObjectsDist('MA_Blocked_Trap_CNT')
         const_is_no_blocked_trp.setup(0, self.agent, 'Traps')
-        const_is_no_blocked_trp_inv = Inverter(const_is_no_blocked_trp)
 
         sequence_blocked = Sequence('MA_Blocked')
-        selector_blocked_obs = Selector('MA_Selector_Blocked_Obs')
+        sequence_blocked_obs = Sequence('MA_Selector_Blocked_Obs')
         avoid_obs = AvoidSObjects('MA_Avoid_Obstacles')
         avoid_obs.setup(0, self.agent)
 
-        selector_blocked_trp = Selector('MA_Selector_Blocked_Trap')
+        sequence_blocked_trp = Sequence('MA_Selector_Blocked_Trap')
         avoid_trp = AvoidSObjects('MA_Avoid_Traps')
         avoid_trp.setup(0, self.agent, item='Traps')
-
-        # selector_blocked.
-        selector_blocked_obs.add_children([const_is_no_blocked_obs_inv, avoid_obs])
-        selector_blocked_trp.add_children([const_is_no_blocked_trp_inv, avoid_trp])
-        sequence_blocked.add_children([selector_blocked_obs, selector_blocked_trp])
 
         # Define move behavior
         move = Move('MA_MOVE_ACT')
         move.setup(0, self.agent)
 
+        # selector_blocked.
+        sequence_blocked_obs.add_children([const_is_no_blocked_obs, avoid_obs, copy.copy(move)])
+        sequence_blocked_trp.add_children([const_is_no_blocked_trp, avoid_trp, copy.copy(move)])
+
         # Define a sequence to combine the primitive behavior
         mt_sequence = Sequence('MA_SEQUENCE')
-        mt_sequence.add_children([goto, away, sequence_blocked, move])
+        const_is_no_blocked_obs_inv = Inverter(copy.copy(const_is_no_blocked_obs))
+        const_is_no_blocked_trp_inv = Inverter(copy.copy(const_is_no_blocked_trp))
+        mt_sequence.add_children([goto, away, const_is_no_blocked_obs_inv, const_is_no_blocked_trp_inv, move])
 
-        selector.add_children([postcond_is_already_at_there, mt_sequence])
+        selector.add_children([postcond_is_already_at_there, mt_sequence, sequence_blocked_obs, sequence_blocked_trp])
 
         self.behaviour_tree = BehaviourTree(selector)
 
