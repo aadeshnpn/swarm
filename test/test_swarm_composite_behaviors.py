@@ -13,7 +13,7 @@ from swarms.behaviors.sbehaviors import (
     IsCarrying, NeighbourObjects, Move, IsCarryable,
     SingleCarry, IsSingleCarry
     )
-from swarms.lib.objects import Obstacles, Sites, Debris, Food
+from swarms.lib.objects import Obstacles, Sites, Debris, Food, Traps
 from py_trees.trees import BehaviourTree
 from py_trees.behaviour import Behaviour
 from py_trees.composites import Sequence, Selector, Parallel
@@ -155,6 +155,56 @@ class TestGoToObsSwarmSmallGrid(TestCase):
         # Checking if the agents reaches site or not
         self.assertEqual(self.environment.agent.location, (40, 42))
 
+
+class MoveTowardsModelObsTrap(Model):
+    """ A environment to model swarms """
+    def __init__(self, N, width, height, grid=10, seed=None):
+        if seed is None:
+            super(MoveTowardsModelObsTrap, self).__init__(seed=None)
+        else:
+            super(MoveTowardsModelObsTrap, self).__init__(seed)
+
+        self.num_agents = N
+
+        self.grid = Grid(width, height, grid)
+
+        self.schedule = SimultaneousActivation(self)
+
+        self.target = Sites(id=1, location=(45, 45), radius=5, q_value=0.5)
+        self.grid.add_object_to_grid(self.target.location, self.target)
+
+        self.obstacle = Obstacles(id=2, location=(5, 0), radius=5)
+        self.grid.add_object_to_grid(self.obstacle.location, self.obstacle)
+
+        self.trap = Traps(id=2, location=(12, 22), radius=5)
+        self.grid.add_object_to_grid(self.trap.location, self.trap)
+
+        for i in range(self.num_agents):
+            a = SwarmMoveTowards(i, self)
+            self.schedule.add(a)
+            x = -45
+            y = -45
+            a.location = (x, y)
+            a.direction = -2.3561944901923448
+            self.grid.add_object_to_grid((x, y), a)
+
+        self.agent = a
+
+    def step(self):
+        self.schedule.step()
+
+
+class TestGoToObsTrapSwarmSmallGrid(TestCase):
+
+    def setUp(self):
+        self.environment = MoveTowardsModelObsTrap(1, 100, 100, 10, 123)
+
+        for i in range(100):
+            self.environment.step()
+
+    def test_agent_path(self):
+        # Checking if the agents reaches site or not
+        self.assertEqual(self.environment.agent.location, (40, 42))
 
 # class SwarmMoveAway(Agent):
 #     """An minimalistic behavior tree for swarm agent implementing MoveAway
