@@ -30,7 +30,7 @@ class ObjectsStore:
         in blackboard, then agent content is searched.
         """
         try:
-            objects = blackboard_content[name + str(agent_name)]
+            objects = blackboard_content[name]
             return list(objects)
         except KeyError:
             try:
@@ -222,6 +222,7 @@ class NeighbourObjectsDist(Behaviour):
                         self.blackboard.neighbourobj[name].add(item)
                     except KeyError:
                         self.blackboard.neighbourobj[name] = {item}
+
                     if status == common.Status.SUCCESS:
                         pass
                     else:
@@ -1375,47 +1376,14 @@ class AvoidSObjects(Behaviour):
 
     def update(self):
         """Logic for pickup cue."""
-
         try:
-            # print(self.agent.shared_content, self.blackboard.neighbourobj, self.item)
             objects = ObjectsStore.find(
                 self.blackboard.neighbourobj, self.agent.shared_content,
                 self.item, self.agent.name)[0]
-            # print('avoid obstacles', self.item, self.agent, self.agent.dead, point_distance(self.agent.location, objects.location), self.agent.location, objects.location)
-
-            # print('avoid sobjects', objects)
-            # Get the collision angle and add np.pi in the opposite direction
-            # self.agent.direction = get_direction(
-            #     objects.communicated_location, self.agent.location)
             alpha = get_direction(self.agent.location, objects.location)
             theta = self.agent.direction
             angle_diff = theta-alpha
-            # print(alpha, theta, angle_diff)
-            # if angle_diff < np.pi/2:
-            #     if angle_diff < 0:
-            #         self.agent.direction = (alpha - np.pi/2)
-            #     elif angle_diff > 0:
-            #         self.agent.direction = (alpha + np.pi/2)
-            #     else:
-            #         self.agent.direction = alpha + np.pi/2 + self.agent.model.random.rand()
-            # else:
-            #     pass
-            # if self.agent.direction < np.pi/2:
-            #     # self.agent.direction = np.clip(alpha - theta - np.pi/2, -2*np.pi, 2*np.pi)
-            #     # self.agent.direction = (alpha - theta - np.pi/2)  %  (2 * np.pi)
-            # else:
-            #     # self.agent.direction = np.clip(alpha - theta + np.pi/2, -2*np.pi, 2*np.pi)
-            #     # self.agent.direction = (alpha -theta + np.pi/2)  %  (2 * np.pi)
-            # print(alpha, theta, self.agent.direction)
             self.agent.direction += np.pi/2
-            if self.item == 'Obstacles':
-                self.agent.avoid_obs = True
-            elif self.item == 'Traps':
-                self.agent.avoid_trap = True
             return common.Status.SUCCESS
         except (IndexError, AttributeError):
-            if self.item == 'Obstacles':
-                self.agent.avoid_obs = False
-            elif self.item == 'Traps':
-                self.agent.avoid_trap = False
             return common.Status.FAILURE
