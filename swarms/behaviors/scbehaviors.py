@@ -494,7 +494,8 @@ class Explore(Behaviour):
         self.item = item
 
         # Define the root for the BT
-        root = Sequence("Ex_Sequence")
+        root = Selector('Explore_root')
+        ex_sequence = Sequence("Ex_Sequence")
 
         low = RandomWalk('Ex_RandomWalk')
         low.setup(0, self.agent)
@@ -502,30 +503,31 @@ class Explore(Behaviour):
         # This is the constraint/pre-condition
         const_is_no_blocked_obs = NeighbourObjectsDist('EX_Blocked_Obs_CNT')
         const_is_no_blocked_obs.setup(0, self.agent, 'Obstacles')
-        const_is_no_blocked_obs_inv = Inverter(const_is_no_blocked_obs)
 
         const_is_no_blocked_trp = NeighbourObjectsDist('EX_Blocked_Trap_CNT')
         const_is_no_blocked_trp.setup(0, self.agent, 'Traps')
-        const_is_no_blocked_trp_inv = Inverter(const_is_no_blocked_trp)
 
         sequence_blocked = Sequence('EX_Blocked')
-        selector_blocked_obs = Selector('EX_Selector_Blocked_Obs')
+        sequence_blocked_obs = Sequence('EX_Selector_Blocked_Obs')
         avoid_obs = AvoidSObjects('EX_Avoid_Obstacles')
         avoid_obs.setup(0, self.agent)
 
-        selector_blocked_trp = Selector('EX_Selector_Blocked_Trap')
+        sequence_blocked_trp = Sequence('EX_Selector_Blocked_Trap')
         avoid_trp = AvoidSObjects('EX_Avoid_Traps')
         avoid_trp.setup(0, self.agent, item='Traps')
-
-        # selector_blocked.
-        selector_blocked_obs.add_children([const_is_no_blocked_obs_inv, avoid_obs])
-        selector_blocked_trp.add_children([const_is_no_blocked_trp_inv, avoid_trp])
-        sequence_blocked.add_children([selector_blocked_obs, selector_blocked_trp])
 
         high = Move('Ex_Move')
         high.setup(0, self.agent)
 
-        root.add_children([low, sequence_blocked, high])
+        # selector_blocked.
+        const_is_no_blocked_obs_inv = Inverter(copy.copy(const_is_no_blocked_obs))
+        const_is_no_blocked_trp_inv = Inverter(copy.copy(const_is_no_blocked_trp))
+        sequence_blocked_obs.add_children([const_is_no_blocked_obs, avoid_obs, copy.copy(high)])
+        sequence_blocked_trp.add_children([const_is_no_blocked_trp, avoid_trp, copy.copy(high)])
+
+        ex_sequence.add_children([low, const_is_no_blocked_obs_inv, const_is_no_blocked_trp_inv, high])
+
+        root.add_children([ex_sequence, sequence_blocked_obs, sequence_blocked_trp])
 
         self.behaviour_tree = BehaviourTree(root)
 
