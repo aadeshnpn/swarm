@@ -59,7 +59,7 @@ class MoveTowards(Behaviour):
         # Define goto primitive behavior
         # This is the post condition
         selector = Selector('MT_Selector')
-        postcond_is_already_at_there = NeighbourObjects('MT_AlreadyThere_0')
+        postcond_is_already_at_there = NeighbourObjects('MT_AlreadyThere_PC')
         postcond_is_already_at_there.setup(0, self.agent, self.item)
 
         goto = GoTo('MT_GOTO_1')
@@ -70,21 +70,21 @@ class MoveTowards(Behaviour):
         towards.setup(0, self.agent)
 
         # This is the constraint/pre-condition
-        const_is_no_blocked_obs = NeighbourObjectsDist('MT_Blocked_Obs')
+        const_is_no_blocked_obs = NeighbourObjectsDist('MT_Blocked_Obs_CNT')
         const_is_no_blocked_obs.setup(0, self.agent, 'Obstacles')
         const_is_no_blocked_obs_inv = Inverter(const_is_no_blocked_obs)
 
-        const_is_no_blocked_trp = NeighbourObjectsDist('MT_Blocked_Trap')
+        const_is_no_blocked_trp = NeighbourObjectsDist('MT_Blocked_Trap_CNT')
         const_is_no_blocked_trp.setup(0, self.agent, 'Traps')
         const_is_no_blocked_trp_inv = Inverter(const_is_no_blocked_trp)
 
         sequence_blocked = Sequence('MT_Blocked')
         selector_blocked_obs = Selector('MT_Selector_Blocked_Obs')
-        avoid_obs = AvoidSObjects('Obstacles')
+        avoid_obs = AvoidSObjects('MT_Avoid_Obstacles')
         avoid_obs.setup(0, self.agent)
 
         selector_blocked_trp = Selector('MT_Selector_Blocked_Trap')
-        avoid_trp = AvoidSObjects('Traps')
+        avoid_trp = AvoidSObjects('MT_Avoid_Traps')
         avoid_trp.setup(0, self.agent, item='Traps')
 
         # selector_blocked.
@@ -93,7 +93,7 @@ class MoveTowards(Behaviour):
         sequence_blocked.add_children([selector_blocked_obs, selector_blocked_trp])
 
         # Define move behavior
-        move = Move('MT_MOVE_3')
+        move = Move('MT_MOVE_ACT')
         move.setup(0, self.agent)
 
         # Define a sequence to combine the primitive behavior
@@ -142,32 +142,51 @@ class MoveAway(Behaviour):
         self.item = item
 
         # This is the post condition
+        # Define goto primitive behavior
+        # This is the post condition
         selector = Selector('MA_Selector')
-        postcond_is_already_at_there = NeighbourObjects('MA_NeighbourObjects_0')
+        postcond_is_already_at_there = NeighbourObjects('MA_AlreadyThere_PC')
         postcond_is_already_at_there.setup(0, self.agent, self.item)
 
-        # This is the constraint/pre-condition
-        const_is_no_blocked = NeighbourObjectsDist('MA_NeighbourObjectsDist')
-        const_is_no_blocked.setup(0, self.agent)
-        const_is_no_blocked = FailureIsSuccess(const_is_no_blocked)
-
-        # Define goto primitive behavior
         goto = GoTo('MA_GOTO_1')
         goto.setup(0, self.agent, self.item)
 
-        # Define away behavior
-        away = Away('MA_Away_2')
-        away.setup(0, self.agent)
+        # Define towards behavior
+        away = Away('MA_AWAY_2')
+        away.setup(0, self.agent, None)
+
+        # This is the constraint/pre-condition
+        const_is_no_blocked_obs = NeighbourObjectsDist('MA_Blocked_Obs_CNT')
+        const_is_no_blocked_obs.setup(0, self.agent, 'Obstacles')
+        const_is_no_blocked_obs_inv = Inverter(const_is_no_blocked_obs)
+
+        const_is_no_blocked_trp = NeighbourObjectsDist('MA_Blocked_Trap_CNT')
+        const_is_no_blocked_trp.setup(0, self.agent, 'Traps')
+        const_is_no_blocked_trp_inv = Inverter(const_is_no_blocked_trp)
+
+        sequence_blocked = Sequence('MA_Blocked')
+        selector_blocked_obs = Selector('MA_Selector_Blocked_Obs')
+        avoid_obs = AvoidSObjects('MA_Avoid_Obstacles')
+        avoid_obs.setup(0, self.agent)
+
+        selector_blocked_trp = Selector('MA_Selector_Blocked_Trap')
+        avoid_trp = AvoidSObjects('MA_Avoid_Traps')
+        avoid_trp.setup(0, self.agent, item='Traps')
+
+        # selector_blocked.
+        selector_blocked_obs.add_children([const_is_no_blocked_obs_inv, avoid_obs])
+        selector_blocked_trp.add_children([const_is_no_blocked_trp_inv, avoid_trp])
+        sequence_blocked.add_children([selector_blocked_obs, selector_blocked_trp])
 
         # Define move behavior
-        move = Move('MA_MOVE_3')
+        move = Move('MA_MOVE_ACT')
         move.setup(0, self.agent)
 
         # Define a sequence to combine the primitive behavior
-        ma_sequence = Sequence('MA_SEQUENCE')
-        ma_sequence.add_children([goto, away, const_is_no_blocked, move])
+        mt_sequence = Sequence('MA_SEQUENCE')
+        mt_sequence.add_children([goto, away, sequence_blocked, move])
 
-        selector.add_children([postcond_is_already_at_there, ma_sequence])
+        selector.add_children([postcond_is_already_at_there, mt_sequence])
 
         self.behaviour_tree = BehaviourTree(selector)
 

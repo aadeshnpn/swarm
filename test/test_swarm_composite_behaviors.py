@@ -206,91 +206,187 @@ class TestGoToObsTrapSwarmSmallGrid(TestCase):
         # Checking if the agents reaches site or not
         self.assertEqual(self.environment.agent.location, (40, 42))
 
-# class SwarmMoveAway(Agent):
-#     """An minimalistic behavior tree for swarm agent implementing MoveAway
-#     behavior.
-#     """
-#     def __init__(self, name, model):
-#         super().__init__(name, model)
-#         self.location = ()
 
-#         self.direction = model.random.rand() * (2 * np.pi)
-#         # self.speed = 2
-#         self.radius = 3
+class SwarmMoveAway(Agent):
+    """An minimalistic behavior tree for swarm agent implementing MoveAway
+    behavior.
+    """
+    def __init__(self, name, model):
+        super().__init__(name, model)
+        self.location = ()
 
-#         self.moveable = True
-#         self.shared_content = dict()
+        self.direction = model.random.rand() * (2 * np.pi)
+        # self.speed = 2
+        self.radius = 3
 
-#         self.shared_content['Sites'] = [model.target]
+        self.moveable = True
+        self.shared_content = dict()
 
-#         # Defining the composite behavior
-#         moveaway = MoveAway('MoveAway')
+        self.shared_content['Sites'] = {model.target}
 
-#         # Setup for the behavior
-#         moveaway.setup(0, self, 'Sites')
+        # Defining the composite behavior
+        moveaway = MoveAway('MoveAway')
 
-#         # This behavior is just defined to check if the composite tree
-#         # can be combined with other primite behaviors
-#         is_carrying = IsCarrying('IsCarrying')
-#         is_carrying.setup(0, self, 'Food')
+        # Setup for the behavior
+        moveaway.setup(0, self, 'Sites')
 
-#         seq = py_trees.composites.Sequence('Seq')
-#         seq.add_children([moveaway, is_carrying])
+        seq = py_trees.composites.Sequence('Seq')
+        seq.add_children([moveaway])
 
-#         # Since its root is a sequence, we can use it directly
-#         self.behaviour_tree = py_trees.trees.BehaviourTree(seq)
+        # Since its root is a sequence, we can use it directly
+        self.behaviour_tree = py_trees.trees.BehaviourTree(seq)
 
-#         # Debugging stuffs for py_trees
-#         # py_trees.logging.level = py_trees.logging.Level.DEBUG
-#         # py_trees.display.print_ascii_tree(moveaway)
+        # Debugging stuffs for py_trees
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # py_trees.display.ascii_tree(moveaway)
 
-#     def step(self):
-#         self.behaviour_tree.tick()
+    def step(self):
+        self.behaviour_tree.tick()
 
 
-# class MoveAwayModel(Model):
-#     """ A environment to model swarms """
-#     def __init__(self, N, width, height, grid=10, seed=None):
-#         if seed is None:
-#             super(MoveAwayModel, self).__init__(seed=None)
-#         else:
-#             super(MoveAwayModel, self).__init__(seed)
+class MoveAwayModel(Model):
+    """ A environment to model swarms """
+    def __init__(self, N, width, height, grid=10, seed=None):
+        if seed is None:
+            super(MoveAwayModel, self).__init__(seed=None)
+        else:
+            super(MoveAwayModel, self).__init__(seed)
 
-#         self.num_agents = N
+        self.num_agents = N
 
-#         self.grid = Grid(width, height, grid)
+        self.grid = Grid(width, height, grid)
 
-#         self.schedule = SimultaneousActivation(self)
+        self.schedule = SimultaneousActivation(self)
 
-#         self.target = Sites(id=1, location=(45, 45), radius=5, q_value=0.5)
-#         self.grid.add_object_to_grid(self.target.location, self.target)
+        self.target = Sites(id=1, location=(45, 45), radius=5, q_value=0.5)
+        self.grid.add_object_to_grid(self.target.location, self.target)
 
-#         for i in range(self.num_agents):
-#             a = SwarmMoveAway(i, self)
-#             self.schedule.add(a)
-#             x = 15
-#             y = 15
-#             a.location = (x, y)
-#             a.direction = -2.3561944901923448
-#             self.grid.add_object_to_grid((x, y), a)
+        for i in range(self.num_agents):
+            a = SwarmMoveAway(i, self)
+            self.schedule.add(a)
+            x = 15
+            y = 15
+            a.location = (x, y)
+            a.direction = -2.3561944901923448
+            self.grid.add_object_to_grid((x, y), a)
 
-#         self.agent = a
+        self.agent = a
 
-#     def step(self):
-#         self.schedule.step()
+    def step(self):
+        self.schedule.step()
 
 
-# class TestGoToAwaySwarmSmallGrid(TestCase):
+class TestGoToAwaySwarmSmallGrid(TestCase):
 
-#     def setUp(self):
-#         self.environment = MoveAwayModel(1, 100, 100, 10, 123)
+    def setUp(self):
+        self.environment = MoveAwayModel(1, 100, 100, 10, 123)
 
-#         for i in range(50):
-#             self.environment.step()
+        for i in range(50):
+            self.environment.step()
 
-#     def test_agent_path(self):
-#         # Checking if the agents reaches site or not
-#         self.assertEqual(self.environment.agent.location, (-42, -42))
+    def test_agent_path(self):
+        # Checking if the agents reaches site or not
+        self.assertEqual(self.environment.agent.location, (-42, -42))
+
+
+class MoveAwayObsModel(Model):
+    """ A environment to model swarms """
+    def __init__(self, N, width, height, grid=10, seed=None):
+        if seed is None:
+            super(MoveAwayObsModel, self).__init__(seed=None)
+        else:
+            super(MoveAwayObsModel, self).__init__(seed)
+
+        self.num_agents = N
+
+        self.grid = Grid(width, height, grid)
+
+        self.schedule = SimultaneousActivation(self)
+
+        self.target = Sites(id=1, location=(45, 45), radius=5, q_value=0.5)
+        self.grid.add_object_to_grid(self.target.location, self.target)
+
+        self.obstacle = Obstacles(id=2, location=(5, 0), radius=5)
+        self.grid.add_object_to_grid(self.obstacle.location, self.obstacle)
+
+        for i in range(self.num_agents):
+            a = SwarmMoveAway(i, self)
+            self.schedule.add(a)
+            x = 25
+            y = 25
+            a.location = (x, y)
+            a.direction = -2.3561944901923448
+            self.grid.add_object_to_grid((x, y), a)
+
+        self.agent = a
+
+    def step(self):
+        self.schedule.step()
+
+
+class TestGoToAwayObsSwarmSmallGrid(TestCase):
+
+    def setUp(self):
+        self.environment = MoveAwayObsModel(1, 100, 100, 10, 123)
+
+        for i in range(50):
+            self.environment.step()
+
+    def test_agent_path(self):
+        # Checking if the agents reaches site or not
+        self.assertEqual(self.environment.agent.location, (-31, -37))
+
+
+class MoveAwayObsTrapModel(Model):
+    """ A environment to model swarms """
+    def __init__(self, N, width, height, grid=10, seed=None):
+        if seed is None:
+            super(MoveAwayObsTrapModel, self).__init__(seed=None)
+        else:
+            super(MoveAwayObsTrapModel, self).__init__(seed)
+
+        self.num_agents = N
+
+        self.grid = Grid(width, height, grid)
+
+        self.schedule = SimultaneousActivation(self)
+
+        self.target = Sites(id=1, location=(45, 45), radius=5, q_value=0.5)
+        self.grid.add_object_to_grid(self.target.location, self.target)
+
+        self.obstacle = Obstacles(id=2, location=(5, 0), radius=5)
+        self.grid.add_object_to_grid(self.obstacle.location, self.obstacle)
+
+        self.trap = Traps(id=2, location=(-20, -15), radius=5)
+        self.grid.add_object_to_grid(self.trap.location, self.trap)
+
+        for i in range(self.num_agents):
+            a = SwarmMoveAway(i, self)
+            self.schedule.add(a)
+            x = 25
+            y = 25
+            a.location = (x, y)
+            a.direction = -2.3561944901923448
+            self.grid.add_object_to_grid((x, y), a)
+
+        self.agent = a
+
+    def step(self):
+        self.schedule.step()
+
+
+class TestGoToAwayObsTrapSwarmSmallGrid(TestCase):
+
+    def setUp(self):
+        self.environment = MoveAwayObsTrapModel(1, 100, 100, 10, 123)
+
+        for i in range(50):
+            # print(self.environment.agent.location)
+            self.environment.step()
+
+    def test_agent_path(self):
+        # Checking if the agents reaches site or not
+        self.assertEqual(self.environment.agent.location, (-25, -37))
 
 
 # # class to define agent explore behavior
