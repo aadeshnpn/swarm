@@ -96,7 +96,6 @@ class GoToSwarmEnvironmentModel(Model):
         self.schedule.step()
 
 
-
 class TestGoToSwarmSmallGrid(TestCase):
 
     def setUp(self):
