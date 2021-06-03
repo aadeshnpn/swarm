@@ -1,12 +1,13 @@
 <s> ::= [?xml version=%1.0% encoding=%UTF-8%?]<cf>
-<cf> ::= <sequence> | <selector>
-<sequence> ::= [Sequence]<execution>[/Sequence] | [Sequence]<cf><cf>[/Sequence] | [Sequence]<sequence> <cf>[/Sequence]
-<selector> ::= [Selector]<execution>[/Selector] | [Selector]<cf><cf>[/Selector] | [Selector]<selector> <cf>[/Selector]
+<cf> ::= <selector>
+<selector> ::= [Selector]<postcondition><sequence>[/Selector]
+<postcondition>::= [cond]<pcondition>[/cond]
+<sequence> ::= [Sequence]<execution>[/Sequence]
 <execution>::=<conditions>[act]<action>[/act]
 <conditions>::=[cond]<condition>[/cond]<conditions>|[cond]<condition>[/cond]
-<condition>::=NeighbourObjects|IsDropable_<sobjects>|NeighbourObjects_<objects>|NeighbourObjects_<objects>_invert|IsVisitedBefore_<sobjects>|IsVisitedBefore_<sobjects>_invert|IsCarrying_<dobjects>|IsCarrying_<dobjects>_invert
+<condition>::=IsDropable_<sobjects>|NeighbourObjects_<objects>|NeighbourObjects_<objects>_invert|IsVisitedBefore_<sobjects>|IsVisitedBefore_<sobjects>_invert|IsCarrying_<dobjects>|IsCarrying_<dobjects>_invert
+<pcondition>::=IsVisitedBefore_<sobjects>|IsVisitedBefore_<sobjects>_invert|IsCarrying_<dobjects>|IsCarrying_<dobjects>_invert
 <action>::=MoveTowards_<sobjects>|Explore|CompositeSingleCarry_<dobjects>|CompositeDrop_<dobjects>|MoveAway_<sobjects>
 <sobjects>::=Hub|Sites
 <dobjects>::=Food
-<cobjects>::=Signal|Cue
 <objects>::=<sobjects>|<dobjects>
