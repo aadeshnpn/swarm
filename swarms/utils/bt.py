@@ -15,6 +15,8 @@ from swarms.behaviors.sbehaviors import (       # noqa: F401
     # , IsAgentDead, IsPassable, IsDeathable
     )
 
+from py_trees.decorators import SuccessIsRunning, Inverter
+
 
 class BTConstruct:
     """Mapper to map from xml to BT.
@@ -43,6 +45,7 @@ class BTConstruct:
 
     def create_bt(self, root):
         """Recursive method to construct BT."""
+        print('from create_bt', root, len(list(root)))
         if len(list(root)) == 0:
             node_text = root.text
             # If the behavior needs to look for specific item
@@ -54,15 +57,15 @@ class BTConstruct:
                     behavior = eval(method)(method + str(
                         self.agent.model.random.randint(
                             100, 200)) + '_' + item)
+                    behavior.setup(0, self.agent, item)
                 else:
                     method, item, _ = nodeval
-                    behavior = py_trees.meta.inverter(eval(method))(
+                    behavior = eval(method)(
                         method + str(
                             self.agent.model.random.randint(
                                 100, 200)) + '_' + item + '_inv')
-
-                behavior.setup(0, self.agent, item)
-
+                    behavior.setup(0, self.agent, item)
+                    behavior = Inverter(behavior)
             else:
                 method = node_text
                 behavior = eval(method)(method + str(
@@ -77,7 +80,9 @@ class BTConstruct:
                         self.agent.model.random.randint(10, 90)))
                 list1.append(self.create_bt(node))
                 try:
-                    if composits:
+                    print('try block', composits)
+                    if composits is not None:
+                        print('composits', composits)
                         composits.add_children(list1.pop())
                         list1.append(composits)
                 except (AttributeError, IndexError, UnboundLocalError) as e:
@@ -98,9 +103,11 @@ class BTConstruct:
         else:
             print("Cannont create BT. Check the filename or stream")
             exit()
-
+        # print('root tree', self.root)
         whole_list = self.create_bt(self.root)
         top = eval(self.root.tag)('Root' + self.root.tag)
+        print('whole list', whole_list)
+        print(dir(top))
         top.add_children(whole_list)
         self.behaviour_tree = py_trees.trees.BehaviourTree(top)
         # py_trees.logging.level = py_trees.logging.Level.DEBUG

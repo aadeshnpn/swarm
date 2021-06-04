@@ -8,8 +8,8 @@ MAX_GENOME_LENGTH:      50
 GRAMMAR_FILE:           ../..,res.bnf
 INITIALISATION:         uniform_tree
 INVALID_SELECTION:      False
-MAX_INIT_TREE_DEPTH:    7
-MAX_TREE_DEPTH:         10
+MAX_INIT_TREE_DEPTH:    8
+MAX_TREE_DEPTH:         13
 MUTATION:               int_flip_per_codon
 MUTATION_PROBABILITY:   0.1
 FITNESS_FUNCTION:       swarm.bt_diversity

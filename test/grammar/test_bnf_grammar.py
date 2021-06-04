@@ -48,8 +48,8 @@ class SwarmMoveTowards(Agent):
         # Grammatical Evolution part
         from ponyge.algorithm.parameters import Parameters
         parameter = Parameters()
-        parameter_list = ['--parameters', '../..,res.txt']
-        parameter.params['RANDOM_SEED'] = 1234  # np.random.randint(1, 99999999)
+        parameter_list = ['--parameters', '../..,goal.txt']
+        parameter.params['RANDOM_SEED'] = None  # np.random.randint(1, 99999999)
         parameter.params['POPULATION_SIZE'] = 10 // 2
         parameter.set_params(parameter_list)
         self.parameter = parameter
@@ -101,14 +101,24 @@ class MoveTowardsModel(Model):
         self.schedule.step()
 
 
-class TestGoToSwarmSmallGrid(TestCase):
+# class TestGoToSwarmSmallGrid(TestCase):
 
-    def setUp(self):
-        self.environment = MoveTowardsModel(1, 100, 100, 10, 123)
+#     def setUp(self):
+#         self.environment = MoveTowardsModel(1, 100, 100, 10, 123)
 
-        for i in range(68):
-            self.environment.step()
+#         for i in range(68):
+#             self.environment.step()
 
-    def test_agent_path(self):
-        # Checking if the agents reaches site or not
-        self.assertEqual(4, 5)
+#     def test_agent_path(self):
+#         # Checking if the agents reaches site or not
+#         self.assertEqual(4, 5)
+
+
+def main():
+    environment = MoveTowardsModel(1, 100, 100, 10, 123)
+
+    for i in range(68):
+        environment.step()
+
+
+main()
