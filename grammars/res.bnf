@@ -3,7 +3,7 @@
 <cf> ::= <selector>
 <selector> ::= [Selector]<postcondition><sequence>[/Selector]
 <postcondition>::= [cond]<pcondition>[/cond]
-<sequence> ::= [Sequence]<execution>[/Sequence]|[Sequence]<sequence><execution>[/Sequence]
+<sequence> ::= [Sequence]<execution>[/Sequence]|[Sequence]<execution>[/Sequence]<sequence>
 <execution>::=<conditions>[act]<action>[/act]
 <conditions>::=[cond]<condition>[/cond]<conditions>|[cond]<condition>[/cond]
 <condition>::=IsDropable_<sobjects>|NeighbourObjects_<objects>|NeighbourObjects_<objects>_invert|IsVisitedBefore_<sobjects>|IsVisitedBefore_<sobjects>_invert|IsCarrying_<dobjects>|IsCarrying_<dobjects>_invert

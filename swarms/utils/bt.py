@@ -1,6 +1,7 @@
 """This is the mapper class which maps the xml file."""
 
 
+from typing import Type
 import xml.etree.ElementTree as ET
 import py_trees
 from py_trees.composites import Sequence, Selector  # noqa: F401
@@ -45,8 +46,8 @@ class BTConstruct:
 
     def create_bt(self, root):
         """Recursive method to construct BT."""
-        print('from create_bt', root, len(list(root)))
-        if len(list(root)) == 0:
+        # print('root',root, len(root))
+        def leafnode(root):
             node_text = root.text
             # If the behavior needs to look for specific item
             if node_text.find('_') != -1:
@@ -57,37 +58,43 @@ class BTConstruct:
                     behavior = eval(method)(method + str(
                         self.agent.model.random.randint(
                             100, 200)) + '_' + item)
-                    behavior.setup(0, self.agent, item)
                 else:
                     method, item, _ = nodeval
                     behavior = eval(method)(
                         method + str(
                             self.agent.model.random.randint(
                                 100, 200)) + '_' + item + '_inv')
-                    behavior.setup(0, self.agent, item)
-                    behavior = Inverter(behavior)
+
+                behavior.setup(0, self.agent, item)
+
             else:
                 method = node_text
                 behavior = eval(method)(method + str(
                     self.agent.model.random.randint(100, 200)))
                 behavior.setup(0, self.agent, None)
             return behavior
+
+        if len(list(root)) == 0:
+            return leafnode(root)
         else:
             list1 = []
             for node in list(root):
                 if node.tag not in ['cond', 'act']:
                     composits = eval(node.tag)(node.tag + str(
                         self.agent.model.random.randint(10, 90)))
+                    # print('composits', composits, node)
                 list1.append(self.create_bt(node))
                 try:
-                    print('try block', composits)
-                    if composits is not None:
-                        print('composits', composits)
-                        composits.add_children(list1.pop())
-                        list1.append(composits)
+                    if composits:
+                        nodepop = list1.pop()
+                        try:
+                            composits.add_children(nodepop)
+                        except TypeError:
+                            composits.add_children([nodepop])
+                        if composits not in list1:
+                            list1.append(composits)
                 except (AttributeError, IndexError, UnboundLocalError) as e:
                     pass
-
             return list1
 
     def construct(self):
@@ -106,8 +113,8 @@ class BTConstruct:
         # print('root tree', self.root)
         whole_list = self.create_bt(self.root)
         top = eval(self.root.tag)('Root' + self.root.tag)
-        print('whole list', whole_list)
-        print(dir(top))
+        # print('whole list', whole_list)
+        # print(dir(top))
         top.add_children(whole_list)
         self.behaviour_tree = py_trees.trees.BehaviourTree(top)
         # py_trees.logging.level = py_trees.logging.Level.DEBUG

@@ -48,26 +48,31 @@ class SwarmMoveTowards(Agent):
         # Grammatical Evolution part
         from ponyge.algorithm.parameters import Parameters
         parameter = Parameters()
-        parameter_list = ['--parameters', '../..,goal.txt']
-        parameter.params['RANDOM_SEED'] = None  # np.random.randint(1, 99999999)
+        parameter_list = ['--parameters', '../..,res.txt']
+        parameter.params['RANDOM_SEED'] = 1234  # np.random.randint(1, 99999999)
         parameter.params['POPULATION_SIZE'] = 10 // 2
         parameter.set_params(parameter_list)
         self.parameter = parameter
         individual = initialisation(self.parameter, 1)
         individual = evaluate_fitness(individual, self.parameter)
-        #self.mapper.xmlstring = self.individual.phenotype
+        # self.mapper.xmlstring = self.individual.phenotype
+        # individual = '''<?xml version="1.0" encoding="UTF-8"?><Sequence><Sequence><Selector><cond>IsCarrying_Food</cond><Sequence><cond>IsVisitedBefore_Hub</cond><act>CompositeSingleCarry_Food</act><Selector><cond>IsCarrying_Food_invert</cond><act>CompositeDrop_Food</act></Selector></Sequence></Selector></Sequence></Sequence>'''
         self.individual = individual
-        print(individual[0])
+        # print(individual[0])
         self.bt = BTConstruct(None, self)
         self.bt.xmlstring = self.individual[0].phenotype
         # Construct actual BT from xmlstring
         self.bt.construct()
         # Debugging stuffs for py_trees
-        py_trees.logging.level = py_trees.logging.Level.DEBUG
-        print(py_trees.display.ascii_tree(self.bt.behaviour_tree.root))
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # print(py_trees.display.ascii_tree(self.bt.behaviour_tree.root))
+        self.blackboard = blackboard.Client(name=name)
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.WRITE)
+        self.blackboard.neighbourobj = dict()
 
     def step(self):
-        self.bt.tick()
+        self.bt.behaviour_tree.tick()
+
 
 class MoveTowardsModel(Model):
     """ A environment to model swarms """
@@ -101,24 +106,24 @@ class MoveTowardsModel(Model):
         self.schedule.step()
 
 
-# class TestGoToSwarmSmallGrid(TestCase):
+class TestGoToSwarmSmallGrid(TestCase):
 
-#     def setUp(self):
-#         self.environment = MoveTowardsModel(1, 100, 100, 10, 123)
+    def setUp(self):
+        self.environment = MoveTowardsModel(1, 100, 100, 10, 123)
 
-#         for i in range(68):
-#             self.environment.step()
+        for i in range(1):
+            self.environment.step()
 
-#     def test_agent_path(self):
-#         # Checking if the agents reaches site or not
-#         self.assertEqual(4, 5)
-
-
-def main():
-    environment = MoveTowardsModel(1, 100, 100, 10, 123)
-
-    for i in range(68):
-        environment.step()
+    def test_agent_path(self):
+        # Checking if the agents reaches site or not
+        self.assertEqual(len(list(self.environment.agent.bt.behaviour_tree.root.iterate())), 10)
 
 
-main()
+# def main():
+#     environment = MoveTowardsModel(1, 100, 100, 10, 123)
+
+#     for i in range(68):
+#         environment.step()
+
+
+# main()
