@@ -116,13 +116,13 @@ class TestGoToSwarmSmallGrid(TestCase):
 
     def test_agent_path(self):
         # Checking if the agents reaches site or not
-        self.assertEqual(len(list(self.environment.agent.bt.behaviour_tree.root.iterate())), 10)
+        self.assertEqual(len(list(self.environment.agent.bt.behaviour_tree.root.iterate())), 13)
 
 
 # def main():
 #     environment = MoveTowardsModel(1, 100, 100, 10, 123)
 
-#     for i in range(68):
+#     for i in range(1):
 #         environment.step()
 
 

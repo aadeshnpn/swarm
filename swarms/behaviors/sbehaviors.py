@@ -1396,3 +1396,69 @@ class AvoidSObjects(Behaviour):
             return common.Status.SUCCESS
         except (IndexError, AttributeError):
             return common.Status.FAILURE
+
+
+# Behavior to check if the agent avoided obj
+class DidAvoidedObj(Behaviour):
+    """Logic to check if the agent avoided the objects."""
+
+    def __init__(self, name):
+        """Initialize."""
+        super(DidAvoidedObj, self).__init__(name)
+
+    def setup(self, timeout, agent, thing):
+        """Setup."""
+        self.agent = agent
+        self.thing = thing
+        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
+
+    def initialise(self):
+        """Pass."""
+        pass
+
+    def update(self):
+        """Check if it can sense the object and its direction."""
+        try:
+            objects = ObjectsStore.find(
+                self.blackboard.neighbourobj, self.agent.shared_content,
+                self.thing, self.agent.name)[0]
+            alpha = get_direction(self.agent.location, objects.location)
+            theta = self.agent.direction
+            angle_diff = np.abs(theta-alpha)
+            if angle_diff < np.pi/2:
+                return common.Status.FAILURE
+            else:
+                return common.Status.SUCCESS
+        except (AttributeError, IndexError):
+            return common.Status.SUCCESS
+
+
+# Behavior to check if the agent can move
+class CanMove(Behaviour):
+    """Logic to check if the agent can move in the intended direction."""
+
+    def __init__(self, name):
+        """Initialize."""
+        super(CanMove, self).__init__(name)
+
+    def setup(self, timeout, agent, thing=None):
+        """Setup."""
+        self.agent = agent
+        self.thing = thing
+        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
+
+    def initialise(self):
+        """Pass."""
+        pass
+
+    def update(self):
+        """Check if it can sense the object and its direction."""
+        try:
+            if (self.agent.moveable and self.agent.dead is not True):
+                return common.Status.SUCCESS
+            else:
+                return common.Status.FAILURE
+        except (AttributeError, IndexError):
+            return common.Status.FAILURE

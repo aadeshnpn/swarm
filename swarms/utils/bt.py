@@ -12,7 +12,8 @@ from swarms.behaviors.scbehaviors import (      # noqa: F401
     )
 from swarms.behaviors.sbehaviors import (       # noqa: F401
     IsCarrying, NeighbourObjects, Move, IsDropable,
-    IsVisitedBefore, IsInPartialAttached
+    IsVisitedBefore, IsInPartialAttached, CanMove,
+    DidAvoidedObj
     # , IsAgentDead, IsPassable, IsDeathable
     )
 
@@ -57,15 +58,16 @@ class BTConstruct:
                     method, item = nodeval
                     behavior = eval(method)(method + str(
                         self.agent.model.random.randint(
-                            100, 200)) + '_' + item)
+                            100, 200)) + '_' + item+ '_' + root.tag)
                 else:
                     method, item, _ = nodeval
                     behavior = eval(method)(
                         method + str(
                             self.agent.model.random.randint(
-                                100, 200)) + '_' + item + '_inv')
+                                100, 200)) + '_' + item + '_inv' + '_' + root.tag)
 
                 behavior.setup(0, self.agent, item)
+                behavior = Inverter(behavior)
 
             else:
                 method = node_text
@@ -79,7 +81,7 @@ class BTConstruct:
         else:
             list1 = []
             for node in list(root):
-                if node.tag not in ['cond', 'act']:
+                if node.tag in ['Selector', 'Sequence']:
                     composits = eval(node.tag)(node.tag + str(
                         self.agent.model.random.randint(10, 90)))
                     # print('composits', composits, node)
