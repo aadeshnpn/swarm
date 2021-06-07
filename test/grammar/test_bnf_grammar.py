@@ -49,7 +49,7 @@ class SwarmMoveTowards(Agent):
         from ponyge.algorithm.parameters import Parameters
         parameter = Parameters()
         parameter_list = ['--parameters', '../..,res.txt']
-        parameter.params['RANDOM_SEED'] = 1234  # np.random.randint(1, 99999999)
+        parameter.params['RANDOM_SEED'] = 1234
         parameter.params['POPULATION_SIZE'] = 10 // 2
         parameter.set_params(parameter_list)
         self.parameter = parameter
@@ -69,6 +69,25 @@ class SwarmMoveTowards(Agent):
         self.blackboard = blackboard.Client(name=name)
         self.blackboard.register_key(key='neighbourobj', access=common.Access.WRITE)
         self.blackboard.neighbourobj = dict()
+
+    def btfitness(self):
+        allnodes = list(self.bt.behaviour_tree.root.iterate())
+        selectors = list(filter(
+            lambda x: isinstance(x, Selector), allnodes)
+            )
+
+        constraints = list(filter(
+            lambda x: x.name.split('_')[-1] == 'constraint', allnodes)
+            )
+
+        postcond = list(filter(
+            lambda x: x.name.split('_')[-1] == 'postcond', allnodes)
+            )
+        # print(list(self.bt.behaviour_tree.visitors))
+        selectors_reward = sum([1 for sel in selectors if sel.status == common.Status.SUCCESS])
+        constraints_reward = sum([-2 for const in constraints if const.status == common.Status.FAILURE])
+        postcond_reward = sum([1 for pcond in postcond if pcond.status == common.Status.SUCCESS])
+        return (selectors_reward, constraints_reward, postcond_reward)
 
     def step(self):
         self.bt.behaviour_tree.tick()
@@ -119,11 +138,26 @@ class TestGoToSwarmSmallGrid(TestCase):
         self.assertEqual(len(list(self.environment.agent.bt.behaviour_tree.root.iterate())), 13)
 
 
+class TestVisitorSwarmSmallGrid(TestCase):
+
+    def setUp(self):
+        self.environment = MoveTowardsModel(1, 100, 100, 10, 123)
+
+        for i in range(1):
+            self.environment.step()
+
+    def test_agent_path(self):
+        # Checking if the agents reaches site or not
+        self.assertEqual(self.environment.agent.btfitness(), (1, 0, 0))
+
+
 # def main():
 #     environment = MoveTowardsModel(1, 100, 100, 10, 123)
 
 #     for i in range(1):
 #         environment.step()
+
+#     print(environment.agent.btfitness())
 
 
 # main()

@@ -152,7 +152,7 @@ class Grid:
             all_grid = [grid for grid in all_grid if grid > 0 and
                         grid <= self.grid_len]
         return list(set(all_grid))
-       
+
 
     def add_object_to_grid(self, point, objects):
         """Add object to a given grid."""
@@ -160,7 +160,7 @@ class Grid:
         for grid in grid_values:
             # gridobjects = self.get_objects(None, grid)
             # for gobject in gridobjects:
-            #     if not re.match('.*Agent.*' , type(gobject).__name__): 
+            #     if not re.match('.*Agent.*' , type(gobject).__name__):
             #         if gobject.deathable and re.match('.*Agent.*' , type(objects).__name__):
             #             objects.dead = True
             # print(grid, objects)
@@ -178,15 +178,15 @@ class Grid:
         grid_key, grid_value = self.find_grid(point)
         new_grid_key, new_grid_value = self.find_grid(newpoint)
         if grid_value != new_grid_value:
-            if re.match('.*Agent.*' , type(objects).__name__) and objects.dead: 
+            if re.match('.*Agent.*' , type(objects).__name__) and objects.dead:
                 return False
-            elif re.match('.*Agent.*' , type(objects).__name__) and not objects.dead: 
+            elif re.match('.*Agent.*' , type(objects).__name__) and not objects.dead:
                 # print(point, newpoint, grid_value, new_grid_value)
                 if self.check_grid_deathable_constraints(new_grid_value):
                     objects.dead = True
-                    self.remove_object_from_grid(point, objects)                    
+                    self.remove_object_from_grid(point, objects)
                     self.add_object_to_grid(newpoint, objects)
-                    return True                    
+                    return True
                 else:
                     if self.check_grid_objects_constraints(new_grid_value):
                         self.remove_object_from_grid(point, objects)
@@ -247,7 +247,7 @@ class Grid:
                     break
             except:
                 pass
-        return dead    
+        return dead
 
     # Using fancy search to find the object in the particular grid
     def get_objects(self, object_name, grid_value):

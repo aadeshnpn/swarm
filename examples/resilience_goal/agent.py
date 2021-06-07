@@ -232,6 +232,9 @@ class LearningAgent(ForagingAgent):
         goals += [1 if self.bt.behaviour_tree.root.status == py_trees.Status.SUCCESS else 0]
         return sum(goals)
 
+    def evaluate_constraints_conditions(self):
+        pass
+
 
     def init_evolution_algo(self):
         """Agent's GE algorithm operation defination."""
