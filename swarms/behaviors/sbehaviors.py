@@ -1128,6 +1128,41 @@ class SignalDoesNotExists(Behaviour):
             return common.Status.FAILURE
 
 
+# Lets start some communication behaviors
+class IsSignalActive(Behaviour):
+    """Is Signal active?
+
+    This behavior enables agents to check it that signal is already active.
+    """
+
+    def __init__(self, name):
+        """Initialize."""
+        super(IsSignalActive, self).__init__(name)
+
+    def setup(self, timeout, agent, item):
+        """Setup."""
+        self.agent = agent
+        self.item = item
+        self.blackboard = blackboard.Client(name=str(agent.name))
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
+
+    def initialise(self):
+        """Pass."""
+        pass
+
+    def update(self):
+        """Logic for sending signal."""
+        try:
+            # Find the object the agent is trying to signal.
+            if len(self.agent.signals) > 0:
+                    return common.Status.SUCCESS
+            else:
+                return common.Status.FAILURE
+
+        except (IndexError, AttributeError):
+            return common.Status.FAILURE
+
+
 class SendSignal(Behaviour):
     """Signalling behavior.
 
