@@ -1,5 +1,7 @@
 from inspect import CO_ITERABLE_COROUTINE
 from py_trees import common
+from py_trees.composites import Selector
+from py_trees import common, blackboard
 from swarms.behaviors.sbehaviors import DropCue, SendSignal, ObjectsStore
 import numpy as np
 from swarms.lib.agent import Agent
@@ -63,7 +65,7 @@ class ForagingAgent(Agent):
             self.keys[4]: 'f'
             }
         # self.trace = [{k:list() for k in self.keys}]
-        self.trace = [None] * (model.iter+1)
+        # self.trace = [None] * (model.iter+1)
 
     def init_evolution_algo(self):
         """Agent's GE algorithm operation defination."""
@@ -173,9 +175,11 @@ class LearningAgent(ForagingAgent):
         # Flags to make the computation easier
         self.avoid_trap = False
         self.avoid_obs = False
+        self.blackboard = blackboard.Client(name=str(self.name))
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.WRITE)
 
         # self.trace.append({k:self.functions[k]() for k in self.keys})
-        self.trace[self.step_count] = {k:self.functions[k]() for k in self.keys}
+        # self.trace[self.step_count] = {k:self.functions[k]() for k in self.keys}
 
     def proposition_c(self):
         if len(self.attached_objects) > 0:
@@ -232,6 +236,24 @@ class LearningAgent(ForagingAgent):
         goals += [1 if self.bt.behaviour_tree.root.status == py_trees.Status.SUCCESS else 0]
         return sum(goals)
 
+    def evaluate_constraints_conditions(self):
+        allnodes = list(self.bt.behaviour_tree.root.iterate())
+        selectors = list(filter(
+            lambda x: isinstance(x, Selector), allnodes)
+            )
+
+        constraints = list(filter(
+            lambda x: x.name.split('_')[-1] == 'constraint', allnodes)
+            )
+
+        postcond = list(filter(
+            lambda x: x.name.split('_')[-1] == 'postcond', allnodes)
+            )
+        # print(list(self.bt.behaviour_tree.visitors))
+        selectors_reward = sum([1 for sel in selectors if sel.status == common.Status.SUCCESS])
+        constraints_reward = sum([-2 for const in constraints if const.status == common.Status.FAILURE])
+        postcond_reward = sum([1 for pcond in postcond if pcond.status == common.Status.SUCCESS])
+        return selectors_reward + constraints_reward + postcond_reward
 
     def init_evolution_algo(self):
         """Agent's GE algorithm operation defination."""
@@ -323,8 +345,8 @@ class LearningAgent(ForagingAgent):
         self.no_cue_dropped = 0
         self.signal_time = 0
         self.signals = []
-        self.trace = [None] * self.model.iter
-        self.trace.append({k:self.functions[k]() for k in self.keys})
+        # self.trace = [None] * self.model.iter
+        # self.trace.append({k:self.functions[k]() for k in self.keys})
         self.timestamp = 0
         self.diversity_fitness = self.individual[0].fitness
         self.generation += 1
@@ -352,7 +374,7 @@ class LearningAgent(ForagingAgent):
 
         # Goal Specification Fitness
         self.individual[0].fitness = (1 - self.beta) * self.delayed_reward \
-            + self.evaluate_goals() + self.ef + self.scf
+            + self.ef + self.evaluate_constraints_conditions()
 
 
     def get_food_in_hub(self, agent_name=True):
@@ -400,7 +422,7 @@ class LearningAgent(ForagingAgent):
         # Add to trace
         # self.trace.append({k:self.functions[k]() for k in self.keys})
         # print(len(self.trace))
-        self.trace[self.step_count] = {k:self.functions[k]() for k in self.keys}
+        # self.trace[self.step_count] = {k:self.functions[k]() for k in self.keys}
 
         # Find the no.of food collected from the BT execution
         self.food_collected = self.get_food_in_hub()  # * self.get_food_in_hub(
@@ -408,9 +430,9 @@ class LearningAgent(ForagingAgent):
 
         # Hash the phenotype with its fitness
         # We need to move this from here to genetic step
-        self.cf = self.carrying_fitness()
+        # self.cf = self.carrying_fitness()
         self.ef = self.exploration_fitness()
-        self.scf = self.communication_fitness()
+        # self.scf = self.communication_fitness()
 
         # Computes overall fitness using Beta function
         self.overall_fitness()

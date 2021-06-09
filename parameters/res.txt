@@ -17,4 +17,4 @@ REPLACEMENT:            generational
 SELECTION:              truncation
 VERBOSE:                False
 SILENT:                 True
-COMMUNICATION:          True
+COMMUNICATION:          False

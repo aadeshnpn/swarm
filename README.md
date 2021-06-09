@@ -41,7 +41,7 @@ pip install .
 And for py_trees
 
 ```
-git clone https://github.com/aadeshnpn/py_trees
+git clone https://github.com/splintered-reality/py_trees.git
 cd py_trees
 pip install .
 ```

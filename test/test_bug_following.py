@@ -9,14 +9,15 @@ from swarms.behaviors.sbehaviors import (
     )
 
 from swarms.behaviors.scbehaviors import (
-    AvoidTrapObstaclesBehaviour, NewMoveTowards, NewExplore,
-    NewMoveAway, Explore
-    )    
+    MoveTowards,
+    MoveAway, Explore
+    )
 from swarms.lib.objects import Sites, Hub, Obstacles, Traps
 import py_trees
-from py_trees import Blackboard
-from py_trees.meta import failure_is_success
+from py_trees import common, blackboard
 import numpy as np
+from py_trees.composites import Sequence, Selector, Parallel
+from py_trees.trees import BehaviourTree
 
 
 # Class to tets Passable attribute for agents
@@ -37,25 +38,26 @@ class SwarmAgentGoTo(Agent):
 
         root = py_trees.composites.Sequence("Sequence")
 
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
 
+        self.shared_content = dict()
         self.shared_content[type(model.target).__name__] = {model.target}
 
-        low = GoTo('1')
-        low.setup(0, self, type(model.target).__name__)
-        # medium = AvoidTrapObstaclesBehaviour('2')
-        med = failure_is_success(AvoidTrapObstaclesBehaviour)('2')
-        med.setup(0, self, None)         
+        # Defining the composite behavior
+        movetowards = MoveTowards('MoveTowards')
 
-        high = Move('4')
-        high.setup(0, self)
-        root.add_children([low, med, high])
-        self.behaviour_tree = py_trees.trees.BehaviourTree(root)
+        # Setup for the behavior
+        movetowards.setup(0, self, 'Sites')
+
+        # This behavior is just defined to check if the composite tree
+        # can be combined with other primite behaviors
+        seq = Sequence('Seq')
+        seq.add_children([movetowards])
+
+        # Since its root is a sequence, we can use it directly
+        self.behaviour_tree = BehaviourTree(seq)
 
     def step(self):
         self.behaviour_tree.tick()
-
 
 
 class GoToSwarmEnvironmentModel(Model):
@@ -94,7 +96,6 @@ class GoToSwarmEnvironmentModel(Model):
         self.schedule.step()
 
 
-
 class TestGoToSwarmSmallGrid(TestCase):
 
     def setUp(self):
@@ -105,9 +106,8 @@ class TestGoToSwarmSmallGrid(TestCase):
             print(i, self.environment.agent.location)
 
     def test_agent_path(self):
-        self.assertEqual(self.environment.agent.location, (45, 45))
+        self.assertEqual(self.environment.agent.location, (40, 42))
 
     def test_agent_grid(self):
         self.assertIsInstance(
             self.environment.grid.get_objects_from_grid('Sites',self.environment.agent.location)[0], Sites)
-

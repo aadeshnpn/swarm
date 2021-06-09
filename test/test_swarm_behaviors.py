@@ -1,4 +1,5 @@
 from unittest import TestCase
+
 from swarms.lib.agent import Agent
 from swarms.lib.model import Model
 from swarms.lib.time import SimultaneousActivation
@@ -8,9 +9,14 @@ from swarms.behaviors.sbehaviors import (
     Away, Towards, DoNotMove, Move
     )
 from swarms.lib.objects import Sites, Hub
-import py_trees
-from py_trees import Blackboard
 import numpy as np
+from py_trees.trees import BehaviourTree
+from py_trees.behaviour import Behaviour
+from py_trees.composites import Sequence, Selector, Parallel
+from py_trees.decorators import SuccessIsRunning, Inverter
+from py_trees import common, blackboard
+
+import py_trees
 
 
 # Class to tets NeighbourObject Behavior
@@ -49,10 +55,12 @@ class SwarmAgentGoTo(Agent):
         self.moveable = True
         self.shared_content = dict()
 
-        root = py_trees.composites.Sequence("Sequence")
+        root = Sequence("Sequence")
 
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
+        self.blackboard = blackboard.Client(name=name)
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.WRITE)
+
+        self.blackboard.neighbourobj = dict()
 
         self.shared_content[type(model.target).__name__] = {model.target}
 
@@ -61,7 +69,7 @@ class SwarmAgentGoTo(Agent):
         high = Move('2')
         high.setup(0, self)
         root.add_children([low, high])
-        self.behaviour_tree = py_trees.trees.BehaviourTree(root)
+        self.behaviour_tree = BehaviourTree(root)
 
     def step(self):
         self.behaviour_tree.tick()
@@ -83,10 +91,11 @@ class SwarmAgentGoToAway(Agent):
         self.moveable = True
         self.shared_content = dict()
 
-        root = py_trees.composites.Sequence("Sequence")
+        root = Sequence("Sequence")
 
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
+        self.blackboard = blackboard.Client(name=name)
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.WRITE)
+        self.blackboard.neighbourobj = dict()
 
         name = type(model.target).__name__
         self.shared_content[name] = {model.target}
@@ -99,7 +108,7 @@ class SwarmAgentGoToAway(Agent):
         high = Move('3')
         high.setup(0, self)
         root.add_children([low, mid, high])
-        self.behaviour_tree = py_trees.trees.BehaviourTree(root)
+        self.behaviour_tree = BehaviourTree(root)
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
         # py_trees.display.print_ascii_tree(root, indent=0, show_status=True)
 
@@ -126,10 +135,11 @@ class SwarmAgentGoToTowards(Agent):
         self.moveable = True
         self.shared_content = dict()
 
-        root = py_trees.composites.Sequence("Sequence")
+        root = Sequence("Sequence")
 
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
+        self.blackboard = blackboard.Client(name=name)
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.WRITE)
+        self.blackboard.neighbourobj = dict()
 
         name = type(model.target).__name__
         self.shared_content[name] = {model.target}
@@ -143,7 +153,7 @@ class SwarmAgentGoToTowards(Agent):
         high = Move('3')
         high.setup(0, self)
         root.add_children([low, mid, high])
-        self.behaviour_tree = py_trees.trees.BehaviourTree(root)
+        self.behaviour_tree = BehaviourTree(root)
 
     def step(self):
         self.behaviour_tree.tick()
@@ -169,13 +179,13 @@ class SwarmAgentRandomWalk(Agent):
         self.moveable = True
         self.shared_content = dict()
 
-        root = py_trees.composites.Sequence("Sequence")
+        root = Sequence("Sequence")
         low = RandomWalk('1')
         low.setup(0, self)
         high = Move('2')
         high.setup(0, self)
         root.add_children([low, high])
-        self.behaviour_tree = py_trees.trees.BehaviourTree(root)
+        self.behaviour_tree = BehaviourTree(root)
 
     def step(self):
         self.behaviour_tree.tick()
@@ -203,9 +213,9 @@ class SwarmAgentSenseSite(Agent):
         # name = type(model.target).__name__
         # self.shared_content[name] = {model.target}
 
-        root = py_trees.composites.Selector("Selector")
-        left_sequence = py_trees.composites.Sequence("LSequence")
-        right_sequence = py_trees.composites.Sequence("RSequence")
+        root = Selector("Selector")
+        left_sequence = Sequence("LSequence")
+        right_sequence = Sequence("RSequence")
         low = RandomWalk('1')
         low.setup(0, self)
         # low1 = IsMoveable('2')
@@ -221,7 +231,7 @@ class SwarmAgentSenseSite(Agent):
         # medium = GoTo('2')
         # medium.setup(0, self, self.attached_objects['Sites'][0])
         root.add_children([left_sequence, right_sequence])
-        self.behaviour_tree = py_trees.trees.BehaviourTree(root)
+        self.behaviour_tree = BehaviourTree(root)
         # py_trees.display.print_ascii_tree(root)
 
     def step(self):
@@ -246,16 +256,18 @@ class SwarmAgentSenseHubSite(Agent):
         self.moveable = True
         self.shared_content = dict()
 
-        root = py_trees.composites.Selector("Selector")
-        left_sequence = py_trees.composites.Sequence("LSequence")
-        right_sequence = py_trees.composites.Sequence("RSequence")
-        hub_sequence = py_trees.composites.RepeatUntilFalse("L1Sequence")
+        root = Selector("Selector")
+        left_sequence = Sequence("LSequence")
+        right_sequence = Sequence("RSequence")
+        # hub_sequence = py_trees.meta.RepeatUntilFalse("L1Sequence")
+        hub_sequence = Sequence('HubSeq')
 
-        right_selector = py_trees.composites.Selector("RSelector")
-        right1_sequence = py_trees.composites.Sequence("R1Sequence")
+        right_selector = Selector("RSelector")
+        right1_sequence = Sequence("R1Sequence")
 
-        self.blackboard = Blackboard()
-        self.blackboard.shared_content = dict()
+        self.blackboard = blackboard.Client(name=name)
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.WRITE)
+        self.blackboard.neighbourobj = dict()
 
         name = type(model.hub).__name__
         self.shared_content[name] = {model.hub}
@@ -276,8 +288,8 @@ class SwarmAgentSenseHubSite(Agent):
         low2 = Move('9')
         low2.setup(0, self)
 
-        medium = NeighbourObjects('1')
-        medium.setup(0, self, 'Sites')
+        # medium = NeighbourObjects('1')
+        # medium.setup(0, self, 'Sites')
 
         high = GoTo('2')
         high.setup(0, self, type(model.hub).__name__)
@@ -285,11 +297,13 @@ class SwarmAgentSenseHubSite(Agent):
         highm = Move('3')
         highm.setup(0, self)
 
-        high1 = py_trees.meta.inverter(NeighbourObjects)('4')
-        high1.setup(0, self, 'Hub')
+        temp = NeighbourObjects('4')
+        temp.setup(0, self, 'Hub')
+        high1 = Inverter(temp)
 
         hub_sequence.add_children([high, highm, high1])
-        left_sequence.add_children([medium, hub_sequence])
+        # left_sequence.add_children([medium, hub_sequence])
+        left_sequence.add_children([hub_sequence])
 
         right1_sequence.add_children([hub_dnm, dmn])
         right_sequence.add_children([low, low2])
@@ -297,9 +311,9 @@ class SwarmAgentSenseHubSite(Agent):
         right_selector.add_children([right1_sequence, right_sequence])
         root.add_children([left_sequence, right_selector])
 
-        self.behaviour_tree = py_trees.trees.BehaviourTree(root)
+        self.behaviour_tree = BehaviourTree(root)
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
-        # py_trees.display.print_ascii_tree(root, indent=0, show_status=True)
+        # print(py_trees.display.ascii_tree(root, indent=0, show_status=True))
 
     def step(self):
         self.behaviour_tree.tick()
@@ -634,4 +648,4 @@ class TestSenseHubSiteSwarmSmallGrid(TestCase):
             self.environment.step()
 
     def test_agent_path(self):
-        self.assertEqual(self.environment.agent.location, (-31, -31))
+        self.assertEqual(self.environment.agent.location, (5, 5))

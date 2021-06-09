@@ -20,6 +20,6 @@ __all__ = [
     "Hub", "Sites"]
 
 __title__ = 'swarms'
-__version__ = '0.0.1'
+__version__ = '1.0.1'
 __license__ = 'Apache 2.0'
 __copyright__ = 'Copyright %s Project swarm Team' % datetime.date.today().year
