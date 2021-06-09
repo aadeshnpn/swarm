@@ -13,7 +13,7 @@ from swarms.behaviors.scbehaviors import (      # noqa: F401
 from swarms.behaviors.sbehaviors import (       # noqa: F401
     IsCarrying, NeighbourObjects, Move, IsDropable,
     IsVisitedBefore, IsInPartialAttached, CanMove,
-    DidAvoidedObj
+    DidAvoidedObj, IsCarryable
     # , IsAgentDead, IsPassable, IsDeathable
     )
 

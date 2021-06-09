@@ -67,7 +67,7 @@ class NeighbourObjects(Behaviour):
         """
         self.agent = agent
         self.item = item
-        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard = blackboard.Client(name=str(agent.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.WRITE)
 
     def initialise(self):
@@ -155,7 +155,7 @@ class NeighbourObjectsDist(Behaviour):
         """
         self.agent = agent
         self.item = item
-        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard = blackboard.Client(name=str(agent.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.WRITE)
 
     def initialise(self):
@@ -261,7 +261,7 @@ class GoTo(Behaviour):
         """
         self.agent = agent
         self.item = item
-        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard = blackboard.Client(name=str(agent.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
@@ -370,7 +370,7 @@ class IsMoveable(Behaviour):
         """Setup."""
         self.agent = agent
         self.item = item
-        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard = blackboard.Client(name=str(agent.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
@@ -553,7 +553,7 @@ class IsCarryable(Behaviour):
         """Setup."""
         self.agent = agent
         self.thing = thing
-        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard = blackboard.Client(name=str(agent.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
@@ -586,7 +586,7 @@ class IsDropable(Behaviour):
         """Setup."""
         self.agent = agent
         self.thing = thing
-        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard = blackboard.Client(name=str(agent.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
@@ -625,7 +625,7 @@ class IsSingleCarry(Behaviour):
         """Setup."""
         self.agent = agent
         self.thing = thing
-        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard = blackboard.Client(name=str(agent.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
@@ -662,7 +662,7 @@ class IsMultipleCarry(Behaviour):
         """Setup."""
         self.agent = agent
         self.thing = thing
-        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard = blackboard.Client(name=str(agent.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
@@ -825,7 +825,7 @@ class SingleCarry(Behaviour):
         """Setup."""
         self.agent = agent
         self.item = item
-        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard = blackboard.Client(name=str(agent.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
@@ -872,7 +872,7 @@ class InitiateMultipleCarry(Behaviour):
         """Setup."""
         self.agent = agent
         self.item = item
-        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard = blackboard.Client(name=str(agent.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
@@ -969,7 +969,7 @@ class IsEnoughStrengthToCarry(Behaviour):
         """Setup."""
         self.agent = agent
         self.item = item
-        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard = blackboard.Client(name=str(agent.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
@@ -1028,7 +1028,7 @@ class IsVisitedBefore(Behaviour):
         """Setup."""
         self.agent = agent
         self.item = item
-        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard = blackboard.Client(name=str(agent.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
@@ -1060,7 +1060,7 @@ class MultipleCarry(Behaviour):
         """Setup."""
         self.agent = agent
         self.item = item
-        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard = blackboard.Client(name=str(agent.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
@@ -1096,7 +1096,7 @@ class SignalDoesNotExists(Behaviour):
         """Setup."""
         self.agent = agent
         self.item = item
-        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard = blackboard.Client(name=str(agent.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
@@ -1144,7 +1144,7 @@ class SendSignal(Behaviour):
         """Setup."""
         self.agent = agent
         self.item = item
-        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard = blackboard.Client(name=str(agent.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
@@ -1193,7 +1193,7 @@ class ReceiveSignal(Behaviour):
         """Setup."""
         self.agent = agent
         self.item = item
-        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard = blackboard.Client(name=str(agent.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
@@ -1233,7 +1233,7 @@ class CueDoesNotExists(Behaviour):
         """Setup."""
         self.agent = agent
         self.item = item
-        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard = blackboard.Client(name=str(agent.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
@@ -1284,7 +1284,7 @@ class DropCue(Behaviour):
         """Setup."""
         self.agent = agent
         self.item = item
-        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard = blackboard.Client(name=str(agent.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
@@ -1331,7 +1331,7 @@ class PickCue(Behaviour):
         """Setup."""
         self.agent = agent
         self.item = item
-        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard = blackboard.Client(name=str(agent.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
@@ -1376,7 +1376,7 @@ class AvoidSObjects(Behaviour):
         """Setup."""
         self.agent = agent
         self.item = item
-        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard = blackboard.Client(name=str(agent.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
@@ -1410,7 +1410,7 @@ class DidAvoidedObj(Behaviour):
         """Setup."""
         self.agent = agent
         self.thing = thing
-        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard = blackboard.Client(name=str(agent.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
@@ -1446,7 +1446,7 @@ class CanMove(Behaviour):
         """Setup."""
         self.agent = agent
         self.thing = thing
-        self.blackboard = blackboard.Client(name=agent.name)
+        self.blackboard = blackboard.Client(name=str(agent.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
