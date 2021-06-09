@@ -184,7 +184,7 @@ class Signal(Communication):
         super().__init__(id, None, radius, object_to_communicate)
         self.dropable = False
         self.carryable = False
-        self.passable = False
+        self.passable = True
         self.deathable = False
         self.moveable = False
 

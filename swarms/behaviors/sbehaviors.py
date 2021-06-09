@@ -485,7 +485,6 @@ class Move(Behaviour):
                 self.agent.direction) * self.agent.velocity)
             new_location, direction = self.agent.model.grid.check_limits(
                 (x, y), self.agent.direction)
-
             if self.agent.model.grid.move_object(
                 self.agent.location, self.agent, new_location):
 
