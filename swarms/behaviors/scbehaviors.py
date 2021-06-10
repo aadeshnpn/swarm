@@ -639,8 +639,8 @@ class CompositeReceiveSignal(Behaviour):
         s2 = ReceiveSignal('CRS_ReceiveSignal')
         s2.setup(0, self.agent, 'Signal')
 
-        neigbourobjs.add_children([s1, s2])
-        root.add_children([neigbourobjs, neigbourobjs])
+        seqsignal.add_children([s1, s2])
+        root.add_children([neigbourobjs, seqsignal])
 
         self.behaviour_tree = BehaviourTree(root)
 

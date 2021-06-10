@@ -1239,9 +1239,10 @@ class ReceiveSignal(Behaviour):
         try:
             objects = ObjectsStore.find(
                 self.blackboard.neighbourobj, self.agent.shared_content,
-                self.item, self.agent.name)[0]
+                self.item, self.agent.name)
             # Extract the information from the signal object and
             # store into the agent memory
+            objects = [obj for obj in objects if obj.id != self.agent.name][0]
             objects = objects.communicated_object
             name = type(objects).__name__
             try:
