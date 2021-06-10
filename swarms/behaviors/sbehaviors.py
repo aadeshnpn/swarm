@@ -1610,3 +1610,68 @@ class SensePheromone(Behaviour):
 
         except (IndexError, AttributeError):
             return common.Status.FAILURE
+
+
+class PheromoneExists(Behaviour):
+    """Check if pheromone exists at the location where agent is.
+
+    This is a communication behavior where pheromones are sensed from
+    the environment and a direction is computed to follow.
+    """
+
+    def __init__(self, name):
+        """Initialize."""
+        super(PheromoneExists, self).__init__(name)
+
+    def setup(self, timeout, agent, item='Pheromones'):
+        """Setup."""
+        self.agent = agent
+        self.item = item
+        self.blackboard = blackboard.Client(name=str(agent.name))
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
+
+    def initialise(self):
+        """Pass."""
+        pass
+
+    def update(self):
+        """Logic for dropping pheromone."""
+        try:
+            objects = ObjectsStore.find(
+                self.blackboard.neighbourobj, self.agent.shared_content,
+                self.item, self.agent.name)
+            objects = [obj for obj in objects if obj.id == self.agent.name]
+            if len(objects) >=1:
+                return common.Status.SUCCESS
+            else:
+                return common.Status.FAILURE
+        except (IndexError, AttributeError):
+            return common.Status.FAILURE
+
+
+class IsAgentDead(Behaviour):
+    """Check if agent is dead.
+    """
+
+    def __init__(self, name):
+        """Initialize."""
+        super(IsAgentDead, self).__init__(name)
+
+    def setup(self, timeout, agent, item=None):
+        """Setup."""
+        self.agent = agent
+        self.item = item
+
+    def initialise(self):
+        """Pass."""
+        pass
+
+    def update(self):
+        """Check agent is dead"""
+        try:
+            if self.agent.dead:
+                return common.Status.SUCCESS
+            else:
+                return common.Status.FAILURE
+        except (IndexError, AttributeError):
+            return common.Status.FAILURE

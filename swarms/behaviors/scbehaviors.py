@@ -18,13 +18,13 @@ from py_trees import common, blackboard
 from py_trees.decorators import FailureIsSuccess, Inverter
 
 from swarms.behaviors.sbehaviors import (
-    GoTo, IsDropable, IsMoveable, IsVisitedBefore, Towards, Move, Away,
+    DropPheromone, GoTo, IsDropable, IsMoveable, IsVisitedBefore, PheromoneExists, SensePheromone, Towards, Move, Away,
     IsCarryable, IsSingleCarry, SingleCarry,
     IsMultipleCarry, IsInPartialAttached, IsEnoughStrengthToCarry,
     InitiateMultipleCarry, IsCarrying, Drop, RandomWalk, DropPartial,
     SignalDoesNotExists, SendSignal, NeighbourObjects, ReceiveSignal,
     CueDoesNotExists, DropCue, PickCue, AvoidSObjects, NeighbourObjectsDist,
-    IsSignalActive
+    IsSignalActive, IsAgentDead
     )
 
 # Start of mid-level behaviors. These behaviors are the
@@ -755,3 +755,128 @@ class CompositeReceiveSignal(Behaviour):
 #         """
 #         self.behaviour_tree.tick()
 #         return self.behaviour_tree.root.status
+
+
+class CompositeDropPheromone(Behaviour):
+    """Drop pheromone behavior for the agents.
+
+    Inherits the Behaviors class from py_trees. This
+    behavior combines the privitive behaviors to succesfully drop pheromone
+    int the environment. It combines NeighbourObjects and DroPheromones behaviors.
+    """
+
+    def __init__(self, name):
+        """Init method for the SendSignal behavior."""
+        super(CompositeDropPheromone, self).__init__(name)
+
+    def setup(self, timeout, agent, item=None):
+        """Have defined the setup method.
+
+        This method defines the other objects required for the
+        behavior. Agent is the actor in the environment,
+        item is the name of the item we are trying to find in the
+        environment and timeout defines the execution time for the
+        behavior.
+        """
+        self.agent = agent
+        self.item = item
+
+        # Define the root for the BT
+        root = Selector('CDP_Selector')
+
+        seqagent_dead = Sequence('CDP_Sequence')
+        seqagent_notdead = Sequence('CDP_Sequence')
+
+        exists = Sequence('CPD_PExists')
+        neigh = NeighbourObjects('CDP_PheromoneNearBy')
+        neigh.setup(0, self.agent, 'Pheromones')
+
+        pheromone_exists = PheromoneExists('CDP_PheromoneExists')
+        pheromone_exists.setup(0, self.agent, 'Pheromones')
+
+        exists.add_children([neigh, pheromone_exists])
+
+        c1 = IsDropable('CDP_Dropable')
+        c1.setup(0, self.agent, None)
+
+        c2 = IsAgentDead('CDP_IsAgentDead')
+        c2.setup(0, self.agent, None)
+
+        c3 =  Inverter(copy.copy(c2), 'CDP_AgentNotDead')
+
+        c4 = DropPheromone('CDP_DropPheromone_Att', attractive=True)
+        c4.setup(0, self.agent, 'Cue')
+        c5 = DropPheromone('CDP_DropPheromone_Rep', attractive=False)
+        c5.setup(0, self.agent, 'Cue')
+
+        seqagent_dead.add_children([c1, c2, c5])
+        seqagent_notdead.add_children([c1, c3, c4])
+
+        root.add_children([exists, seqagent_notdead, seqagent_dead])
+
+        self.behaviour_tree = BehaviourTree(root)
+
+    def initialise(self):
+        """Everytime initialization. Not required for now."""
+        pass
+
+    def update(self):
+        """Just call the tick method for the sequence.
+
+        This will execute the primitive behaviors defined in the sequence
+        """
+        self.behaviour_tree.tick()
+        return self.behaviour_tree.root.status
+
+
+class CompositeSensePheromone(Behaviour):
+    """Sense pheromone behavior for the agents.
+
+    Inherits the Behaviors class from py_trees. This
+    behavior combines the privitive behaviors to succesfully sense pheromone
+    in the environment. It combines NeighbourObjects and SensePheromones behaviors.
+    """
+
+    def __init__(self, name):
+        """Init method for the CompositeSensePheromone behavior."""
+        super(CompositeSensePheromone, self).__init__(name)
+
+    def setup(self, timeout, agent, item=None):
+        """Have defined the setup method.
+
+        This method defines the other objects required for the
+        behavior. Agent is the actor in the environment,
+        item is the name of the item we are trying to find in the
+        environment and timeout defines the execution time for the
+        behavior.
+        """
+        self.agent = agent
+        self.item = item
+
+        # Define the root for the BT
+        root = Selector('CSP_Selector')
+
+        seqagent_pheromon = Sequence('CSP_Sequence')
+        neigh = NeighbourObjectsDist('CSP_PheromoneNearBy')
+        neigh.setup(0, self.agent, 'Pheromones')
+
+        sense_pheromonc = SensePheromone('CSP_SensePheromon')
+        sense_pheromonc.setup(0, self.agent, 'Pheromones')
+
+        seqagent_pheromon.add_children([neigh, seqagent_pheromon])
+
+        root.add_children([seqagent_pheromon])
+
+        self.behaviour_tree = BehaviourTree(root)
+
+    def initialise(self):
+        """Everytime initialization. Not required for now."""
+        pass
+
+    def update(self):
+        """Just call the tick method for the sequence.
+
+        This will execute the primitive behaviors defined in the sequence
+        """
+        self.behaviour_tree.tick()
+        return self.behaviour_tree.root.status
