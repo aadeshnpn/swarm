@@ -234,3 +234,26 @@ class Debris(Carryable):
     def __init__(self, id=1, location=(0, 0), radius=2, weight=5):
         """Initialize."""
         super().__init__(id, location, radius)
+
+
+# Class to define pheromones
+class Pheromones(EnvironmentObject):
+    """Base class for Pheromones."""
+    def __init__(
+            self, id=1, location=(0, 0), radius=20, expire_time=20,
+            attractive=True, direction=0.0):
+        """Initialize."""
+        super().__init__(id, location, radius)
+        self.dropable = True
+        self.carryable = False
+        self.passable = True
+        self.deathable = False
+        self.moveable = False
+        self.expire_time = expire_time
+        self.attractive = attractive
+        self.direction = direction
+        self.strength = np.round(np.exp(-1*np.array(list(range(-2, self.expire_time)))))
+        self.current_time = 0
+
+    def step(self):
+        self.current_time += 1
