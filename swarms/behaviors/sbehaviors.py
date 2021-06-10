@@ -11,7 +11,7 @@ from py_trees import common, blackboard
 import py_trees
 
 from swarms.utils.distangle import get_direction, point_distance
-from swarms.lib.objects import Signal, Cue
+from swarms.lib.objects import Pheromones, Signal, Cue
 
 
 class ObjectsStore:
@@ -1496,4 +1496,117 @@ class CanMove(Behaviour):
             else:
                 return common.Status.FAILURE
         except (AttributeError, IndexError):
+            return common.Status.FAILURE
+
+
+# Pheromone related bheaviors
+class DropPheromone(Behaviour):
+    """Drop pheromone in the environment.
+
+    This is a communication behavior where a pheromone object
+    is placed in the environment which gives a direction to follow for the
+    agents.
+    """
+
+    def __init__(self, name, attractive=True):
+        """Initialize."""
+        super(DropPheromone, self).__init__(name)
+        self.attractive = True
+
+    def setup(self, timeout, agent, item=None):
+        """Setup."""
+        self.agent = agent
+        self.item = item
+        self.blackboard = blackboard.Client(name=str(agent.name))
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
+        self.blackboard = blackboard.Client(name='Pheromones')
+        self.blackboard.register_key(key='pheromones', access=common.Access.WRITE)
+        self.blackboard.pheromones = list()
+
+    def initialise(self):
+        """Pass."""
+        pass
+
+    def update(self):
+        """Logic for dropping pheromone."""
+        try:
+            objects = ObjectsStore.find(
+                self.blackboard.neighbourobj, self.agent.shared_content,
+                self.item, self.agent.name)
+
+            dropable = True
+            for obj in objects:
+                if obj.dropable is False or obj.passable is False:
+                    dropable = False
+                    break
+
+            if dropable:
+                # Initialize the pheromone object
+                pheromone = Pheromones(
+                    id=self.agent.name, location=self.agent.location,
+                    radius=self.agent.radius, attractive=self.attractive, direction=self.agent.direction)
+
+                # Add the pheromone to the grids so it could be sensed by
+                # other agents
+                self.agent.model.grid.add_object_to_grid(
+                    pheromone.location, pheromone)
+
+                self.blackboard.pheromones.append(pheromone)
+                return common.Status.SUCCESS
+            else:
+                return common.Status.SUCCESS
+        except (IndexError, AttributeError):
+            return common.Status.FAILURE
+
+
+# Pheromone related bheaviors
+class SensePheromone(Behaviour):
+    """Sense pheromone in the environment.
+
+    This is a communication behavior where pheromones are sensed from
+    the environment and a direction is computed to follow.
+    """
+
+    def __init__(self, name, attractive=True):
+        """Initialize."""
+        super(SensePheromone, self).__init__(name)
+        self.attractive = True
+
+    def setup(self, timeout, agent, item='Pheromones'):
+        """Setup."""
+        self.agent = agent
+        self.item = item
+        self.blackboard = blackboard.Client(name=str(agent.name))
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
+
+    def initialise(self):
+        """Pass."""
+        pass
+
+    def update(self):
+        """Logic for dropping pheromone."""
+        try:
+            objects = ObjectsStore.find(
+                self.blackboard.neighbourobj, self.agent.shared_content,
+                self.item, self.agent.name)
+
+            repulsive = False
+            for obj in objects:
+                if obj.attractive is False:
+                    repulsive = True
+                    break
+
+            if not repulsive:
+                # Initialize the pheromone object
+                angles = [[
+                    np.sin(obj.direction), np.cos(obj.direction), obj.strength[obj.current_time]] for obj in objects]
+                sin, cos, weight = zip(*angles)
+                sin, cos, weight = np.array(sin), np.array(cos), np.array(weight)
+                direction = np.arctan2(sum(sin * weight), sum(cos * weight))
+                self.agent.direction = direction
+            else:
+                self.agent.direction += np.pi/2
+            return common.Status.SUCCESS
+
+        except (IndexError, AttributeError):
             return common.Status.FAILURE

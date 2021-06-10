@@ -240,7 +240,7 @@ class Debris(Carryable):
 class Pheromones(EnvironmentObject):
     """Base class for Pheromones."""
     def __init__(
-            self, id=1, location=(0, 0), radius=20, expire_time=20,
+            self, id=1, location=(0, 0), radius=3, expire_time=20,
             attractive=True, direction=0.0):
         """Initialize."""
         super().__init__(id, location, radius)
