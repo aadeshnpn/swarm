@@ -1511,7 +1511,7 @@ class DropPheromone(Behaviour):
     def __init__(self, name, attractive=True):
         """Initialize."""
         super(DropPheromone, self).__init__(name)
-        self.attractive = True
+        self.attractive = attractive
 
     def setup(self, timeout, agent, item=None):
         """Setup."""

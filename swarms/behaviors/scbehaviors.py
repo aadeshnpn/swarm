@@ -24,7 +24,7 @@ from swarms.behaviors.sbehaviors import (
     InitiateMultipleCarry, IsCarrying, Drop, RandomWalk, DropPartial,
     SignalDoesNotExists, SendSignal, NeighbourObjects, ReceiveSignal,
     CueDoesNotExists, DropCue, PickCue, AvoidSObjects, NeighbourObjectsDist,
-    IsSignalActive, IsAgentDead
+    IsSignalActive, IsAgentDead, CanMove
     )
 
 # Start of mid-level behaviors. These behaviors are the
@@ -89,18 +89,25 @@ class MoveTowards(Behaviour):
         avoid_trp.setup(0, self.agent, item='Traps')
 
         # Define move behavior
+        canmove = CanMove('MT_CANMOVE')
+        canmove.setup(0, self.agent, None)
+
         move = Move('MT_MOVE_ACT')
         move.setup(0, self.agent)
 
         # selector_blocked.
-        sequence_blocked_obs.add_children([const_is_no_blocked_obs, avoid_obs, copy.copy(move)])
-        sequence_blocked_trp.add_children([const_is_no_blocked_trp, avoid_trp, copy.copy(move)])
+        sequence_blocked_obs.add_children(
+            [
+                const_is_no_blocked_obs, avoid_obs, copy.copy(canmove), copy.copy(move)])
+        sequence_blocked_trp.add_children(
+            [
+                const_is_no_blocked_trp, avoid_trp, copy.copy(canmove), copy.copy(move)])
 
         # Define a sequence to combine the primitive behavior
         mt_sequence = Sequence('MT_SEQUENCE')
         const_is_no_blocked_obs_inv = Inverter(copy.copy(const_is_no_blocked_obs))
         const_is_no_blocked_trp_inv = Inverter(copy.copy(const_is_no_blocked_trp))
-        mt_sequence.add_children([goto, towards, const_is_no_blocked_obs_inv, const_is_no_blocked_trp_inv, move])
+        mt_sequence.add_children([goto, towards, const_is_no_blocked_obs_inv, const_is_no_blocked_trp_inv, canmove, move])
 
         selector.add_children([postcond_is_already_at_there, mt_sequence, sequence_blocked_obs, sequence_blocked_trp])
 
@@ -174,18 +181,21 @@ class MoveAway(Behaviour):
         avoid_trp.setup(0, self.agent, item='Traps')
 
         # Define move behavior
+        canmove = CanMove('MA_CANMOVE')
+        canmove.setup(0, self.agent, None)
+
         move = Move('MA_MOVE_ACT')
         move.setup(0, self.agent)
 
         # selector_blocked.
-        sequence_blocked_obs.add_children([const_is_no_blocked_obs, avoid_obs, copy.copy(move)])
-        sequence_blocked_trp.add_children([const_is_no_blocked_trp, avoid_trp, copy.copy(move)])
+        sequence_blocked_obs.add_children([const_is_no_blocked_obs, avoid_obs, copy.copy(canmove), copy.copy(move)])
+        sequence_blocked_trp.add_children([const_is_no_blocked_trp, avoid_trp, copy.copy(canmove), copy.copy(move)])
 
         # Define a sequence to combine the primitive behavior
         mt_sequence = Sequence('MA_SEQUENCE')
         const_is_no_blocked_obs_inv = Inverter(copy.copy(const_is_no_blocked_obs))
         const_is_no_blocked_trp_inv = Inverter(copy.copy(const_is_no_blocked_trp))
-        mt_sequence.add_children([goto, away, const_is_no_blocked_obs_inv, const_is_no_blocked_trp_inv, move])
+        mt_sequence.add_children([goto, away, const_is_no_blocked_obs_inv, const_is_no_blocked_trp_inv, canmove, move])
 
         selector.add_children([postcond_is_already_at_there, mt_sequence, sequence_blocked_obs, sequence_blocked_trp])
 
@@ -517,16 +527,19 @@ class Explore(Behaviour):
         avoid_trp = AvoidSObjects('EX_Avoid_Traps')
         avoid_trp.setup(0, self.agent, item='Traps')
 
+        canmove = CanMove('Ex_CANMOVE')
+        canmove.setup(0, self.agent, None)
+
         high = Move('Ex_Move')
         high.setup(0, self.agent)
 
         # selector_blocked.
         const_is_no_blocked_obs_inv = Inverter(copy.copy(const_is_no_blocked_obs))
         const_is_no_blocked_trp_inv = Inverter(copy.copy(const_is_no_blocked_trp))
-        sequence_blocked_obs.add_children([const_is_no_blocked_obs, avoid_obs, copy.copy(high)])
-        sequence_blocked_trp.add_children([const_is_no_blocked_trp, avoid_trp, copy.copy(high)])
+        sequence_blocked_obs.add_children([const_is_no_blocked_obs, avoid_obs, copy.copy(canmove), copy.copy(high)])
+        sequence_blocked_trp.add_children([const_is_no_blocked_trp, avoid_trp, copy.copy(canmove), copy.copy(high)])
 
-        ex_sequence.add_children([low, const_is_no_blocked_obs_inv, const_is_no_blocked_trp_inv, high])
+        ex_sequence.add_children([low, const_is_no_blocked_obs_inv, const_is_no_blocked_trp_inv, canmove, high])
 
         root.add_children([ex_sequence, sequence_blocked_obs, sequence_blocked_trp])
 
