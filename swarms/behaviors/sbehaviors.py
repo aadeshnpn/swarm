@@ -1517,11 +1517,10 @@ class DropPheromone(Behaviour):
         """Setup."""
         self.agent = agent
         self.item = item
-        self.blackboard = blackboard.Client(name=str(agent.name))
-        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
+        # self.blackboard = blackboard.Client(name=str(agent.name))
+        # self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
         self.blackboard = blackboard.Client(name='Pheromones')
         self.blackboard.register_key(key='pheromones', access=common.Access.WRITE)
-        self.blackboard.pheromones = list()
 
     def initialise(self):
         """Pass."""
@@ -1530,17 +1529,7 @@ class DropPheromone(Behaviour):
     def update(self):
         """Logic for dropping pheromone."""
         try:
-            objects = ObjectsStore.find(
-                self.blackboard.neighbourobj, self.agent.shared_content,
-                self.item, self.agent.name)
-
-            dropable = True
-            for obj in objects:
-                if obj.dropable is False or obj.passable is False:
-                    dropable = False
-                    break
-
-            if dropable:
+            if True:
                 # Initialize the pheromone object
                 pheromone = Pheromones(
                     id=self.agent.name, location=self.agent.location,

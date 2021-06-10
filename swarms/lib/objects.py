@@ -252,7 +252,7 @@ class Pheromones(EnvironmentObject):
         self.expire_time = expire_time
         self.attractive = attractive
         self.direction = direction
-        self.strength = np.round(np.exp(-1*np.array(list(range(-2, self.expire_time)))))
+        self.strength = np.round(np.exp(-1*np.array(list(range(-2, self.expire_time)))), 5)
         self.current_time = 0
 
     def step(self):

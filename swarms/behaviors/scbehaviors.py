@@ -784,8 +784,8 @@ class CompositeDropPheromone(Behaviour):
         # Define the root for the BT
         root = Selector('CDP_Selector')
 
-        seqagent_dead = Sequence('CDP_Sequence')
-        seqagent_notdead = Sequence('CDP_Sequence')
+        seqagent_dead = Sequence('CDP_Sequence_Dead')
+        seqagent_notdead = Sequence('CDP_Sequence_NotDead')
 
         exists = Sequence('CPD_PExists')
         neigh = NeighbourObjects('CDP_PheromoneNearBy')
@@ -796,8 +796,11 @@ class CompositeDropPheromone(Behaviour):
 
         exists.add_children([neigh, pheromone_exists])
 
-        c1 = IsDropable('CDP_Dropable')
+        c1 = IsDropable('CDP_Dropable1')
         c1.setup(0, self.agent, None)
+
+        c11 = IsDropable('CDP_Dropable2')
+        c11.setup(0, self.agent, None)
 
         c2 = IsAgentDead('CDP_IsAgentDead')
         c2.setup(0, self.agent, None)
@@ -810,7 +813,7 @@ class CompositeDropPheromone(Behaviour):
         c5.setup(0, self.agent, 'Cue')
 
         seqagent_dead.add_children([c1, c2, c5])
-        seqagent_notdead.add_children([c1, c3, c4])
+        seqagent_notdead.add_children([c11, c3, c4])
 
         root.add_children([exists, seqagent_notdead, seqagent_dead])
 
