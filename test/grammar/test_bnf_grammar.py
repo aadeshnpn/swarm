@@ -48,7 +48,7 @@ class SwarmMoveTowards(Agent):
         # Grammatical Evolution part
         from ponyge.algorithm.parameters import Parameters
         parameter = Parameters()
-        parameter_list = ['--parameters', '../..,res.txt']
+        parameter_list = ['--parameters', '../..,test_swarm.txt']
         parameter.params['RANDOM_SEED'] = 1234
         parameter.params['POPULATION_SIZE'] = 10 // 2
         parameter.set_params(parameter_list)
@@ -135,7 +135,7 @@ class TestGoToSwarmSmallGrid(TestCase):
 
     def test_agent_path(self):
         # Checking if the agents reaches site or not
-        self.assertEqual(len(list(self.environment.agent.bt.behaviour_tree.root.iterate())), 13)
+        self.assertEqual(len(list(self.environment.agent.bt.behaviour_tree.root.iterate())), 10)
 
 
 class TestVisitorSwarmSmallGrid(TestCase):
