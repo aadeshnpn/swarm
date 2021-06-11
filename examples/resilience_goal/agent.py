@@ -177,7 +177,7 @@ class LearningAgent(ForagingAgent):
         self.avoid_obs = False
         self.blackboard = blackboard.Client(name=str(self.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.WRITE)
-
+        self.blackboard.neighbourobj = dict()
         # self.trace.append({k:self.functions[k]() for k in self.keys})
         # self.trace[self.step_count] = {k:self.functions[k]() for k in self.keys}
 
@@ -274,7 +274,7 @@ class LearningAgent(ForagingAgent):
         parameter.set_params(parameter_list)
         self.parameter = parameter
         # Initialize the genome
-        individual = initialisation(self.parameter, 1)
+        individual = initialisation(self.parameter, size=3)
         individual = evaluate_fitness(individual, self.parameter)
         # Assign the genome to the agent
         self.individual = individual
