@@ -20,8 +20,11 @@ from flloat.parser.ltlf import LTLfParser
 
 
 # filename = os.path.join(imp.find_module("swarms")[1] + "/utils/world.json")
-projectdir = "/home/aadeshnpn/Documents/BYU/HCMI/resilience/swarm/examples"
-filename = os.path.join(projectdir + "/resilience_evolution/world.json")
+projectdir = Path(__file__).resolve().parent
+filename = os.path.join(projectdir, 'world.json')
+# projectdir = "/home/aadeshnpn/Documents/BYU/HCMI/resilience/swarm/examples"
+# filename = os.path.join(projectdir + "/resilience_evolution/world.json")
+
 
 
 class ForagingModel(Model):

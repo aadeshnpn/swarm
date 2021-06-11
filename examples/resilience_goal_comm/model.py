@@ -21,8 +21,10 @@ from py_trees import common, blackboard
 
 
 # filename = os.path.join(imp.find_module("swarms")[1] + "/utils/world.json")
-projectdir = "/home/aadeshnpn/Documents/BYU/HCMI/resilience/swarm/examples"
-filename = os.path.join(projectdir + "/resilience_evolution/world.json")
+# projectdir = "/home/aadeshnpn/Documents/BYU/HCMI/resilience/swarm/examples"
+# filename = os.path.join(projectdir + "/resilience_evolution/world.json")
+projectdir = Path(__file__).resolve().parent
+filename = os.path.join(projectdir, 'world.json')
 
 
 class ForagingModel(Model):
@@ -85,7 +87,7 @@ class ForagingModel(Model):
         # Since pheromones is central to the model.
         self.blackboard = blackboard.Client(name='Pheromones')
         self.blackboard.register_key(key='pheromones', access=common.Access.WRITE)
-        self.blackboard.pheromones = list()  
+        self.blackboard.pheromones = list()
 
     def create_agents(self, random_init=True, phenotypes=None):
         """Initialize agents in the environment."""
@@ -150,7 +152,7 @@ class ForagingModel(Model):
 
         # Increment the step count
         self.stepcnt += 1
-        
+
         self.update_pheromones()
 
     def gather_info(self):
