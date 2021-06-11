@@ -33,7 +33,7 @@ pip install .
 FLLOAT
 
 ```
-git clone htts://github.com/whitemech/flloat.git
+git clone https://github.com/whitemech/flloat.git
 cd flloat
 pip install .
 ```

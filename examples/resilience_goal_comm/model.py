@@ -264,7 +264,10 @@ class ForagingModel(Model):
         for pheromone in self.blackboard.pheromones:
             pheromone.step()
             if pheromone.strength[pheromone.current_time] <= 0.0000:
-                self.grid.remove_object_from_grid(pheromone.location, pheromone)
+                try:
+                    self.grid.remove_object_from_grid(pheromone.location, pheromone)
+                except ValueError:
+                    pass
                 self.blackboard.pheromones.remove(pheromone)
 
 
