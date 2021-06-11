@@ -1732,14 +1732,14 @@ class IsRepulsivePheromone(Behaviour):
             objects = ObjectsStore.find(
                 self.blackboard.neighbourobj, self.agent.shared_content,
                 self.item, self.agent.name)
-
+            # print('repusive pheroment', objects, objects[0].attractive)
             repulsive = False
             for obj in objects:
                 if obj.attractive is False:
                     repulsive = True
                     break
 
-            if not repulsive:
+            if repulsive:
                 return common.Status.SUCCESS
             else:
                 return common.Status.FAILURE

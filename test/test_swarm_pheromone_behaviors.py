@@ -405,7 +405,7 @@ class SensePheromoneModel(Model):
         self.agents = []
         for i in range(self.num_agents):
             if i % 2 == 0:
-                a = SwarmDropPheromone(i, self)
+                a = SwarmDropPheromoneDead(i, self)
                 x = -30
                 y = -30
             else:
@@ -442,11 +442,34 @@ class TestDropPheromoneSmallGrid(TestCase):
             self.environment.step()
 
     def test_total_pheromone_dropped(self):
-        self.assertEqual(1, len(self.environment.blackboard.pheromones))
+        self.assertEqual(2, len(self.environment.blackboard.pheromones))
 
     def test_agent_reached_site(self):
         self.assertEqual((35, 35), self.environment.agents[0].location)
-        self.assertEqual((36, 36), self.environment.agents[1].location)
+        self.assertEqual((35, 35), self.environment.agents[1].location)
+
+    def test_agent_pheromone_direction(self):
+        self.assertEqual(self.environment.agents[0].direction, self.environment.blackboard.pheromones[0].direction)
+
+
+
+class TestDropPheromoneDecaySmallGrid(TestCase):
+
+    def setUp(self):
+        self.environment = SensePheromoneModel(2, 100, 100, 10, 123)
+
+        for i in range(50):
+            # print(self.environment.agents[0].location)
+            if i==5:
+                self.environment.agents[0].dead = True
+            self.environment.step()
+
+    def test_total_pheromone_dropped(self):
+        self.assertEqual(1, len(self.environment.blackboard.pheromones))
+
+    def test_agent_reached_site(self):
+        self.assertEqual((-20, -20), self.environment.agents[0].location)
+        self.assertEqual((-38, -41), self.environment.agents[1].location)
 
     def test_agent_pheromone_direction(self):
         self.assertEqual(self.environment.agents[0].direction, self.environment.blackboard.pheromones[0].direction)
@@ -457,8 +480,10 @@ class TestDropPheromoneSmallGrid(TestCase):
 
 #     for i in range(50):
 #         agents = environment.agents
-#         print(i, [(p.location, p.direction, p.current_time, p.attractive) for p in environment.blackboard.pheromones])
-#         print([a.location for a in agents])
+#         if i == 5:
+#             agents[0].dead = True
+#         print(i, [a.location for a in agents], [(p.location, p.direction, p.current_time, p.attractive) for p in environment.blackboard.pheromones])
+#         # print([a.location for a in agents])
 #         environment.step()
 
 # main()
