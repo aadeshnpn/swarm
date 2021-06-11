@@ -1534,7 +1534,7 @@ class DropPheromone(Behaviour):
                 pheromone = Pheromones(
                     id=self.agent.name, location=self.agent.location,
                     radius=self.agent.radius, attractive=self.attractive, direction=self.agent.direction)
-
+                pheromone.passable = self.attractive
                 # Add the pheromone to the grids so it could be sensed by
                 # other agents
                 self.agent.model.grid.add_object_to_grid(
@@ -1662,5 +1662,87 @@ class IsAgentDead(Behaviour):
                 return common.Status.SUCCESS
             else:
                 return common.Status.FAILURE
+        except (IndexError, AttributeError):
+            return common.Status.FAILURE
+
+
+class IsAttractivePheromone(Behaviour):
+    """Check if the pheromone is attractive.
+    """
+
+    def __init__(self, name):
+        """Initialize."""
+        super(IsAttractivePheromone, self).__init__(name)
+
+    def setup(self, timeout, agent, item=None):
+        """Setup."""
+        self.agent = agent
+        self.item = item
+        self.blackboard = blackboard.Client(name=str(agent.name))
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
+
+    def initialise(self):
+        """Pass."""
+        pass
+
+    def update(self):
+        """Check if the pheromone is attractive or repulsive."""
+        try:
+            objects = ObjectsStore.find(
+                self.blackboard.neighbourobj, self.agent.shared_content,
+                self.item, self.agent.name)
+
+            repulsive = False
+            for obj in objects:
+                if obj.attractive is False:
+                    repulsive = True
+                    break
+
+            if not repulsive:
+                return common.Status.SUCCESS
+            else:
+                return common.Status.FAILURE
+
+        except (IndexError, AttributeError):
+            return common.Status.FAILURE
+
+
+class IsRepulsivePheromone(Behaviour):
+    """Check if the pheromone is attractive.
+    """
+
+    def __init__(self, name):
+        """Initialize."""
+        super(IsRepulsivePheromone, self).__init__(name)
+
+    def setup(self, timeout, agent, item=None):
+        """Setup."""
+        self.agent = agent
+        self.item = item
+        self.blackboard = blackboard.Client(name=str(agent.name))
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
+
+    def initialise(self):
+        """Pass."""
+        pass
+
+    def update(self):
+        """Check if the pheromone is attractive or repulsive."""
+        try:
+            objects = ObjectsStore.find(
+                self.blackboard.neighbourobj, self.agent.shared_content,
+                self.item, self.agent.name)
+
+            repulsive = False
+            for obj in objects:
+                if obj.attractive is False:
+                    repulsive = True
+                    break
+
+            if not repulsive:
+                return common.Status.SUCCESS
+            else:
+                return common.Status.FAILURE
+
         except (IndexError, AttributeError):
             return common.Status.FAILURE

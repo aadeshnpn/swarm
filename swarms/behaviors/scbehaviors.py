@@ -18,7 +18,7 @@ from py_trees import common, blackboard
 from py_trees.decorators import FailureIsSuccess, Inverter
 
 from swarms.behaviors.sbehaviors import (
-    DropPheromone, GoTo, IsDropable, IsMoveable, IsVisitedBefore, PheromoneExists, SensePheromone, Towards, Move, Away,
+    DropPheromone, GoTo, IsAttractivePheromone, IsDropable, IsMoveable, IsRepulsivePheromone, IsVisitedBefore, PheromoneExists, SensePheromone, Towards, Move, Away,
     IsCarryable, IsSingleCarry, SingleCarry,
     IsMultipleCarry, IsInPartialAttached, IsEnoughStrengthToCarry,
     InitiateMultipleCarry, IsCarrying, Drop, RandomWalk, DropPartial,
@@ -873,15 +873,37 @@ class CompositeSensePheromone(Behaviour):
         root = Selector('CSP_Selector')
 
         seqagent_pheromon = Sequence('CSP_Sequence')
-        neigh = NeighbourObjectsDist('CSP_PheromoneNearBy')
+
+        neigh = NeighbourObjects('CSP_PheromoneNearBy')
         neigh.setup(0, self.agent, 'Pheromones')
+
+        is_attractive_phe = IsAttractivePheromone('CSP_IsAttractive')
+        is_attractive_phe.setup(0, self.agent, 'Pheromones')
 
         sense_pheromonc = SensePheromone('CSP_SensePheromon')
         sense_pheromonc.setup(0, self.agent, 'Pheromones')
 
-        seqagent_pheromon.add_children([neigh, seqagent_pheromon])
+        canmove = CanMove('CSP_CanMove')
+        canmove.setup(0, self.agent, None)
 
-        root.add_children([seqagent_pheromon])
+        move = Move('CSP_Move')
+        move.setup(0, self.agent, None)
+
+        seqagent_pheromon.add_children([neigh, is_attractive_phe, sense_pheromonc, copy.copy(canmove), copy.copy(move)])
+
+        repuslive_pehromon = Sequence('CSP_Sequence_Replusive')
+
+        neighr = NeighbourObjectsDist('CSP_PheromoneNearByR')
+        neighr.setup(0, self.agent, 'Pheromones')
+
+        is_repulsive_phe = IsRepulsivePheromone('CSP_IsRepulsive')
+        is_repulsive_phe.setup(0, self.agent, 'Pheromones')
+
+        avoid = AvoidSObjects('CSP_Avoid')
+        avoid.setup(0, self.agent, 'Pheromones')
+
+        repuslive_pehromon.add_children([neighr, is_repulsive_phe, avoid, canmove, move])
+        root.add_children([seqagent_pheromon, repuslive_pehromon])
 
         self.behaviour_tree = BehaviourTree(root)
 
