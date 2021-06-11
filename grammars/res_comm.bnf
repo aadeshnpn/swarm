@@ -1,0 +1,17 @@
+<s> ::= [?xml version=%1.0% encoding=%UTF-8%?]<root>
+<root>::=[Sequence]<cf>[/Sequence]|[Sequence]<root><cf>[/Sequence]
+<cf> ::= <selector>
+<selector> ::= [Selector]<postcondition><sequence>[/Selector] | [Selector]<sequence>[/Selector]
+<postcondition>::= [postcond]<pcondition>[/postcond]
+<sequence> ::= [Sequence]<execution>[/Sequence]|[Sequence]<execution>[/Sequence]<sequence>
+<execution>::=<constraints>[act]<action>[/act]|[act]<action>[/act]
+<pcondition>::=NeighbourObjects_<objects>|NeighbourObjects_<sobjects>|NeighbourObjects_<dobjects>|DidAvoidedObj_<sobjects>|IsCarrying_<dobjects>|IsVisitedBefore_<sobjects>|PheromoneExists|IsSignalActive|SignalDoesNotExists_<sobjects>
+<constraints>::=[constraint]<constraint>[/constraint]<conditions>|<conditions>
+<constraint>::=CanMove|IsCarryable_<dobjects>|IsDropable_<sobjects>|DidAvoidedObj_<oobjects>|IsAgentDead_invert
+<conditions>::=[cond]<condition>[/cond]<conditions>|[cond]<condition>[/cond]
+<condition>::=IsDropable_<sobjects>|NeighbourObjects_<objects>|NeighbourObjects_<objects>_invert|IsVisitedBefore_<sobjects>|IsVisitedBefore_<sobjects>_invert|IsCarrying_<dobjects>|IsCarrying_<dobjects>_invert
+<action>::=MoveTowards_<sobjects>|Explore|CompositeSingleCarry_<dobjects>|CompositeDrop_<dobjects>|MoveAway_<sobjects>|CompositeSendSignal_<sobjects>|CompositeReceiveSignal|CompositeDropPheromone|CompositeSensePheromone
+<sobjects>::=Hub|Sites
+<oobjects>::=Obstacles|Trap
+<dobjects>::=Food
+<objects>::=<sobjects>|<dobjects>
