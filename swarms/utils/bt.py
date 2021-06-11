@@ -8,13 +8,15 @@ from py_trees.composites import Sequence, Selector  # noqa: F401
 
 from swarms.behaviors.scbehaviors import (      # noqa: F401
     MoveTowards, MoveAway, Explore, CompositeSingleCarry,
-    CompositeDrop
+    CompositeDrop, CompositeDropPheromone, CompositeSensePheromone,
+    CompositeSendSignal, CompositeReceiveSignal
     )
 from swarms.behaviors.sbehaviors import (       # noqa: F401
     IsCarrying, NeighbourObjects, Move, IsDropable,
     IsVisitedBefore, IsInPartialAttached, CanMove,
-    DidAvoidedObj, IsCarryable
-    # , IsAgentDead, IsPassable, IsDeathable
+    DidAvoidedObj, IsCarryable, IsAgentDead, IsAttractivePheromone, 
+    IsRepulsivePheromone, IsSignalActive, SignalDoesNotExists,
+    PheromoneExists
     )
 
 from py_trees.decorators import SuccessIsRunning, Inverter

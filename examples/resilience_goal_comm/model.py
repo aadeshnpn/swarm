@@ -17,6 +17,7 @@ from pathlib import Path
 import datetime
 import numpy as np
 from flloat.parser.ltlf import LTLfParser
+from py_trees import common, blackboard
 
 
 # filename = os.path.join(imp.find_module("swarms")[1] + "/utils/world.json")
@@ -29,7 +30,7 @@ class ForagingModel(Model):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name='SForagingPPA', viewer=False, parent=None, ratio=1.0):
+            seed=None, name='SForagingPPAComm', viewer=False, parent=None, ratio=1.0):
         """Initialize the attributes."""
         if seed is None:
             super(ForagingModel, self).__init__(seed=None)
@@ -80,6 +81,11 @@ class ForagingModel(Model):
         self.schedule = SimultaneousActivation(self)
         # Empty list of hold the agents
         self.agents = []
+        # Blackboard for pheromones
+        # Since pheromones is central to the model.
+        self.blackboard = blackboard.Client(name='Pheromones')
+        self.blackboard.register_key(key='pheromones', access=common.Access.WRITE)
+        self.blackboard.pheromones = list()  
 
     def create_agents(self, random_init=True, phenotypes=None):
         """Initialize agents in the environment."""
@@ -144,6 +150,8 @@ class ForagingModel(Model):
 
         # Increment the step count
         self.stepcnt += 1
+        
+        self.update_pheromones()
 
     def gather_info(self):
         """Gather information from all the agents."""
@@ -252,13 +260,20 @@ class ForagingModel(Model):
         agents = grid.get_objects_from_list_of_grid(type(self.agents[0]).__name__, neighbours)
         return sum([1 if a.dead else 0 for a in agents])
 
+    def update_pheromones(self):
+        for pheromone in self.blackboard.pheromones:
+            pheromone.step()
+            if pheromone.strength[pheromone.current_time] <= 0.0000:
+                self.grid.remove_object_from_grid(pheromone.location, pheromone)
+                self.blackboard.pheromones.remove(pheromone)
+
 
 class EvolveModel(ForagingModel):
     """A environemnt to model swarms."""
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="EvoSForgeNewPPA", viewer=False):
+            seed=None, name="EvoSForgeNewPPAComm", viewer=False):
         """Initialize the attributes."""
         super(EvolveModel, self).__init__(
             N, width, height, grid, iter, seed, name, viewer)
@@ -390,6 +405,7 @@ class EvolveModel(ForagingModel):
         # input('Enter to continue' + str(self.stepcnt))
         # Increment the step count
         self.stepcnt += 1
+        self.update_pheromones()
 
 
 class ValidationModel(ForagingModel):
@@ -397,7 +413,7 @@ class ValidationModel(ForagingModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="ValidateSForgeNewPPA", viewer=False,
+            seed=None, name="ValidateSForgeNewPPAComm", viewer=False,
             parent=None, ratio=1.0):
         """Initialize the attributes."""
         super(ValidationModel, self).__init__(
@@ -447,7 +463,7 @@ class TestModel(ForagingModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="TestSForgeNewPPA", viewer=False,
+            seed=None, name="TestSForgeNewPPAComm", viewer=False,
             parent=None, ratio=1.0):
         """Initialize the attributes."""
         super(TestModel, self).__init__(
@@ -494,7 +510,7 @@ class ViewerModel(ForagingModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="ViewerSForgeNewPPA", viewer=True):
+            seed=None, name="ViewerSForgeNewPPAComm", viewer=True):
         """Initialize the attributes."""
         super(ViewerModel, self).__init__(
             N, width, height, grid, iter, seed, name, viewer)
