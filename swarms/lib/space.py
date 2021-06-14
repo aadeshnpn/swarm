@@ -184,6 +184,7 @@ class Grid:
                 # print(point, newpoint, grid_value, new_grid_value)
                 if self.check_grid_deathable_constraints(new_grid_value):
                     objects.dead = True
+                    objects.moveable = False
                     self.remove_object_from_grid(point, objects)
                     self.add_object_to_grid(newpoint, objects)
                     return True

@@ -1481,8 +1481,6 @@ class CanMove(Behaviour):
         """Setup."""
         self.agent = agent
         self.thing = thing
-        self.blackboard = blackboard.Client(name=str(agent.name))
-        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
     def initialise(self):
         """Pass."""

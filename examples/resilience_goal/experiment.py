@@ -4,7 +4,7 @@ import numpy as np
 # import pdb
 # import hashlib
 import sys
-from model import EvolveModel, ValidationModel, TestModel
+from model import EvolveModel, ValidationModel, TestModel, ViewerModel
 from swarms.utils.jsonhandler import JsonPhenotypeData
 from swarms.utils.graph import Graph, GraphACC  # noqa : F401
 from joblib import Parallel, delayed    # noqa : F401
@@ -70,6 +70,8 @@ def test_loop(phenotypes, iteration, parentname=None, ratio=1):
     test.build_environment_from_json()
     # Create the agents in the environment from the sampled behaviors
     test.create_agents(phenotypes=phenotypes)
+    # print(phenotypes)
+    # print(test.agents[0].bt)
     # Store the initial result
     testresults = SimulationResultsTraps(
         test.pname, test.connect, test.sn, test.stepcnt,
@@ -100,6 +102,42 @@ def test_loop(phenotypes, iteration, parentname=None, ratio=1):
         success = False
     test.experiment.update_experiment_simulation(test.foraging_percent(), success)
     # print('FP',test.foraging_percent())
+
+
+def ui_loop(phenotypes, iteration, parentname=None, ratio=1):
+    """Test the phenotypes with UI."""
+    # Create a viewer environment instance
+    viewer = ViewerModel(
+        5, width, height, 10, iter=iteration, viewer=True)
+    # Build the environment
+    viewer.build_environment_from_json()
+    # Create the agents in the environment from the sampled behaviors
+    viewer.create_agents(phenotypes=phenotypes)
+    # print(phenotypes)
+
+    # print(test.agents[0].bt)
+    # Store the initial result
+    # testresults = SimulationResultsTraps(
+    #     test.pname, test.connect, test.sn, test.stepcnt,
+    #     test.foraging_percent(), phenotypes[0], test.no_agent_dead()
+    #     )
+    # # Save the phenotype to a json file
+    # testresults.save_phenotype()
+    # # Save the data in a result csv file
+    # testresults.save_to_file()
+    # # Save the phenotype of json file
+    # phenotype_to_json(test.pname, test.runid, phenotypes)
+    # Execute the BT in the environment
+    for i in range(iteration):
+        viewer.step()
+
+        # testresults = SimulationResultsTraps(
+        #     test.pname, test.connect, test.sn, test.stepcnt,
+        #     test.foraging_percent(), phenotypes[0], test.no_agent_dead()
+        # )
+        # testresults.save_to_file()
+
+    # Plot the result in the graph
 
 
 def learning_phase(iteration, early_stop=False):
@@ -209,14 +247,18 @@ def main(iter):
 
 
 def test_json_phenotype(json):
-    jname = '/home/aadeshnpn/Documents/BYU/hcmi/swarm/results/1550083569946511-12000EvoSForge/' + json  # noqa : E501
+    # jname = '/home/aadeshnpn/Documents/BYU/hcmi/swarm/results/1550083569946511-12000EvoSForge/' + json  # noqa : E501
     # jname = '/tmp/1543367322976111-8000EvoSForge/' + json
+    # jname = '/tmp/16235346558663.json'
+    jname = '/tmp/16235340355923-10999.json'
     phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
     print(len(phenotype))
     # phenotype = ' '
 
+    #
     test_loop(phenotype, 5000)
-    # validation_loop(phenotype, 5000, '/tmp/swarm/data/experiments/')
+    # ui_loop(phenotype, 500)
+    validation_loop(phenotype, 5000, '/tmp/swarm/data/experiments/')
     # if validation_loop(phenotype, 2000, 1):
     #    print('foraging success')
 
@@ -270,9 +312,9 @@ if __name__ == '__main__':
     # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 8000, 2000))
     # main(12000)
     # json = '1550083569946511-all.json'
-    # test_json_phenotype(json)
+    test_json_phenotype(None)
 
-    Parallel(n_jobs=8)(delayed(main)(12000) for i in range(512))
+    # Parallel(n_jobs=8)(delayed(main)(12000) for i in range(512))
     # main(12000)
     # test_all_phenotype('/tmp/links.txt')
     # jsonlist = sys.argv

@@ -46,6 +46,7 @@ class Agent:
         self.carrable = False
         self.passable = True
         self.dead = False
+        self.moveable = True
 
     def step(self):
         """Represent a single step of the agent."""

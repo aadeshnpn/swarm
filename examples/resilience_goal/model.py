@@ -539,8 +539,8 @@ class ViewerModel(ForagingModel):
 
         if self.viewer:
             self.ui = UI(
-                (100, 100), [self.hub], self.agents,
-                self.site, food=self.foods)
+                (self.grid.width, self.grid.height), [self.hub], self.agents,
+                sites=[self.site], food=self.foods, obstacles=[self.obstacles], traps=[self.traps])
 
     def step(self):
         """Step through the environment."""
