@@ -60,6 +60,8 @@ def plotgraph(n=100, fname='/tmp/old.txt', label='Old BNF Grammar'):
     plt.close(fig)
 
 
+
+
 def boxplot(fname='/tmp/old.txt'):
     datao = read_data_n_agent(n=100, filename='/tmp/old.txt')[:,-1]
     datan = read_data_n_agent(n=100, filename='/tmp/new.txt')[:,-1]
@@ -127,10 +129,114 @@ def read_data_n_agent(n=100, filename='/tmp/old.txt'):
     return data
 
 
+def plotgraphsite(n=100, agent='SimForgAgentWith', site='50-50'):
+    # folders = pathlib.Path(folder).glob("1616*")
+    # # print(folders)
+    # flist = []
+    # data = []
+    # for f in folders:
+    #     flist = [p for p in pathlib.Path(f).iterdir() if p.is_file()]
+    #     _, _, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+    #     data.append(d)
+    # # print(flist)
+    # data = np.array(data)
+    # print(data.shape)
+
+    # data = read_data_n_agent(n=n, agent=agent)
+    dataf, datad = read_data_n_agent_site(n=n, agent=agent, site=site)
+    # print(data.shape)
+    medianf = np.quantile(dataf, 0.5, axis=0)
+    q1f = np.quantile(dataf, 0.25, axis=0)
+    q3f = np.quantile(dataf, 0.75, axis=0)
+
+    mediand = np.quantile(datad, 0.5, axis=0)
+    q1d = np.quantile(datad, 0.25, axis=0)
+    q3d = np.quantile(datad, 0.75, axis=0)
+    # print(median.shape, q1.shape, q3.shape)
+    color = [
+        'forestgreen', 'indianred',
+        'gold', 'tomato', 'royalblue']
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+    plt.style.use('fivethirtyeight')
+    fig = plt.figure()
+    ax1 = fig.add_subplot(1, 1, 1)
+    xvalues = range(dataf.shape[1])
+    ax1.plot(
+        xvalues, medianf, color=color[0],
+        linewidth=1.0, label='Food')
+    ax1.fill_between(
+        xvalues, q3f, q1f,
+        color=colorshade[0], alpha=0.3)
+
+    ax1.plot(
+        xvalues, mediand, color=color[1],
+        linewidth=1.0, label='Dead Agents')
+    ax1.fill_between(
+        xvalues, q3d, q1d,
+        color=colorshade[1], alpha=0.3)
+    plt.title('Foraging')
+    # ax1.legend(title='$\it{m}$')
+    ax1.set_xlabel('Steps')
+    ax1.set_ylabel('%')
+
+    # ax1.set_xticks(
+    #     np.linspace(0, data.shape[-1], 5))
+    plt.legend()
+    plt.tight_layout()
+
+    # fig.savefig(
+    #     '/tmp/goal/data/experiments/' + pname + '.pdf')
+    maindir = '/tmp/swarm/data/experiments/'
+    nadir = os.path.join(maindir, str(n), agent)
+    fig.savefig(
+        nadir + str(site) + 'foraging' + '.png')
+    plt.close(fig)
+
+
+def read_data_n_agent(n=100, agent='ExecutingAgent'):
+    maindir = '/tmp/swarm/data/experiments/'
+    nadir = os.path.join(maindir, str(n), agent)
+    folders = pathlib.Path(nadir).glob("*ForagingSim*")
+    flist = []
+    data = []
+    for f in folders:
+        flist = [p for p in pathlib.Path(f).iterdir() if p.is_file()]
+        _, _, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+        data.append(d)
+    data = np.array(data)
+    return data
+
+
+def read_data_n_agent_site(n=100, agent='ExecutingAgent', site='5050'):
+    maindir = '/tmp/swarm/data/experiments/'
+    nadir = os.path.join(maindir, str(n), agent, site)
+    folders = pathlib.Path(nadir).glob("*ForagingSim*")
+    flist = []
+    dataf = []
+    datad = []
+    for f in folders:
+        flist = [p for p in pathlib.Path(f).iterdir() if p.is_file()]
+        try:
+            # print(flist)
+            _, _, f, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+            dataf.append(f)
+            datad.append(d)
+        except IndexError:
+            pass
+    # print(data)
+    dataf = np.array(dataf)
+    datad = np.array(datad)
+    # print(dataf.shape, datad.shape)
+    return dataf, datad
+
+
 def main():
     # read_data_n_agent()
     # plotgraph()
-    boxplot()
+    # boxplot()
+    plotgraphsite(n=50, agent='ExecutingAgent', site='-9191')
 
 
 if __name__ == '__main__':

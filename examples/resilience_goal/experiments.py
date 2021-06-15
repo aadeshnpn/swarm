@@ -1,13 +1,11 @@
-"""Experiment script to run handcoded simulation."""
-
-from simmodel import SimForgModel, EvolModel
+from model import SimForgModel
 
 # from swarms.utils.jsonhandler import JsonData
 from swarms.utils.graph import GraphACC
 from joblib import Parallel, delayed    # noqa : F401
 from swarms.utils.results import SimulationResults, SimulationResultsTraps
 from swarms.utils.jsonhandler import JsonPhenotypeData
-from simagent import SimForgAgentWith, SimForgAgentWithout
+from agent import ExecutingAgent
 import argparse
 import os
 import pathlib
@@ -18,39 +16,11 @@ height = 100
 UI = False
 
 
-def extract_phenotype(agents, filename, method='ratio'):
-    """Extract phenotype of the learning agents.
-
-    Sort the agents based on the overall fitness and then based on the
-    method extract phenotype of the agents.
-    Method can take {'ratio','higest','sample'}
-    """
-    sorted_agents = sorted(
-        agents, key=lambda x: x.individual[0].fitness, reverse=True)
-
-    if method == 'ratio':
-        ratio_value = 0.4
-        upper_bound = ratio_value * len(agents)
-        selected_agents = agents[0:int(upper_bound)]
-        selected_phenotype = [
-            agent.individual[0].phenotype for agent in selected_agents]
-        # return selected_phenotype
-    else:
-        selected_phenotype = [sorted_agents[0].individual[0].phenotype]
-        # return [sorted_agents[0].individual[0].phenotype]
-
-    # Save the phenotype to a json file
-    JsonPhenotypeData.to_json(selected_phenotype, filename)
-
-    # Return the phenotype
-    return selected_phenotype
-
-
-def simulate_forg(env, iteration, agent=SimForgAgentWith, N=100, site=None):
+def simulate_forg(env, iteration, agent=ExecutingAgent, N=100, site=None):
     """Test the performane of evolved behavior."""
     phenotypes = env[0]
     threshold = 1.0
-
+    # print(iteration, phenotypes)
     sim = SimForgModel(
         N, 200, 200, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1], viewer=False, agent=agent, expsite=site)
     sim.build_environment_from_json()
@@ -85,31 +55,6 @@ def simulate_forg(env, iteration, agent=SimForgAgentWith, N=100, site=None):
             )
         simresults.save_to_file()
 
-    # print ('food at site', len(sim.food_in_loc(sim.site.location)))
-    # print ('food at hub', len(sim.food_in_loc(sim.hub.location)))
-    # print("Total food in the hub", len(food_objects))
-    # print("total dead agents", sim.no_agent_dead())
-    # for a in sim.agents:
-    #     if len(a.attached_objects) >=1:
-    #         print(a, a.attached_objects, a.location, sim.grid.find_grid(a.location)[1], sim.obstacles.location)
-    # food_objects = sim.food_in_loc(sim.hub.location)
-
-    # for food in food_objects:
-    #    print('simulate phenotye:', dir(food))
-
-    # sucess = False
-    # print('Foraging percent', value)
-
-    # if foraging_percent >= threshold:
-    #     print('Foraging success')
-    #     sucess = True
-
-    # sim.experiment.update_experiment_simulation(foraging_percent, sucess)
-
-    # Plot the fitness in the graph
-    # graph = GraphACC(sim.pname, 'simulation.csv')
-    # graph.gen_plot()
-
 
 def main(args):
     """Block for the main function."""
@@ -134,11 +79,13 @@ def main(args):
     site = sitelocation[args.site]
 
     def exp(n, agent, runs, site):
-        agent = SimForgAgentWith if agent == 0 else SimForgAgentWithout
+        agent = ExecutingAgent if agent == 0 else ExecutingAgent
         dname = os.path.join('/tmp', 'swarm', 'data', 'experiments', str(n), agent.__name__, str(site['x'])+str(site['y']))
         pathlib.Path(dname).mkdir(parents=True, exist_ok=True)
-        steps = [1500 for i in range(args.runs)]
-        env = (['123', '123'], dname)
+        steps = [5000 for i in range(args.runs)]
+        jname = '/tmp/16235340355923-10999.json'
+        phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
+        env = (phenotype, dname)
         Parallel(n_jobs=8)(delayed(simulate_forg)(env, i, agent=agent, N=n, site=site) for i in steps)
         # simulate_forg(env, 500, agent=agent, N=n, site=site)
 
