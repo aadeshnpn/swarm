@@ -91,9 +91,11 @@ def main(args):
 
     if args.all:
         # for agent in [0, 1]:
-        for site in sitelocation:
-            for agent in [0, 1]:
+        for site in [sitelocation[0]]:
+            # for agent in [0, 1]:
+            for agent in [0]:
                 for n in [50, 100, 200, 300, 400, 500]:
+                # for n in [50, 100]:
                 # for n in [100]:
                 # for n in [100]:
                     exp(n, agent, runs, site)
