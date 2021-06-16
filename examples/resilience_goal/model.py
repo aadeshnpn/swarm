@@ -381,7 +381,8 @@ class EvolveModel(ForagingModel):
         """Step through the environment."""
         # Gather info to plot the graph
         try:
-            self.gather_info()
+            # self.gather_info()
+            pass
             # agent = self.agents[idx]
             # print(
             #    idx, agent.individual[0].phenotype,

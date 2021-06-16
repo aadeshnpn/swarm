@@ -143,11 +143,11 @@ def learning_phase(iteration, early_stop=False):
             except ValueError:
                 pass
             # Plot the fitness in the graph
-            graph = Graph(
-                env.pname, 'best.csv', [
-                    'explore', 'foraging', 'prospective', 'fitness'],
-                pname='best' + str(i))
-            graph.gen_best_plots()
+            # graph = Graph(
+            #     env.pname, 'best.csv', [
+            #         'explore', 'foraging', 'prospective', 'fitness'],
+            #     pname='best' + str(i))
+            # graph.gen_best_plots()
             """
             if early_stop:
                 # Update the experiment table
@@ -272,7 +272,7 @@ if __name__ == '__main__':
     # json = '1550083569946511-all.json'
     # test_json_phenotype(json)
 
-    Parallel(n_jobs=8)(delayed(main)(12000) for i in range(512))
+    Parallel(n_jobs=10)(delayed(main)(12000) for i in range(128))
     # main(12000)
     # test_all_phenotype('/tmp/links.txt')
     # jsonlist = sys.argv
