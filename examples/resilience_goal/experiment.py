@@ -219,7 +219,7 @@ def learning_phase(iteration, early_stop=False):
     """
     # print('max, min generations', np.max(generations), np.min(generations))
     # pdb.set_trace()
-    allphenotypes = env.behavior_sampling_objects(ratio_value=0.99)
+    allphenotypes = env.behavior_sampling_objects(ratio_value=1.0)
     # save the phenotype to json file
     phenotype_to_json(
         env.pname, env.runid + '-' + 'all', allphenotypes)

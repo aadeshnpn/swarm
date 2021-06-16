@@ -208,8 +208,8 @@ def read_data_n_agent(n=100, agent='ExecutingAgent'):
 
 
 def read_data_n_agent_site(n=100, agent='ExecutingAgent', site='5151'):
-    # maindir = '/tmp/swarm/data/experiments/'
-    maindir = '/home/aadeshnpn/Desktop/evolved_ppa/experiments/'
+    maindir = '/tmp/swarm/data/experiments/'
+    # maindir = '/home/aadeshnpn/Desktop/evolved_ppa/experiments/'
     nadir = os.path.join(maindir, str(n), agent, site)
     folders = pathlib.Path(nadir).glob("*ForagingSim*")
     flist = []
@@ -227,7 +227,7 @@ def read_data_n_agent_site(n=100, agent='ExecutingAgent', site='5151'):
     # print(data)
     dataf = np.array(dataf)
     datad = np.array(datad)
-    # print(dataf.shape, datad.shape)
+    print(dataf.shape, datad.shape, n)
     return dataf, datad
 
 
@@ -235,11 +235,11 @@ def boxplotagent(agent='ExecutingAgent', site='51-51'):
     # data = [read_data_n_agent(n, agent)[:,-1] for n in [50, 100, 200, 300, 400]]
     # data = [read_data_n_agent(n, agent)[:,-1] for n in [50, 100]]
     # data = [read_data_n_agent_site(n, agent, site=site)[0][:,-1] for n in agents]
-    agents = [50, 100] # , 200, 300, 400]
-    print(agent, site)
+    agents = [50, 100, 200, 300, 400]
+    # print(agent, site)
     data = [read_data_n_agent_site(n, agent, site=site)[0][:,-1] for n in agents]
-    datad = [read_data_n_agent_site(n, agent, site=site)[1][:,-1] for n in agents]
-    datadp = [(datad[i]/agents[i])*100 for i in range(len(agents))]
+    # datad = [read_data_n_agent_site(n, agent, site=site)[1][:,-1] for n in agents]
+    # datadp = [(datad[i]/agents[i])*100 for i in range(len(agents))]
     fig = plt.figure()
 
     ax1 = fig.add_subplot(1, 1, 1)
@@ -260,8 +260,8 @@ def boxplotagent(agent='ExecutingAgent', site='51-51'):
     # }
 
     # labels = ['Agent-Key', 'Key-Door', 'Door-Goal', 'Total']
-    # labels = [50, 100, 200, 300, 400]
-    labels = [50, 100]
+    labels = [50, 100, 200, 300, 400]
+    # labels = [50, 100]
     medianprops = dict(linewidth=2.5, color='firebrick')
     meanprops = dict(linewidth=2.5, color='#ff7f0e')
     # data = [data[:, i] for i in range(4)]
@@ -293,8 +293,8 @@ def boxplotagent(agent='ExecutingAgent', site='51-51'):
 
 def boxplotsiteloc(agent='ExecutingAgent', site='5151'):
     # sites = ['-3030', '30-30', '3030', '-5050', '50-50', '5050', '-9090', '90-90']
-    # agents = [50, 100] # , 200, 300, 400]
-    agents = [100]
+    agents = [50, 100, 200, 300, 400]
+    # agents = [100]
     print(agent, site)
     dataf = [read_data_n_agent_site(n, agent, site=site)[0][:,-1] for n in agents]
     datad = [read_data_n_agent_site(n, agent, site=site)[1][:,-1] for n in agents]
@@ -324,7 +324,7 @@ def boxplotsiteloc(agent='ExecutingAgent', site='5151'):
 
     # labels = ['Agent-Key', 'Key-Door', 'Door-Goal', 'Total']
     # labels = ['30', '30', '30', '50', '50', '50', '90', '90']
-    labels = ['50', '100'] #, '200', '300', '400']
+    labels = ['50', '100', '200', '300', '400']
     medianprops = dict(linewidth=2.5, color='firebrick')
     meanprops = dict(linewidth=2.5, color='#ff7f0e')
     # data = [data[:, i] for i in range(4)]
@@ -385,7 +385,7 @@ def boxplotsiteloc(agent='ExecutingAgent', site='5151'):
 
 def boxplotallsites(agent='ExecutingAgent'):
     sites = ['-3131', '31-31', '3131', '-5151', '51-51', '5151', '-9191', '91-91']
-    agents = [50, 100] #, 200, 300, 400]
+    agents = [50, 100, 200, 300, 400]
     # print(agent, site)
     datasf = []
     datasd = []
@@ -424,7 +424,7 @@ def boxplotallsites(agent='ExecutingAgent'):
 
     # labels = ['Agent-Key', 'Key-Door', 'Door-Goal', 'Total']
     # labels = ['30', '30', '30', '50', '50', '50', '90', '90']
-    labels = ['50', '100'] #, '200', '300', '400']
+    labels = ['50', '100', '200', '300', '400']
     medianprops = dict(linewidth=2.5, color='firebrick')
     meanprops = dict(linewidth=2.5, color='#ff7f0e')
     # data = [data[:, i] for i in range(4)]
@@ -572,15 +572,15 @@ def main():
         {"x":91, "y":-91, "radius":10, "q_value":0.9},
         {"x":-91, "y":91, "radius":10, "q_value":0.9},
     ]
-    # for site in sitelocation:
-    #     for n in [50, 100]:
-    #         # plotgraphsite(n=n, agent='ExecutingAgent', site=str(site['x'])+str(site['y']))
-    #         boxplotsiteloc(site=str(site['x'])+str(site['y']))
+    for site in sitelocation:
+        for n in [50, 100, 200, 300, 400]:
+            # plotgraphsite(n=n, agent='ExecutingAgent', site=str(site['x'])+str(site['y']))
+            boxplotsiteloc(site=str(site['x'])+str(site['y']))
 
     # boxplotallsites()
 
     # boxplotagent()
-    boxplotallsitesdist()
+    # boxplotallsitesdist()
 
 
 if __name__ == '__main__':

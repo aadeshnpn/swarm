@@ -32,7 +32,7 @@ class ForagingModel(Model):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name='SForagingPPAComm', viewer=False, parent=None, ratio=1.0):
+            seed=None, name='SForagingPPAComm1', viewer=False, parent=None, ratio=1.0):
         """Initialize the attributes."""
         if seed is None:
             super(ForagingModel, self).__init__(seed=None)
@@ -278,7 +278,7 @@ class EvolveModel(ForagingModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="EvoSForgeNewPPAComm", viewer=False):
+            seed=None, name="EvoSForgeNewPPAComm1", viewer=False):
         """Initialize the attributes."""
         super(EvolveModel, self).__init__(
             N, width, height, grid, iter, seed, name, viewer)
@@ -418,7 +418,7 @@ class ValidationModel(ForagingModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="ValidateSForgeNewPPAComm", viewer=False,
+            seed=None, name="ValidateSForgeNewPPAComm1", viewer=False,
             parent=None, ratio=1.0):
         """Initialize the attributes."""
         super(ValidationModel, self).__init__(
@@ -468,7 +468,7 @@ class TestModel(ForagingModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="TestSForgeNewPPAComm", viewer=False,
+            seed=None, name="TestSForgeNewPPAComm1", viewer=False,
             parent=None, ratio=1.0):
         """Initialize the attributes."""
         super(TestModel, self).__init__(
@@ -515,7 +515,7 @@ class ViewerModel(ForagingModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="ViewerSForgeNewPPAComm", viewer=True):
+            seed=None, name="ViewerSForgeNewPPAComm1", viewer=True):
         """Initialize the attributes."""
         super(ViewerModel, self).__init__(
             N, width, height, grid, iter, seed, name, viewer)
