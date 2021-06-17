@@ -170,7 +170,8 @@ def learning_phase(iteration, early_stop=False):
                 # print (i, p[:10])
                 # ratio = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]
                 # for r in ratio:
-                phenotypes = env.behavior_sampling_objects(ratio_value=0.1)
+                # phenotypes = env.behavior_sampling_objects(ratio_value=0.1)
+                phenotypes = env.behavior_sampling(ratio_value=0.1)
                 # phenotypes = env.behavior_sampling_objects(method='noratio')
                 # save the phenotype to json file
                 phenotype_to_json(
@@ -314,7 +315,7 @@ if __name__ == '__main__':
     # json = '1550083569946511-all.json'
     # test_json_phenotype(None)
 
-    Parallel(n_jobs=20)(delayed(main)(12000) for i in range(256))
+    Parallel(n_jobs=4)(delayed(main)(12000) for i in range(256))
     # main(12000)
     # test_all_phenotype('/tmp/links.txt')
     # jsonlist = sys.argv
