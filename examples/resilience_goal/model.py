@@ -1,5 +1,6 @@
 """Inherited model class."""
 
+import psycopg2
 from swarms.lib.model import Model
 from swarms.lib.time import SimultaneousActivation
 # RandomActivation, StagedActivation
@@ -33,7 +34,7 @@ class ForagingModel(Model):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name='SForagingPPA1', viewer=False, parent=None, ratio=1.0):
+            seed=None, name='SForagingPPA1', viewer=False, parent=None, ratio=1.0, db=False):
         """Initialize the attributes."""
         if seed is None:
             super(ForagingModel, self).__init__(seed=None)
@@ -64,15 +65,18 @@ class ForagingModel(Model):
         self.viewer = viewer
 
         # Create db connection
-        connect = Connect('swarm', 'swarm', 'swarm', 'localhost')
-        self.connect = connect.tns_connect()
-
+        if db:
+            try:
+                connect = Connect('swarm', 'swarm', 'swarm', 'localhost')
+                self.connect = connect.tns_connect()
+            except psycopg2.OperationalError:
+                self.connect = None
         # Fill out the experiment table
         self.experiment = Experiment(
             self.connect, self.runid, N, seed, name,
-            iter, width, height, grid)
-        self.experiment.insert_experiment()
-
+            iter, width, height, grid, db=db)
+        if db:
+            self.experiment.insert_experiment()
         # Get the primary key of the experiment table for future use
         self.sn = self.experiment.sn
 
@@ -172,14 +176,14 @@ class ForagingModel(Model):
         mean = Best(
             self.pname, self.connect, self.sn, 1, 'MEAN', self.stepcnt,
             beta, np.mean(fittest), np.mean(prospective), np.mean(exploration),
-            np.mean(foraging), "None"
+            np.mean(foraging), "None", db=False
             )
         mean.save()
 
         std = Best(
             self.pname, self.connect, self.sn, 1, 'STD', self.stepcnt, beta,
             np.std(fittest), np.std(prospective), np.std(exploration),
-            np.std(foraging), "None"
+            np.std(foraging), "None", db=False
             )
         std.save()
 
@@ -202,7 +206,7 @@ class ForagingModel(Model):
 
         best_agent = Best(
             self.pname, self.connect, self.sn, idx, header, self.stepcnt, beta,
-            ofitness, pfitness, efitness, ffitness, phenotype
+            ofitness, pfitness, efitness, ffitness, phenotype, db=False
         )
 
         best_agent.save()

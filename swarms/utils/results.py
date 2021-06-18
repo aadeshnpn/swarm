@@ -13,7 +13,7 @@ class Experiment:
 
     def __init__(
             self, connect, runid, N, seed, expname, iter, width, height, grid,
-            phenotype=None):
+            phenotype=None, db=False):
         """Constructor."""
         self.connect = connect
         self.runid = runid
@@ -26,41 +26,64 @@ class Experiment:
         self.height = height
         self.grid = grid
         self.phenotype = phenotype
+        self.db_flag = db
 
     def insert_experiment(self):
         """Call db function to insert record into db."""
-        dbexec = Dbexecute(self.connect)
-        self.sn = dbexec.insert_experiment(
-            self.runid, self.N, self.seed, self.expname, self.iter, self.width,
-            self.height, self.grid)
+        if self.db_flag:
+            try:
+                dbexec = Dbexecute(self.connect)
+                self.sn = dbexec.insert_experiment(
+                    self.runid, self.N, self.seed, self.expname, self.iter, self.width,
+                    self.height, self.grid)
+            except Exception as err:
+                pass
+        else:
+            self.sn = 1
 
     def insert_experiment_simulation(self):
         """Call db function to insert record into db."""
-        dbexec = Dbexecute(self.connect)
-        self.sn = dbexec.insert_experiment_simulation(
-            self.runid, self.N, self.seed, self.expname, self.iter, self.width,
-            self.height, self.grid, self.phenotype)
+        if self.db_flag:
+            try:
+                dbexec = Dbexecute(self.connect)
+                self.sn = dbexec.insert_experiment_simulation(
+                    self.runid, self.N, self.seed, self.expname, self.iter, self.width,
+                    self.height, self.grid, self.phenotype)
+            except Exception as err:
+                pass
+        else:
+            self.sn = 1
 
     def update_experiment(self):
         """Update enddate column."""
-        dbexec = Dbexecute(self.connect)
-
-        # Update end time
-        dbexec.execute_query(
-            "UPDATE experiment \
-            set end_date=timezone('utc'::text, now()) where sn=" + str(
-                self.sn))
+        if self.db_flag:
+            try:
+                dbexec = Dbexecute(self.connect)
+                # Update end time
+                dbexec.execute_query(
+                    "UPDATE experiment \
+                    set end_date=timezone('utc'::text, now()) where sn=" + str(
+                        self.sn))
+            except Exception as err:
+                pass
+        else:
+            self.sn = 1
 
     def update_experiment_simulation(self, value, sucess):
         """Update enddate column."""
-        dbexec = Dbexecute(self.connect)
-
-        # Update end time
-        dbexec.execute_query(
-            "UPDATE experiment \
-            set end_date=timezone('utc'::text, now()), total_value=\
-            " + str(value) + ", sucess=" + str(sucess) + "\
-            where sn=" + str(self.sn))
+        if self.db_flag:
+            try:
+                dbexec = Dbexecute(self.connect)
+                # Update end time
+                dbexec.execute_query(
+                    "UPDATE experiment \
+                    set end_date=timezone('utc'::text, now()), total_value=\
+                    " + str(value) + ", sucess=" + str(sucess) + "\
+                    where sn=" + str(self.sn))
+            except Exception as err:
+                pass
+        else:
+            self.sn = 1
 
 
 class Results:
@@ -132,12 +155,12 @@ class Best:
 
     def __init__(
         self, foldername, connect, id, agent_name, header, step, beta, fitness,
-        diversity, explore, foraging, phenotype
+        diversity, explore, foraging, phenotype, db=False
             ):
         """Initialize the attributes."""
         self.foldername = foldername
         self.connect = connect
-
+        self.db_falg = db
         self.context = OrderedDict([
             ("id", id),
             ("name", int(agent_name)),
@@ -160,7 +183,11 @@ class Best:
     def save(self):
         """Save to both medium."""
         self.save_to_file()
-        # self.save_to_db()
+        if self.db_falg:
+            try:
+                self.save_to_db()
+            except Exception as err:
+                pass
 
     def save_to_file(self):
         """Save results to a flat file."""
@@ -191,13 +218,13 @@ class SimulationResults:
     """
 
     def __init__(
-        self, foldername, connect, id, step, fitness, phenotype
+        self, foldername, connect, id, step, fitness, phenotype, db=False
             ):
         """Initialize the attributes."""
         self.foldername = foldername
         self.connect = connect
         self.phenotype = phenotype
-
+        self.db_falg = db
         self.context = OrderedDict([
             ("id", id),
             ("step", step),
@@ -213,7 +240,11 @@ class SimulationResults:
     def save(self):
         """Save to both medium."""
         self.save_to_file()
-        # self.save_to_db()
+        if self.db_falg:
+            try:
+                self.save_to_db()
+            except Exception as err:
+                pass
 
     def save_phenotype(self):
         """Save the phenotype to a separate file."""
@@ -251,13 +282,14 @@ class SimulationResultsTraps:
     """
 
     def __init__(
-        self, foldername, connect, id, step, fitness, phenotype, deadagent
+        self, foldername, connect, id, step, fitness, phenotype, deadagent, db=False
             ):
         """Initialize the attributes."""
         self.foldername = foldername
         self.connect = connect
         self.phenotype = phenotype
         self.deadagent = deadagent
+        self.db_flag = db
 
         self.context = OrderedDict([
             ("id", id),
@@ -275,7 +307,11 @@ class SimulationResultsTraps:
     def save(self):
         """Save to both medium."""
         self.save_to_file()
-        # self.save_to_db()
+        if self.db_flag:
+            try:
+                self.save_to_db()
+            except Exception as Err:
+                pass
 
     def save_phenotype(self):
         """Save the phenotype to a separate file."""
