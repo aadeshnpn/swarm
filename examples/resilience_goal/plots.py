@@ -558,29 +558,120 @@ def boxplotallsitesdist(agent='ExecutingAgent'):
     plt.close(fig)
 
 
+def get_info_database(agent_size=50):
+    ## To find the total no. of experiments from the data_base with agent_size=50
+    # select count(*) from experiment where sn>=18169 and agent_size=50; -> 36
+    # select count(*) from experiment where sn>=18169 and agent_size=50 and sucess=true; -> 34
+    # Hit rate - 34/36*100 -> 94.44 %
+    from swarms.utils.db import Connect, Execute
+
+    connect = Connect('swarm', 'swarm', 'swarm', 'localhost')
+    connect = connect.tns_connect()
+    exestat = Execute(connect)
+    total_exp = exestat.cursor.execute(
+        "select count(*) from experiment where sn>=18169 and agent_size=" + "'" + str(agent_size) +
+        "'")
+    total_exp = exestat.cursor.fetchall()[0][0]
+    total_sucess = exestat.cursor.execute(
+        "select count(*) from experiment where sn>=18169 and sucess=true and agent_size=" + "'" + str(agent_size) +
+        "'")
+    total_sucess = exestat.cursor.fetchall()[0][0]
+    hitrate = round((total_sucess / (total_exp * 1.0)) * 100, 2)
+
+    time_value_data = exestat.cursor.execute(
+        "select DATEDIFF('second',create_date::timestamp, end_date::timestamp) as runtime, total_value from experiment where sn>=18169 and sucess=true and agent_size=" + "'" + str(agent_size) +
+        "'")
+    time_value_data = exestat.cursor.fetchall()
+    runtime, values = zip(*time_value_data)
+    exestat.close()
+    return [total_exp, total_sucess, hitrate, runtime, values]
+
+
+def plot_evolution_algo_performance():
+    agent_sizes = [50, 100, 150]
+    datas = [get_info_database(n) for n in agent_sizes]
+    print('hitrates', agent_sizes, [data[2] for data in datas])
+    runtime_data = [np.array(data[3]) for data in datas]
+    values_data = [np.array(data[4]) for data in datas]
+    fig = plt.figure()
+
+    ax1 = fig.add_subplot(2, 1, 1)
+    colordict = {
+        0: 'forestgreen',
+        1: 'indianred',
+        2: 'gold',
+        3: 'tomato',
+        4: 'royalblue',
+        5: 'orchid',
+        6: 'olivedrab',
+        7: 'peru',
+        8: 'linen'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+
+    labels = [str(a) for a in agent_sizes]
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    # data = [data[:, i] for i in range(4)]
+    bp1 = ax1.boxplot(
+        runtime_data, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops)
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+    # plt.xlim(0, len(mean))
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="lower right", title='Agent Size')
+    ax1.set_xticklabels(labels)
+    ax1.set_xlabel('Agent size')
+    ax1.set_ylabel('Run Time (Secs)')
+
+    ax2 = fig.add_subplot(2, 1, 2)
+    bp2 = ax2.boxplot(
+        values_data, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops)
+    for patch, color in zip(bp2['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="lower right", title='Agent Size')
+    ax2.set_xticklabels(labels)
+    ax2.set_xlabel('Agent size')
+    ax2.set_ylabel('Foraging (%)')
+
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments/'
+    # fname = 'agentsitecomp' + agent
+    nadir = os.path.join(maindir, str(50))
+
+    fig.savefig(
+        nadir + 'evolutionperform' + '.png')
+    plt.close(fig)
+
+
 def main():
     # read_data_n_agent()
     # plotgraph()
     # boxplot()
-    sitelocation  = [
-        {"x":51, "y":-51, "radius":10, "q_value":0.9},
-        {"x":51, "y":51, "radius":10, "q_value":0.9},
-        {"x":-51, "y":51, "radius":10, "q_value":0.9},
-        {"x":31, "y":-31, "radius":10, "q_value":0.9},
-        {"x":31, "y":31, "radius":10, "q_value":0.9},
-        {"x":-31, "y":31, "radius":10, "q_value":0.9},
-        {"x":91, "y":-91, "radius":10, "q_value":0.9},
-        {"x":-91, "y":91, "radius":10, "q_value":0.9},
-    ]
-    for site in sitelocation:
-        for n in [50, 100, 200, 300, 400]:
-            # plotgraphsite(n=n, agent='ExecutingAgent', site=str(site['x'])+str(site['y']))
-            boxplotsiteloc(site=str(site['x'])+str(site['y']))
+
+    # sitelocation  = [
+    #     {"x":51, "y":-51, "radius":10, "q_value":0.9},
+    #     {"x":51, "y":51, "radius":10, "q_value":0.9},
+    #     {"x":-51, "y":51, "radius":10, "q_value":0.9},
+    #     {"x":31, "y":-31, "radius":10, "q_value":0.9},
+    #     {"x":31, "y":31, "radius":10, "q_value":0.9},
+    #     {"x":-31, "y":31, "radius":10, "q_value":0.9},
+    #     {"x":91, "y":-91, "radius":10, "q_value":0.9},
+    #     {"x":-91, "y":91, "radius":10, "q_value":0.9},
+    # ]
+    # for site in sitelocation:
+    #     for n in [50, 100, 200, 300, 400]:
+    #         # plotgraphsite(n=n, agent='ExecutingAgent', site=str(site['x'])+str(site['y']))
+    #         boxplotsiteloc(site=str(site['x'])+str(site['y']))
 
     # boxplotallsites()
-
     # boxplotagent()
     # boxplotallsitesdist()
+    plot_evolution_algo_performance()
 
 
 if __name__ == '__main__':
