@@ -4,6 +4,7 @@ import numpy as np
 # import pdb
 # import hashlib
 import sys
+import argparse
 from model import EvolveModel, ValidationModel, TestModel, ViewerModel
 from swarms.utils.jsonhandler import JsonPhenotypeData
 from swarms.utils.graph import Graph, GraphACC  # noqa : F401
@@ -140,10 +141,10 @@ def ui_loop(phenotypes, iteration, parentname=None, ratio=1):
     # Plot the result in the graph
 
 
-def learning_phase(iteration, early_stop=False):
+def learning_phase(iteration, no_agents=50, early_stop=False):
     """Learning Algorithm block."""
     # Evolution environment
-    env = EvolveModel(50, width, height, 10, iter=iteration)
+    env = EvolveModel(no_agents, width, height, 10, iter=iteration)
     env.build_environment_from_json()
     env.create_agents()
     # Validation Step parameter
@@ -157,43 +158,47 @@ def learning_phase(iteration, early_stop=False):
     for i in range(iteration):
         # Take a step in evolution
         env.step()
-        if (i + 1) % validation_step == 0:
-            try:
-                # print([agent.individual[0].fitness for agent in env.agents])
-                # msg = []
-                # for agent in env.agents:
-                #    encode = agent.individual[0].phenotype.encode('utf-8')
-                #    msg += [(
-                #        agent.name, hashlib.sha224(encode).hexdigest(
-                #        ), agent.individual[0].fitness)]
-                # n,p,f = zip(*msg)
-                # print (i, p[:10])
-                # ratio = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]
-                # for r in ratio:
-                phenotypes = env.behavior_sampling_objects(ratio_value=0.1)
-                # phenotypes = env.behavior_sampling_objects(method='noratio')
-                # save the phenotype to json file
-                phenotype_to_json(
-                    env.pname, env.runid + '-' + str(i), phenotypes)
-                # early_stop = validation_loop(phenotypes, 5000)
-                validation_loop(
-                    phenotypes, 5000, parentname=env.pname, ratio=0.1)
-            except ValueError:
-                pass
-            # Plot the fitness in the graph
-            # graph = Graph(
-            #     env.pname, 'best.csv', [
-            #         'explore', 'foraging', 'prospective', 'fitness'],
-            #     pname='best' + str(i))
-            # graph.gen_best_plots()
-            """
-            if early_stop:
-                # Update the experiment table
-                env.experiment.update_experiment()
 
-                # Return phenotypes
-                return phenotypes
-            """
+    # for i in range(iteration):
+    #     # Take a step in evolution
+    #     env.step()
+    #     if (i + 1) % validation_step == 0:
+    #         try:
+    #             # print([agent.individual[0].fitness for agent in env.agents])
+    #             # msg = []
+    #             # for agent in env.agents:
+    #             #    encode = agent.individual[0].phenotype.encode('utf-8')
+    #             #    msg += [(
+    #             #        agent.name, hashlib.sha224(encode).hexdigest(
+    #             #        ), agent.individual[0].fitness)]
+    #             # n,p,f = zip(*msg)
+    #             # print (i, p[:10])
+    #             # ratio = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]
+    #             # for r in ratio:
+    #             phenotypes = env.behavior_sampling_objects(ratio_value=0.1)
+    #             # phenotypes = env.behavior_sampling_objects(method='noratio')
+    #             # save the phenotype to json file
+    #             phenotype_to_json(
+    #                 env.pname, env.runid + '-' + str(i), phenotypes)
+    #             # early_stop = validation_loop(phenotypes, 5000)
+    #             validation_loop(
+    #                 phenotypes, 5000, parentname=env.pname, ratio=0.1)
+    #         except ValueError:
+    #             pass
+    #         # Plot the fitness in the graph
+    #         # graph = Graph(
+    #         #     env.pname, 'best.csv', [
+    #         #         'explore', 'foraging', 'prospective', 'fitness'],
+    #         #     pname='best' + str(i))
+    #         # graph.gen_best_plots()
+    #         """
+    #         if early_stop:
+    #             # Update the experiment table
+    #             env.experiment.update_experiment()
+
+    #             # Return phenotypes
+    #             return phenotypes
+    #         """
     # Update the experiment table
     if env.foraging_percent() > 5:
         success = True
@@ -236,14 +241,14 @@ def phenotype_to_json(pname, runid, phenotypes):
     JsonPhenotypeData.to_json(phenotypes, jfilename)
 
 
-def main(iter):
+def exp_evol(iter, n):
     """Block for the main function."""
     # Run the evolutionary learning algorithm
-    phenotypes = learning_phase(iter)
+    phenotypes = learning_phase(iter, n)
     # learning_phase(iter)
     # Run the evolved behaviors on a test environment
-    if phenotypes is not None:
-        test_loop(phenotypes, 5000)
+    # if phenotypes is not None:
+    #     test_loop(phenotypes, 5000)
 
 
 def test_json_phenotype(json):
@@ -306,6 +311,23 @@ def test_all_phenotype(idfile='/tmp/experiments/idvalid.txt'):
             phenotypes, 5000, '/tmp/swarm/data/experiments/') for i in range(4))
 
 
+def experiments(args):
+    exp_no = {
+        1: exp_varying_n_evolution,
+        2: behavior_sampling
+    }
+    exp_no[args.exp_no](args)
+
+
+def exp_varying_n_evolution(args):
+    for n in range(50, 300, 50):
+        Parallel(n_jobs=args.threads)(delayed(exp_evol)(args.iter, n) for i in range(args.runs))
+
+
+def behavior_sampling(args):
+    pass
+
+
 if __name__ == '__main__':
     # Running 50 experiments in parallel
     # Parallel(n_jobs=8)(delayed(main)(i) for i in range(2000, 100000, 2000))
@@ -314,9 +336,18 @@ if __name__ == '__main__':
     # json = '1550083569946511-all.json'
     # test_json_phenotype(None)
 
-    Parallel(n_jobs=20)(delayed(main)(12000) for i in range(256))
+    # Parallel(n_jobs=18)(delayed(main)(12000) for i in range(36))
     # main(12000)
     # test_all_phenotype('/tmp/links.txt')
     # jsonlist = sys.argv
     # print ('jsonlist',len(jsonlist))
     # test_top_phenotype(jsonlist[1:])
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--exp_no', default=1, type=int)
+    parser.add_argument('--runs', default=36, type=int)
+    parser.add_argument('--threads', default=18, type=int)
+    parser.add_argument('--iter', default=12000, type=int)
+    args = parser.parse_args()
+    print(args)
+    experiments(args)
