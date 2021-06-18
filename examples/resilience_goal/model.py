@@ -315,7 +315,7 @@ class EvolveModel(ForagingModel):
         # Sort the phenotypes
         phenotypes, _ = zip(
             *sorted(phenotypes.items(), key=lambda x: (
-                x[1][2], x[1][1], x[1][0]), reverse=True))
+                x), reverse=True))
         # Just for testing. Not needed
 
         if method == 'ratio':
