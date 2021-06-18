@@ -208,8 +208,8 @@ def read_data_n_agent(n=100, agent='ExecutingAgent'):
 
 
 def read_data_n_agent_site(n=100, agent='ExecutingAgent', site='5151'):
-    maindir = '/tmp/swarm/data/experiments/'
-    # maindir = '/home/aadeshnpn/Desktop/evolved_ppa/experiments/'
+    # maindir = '/tmp/swarm/data/experiments/'
+    maindir = '/home/aadeshnpn/Desktop/evolved_ppa/experiments/'
     nadir = os.path.join(maindir, str(n), agent, site)
     folders = pathlib.Path(nadir).glob("*ForagingSim*")
     flist = []
@@ -588,7 +588,7 @@ def get_info_database(agent_size=50):
 
 
 def plot_evolution_algo_performance():
-    agent_sizes = [50, 100, 150]
+    agent_sizes = [50, 100, 150, 200]
     datas = [get_info_database(n) for n in agent_sizes]
     print('hitrates', agent_sizes, [data[2] for data in datas])
     runtime_data = [np.array(data[3]) for data in datas]
@@ -598,14 +598,14 @@ def plot_evolution_algo_performance():
     ax1 = fig.add_subplot(2, 1, 1)
     colordict = {
         0: 'forestgreen',
-        1: 'indianred',
-        2: 'gold',
-        3: 'tomato',
-        4: 'royalblue',
-        5: 'orchid',
-        6: 'olivedrab',
-        7: 'peru',
-        8: 'linen'}
+        1: 'gold',
+        2: 'royalblue',
+        3: 'orchid',
+        4: 'olivedrab',
+        5: 'peru',
+        6: 'linen',
+        7: 'indianred',
+        8: 'tomato'}
     colorshade = [
         'springgreen', 'lightcoral',
         'khaki', 'lightsalmon', 'deepskyblue']
