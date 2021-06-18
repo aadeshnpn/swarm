@@ -141,10 +141,10 @@ def ui_loop(phenotypes, iteration, parentname=None, ratio=1):
     # Plot the result in the graph
 
 
-def learning_phase(iteration, no_agents=50, early_stop=False):
+def learning_phase(iteration, no_agents=50, db=False, early_stop=False):
     """Learning Algorithm block."""
     # Evolution environment
-    env = EvolveModel(no_agents, width, height, 10, iter=iteration)
+    env = EvolveModel(no_agents, width, height, 10, iter=iteration, db=db)
     env.build_environment_from_json()
     env.create_agents()
     # Validation Step parameter
@@ -155,10 +155,22 @@ def learning_phase(iteration, no_agents=50, early_stop=False):
     # Take a step i number of step in evolution environment
     # Take a 1000 step in validation environment sampling from the evolution
     # Make the validation envronmnet same as the evolution environment
+    results = SimulationResultsTraps(
+        env.pname, env.connect, env.sn, env.stepcnt,
+        env.foraging_percent(), None, env.no_agent_dead(), db=db
+        )
+    # Save the data in a result csv file
+    results.save_to_file()
+
     for i in range(iteration):
         # Take a step in evolution
         env.step()
-
+        results = SimulationResultsTraps(
+            env.pname, env.connect, env.sn, env.stepcnt,
+            env.foraging_percent(), None, env.no_agent_dead(), db=db
+            )
+        # Save the data in a result csv file
+        results.save_to_file()
     # for i in range(iteration):
     #     # Take a step in evolution
     #     env.step()
@@ -230,7 +242,7 @@ def learning_phase(iteration, no_agents=50, early_stop=False):
         env.pname, env.runid + '-' + 'all', allphenotypes)
     try:
         # return list(phenotypes.keys())
-        return phenotypes
+        return allphenotypes
     except UnboundLocalError:
         return None
 
@@ -241,10 +253,10 @@ def phenotype_to_json(pname, runid, phenotypes):
     JsonPhenotypeData.to_json(phenotypes, jfilename)
 
 
-def exp_evol(iter, n):
+def exp_evol(iter, n, db):
     """Block for the main function."""
     # Run the evolutionary learning algorithm
-    phenotypes = learning_phase(iter, n)
+    phenotypes = learning_phase(iter, n, db)
     # learning_phase(iter)
     # Run the evolved behaviors on a test environment
     # if phenotypes is not None:
@@ -314,18 +326,23 @@ def test_all_phenotype(idfile='/tmp/experiments/idvalid.txt'):
 def experiments(args):
     exp_no = {
         1: exp_varying_n_evolution,
-        2: behavior_sampling
+        2: behavior_sampling,
+        3: single_evo
     }
     exp_no[args.exp_no](args)
 
 
 def exp_varying_n_evolution(args):
     for n in range(50, 300, 50):
-        Parallel(n_jobs=args.threads)(delayed(exp_evol)(args.iter, n) for i in range(args.runs))
+        Parallel(n_jobs=args.threads)(delayed(exp_evol)(args.iter, n, args.db) for i in range(args.runs))
 
 
 def behavior_sampling(args):
     pass
+
+
+def single_evo(args):
+    exp_evol(args.iter, 50, False)
 
 
 if __name__ == '__main__':
@@ -348,6 +365,7 @@ if __name__ == '__main__':
     parser.add_argument('--runs', default=36, type=int)
     parser.add_argument('--threads', default=18, type=int)
     parser.add_argument('--iter', default=12000, type=int)
+    parser.add_argument('--db', default=False, type=bool)
     args = parser.parse_args()
     print(args)
     experiments(args)

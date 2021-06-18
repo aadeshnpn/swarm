@@ -71,6 +71,8 @@ class ForagingModel(Model):
                 self.connect = connect.tns_connect()
             except psycopg2.OperationalError:
                 self.connect = None
+        else:
+            self.connect = None
         # Fill out the experiment table
         self.experiment = Experiment(
             self.connect, self.runid, N, seed, name,
@@ -251,7 +253,7 @@ class ForagingModel(Model):
                 food_objects += [food]
         food_objects = set(food_objects)
         total_food_weights = sum([food.weight for food in food_objects])
-        return ((total_food_weights * 1.0) / self.total_food_units) * 100
+        return np.round(((total_food_weights * 1.0) / self.total_food_units) * 100, 1)
 
     def no_agent_dead(self):
         grid = self.grid
@@ -266,10 +268,10 @@ class EvolveModel(ForagingModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="EvoSForgeNewPPA1", viewer=False):
+            seed=None, name="EvoSForgeNewPPA1", viewer=False, db=False):
         """Initialize the attributes."""
         super(EvolveModel, self).__init__(
-            N, width, height, grid, iter, seed, name, viewer)
+            N, width, height, grid, iter, seed, name, viewer, db=db)
         self.parser = LTLfParser()
 
     def create_agents(self, random_init=True, phenotypes=None):
@@ -407,10 +409,10 @@ class ValidationModel(ForagingModel):
     def __init__(
             self, N, width, height, grid=10, iter=100000,
             seed=None, name="ValidateSForgeNewPPA1", viewer=False,
-            parent=None, ratio=1.0):
+            parent=None, ratio=1.0, db=False):
         """Initialize the attributes."""
         super(ValidationModel, self).__init__(
-            N, width, height, grid, iter, seed, name, viewer, parent, ratio)
+            N, width, height, grid, iter, seed, name, viewer, parent, ratio, db)
 
     def create_agents(self, random_init=False, phenotypes=None):
         """Initialize agents in the environment."""
@@ -457,10 +459,10 @@ class TestModel(ForagingModel):
     def __init__(
             self, N, width, height, grid=10, iter=100000,
             seed=None, name="TestSForgeNewPPA1", viewer=False,
-            parent=None, ratio=1.0):
+            parent=None, ratio=1.0, db=False):
         """Initialize the attributes."""
         super(TestModel, self).__init__(
-            N, width, height, grid, iter, seed, name, viewer, parent, ratio)
+            N, width, height, grid, iter, seed, name, viewer, parent, ratio, db)
 
     def create_agents(self, random_init=False, phenotypes=None):
         """Initialize agents in the environment."""
@@ -503,10 +505,10 @@ class ViewerModel(ForagingModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="ViewerSForgeNewPPA1", viewer=True):
+            seed=None, name="ViewerSForgeNewPPA1", viewer=True, db=False):
         """Initialize the attributes."""
         super(ViewerModel, self).__init__(
-            N, width, height, grid, iter, seed, name, viewer)
+            N, width, height, grid, iter, seed, name, viewer, db=db)
 
     def create_agents(self, random_init=False, phenotypes=None):
         """Initialize agents in the environment."""
