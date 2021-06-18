@@ -17,7 +17,7 @@ class Experiment:
         """Constructor."""
         self.connect = connect
         self.runid = runid
-        self.sn = None
+        self.sn = 1
         self.N = N
         self.seed = seed
         self.expname = expname

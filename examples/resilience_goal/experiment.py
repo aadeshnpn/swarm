@@ -157,7 +157,7 @@ def learning_phase(iteration, no_agents=50, db=False, early_stop=False):
     # Make the validation envronmnet same as the evolution environment
     results = SimulationResultsTraps(
         env.pname, env.connect, env.sn, env.stepcnt,
-        env.foraging_percent(), None, env.no_agent_dead(), db=db
+        env.foraging_percent(), None, env.no_agent_dead(), db=False
         )
     # Save the data in a result csv file
     results.save_to_file()
@@ -167,7 +167,7 @@ def learning_phase(iteration, no_agents=50, db=False, early_stop=False):
         env.step()
         results = SimulationResultsTraps(
             env.pname, env.connect, env.sn, env.stepcnt,
-            env.foraging_percent(), None, env.no_agent_dead(), db=db
+            env.foraging_percent(), None, env.no_agent_dead(), db=False
             )
         # Save the data in a result csv file
         results.save_to_file()
