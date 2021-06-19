@@ -48,7 +48,7 @@ class ForagingModel(Model):
         # Create the experiment folder
         # If parent folder exits create inside it
         if parent is not None:
-            self.pname = parent + '/' + str(self.runid) + name
+            self.pname = parent + '/' + str(self.runid) + '_' + str(ratio) +'_' +name
             # Path(self.pname).mkdir(parents=True, exist_ok=True)
         else:
             self.pname = os.path.join(
@@ -305,7 +305,7 @@ class EvolveModel(ForagingModel):
             # a.operation_threshold = 2  # self.num_agents // 10
             self.agents.append(a)
 
-    def behavior_sampling(self, method='ratio', ratio_value=0.2):
+    def behavior_sampling(self, method='ratio', ratio_value=0.2, phenotype=None):
         """Extract phenotype of the learning agents.
 
         Sort the agents based on the overall fitness and then based on the
@@ -314,14 +314,17 @@ class EvolveModel(ForagingModel):
         """
         # sorted_agents = sorted(
         #    self.agents, key=lambda x: x.individual[0].fitness, reverse=True)
-        phenotypes = dict()
-        # Get the phenotypes collected from the agent
-        for agent in self.agents:
-            phenotypes = {**agent.phenotypes, **phenotypes}
-        # Sort the phenotypes
-        phenotypes, _ = zip(
-            *sorted(phenotypes.items(), key=lambda x: (
-                x), reverse=True))
+        if phenotype is None:
+            phenotypes = dict()
+            # Get the phenotypes collected from the agent
+            for agent in self.agents:
+                phenotypes = {**agent.phenotypes, **phenotypes}
+            # Sort the phenotypes
+            phenotypes, _ = zip(
+                *sorted(phenotypes.items(), key=lambda x: (
+                    x), reverse=True))
+        else:
+            phenotypes = phenotype
         # Just for testing. Not needed
 
         if method == 'ratio':
@@ -335,7 +338,7 @@ class EvolveModel(ForagingModel):
             # return [sorted_agents[0].individual[0].phenotype]
             return [phenotypes[0]]
 
-    def behavior_sampling_objects(self, method='ratio', ratio_value=0.2):
+    def behavior_sampling_objects(self, method='ratio', ratio_value=0.2, phenotype=None):
         """Extract phenotype of the learning agents based on the objects.
 
         Sort the phenotye based on the overall fitness and then based on the
@@ -346,15 +349,18 @@ class EvolveModel(ForagingModel):
         #    self.agents, key=lambda x: x.individual[0].fitness, reverse=True)
         # phenotypes = dict()
         # Get the phenotypes collected from the agent
-        phenotypes = self.phenotype_attached_objects()
+        if phenotype is None:
+            phenotypes = self.phenotype_attached_objects()
 
-        for agent in self.agents:
-            phenotypes = {**agent.phenotypes, **phenotypes}
+            for agent in self.agents:
+                phenotypes = {**agent.phenotypes, **phenotypes}
 
-        # Sort the phenotypes
-        phenotypes, _ = zip(
-            *sorted(phenotypes.items(), key=lambda x: (
-                x[1]), reverse=True))
+            # Sort the phenotypes
+            phenotypes, _ = zip(
+                *sorted(phenotypes.items(), key=lambda x: (
+                    x[1]), reverse=True))
+        else:
+            phenotypes = phenotype
 
         if method == 'ratio':
             upper_bound = ratio_value * self.num_agents

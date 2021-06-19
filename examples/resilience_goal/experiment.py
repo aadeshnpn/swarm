@@ -29,6 +29,7 @@ def validation_loop(
     # Build the environment
     valid.build_environment_from_json()
     # Create the agents in the environment from the sampled behaviors
+    phenotypes = valid.behavior_sampling(ratio=ratio, phenotype=phenotypes)
     valid.create_agents(phenotypes=phenotypes)
     # print('total food units', valid.total_food_units)
     # Print the BT
@@ -40,7 +41,7 @@ def validation_loop(
         # print ([agent.location for agent in valid.agents])
         validresults = SimulationResults(
             valid.pname, valid.connect, valid.sn, valid.stepcnt,
-            valid.foraging_percent(), phenotypes[0]
+            valid.foraging_percent(), len(phenotypes)
         )
         validresults.save_to_file()
 
@@ -70,13 +71,14 @@ def test_loop(phenotypes, iteration, parentname=None, ratio=1):
     # Build the environment
     test.build_environment_from_json()
     # Create the agents in the environment from the sampled behaviors
+    phenotypes = test.behavior_sampling(ratio=ratio, phenotype=phenotypes)
     test.create_agents(phenotypes=phenotypes)
     # print(phenotypes)
     # print(test.agents[0].bt)
     # Store the initial result
     testresults = SimulationResultsTraps(
         test.pname, test.connect, test.sn, test.stepcnt,
-        test.foraging_percent(), phenotypes[0], test.no_agent_dead()
+        test.foraging_percent(), len(phenotypes), test.no_agent_dead()
         )
     # Save the phenotype to a json file
     testresults.save_phenotype()
@@ -90,7 +92,7 @@ def test_loop(phenotypes, iteration, parentname=None, ratio=1):
 
         testresults = SimulationResultsTraps(
             test.pname, test.connect, test.sn, test.stepcnt,
-            test.foraging_percent(), phenotypes[0], test.no_agent_dead()
+            test.foraging_percent(), len(phenotypes), test.no_agent_dead()
         )
         testresults.save_to_file()
 
@@ -112,6 +114,7 @@ def ui_loop(phenotypes, iteration, parentname=None, ratio=1):
         5, width, height, 10, iter=iteration, viewer=True)
     # Build the environment
     viewer.build_environment_from_json()
+    phenotypes = viewer.behavior_sampling(ratio=ratio, phenotype=phenotypes)
     # Create the agents in the environment from the sampled behaviors
     viewer.create_agents(phenotypes=phenotypes)
     # print(phenotypes)
@@ -212,11 +215,12 @@ def learning_phase(iteration, no_agents=50, db=False, early_stop=False):
     #             return phenotypes
     #         """
     # Update the experiment table
-    if env.foraging_percent() > 5:
+    foraging_percent = env.foraging_percent()
+    if foraging_percent > 5:
         success = True
     else:
         success = False
-    env.experiment.update_experiment_simulation(env.foraging_percent(), success)
+    env.experiment.update_experiment_simulation(foraging_percent, success)
     """
     hashlist = dict()
     phenotypes = dict()
@@ -242,9 +246,9 @@ def learning_phase(iteration, no_agents=50, db=False, early_stop=False):
         env.pname, env.runid + '-' + 'all', allphenotypes)
     try:
         # return list(phenotypes.keys())
-        return allphenotypes
+        return allphenotypes, foraging_percent, env.pname
     except UnboundLocalError:
-        return None
+        return None, None, None
 
 
 def phenotype_to_json(pname, runid, phenotypes):
@@ -261,6 +265,23 @@ def exp_evol(iter, n, db):
     # Run the evolved behaviors on a test environment
     # if phenotypes is not None:
     #     test_loop(phenotypes, 5000)
+
+
+def exp_evol_sample(iter, n, db):
+    """Block for the main function."""
+    count_exp = 0
+    while count_exp <= 2:
+        # Run the evolutionary learning algorithm
+        phenotypes, fpercent, pname = learning_phase(iter, n, db)
+        # learning_phase(iter)
+        # Run the evolved behaviors on a test environment
+        print('Behavior Sampling experiments', count_exp, fpercent)
+        if (phenotypes is not None and fpercent > 90):
+            for r in [0.1, 0.2, 0.3, 0.5, 0.7, 1.0]:
+                Parallel(
+                    n_jobs=8)(delayed(validation_loop)(
+                        phenotypes, 5000, pname, r) for i in range(40))
+            count_exp += 1
 
 
 def test_json_phenotype(json):
@@ -333,12 +354,14 @@ def experiments(args):
 
 
 def exp_varying_n_evolution(args):
-    for n in range(50, 300, 50):
-        Parallel(n_jobs=args.threads)(delayed(exp_evol)(args.iter, n, args.db) for i in range(args.runs))
+    # for n in range(50, 300, 50):
+    # Parallel(n_jobs=args.threads)(delayed(exp_evol)(args.iter, n, args.db) for i in range(args.runs))
+    for i in range(args.runs):
+        exp_evol_sample(args.iter, 100, args.db)
 
 
 def behavior_sampling(args):
-    pass
+    exp_evol_sample(args.iter, 100, args.db)
 
 
 def single_evo(args):
