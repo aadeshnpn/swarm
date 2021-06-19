@@ -458,6 +458,39 @@ class ValidationModel(ForagingModel):
             if j >= len(phenotypes):
                 j = 0
 
+    def behavior_sampling(self, method='ratio', ratio_value=0.2, phenotype=None):
+        """Extract phenotype of the learning agents.
+
+        Sort the agents based on the overall fitness and then based on the
+        method extract phenotype of the agents.
+        Method can take {'ratio','higest','sample'}
+        """
+        # sorted_agents = sorted(
+        #    self.agents, key=lambda x: x.individual[0].fitness, reverse=True)
+        if phenotype is None:
+            phenotypes = dict()
+            # Get the phenotypes collected from the agent
+            for agent in self.agents:
+                phenotypes = {**agent.phenotypes, **phenotypes}
+            # Sort the phenotypes
+            phenotypes, _ = zip(
+                *sorted(phenotypes.items(), key=lambda x: (
+                    x), reverse=True))
+        else:
+            phenotypes = phenotype
+        # Just for testing. Not needed
+
+        if method == 'ratio':
+            upper_bound = ratio_value * self.num_agents
+            # selected_agents = self.agents[0:int(upper_bound)]
+            # selected_phenotype = [
+            #    agent.individual[0].phenotype for agent in selected_agents]
+            selected_phenotype = list(phenotypes)[:int(upper_bound)]
+            return selected_phenotype
+        else:
+            # return [sorted_agents[0].individual[0].phenotype]
+            return [phenotypes[0]]
+
 
 class TestModel(ForagingModel):
     """A environemnt to test swarm behavior performance."""
@@ -504,6 +537,39 @@ class TestModel(ForagingModel):
 
             if (i + 1) % bound == 0:
                 j += 1
+
+    def behavior_sampling(self, method='ratio', ratio_value=0.2, phenotype=None):
+        """Extract phenotype of the learning agents.
+
+        Sort the agents based on the overall fitness and then based on the
+        method extract phenotype of the agents.
+        Method can take {'ratio','higest','sample'}
+        """
+        # sorted_agents = sorted(
+        #    self.agents, key=lambda x: x.individual[0].fitness, reverse=True)
+        if phenotype is None:
+            phenotypes = dict()
+            # Get the phenotypes collected from the agent
+            for agent in self.agents:
+                phenotypes = {**agent.phenotypes, **phenotypes}
+            # Sort the phenotypes
+            phenotypes, _ = zip(
+                *sorted(phenotypes.items(), key=lambda x: (
+                    x), reverse=True))
+        else:
+            phenotypes = phenotype
+        # Just for testing. Not needed
+
+        if method == 'ratio':
+            upper_bound = ratio_value * self.num_agents
+            # selected_agents = self.agents[0:int(upper_bound)]
+            # selected_phenotype = [
+            #    agent.individual[0].phenotype for agent in selected_agents]
+            selected_phenotype = list(phenotypes)[:int(upper_bound)]
+            return selected_phenotype
+        else:
+            # return [sorted_agents[0].individual[0].phenotype]
+            return [phenotypes[0]]
 
 
 class ViewerModel(ForagingModel):
