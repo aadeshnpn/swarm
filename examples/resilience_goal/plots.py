@@ -484,6 +484,7 @@ def boxplotallsites(agent='ExecutingAgent'):
 
 
 def boxplotallsitesdist(agent='ExecutingAgent'):
+    plt.style.use('fivethirtyeight')
     sites = ['-3131', '31-31', '3131', '-5151', '51-51', '5151', '-9191', '91-91']
     # sites = ['-3131', '31-31', '3131', '-5151', '5151', '-9191', '91-91']
     agents = [100] #, 200, 300, 400]
@@ -506,14 +507,14 @@ def boxplotallsitesdist(agent='ExecutingAgent'):
     ax1 = fig.add_subplot(1, 1, 1)
     colordict = {
         0: 'forestgreen',
-        1: 'indianred',
-        2: 'gold',
-        3: 'tomato',
-        4: 'royalblue',
-        5: 'orchid',
-        6: 'olivedrab',
-        7: 'peru',
-        8: 'linen'}
+        1: 'peru',
+        2: 'royalblue',
+        3: 'orchid',
+        4: 'olivedrab',
+        5: 'gold',
+        6: 'linen',
+        7: 'indianred',
+        8: 'tomato'}
     colorshade = [
         'springgreen', 'lightcoral',
         'khaki', 'lightsalmon', 'deepskyblue']
@@ -524,8 +525,9 @@ def boxplotallsitesdist(agent='ExecutingAgent'):
     #     3: 'seagreen'
     # }
 
-    # labels = ['Agent-Key', 'Key-Door', 'Door-Goal', 'Total']
     labels = ['30', '30', '30', '50', '50', '50', '90', '90']
+    xlabels = ['1', '2', '3', '4', '5', '6', '7', '8']
+    labels = [labels[i]+ ' / ' + xlabels[i] for i in range(len(labels))]
     # labels = ['50', '100'] #, '200', '300', '400']
     medianprops = dict(linewidth=2.5, color='firebrick')
     meanprops = dict(linewidth=2.5, color='#ff7f0e')
@@ -537,10 +539,10 @@ def boxplotallsitesdist(agent='ExecutingAgent'):
     for patch, color in zip(bp1['boxes'], colordict.values()):
         patch.set_facecolor(color)
     # plt.xlim(0, len(mean))
-    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper right", title='Distance')
-    ax1.set_xticklabels(labels)
-    ax1.set_xlabel('Site distance from hub')
-    ax1.set_ylabel('Foraging Percentage')
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper right", title='Distance/Site')
+    ax1.set_xticklabels(xlabels)
+    ax1.set_xlabel('Site position index')
+    ax1.set_ylabel('Foraging (%)')
     # ax1.set_title('Swarm Foraging with distance '+ site[-2:])
     # ax2.set_title('Swarm Foraging with distance '+ site[-2:])
     plt.tight_layout()
@@ -670,8 +672,8 @@ def main():
 
     # boxplotallsites()
     # boxplotagent()
-    # boxplotallsitesdist()
-    plot_evolution_algo_performance()
+    boxplotallsitesdist()
+    # plot_evolution_algo_performance()
 
 
 if __name__ == '__main__':
