@@ -735,6 +735,24 @@ class SimForgModel(Model):
         #    self.grid.add_object_to_grid(f.location, f)
             # print (i,x,y)
 
+    def place_site(self):
+        theta = np.linspace(0, 2*np.pi, 36)
+        while True:
+            t = self.random.choice(theta, 1, replace=False)[0]
+            x = self.hub.location[0] + np.cos(t) * self.expsite
+            y = self.hub.location[0] + np.sin(t) * self.expsite
+            location = (x, y)
+            radius = 10
+            q_value = 0.9
+            other_bojects = self.grid.get_objects_from_list_of_grid(None, self.grid.get_neighborhood((x,y), radius))
+            if len(other_bojects) == 0:
+                self.site = Sites(
+                        0, location, self.expsite["radius"], q_value=self.expsite[
+                            "q_value"])
+
+                self.grid.add_object_to_grid(location, self.site)
+                break
+
     def create_environment_object(self, jsondata, obj):
         """Create env from jsondata."""
         name = obj.__name__.lower()
@@ -743,15 +761,17 @@ class SimForgModel(Model):
         for json_object in jsondata[name]:
             location = (json_object["x"], json_object["y"])
             if "q_value" in json_object:
-                temp_obj = obj(
-                    i, location, json_object["radius"], q_value=json_object[
-                        "q_value"])
+                temp_obj = None
+                pass
+                # temp_obj = obj(
+                #     i, location, json_object["radius"], q_value=json_object[
+                #         "q_value"])
             else:
                 temp_obj = obj(i, location, json_object["radius"])
-
-            self.grid.add_object_to_grid(location, temp_obj)
-            temp_list.append(temp_obj)
-            i += 1
+            if temp_obj is not None:
+                self.grid.add_object_to_grid(location, temp_obj)
+                temp_list.append(temp_obj)
+                i += 1
         return temp_list
 
     def build_environment_from_json(self):
@@ -773,12 +793,13 @@ class SimForgModel(Model):
         self.traps = self.render.objects['traps'][0]
 
         # add site
-        location = (self.expsite["x"], self.expsite["y"])
-        self.site = Sites(
-                0, location, self.expsite["radius"], q_value=self.expsite[
-                    "q_value"])
+        self.place_site()
+        # location = (self.expsite["x"], self.expsite["y"])
+        # self.site = Sites(
+        #         0, location, self.expsite["radius"], q_value=self.expsite[
+        #             "q_value"])
 
-        self.grid.add_object_to_grid(location, self.site)
+        # self.grid.add_object_to_grid(location, self.site)
 
         try:
             # self.site = self.render.objects['sites'][0]
