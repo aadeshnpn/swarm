@@ -207,7 +207,7 @@ def read_data_n_agent(n=100, agent='ExecutingAgent'):
     return data
 
 
-def read_data_n_agent_site(n=100, agent='ExecutingAgent', site='5151'):
+def read_data_n_agent_site(n=100, agent='ExecutingAgent', site='51-51'):
     # maindir = '/tmp/swarm/data/experiments/'
     maindir = '/home/aadeshnpn/Desktop/evolved_ppa/experiments/'
     nadir = os.path.join(maindir, str(n), agent, site)
@@ -291,7 +291,7 @@ def boxplotagent(agent='ExecutingAgent', site='51-51'):
 
 
 
-def boxplotsiteloc(agent='ExecutingAgent', site='5151'):
+def boxplotsiteloc(agent='ExecutingAgent', site='51-51'):
     # sites = ['-3030', '30-30', '3030', '-5050', '50-50', '5050', '-9090', '90-90']
     agents = [50, 100, 200, 300, 400]
     # agents = [100]
@@ -299,7 +299,7 @@ def boxplotsiteloc(agent='ExecutingAgent', site='5151'):
     dataf = [read_data_n_agent_site(n, agent, site=site)[0][:,-1] for n in agents]
     datad = [read_data_n_agent_site(n, agent, site=site)[1][:,-1] for n in agents]
     datadp = [(datad[i]/agents[i])*100 for i in range(len(agents))]
-    fig = plt.figure()
+    fig = plt.figure(figsize=(6, 8), dpi=100)
 
     ax1 = fig.add_subplot(3, 1, 1)
     colordict = {
@@ -335,12 +335,12 @@ def boxplotsiteloc(agent='ExecutingAgent', site='5151'):
     for patch, color in zip(bp1['boxes'], colordict.values()):
         patch.set_facecolor(color)
     # plt.xlim(0, len(mean))
-    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="medium", loc="lower right", title='Agent Size')
     ax1.set_xticklabels(labels)
-    ax1.set_xlabel('Agent size')
-    ax1.set_ylabel('Foraging Percentage')
-    ax1.set_title('Swarm Foraging with distance '+ site[-2:])
-
+    ax1.set_yticks(range(0, 105, 20))
+    # ax1.set_xlabel('Agent size')
+    ax1.set_ylabel('Foraging Percentage', fontsize="large")
+    ax1.set_title('Swarm Foraging with distance '+ str(int(site[-2:])-1))
 
     ax2 = fig.add_subplot(3, 1, 2)
     bp2 = ax2.boxplot(
@@ -351,9 +351,10 @@ def boxplotsiteloc(agent='ExecutingAgent', site='5151'):
         patch.set_facecolor(color)
     # plt.xlim(0, len(mean))
     # ax2.legend(zip(bp2['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
+    ax2.set_yticks(range(0,105, 20))
     ax2.set_xticklabels(labels)
-    ax2.set_xlabel('Agent size')
-    ax2.set_ylabel('No. Dead Agents')
+    # ax2.set_xlabel('Agent size')
+    ax2.set_ylabel('No. Dead Agents', fontsize="large")
 
     ax3 = fig.add_subplot(3, 1, 3)
     bp3 = ax3.boxplot(
@@ -364,11 +365,12 @@ def boxplotsiteloc(agent='ExecutingAgent', site='5151'):
         patch.set_facecolor(color)
     # plt.xlim(0, len(mean))
     # ax3.legend(zip(bp3['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
+    ax3.set_yticks(range(0,105, 20))
     ax3.set_xticklabels(labels)
-    ax3.set_xlabel('Agent size')
-    ax3.set_ylabel('Dead Agents %')
+    ax3.set_xlabel('Agent size', fontsize="large")
+    ax3.set_ylabel('Dead Agents %', fontsize="large")
     # ax2.set_title('Swarm Foraging with distance '+ site[-2:])
-    plt.tight_layout()
+    # plt.tight_layout()
 
     maindir = '/tmp/swarm/data/experiments/'
     # fname = 'agentsitecomp' + agent
@@ -672,7 +674,8 @@ def main():
 
     # boxplotallsites()
     # boxplotagent()
-    boxplotallsitesdist()
+    # boxplotallsitesdist()
+    boxplotsiteloc()
     # plot_evolution_algo_performance()
 
 
