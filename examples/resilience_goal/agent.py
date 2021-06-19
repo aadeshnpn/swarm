@@ -518,6 +518,9 @@ class ExecutingAgent(ForagingAgent):
         """Initialize the agent."""
         super().__init__(name, model)
         self.xmlstring = xmlstring
+        self.blackboard = blackboard.Client(name=str(self.name))
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.WRITE)
+        self.blackboard.neighbourobj = dict()
 
     def construct_bt(self):
         """Construct BT."""
