@@ -29,7 +29,7 @@ def validation_loop(
     # Build the environment
     valid.build_environment_from_json()
     # Create the agents in the environment from the sampled behaviors
-    phenotypes = valid.behavior_sampling(ratio=ratio, phenotype=phenotypes)
+    phenotypes = valid.behavior_sampling(ratio_value=ratio, phenotype=phenotypes)
     valid.create_agents(phenotypes=phenotypes)
     # print('total food units', valid.total_food_units)
     # Print the BT
@@ -71,7 +71,7 @@ def test_loop(phenotypes, iteration, parentname=None, ratio=1):
     # Build the environment
     test.build_environment_from_json()
     # Create the agents in the environment from the sampled behaviors
-    phenotypes = test.behavior_sampling(ratio=ratio, phenotype=phenotypes)
+    phenotypes = test.behavior_sampling(ratio_value=ratio, phenotype=phenotypes)
     test.create_agents(phenotypes=phenotypes)
     # print(phenotypes)
     # print(test.agents[0].bt)
@@ -276,8 +276,9 @@ def exp_evol_sample(iter, n, db):
         # learning_phase(iter)
         # Run the evolved behaviors on a test environment
         print('Behavior Sampling experiments', count_exp, fpercent)
-        if (phenotypes is not None and fpercent > 90):
+        if (phenotypes is not None and fpercent >= 90):
             for r in [0.1, 0.2, 0.3, 0.5, 0.7, 1.0]:
+                print(r)
                 Parallel(
                     n_jobs=8)(delayed(validation_loop)(
                         phenotypes, 5000, pname, r) for i in range(40))

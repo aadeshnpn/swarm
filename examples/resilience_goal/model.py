@@ -458,7 +458,7 @@ class ValidationModel(ForagingModel):
             if j >= len(phenotypes):
                 j = 0
 
-    def behavior_sampling(self, method='ratio', ratio_value=0.2, phenotype=None):
+    def behavior_sampling(self, method='ratio', ratio=0.2, phenotype=None):
         """Extract phenotype of the learning agents.
 
         Sort the agents based on the overall fitness and then based on the
@@ -538,7 +538,7 @@ class TestModel(ForagingModel):
             if (i + 1) % bound == 0:
                 j += 1
 
-    def behavior_sampling(self, method='ratio', ratio_value=0.2, phenotype=None):
+    def behavior_sampling(self, method='ratio', ratio=0.2, phenotype=None):
         """Extract phenotype of the learning agents.
 
         Sort the agents based on the overall fitness and then based on the

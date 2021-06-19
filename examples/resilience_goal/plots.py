@@ -592,6 +592,7 @@ def get_info_database(agent_size=50):
 
 
 def plot_evolution_algo_performance():
+    plt.style.use('fivethirtyeight')
     agent_sizes = [50, 100, 150, 200]
     datas = [get_info_database(n) for n in agent_sizes]
     print('hitrates', agent_sizes, [data[2] for data in datas])
