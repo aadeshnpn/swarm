@@ -747,9 +747,7 @@ class SimForgModel(Model):
             other_bojects = self.grid.get_objects_from_list_of_grid(None, self.grid.get_neighborhood((x,y), radius))
             if len(other_bojects) == 0:
                 self.site = Sites(
-                        0, location, self.expsite["radius"], q_value=self.expsite[
-                            "q_value"])
-
+                        0, location, radius, q_value=q_value)
                 self.grid.add_object_to_grid(location, self.site)
                 break
 
@@ -792,7 +790,7 @@ class SimForgModel(Model):
         # print(self.obstacles.passable)
         self.traps = self.render.objects['traps'][0]
 
-        # add site
+        # add site with random distances
         self.place_site()
         # location = (self.expsite["x"], self.expsite["y"])
         # self.site = Sites(

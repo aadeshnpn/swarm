@@ -66,21 +66,23 @@ def main(args):
     agent = args.agent
     runs = args.runs
 
-    sitelocation  = [
-        {"x":51, "y":-51, "radius":10, "q_value":0.9},
-        {"x":51, "y":51, "radius":10, "q_value":0.9},
-        {"x":-51, "y":51, "radius":10, "q_value":0.9},
-        {"x":31, "y":-31, "radius":10, "q_value":0.9},
-        {"x":31, "y":31, "radius":10, "q_value":0.9},
-        {"x":-31, "y":31, "radius":10, "q_value":0.9},
-        {"x":91, "y":-91, "radius":10, "q_value":0.9},
-        {"x":-91, "y":91, "radius":10, "q_value":0.9},
-    ]
+    # sitelocation  = [
+    #     {"x":51, "y":-51, "radius":10, "q_value":0.9},
+    #     {"x":51, "y":51, "radius":10, "q_value":0.9},
+    #     {"x":-51, "y":51, "radius":10, "q_value":0.9},
+    #     {"x":31, "y":-31, "radius":10, "q_value":0.9},
+    #     {"x":31, "y":31, "radius":10, "q_value":0.9},
+    #     {"x":-31, "y":31, "radius":10, "q_value":0.9},
+    #     {"x":91, "y":-91, "radius":10, "q_value":0.9},
+    #     {"x":-91, "y":91, "radius":10, "q_value":0.9},
+    # ]
+    # site = sitelocation[args.site]
+    sitelocation = [20] * 10 + [25] * 10 + [30] * 10 + [40] * 10 + [50]*10 + [60] *10 + [70]*10 + [80]*10 + [90]* 10
     site = sitelocation[args.site]
-
     def exp(n, agent, runs, site):
         agent = ExecutingAgent if agent == 0 else ExecutingAgent
-        dname = os.path.join('/tmp', 'swarm', 'data', 'experiments', str(n), agent.__name__, str(site['x'])+str(site['y']))
+        # dname = os.path.join('/tmp', 'swarm', 'data', 'experiments', str(n), agent.__name__, str(site['x'])+str(site['y']))
+        dname = os.path.join('/tmp', 'swarm', 'data', 'experiments', str(n), agent.__name__, str(site))
         pathlib.Path(dname).mkdir(parents=True, exist_ok=True)
         steps = [5000 for i in range(args.runs)]
         jname = '/tmp/16235340355923-10999.json'
@@ -91,13 +93,12 @@ def main(args):
 
     if args.all:
         # for agent in [0, 1]:
-        for site in [sitelocation[0]]:
+        for site in sitelocation:
             # for agent in [0, 1]:
             for agent in [0]:
-                for n in [50, 100, 200, 300, 400, 500]:
+                # for n in [50, 100, 200, 300, 400, 500]:
                 # for n in [50, 100]:
-                # for n in [100]:
-                # for n in [100]:
+                for n in [100]:
                     exp(n, agent, runs, site)
     else:
         exp(n, agent, runs, site)
@@ -115,7 +116,7 @@ if __name__ == '__main__':
     # [SimForgAgentWith, SimForgAgentWithout])
     parser.add_argument('--agent', default=1, choices=[0, 1], type=int)
     parser.add_argument('--runs', default=20, type=int)
-    parser.add_argument('--site', default=7, type=int)
+    parser.add_argument('--site', default=0, type=int)
     parser.add_argument('--all', default=False)
     args = parser.parse_args()
     print(args)
