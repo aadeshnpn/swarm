@@ -290,7 +290,6 @@ def boxplotagent(agent='ExecutingAgent', site='51-51'):
     plt.close(fig)
 
 
-
 def boxplotsiteloc(agent='ExecutingAgent', site='51-51'):
     # sites = ['-3030', '30-30', '3030', '-5050', '50-50', '5050', '-9090', '90-90']
     agents = [50, 100, 200, 300, 400]
@@ -653,6 +652,69 @@ def plot_evolution_algo_performance():
     plt.close(fig)
 
 
+def read_data_sample_ratio(ratio=0.1):
+    maindir = '/tmp/swarm/data/experiments/behavior_sampling'
+    # nadir = os.path.join(maindir, str(n), agent)
+    folders = pathlib.Path(maindir).glob("*_" + str(ratio) + "_ValidateSForgeNewPPA1")
+    flist = []
+    data = []
+    for f in folders:
+        flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
+        _, _, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+        data.append(d)
+    data = np.array(data)
+    # print(ratio, data.shape)
+    return data
+
+
+def plot_sampling_differences():
+    plt.style.use('fivethirtyeight')
+    sampling_size = [0.1, 0.2, 0.3, 0.5, 0.7, 1.0]
+    datas = []
+    for s in sampling_size:
+        data = read_data_sample_ratio(s)[:, -1]
+        # print(s, data.shape)
+        datas.append(data)
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(1, 1, 1)
+
+    colordict = {
+        0: 'forestgreen',
+        1: 'indianred',
+        2: 'gold',
+        3: 'tomato',
+        4: 'royalblue'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+    labels = sampling_size
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    bp1 = ax1.boxplot(
+        datas, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops)
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+    # plt.xlim(0, len(mean))
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper right", title='Sampling Size')
+    ax1.set_xticklabels(labels)
+    ax1.set_xlabel('Sampling Size')
+    ax1.set_ylabel('Foraging Percentage')
+    ax1.set_title('Swarm Foraging')
+
+    plt.tight_layout()
+
+    maindir = '/tmp/swarm/data/experiments/'
+    fname = 'behavior_sampling'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+
+    plt.close(fig)
+
+
 def main():
     # read_data_n_agent()
     # plotgraph()
@@ -676,8 +738,9 @@ def main():
     # boxplotallsites()
     # boxplotagent()
     # boxplotallsitesdist()
-    boxplotsiteloc()
+    # boxplotsiteloc()
     # plot_evolution_algo_performance()
+    plot_sampling_differences()
 
 
 if __name__ == '__main__':

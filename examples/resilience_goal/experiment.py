@@ -19,12 +19,12 @@ UI = False
 
 
 def validation_loop(
-        phenotypes, iteration, parentname=None, ratio=1, threshold=10.0):
+        phenotypes, iteration, parentname=None, ratio=1, threshold=10.0, db=False):
     """Validate the evolved behaviors."""
     # Create a validation environment instance
     # print('len of phenotype', len(set(phenotypes)))
     valid = ValidationModel(
-        100, width, height, 10, iter=iteration, parent=parentname, ratio=ratio)
+        100, width, height, 10, iter=iteration, parent=parentname, ratio=ratio, db=db)
     # print('parent:', parentname, ' children:', valid.runid)
     # Build the environment
     valid.build_environment_from_json()
@@ -41,7 +41,7 @@ def validation_loop(
         # print ([agent.location for agent in valid.agents])
         validresults = SimulationResults(
             valid.pname, valid.connect, valid.sn, valid.stepcnt,
-            valid.foraging_percent(), len(phenotypes)
+            valid.foraging_percent(), len(phenotypes), db=db
         )
         validresults.save_to_file()
 
@@ -270,7 +270,7 @@ def exp_evol(iter, n, db):
 def exp_evol_sample(iter, n, db):
     """Block for the main function."""
     count_exp = 0
-    while count_exp <= 2:
+    while count_exp <= 5:
         # Run the evolutionary learning algorithm
         phenotypes, fpercent, pname = learning_phase(iter, n, db)
         # learning_phase(iter)
@@ -281,7 +281,7 @@ def exp_evol_sample(iter, n, db):
                 print(r)
                 Parallel(
                     n_jobs=8)(delayed(validation_loop)(
-                        phenotypes, 5000, pname, r) for i in range(40))
+                        phenotypes, 5000, pname, r, db) for i in range(40))
             count_exp += 1
 
 
