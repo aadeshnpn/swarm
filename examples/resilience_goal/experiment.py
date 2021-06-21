@@ -270,13 +270,13 @@ def exp_evol(iter, n, db):
 def exp_evol_sample(iter, n, db):
     """Block for the main function."""
     count_exp = 0
-    while count_exp <= 5:
+    while count_exp <= 15:
         # Run the evolutionary learning algorithm
         phenotypes, fpercent, pname = learning_phase(iter, n, db)
         # learning_phase(iter)
         # Run the evolved behaviors on a test environment
         print('Behavior Sampling experiments', count_exp, fpercent)
-        if (phenotypes is not None and fpercent >= 90):
+        if (phenotypes is not None and fpercent >= 80):
             for r in [0.1, 0.2, 0.3, 0.5, 0.7, 1.0]:
                 print(r)
                 Parallel(
