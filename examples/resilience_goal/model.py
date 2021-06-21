@@ -635,7 +635,6 @@ class ViewerModel(ForagingModel):
             self.ui.step()
 
 
-
 class SimForgModel(Model):
     """A environemnt to model swarms."""
 
@@ -647,14 +646,6 @@ class SimForgModel(Model):
             super(SimForgModel, self).__init__(seed=None)
         else:
             super(SimForgModel, self).__init__(seed)
-
-        self.runid = datetime.datetime.now().strftime(
-            "%s") + str(self.random.randint(1, 10000, 1)[0])
-
-        if pname is None:
-            self.pname = os.getcwd() + '/' + self.runid + "SForagingSimulation"
-        else:
-            self.pname = pname + '/' + self.runid + "SForagingSimulation"
 
         self.width = width
         self.height = height
@@ -683,7 +674,16 @@ class SimForgModel(Model):
         # self.sn = self.experiment.sn
         self.sn = 1
         # Create a folder to store results
-        os.mkdir(self.pname)
+        while True:
+            self.runid = datetime.datetime.now().strftime(
+                    "%s") + str(self.random.randint(1, 10000, 1)[0])
+            if pname is None:
+                self.pname = os.getcwd() + '/' + self.runid + "SForagingSimulation"
+            else:
+                self.pname = pname + '/' + self.runid + "SForagingSimulation"
+            if not Path(self.pname).exists():
+                Path(self.pname).mkdir(parents=True, exist_ok=False)
+                break
 
         self.num_agents = N
 
