@@ -739,8 +739,8 @@ class SimForgModel(Model):
         theta = np.linspace(0, 2*np.pi, 36)
         while True:
             t = self.random.choice(theta, 1, replace=False)[0]
-            x = self.hub.location[0] + np.cos(t) * self.expsite
-            y = self.hub.location[0] + np.sin(t) * self.expsite
+            x = int(self.hub.location[0] + np.cos(t) * self.expsite)
+            y = int(self.hub.location[0] + np.sin(t) * self.expsite)
             location = (x, y)
             radius = 10
             q_value = 0.9
