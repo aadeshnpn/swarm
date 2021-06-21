@@ -208,8 +208,8 @@ def read_data_n_agent(n=100, agent='ExecutingAgent'):
 
 
 def read_data_n_agent_site(n=100, agent='ExecutingAgent', site='51-51'):
-    # maindir = '/tmp/swarm/data/experiments/'
-    maindir = '/home/aadeshnpn/Desktop/evolved_ppa/experiments/'
+    maindir = '/tmp/site/experiments/'
+    # maindir = '/home/aadeshnpn/Desktop/evolved_ppa/experiments/'
     nadir = os.path.join(maindir, str(n), agent, site)
     folders = pathlib.Path(nadir).glob("*ForagingSim*")
     flist = []
@@ -292,7 +292,7 @@ def boxplotagent(agent='ExecutingAgent', site='51-51'):
 
 def boxplotsiteloc(agent='ExecutingAgent', site='51-51'):
     # sites = ['-3030', '30-30', '3030', '-5050', '50-50', '5050', '-9090', '90-90']
-    agents = [50, 100, 200, 300, 400]
+    agents = [50, 100, 200, 300, 400, 500]
     # agents = [100]
     print(agent, site)
     dataf = [read_data_n_agent_site(n, agent, site=site)[0][:,-1] for n in agents]
@@ -323,9 +323,9 @@ def boxplotsiteloc(agent='ExecutingAgent', site='51-51'):
 
     # labels = ['Agent-Key', 'Key-Door', 'Door-Goal', 'Total']
     # labels = ['30', '30', '30', '50', '50', '50', '90', '90']
-    labels = ['50', '100', '200', '300', '400']
-    medianprops = dict(linewidth=2.5, color='firebrick')
-    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    labels = ['50', '100', '200', '300', '400', '500']
+    medianprops = dict(linewidth=1.5, color='firebrick')
+    meanprops = dict(linewidth=1.5, color='#ff7f0e')
     # data = [data[:, i] for i in range(4)]
     bp1 = ax1.boxplot(
         dataf, 0, 'gD', showmeans=True, meanline=True,
@@ -738,9 +738,9 @@ def main():
     # boxplotallsites()
     # boxplotagent()
     # boxplotallsitesdist()
-    # boxplotsiteloc()
+    boxplotsiteloc()
     # plot_evolution_algo_performance()
-    plot_sampling_differences()
+    # plot_sampling_differences()
 
 
 if __name__ == '__main__':
