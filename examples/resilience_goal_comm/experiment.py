@@ -73,7 +73,7 @@ def test_loop(phenotypes, iteration, parentname=None, ratio=1, n=100):
     # Store the initial result
     testresults = SimulationResultsTraps(
         test.pname, test.connect, test.sn, test.stepcnt,
-        test.foraging_percent(), phenotypes[0], test.no_agent_dead(), db=True
+        test.foraging_percent(), phenotypes[0], test.no_agent_dead(), db=False
         )
     # Save the phenotype to a json file
     testresults.save_phenotype()
@@ -87,7 +87,7 @@ def test_loop(phenotypes, iteration, parentname=None, ratio=1, n=100):
 
         testresults = SimulationResultsTraps(
             test.pname, test.connect, test.sn, test.stepcnt,
-            test.foraging_percent(), phenotypes[0], test.no_agent_dead(),db=True
+            test.foraging_percent(), phenotypes[0], test.no_agent_dead(),db=False
         )
         testresults.save_to_file()
 
