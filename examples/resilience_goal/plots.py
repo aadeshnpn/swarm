@@ -207,10 +207,10 @@ def read_data_n_agent(n=100, agent='ExecutingAgent'):
     return data
 
 
-def read_data_n_agent_site(n=100, agent='ExecutingAgent', site='51-51'):
-    maindir = '/tmp/site/experiments/'
+def read_data_n_agent_site(n=100, agent='ExecutingAgent', site='20'):
+    maindir = '/tmp/results_site_distance/experiments/'
     # maindir = '/home/aadeshnpn/Desktop/evolved_ppa/experiments/'
-    nadir = os.path.join(maindir, str(n), agent, site)
+    nadir = os.path.join(maindir, str(n), agent, str(site))
     folders = pathlib.Path(nadir).glob("*ForagingSim*")
     flist = []
     dataf = []
@@ -486,8 +486,9 @@ def boxplotallsites(agent='ExecutingAgent'):
 
 def boxplotallsitesdist(agent='ExecutingAgent'):
     plt.style.use('fivethirtyeight')
-    sites = ['-3131', '31-31', '3131', '-5151', '51-51', '5151', '-9191', '91-91']
+    # sites = ['-3131', '31-31', '3131', '-5151', '51-51', '5151', '-9191', '91-91']
     # sites = ['-3131', '31-31', '3131', '-5151', '5151', '-9191', '91-91']
+    sites = [20, 25, 30, 40, 50, 60, 70, 80, 90]
     agents = [100] #, 200, 300, 400]
     # print(agent, site)
     datasf = []
@@ -526,12 +527,12 @@ def boxplotallsitesdist(agent='ExecutingAgent'):
     #     3: 'seagreen'
     # }
 
-    labels = ['30', '30', '30', '50', '50', '50', '90', '90']
-    xlabels = ['1', '2', '3', '4', '5', '6', '7', '8']
-    labels = [labels[i]+ ' / ' + xlabels[i] for i in range(len(labels))]
+    labels = [str(a) for a in sites]
+    # xlabels = ['1', '2', '3', '4', '5', '6', '7', '8']
+    # labels = [labels[i]+ ' / ' + xlabels[i] for i in range(len(labels))]
     # labels = ['50', '100'] #, '200', '300', '400']
-    medianprops = dict(linewidth=2.5, color='firebrick')
-    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    medianprops = dict(linewidth=1.5, color='firebrick')
+    meanprops = dict(linewidth=1.5, color='#ff7f0e')
     # data = [data[:, i] for i in range(4)]
     bp1 = ax1.boxplot(
         datasf, 0, 'gD', showmeans=True, meanline=True,
@@ -540,9 +541,10 @@ def boxplotallsitesdist(agent='ExecutingAgent'):
     for patch, color in zip(bp1['boxes'], colordict.values()):
         patch.set_facecolor(color)
     # plt.xlim(0, len(mean))
-    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper right", title='Distance/Site')
-    ax1.set_xticklabels(xlabels)
-    ax1.set_xlabel('Site position index')
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="lower left", title='Distance')
+    ax1.set_xticklabels(labels)
+    ax1.set_yticks(range(0, 105, 20))
+    ax1.set_xlabel('Site distance from hub')
     ax1.set_ylabel('Foraging (%)')
     # ax1.set_title('Swarm Foraging with distance '+ site[-2:])
     # ax2.set_title('Swarm Foraging with distance '+ site[-2:])
@@ -554,6 +556,89 @@ def boxplotallsitesdist(agent='ExecutingAgent'):
 
     fig.savefig(
         nadir + 'agentallsitecompdist' + '.png')
+    # fig.savefig(
+    #     maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
+def plotallsitesdist(agent='ExecutingAgent'):
+    plt.style.use('fivethirtyeight')
+    # sites = ['-3131', '31-31', '3131', '-5151', '51-51', '5151', '-9191', '91-91']
+    # sites = ['-3131', '31-31', '3131', '-5151', '5151', '-9191', '91-91']
+    sites = [20, 25, 30, 40, 50, 60, 70, 80, 90]
+    agents = [100] #, 200, 300, 400]
+    # print(agent, site)
+    datasf = []
+    # datasd = []
+    # datasdp = []
+    for k in sites:
+        # print(site)
+        dataf = read_data_n_agent_site(n=100, agent=agent, site=k)[0]
+        # print(k, dataf.shape)
+        # datad = [read_data_n_agent_site(n=100, agent=agent, site=k)[1][:,-1] ]
+        # datadp = [(d/n)*100.0 for d in datad]
+        # print(n, np.hstack(dataf).shape, np.hstack(datad).shape)
+        datasf.append(dataf)
+        # datasd.append(np.hstack(datad))
+        # datasdp.append(np.hstack(datadp))
+    fig = plt.figure()
+
+    ax1 = fig.add_subplot(1, 1, 1)
+    colordict = {
+        0: 'forestgreen',
+        1: 'peru',
+        2: 'royalblue',
+        3: 'orchid',
+        4: 'olivedrab',
+        5: 'gold',
+        6: 'linen',
+        7: 'indianred',
+        8: 'tomato'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue', 'bisque']
+    #     1: 'darkorange',
+    #     2: 'orangered',
+    #     3: 'seagreen']
+    # colordict = {
+    #     0: 'bisque',
+    #     1: 'darkorange',
+    #     2: 'orangered',
+    #     3: 'seagreen'
+    # }
+
+    labels = [str(a) for a in sites]
+    for i in range(len(datasf)):
+        medianf = np.quantile(datasf[i], 0.5, axis=0)
+        q1f = np.quantile(datasf[i], 0.25, axis=0)
+        q3f = np.quantile(datasf[i], 0.75, axis=0)
+        xvalues = range(datasf[i].shape[1])
+        ax1.plot(
+            xvalues, medianf, color=colordict[i],
+            linewidth=1.0, label=labels[i])
+        ax1.fill_between(
+            xvalues, q3f, q1f,
+            # color=colorshade[i],
+            alpha=0.3)
+    # plt.xlim(0, len(mean))
+    # ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="lower left", title='Distance')
+    ax1.legend()
+    # ax1.set_xticklabels(labels)
+    ax1.set_yticks(range(0, 105, 20))
+    ax1.set_xlabel('Time Steps')
+    ax1.set_ylabel('Foraging (%)')
+    # ax1.set_title('Swarm Foraging with distance '+ site[-2:])
+    # ax2.set_title('Swarm Foraging with distance '+ site[-2:])
+    plt.tight_layout()
+
+    maindir = '/tmp/swarm/data/experiments/'
+    # fname = 'agentsitecomp' + agent
+    nadir = os.path.join(maindir, str(50), agent)
+
+    fig.savefig(
+        nadir + 'agentallsitecompdistplot' + '.png')
     # fig.savefig(
     #     maindir + '/' + fname + '.png')
     # pylint: disable = E1101
@@ -653,15 +738,19 @@ def plot_evolution_algo_performance():
 
 
 def read_data_sample_ratio(ratio=0.1):
-    maindir = '/tmp/swarm/data/experiments/behavior_sampling'
+    # maindir = '/tmp/swarm/data/experiments/behavior_sampling'
+    maindir = '/tmp/swarm/data/experiments/exp_behavior_sample/all_experiments'
     # nadir = os.path.join(maindir, str(n), agent)
     folders = pathlib.Path(maindir).glob("*_" + str(ratio) + "_ValidateSForgeNewPPA1")
     flist = []
     data = []
     for f in folders:
-        flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
-        _, _, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
-        data.append(d)
+        try:
+            flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
+            _, _, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+            data.append(d)
+        except:
+            pass
     data = np.array(data)
     # print(ratio, data.shape)
     return data
@@ -673,7 +762,7 @@ def plot_sampling_differences():
     datas = []
     for s in sampling_size:
         data = read_data_sample_ratio(s)[:, -1]
-        # print(s, data.shape)
+        print(s, data.shape)
         datas.append(data)
 
     fig = plt.figure()
@@ -698,8 +787,9 @@ def plot_sampling_differences():
     for patch, color in zip(bp1['boxes'], colordict.values()):
         patch.set_facecolor(color)
     # plt.xlim(0, len(mean))
-    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper right", title='Sampling Size')
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper left", title='Sampling Size')
     ax1.set_xticklabels(labels)
+    ax1.set_yticks(range(0, 105, 20))
     ax1.set_xlabel('Sampling Size')
     ax1.set_ylabel('Foraging Percentage')
     ax1.set_title('Swarm Foraging')
@@ -738,9 +828,10 @@ def main():
     # boxplotallsites()
     # boxplotagent()
     # boxplotallsitesdist()
-    boxplotsiteloc()
+    # boxplotsiteloc()
     # plot_evolution_algo_performance()
-    # plot_sampling_differences()
+    plot_sampling_differences()
+    # plotallsitesdist()
 
 
 if __name__ == '__main__':
