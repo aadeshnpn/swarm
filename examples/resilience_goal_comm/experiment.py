@@ -220,7 +220,7 @@ def test_json_phenotype(json):
     for n in [50, 100, 200, 300, 400, 500]:
         Parallel(
             n_jobs=8)(delayed(test_loop)(
-                phenotype, 5000, '/tmp/swarm/data/experiments/', n=n) for i in range(128))
+                phenotype, 5000, None, n=n) for i in range(128))
 
     # validation_loop(phenotype, 5000, '/tmp/swarm/data/experiments/')
     # if validation_loop(phenotype, 2000, 1):

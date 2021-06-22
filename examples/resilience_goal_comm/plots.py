@@ -12,7 +12,7 @@ import glob
 import pathlib
 
 
-def plotgraph(n=100, fname='/tmp/old.txt', label='Old BNF Grammar'):
+def plotgraph(n=100):
 
     # data = read_data_n_agent(n=n, agent=agent)
     # dataf = read_data_n_agent(n=n, filename=fname)
@@ -144,11 +144,130 @@ def read_data():
     return data
 
 
+def read_data_n_agent_site(n=100, i=5000):
+    maindir = '/tmp/plots/data/experiments/'
+    # maindir = '/home/aadeshnpn/Desktop/evolved_ppa/experiments/'
+    nadir = os.path.join(maindir, str(n), str(i))
+    folders = pathlib.Path(nadir).glob("*TestSForgeNewPPAComm*")
+    flist = []
+    dataf = []
+    datad = []
+    for f in folders:
+        flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
+        try:
+            # print(flist)
+            _, _, f, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+            dataf.append(f)
+            datad.append(d)
+        except IndexError:
+            pass
+    # print(data)
+    dataf = np.array(dataf)
+    datad = np.array(datad)
+    print(dataf.shape, datad.shape, n)
+    return dataf, datad
+
+
+def boxplotsiteloc():
+    # sites = ['-3030', '30-30', '3030', '-5050', '50-50', '5050', '-9090', '90-90']
+    agents = [50, 100, 200] #, 300, 400, 500]
+    # agents = [100]
+    # print(agent, site)
+    dataf = [read_data_n_agent_site(n)[0][:,-1] for n in agents]
+    datad = [read_data_n_agent_site(n)[1][:,-1] for n in agents]
+    datadp = [(datad[i]/agents[i])*100 for i in range(len(agents))]
+    fig = plt.figure(figsize=(6, 8), dpi=100)
+
+    ax1 = fig.add_subplot(3, 1, 1)
+    colordict = {
+        0: 'forestgreen',
+        1: 'indianred',
+        2: 'gold',
+        3: 'tomato',
+        4: 'royalblue',
+        5: 'orchid',
+        6: 'olivedrab',
+        7: 'peru',
+        8: 'linen'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+    # colordict = {
+    #     0: 'bisque',
+    #     1: 'darkorange',
+    #     2: 'orangered',
+    #     3: 'seagreen'
+    # }
+
+    # labels = ['Agent-Key', 'Key-Door', 'Door-Goal', 'Total']
+    # labels = ['30', '30', '30', '50', '50', '50', '90', '90']
+    labels = ['50', '100', '200']  #, '300', '400', '500']
+    medianprops = dict(linewidth=1.5, color='firebrick')
+    meanprops = dict(linewidth=1.5, color='#ff7f0e')
+    # data = [data[:, i] for i in range(4)]
+    bp1 = ax1.boxplot(
+        dataf, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops)
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+    # plt.xlim(0, len(mean))
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="medium", loc="lower right", title='Agent Size')
+    ax1.set_xticklabels(labels)
+    ax1.set_yticks(range(0, 105, 20))
+    # ax1.set_xlabel('Agent size')
+    ax1.set_ylabel('Foraging Percentage', fontsize="large")
+    ax1.set_title('Swarm Foraging with distance '+ str(50))
+
+    ax2 = fig.add_subplot(3, 1, 2)
+    bp2 = ax2.boxplot(
+        datad, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops)
+    for patch, color in zip(bp2['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+    # plt.xlim(0, len(mean))
+    # ax2.legend(zip(bp2['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
+    ax2.set_yticks(range(0,105, 20))
+    ax2.set_xticklabels(labels)
+    # ax2.set_xlabel('Agent size')
+    ax2.set_ylabel('No. Dead Agents', fontsize="large")
+
+    ax3 = fig.add_subplot(3, 1, 3)
+    bp3 = ax3.boxplot(
+        datadp, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops)
+    for patch, color in zip(bp3['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+    # plt.xlim(0, len(mean))
+    # ax3.legend(zip(bp3['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
+    ax3.set_yticks(range(0,105, 20))
+    ax3.set_xticklabels(labels)
+    ax3.set_xlabel('Agent size', fontsize="large")
+    ax3.set_ylabel('Dead Agents %', fontsize="large")
+    # ax2.set_title('Swarm Foraging with distance '+ site[-2:])
+    # plt.tight_layout()
+
+    maindir = '/tmp/swarm/data/experiments/'
+    # fname = 'agentsitecomp' + agent
+    nadir = os.path.join(maindir, str(50))
+
+    fig.savefig(
+        nadir + 'agentsitecomp' + '.png')
+    # fig.savefig(
+    #     maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
 def main():
     # read_data_n_agent()
-    plotgraph()
+    # plotgraph()
     # boxplot()
     # read_data()
+    boxplotsiteloc()
 
 
 if __name__ == '__main__':
