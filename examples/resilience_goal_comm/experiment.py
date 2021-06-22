@@ -18,12 +18,12 @@ UI = False
 
 
 def validation_loop(
-        phenotypes, iteration, parentname=None, ratio=1, threshold=10.0):
+        phenotypes, iteration, parentname=None, ratio=1, threshold=10, n=100):
     """Validate the evolved behaviors."""
     # Create a validation environment instance
     # print('len of phenotype', len(set(phenotypes)))
     valid = ValidationModel(
-        100, width, height, 10, iter=iteration, parent=parentname, ratio=ratio)
+        n, width, height, 10, iter=iteration, parent=parentname, ratio=ratio)
     # print('parent:', parentname, ' children:', valid.runid)
     # Build the environment
     valid.build_environment_from_json()
@@ -39,7 +39,7 @@ def validation_loop(
         # print ([agent.location for agent in valid.agents])
         validresults = SimulationResults(
             valid.pname, valid.connect, valid.sn, valid.stepcnt,
-            valid.foraging_percent(), phenotypes[0]
+            valid.foraging_percent(), phenotypes[0], db=True
         )
         validresults.save_to_file()
 
@@ -61,11 +61,11 @@ def validation_loop(
     return success
 
 
-def test_loop(phenotypes, iteration, parentname=None, ratio=1):
+def test_loop(phenotypes, iteration, parentname=None, ratio=1, n=100):
     """Test the phenotypes in a completely different environment."""
     # Create a validation environment instance
     test = TestModel(
-        100, width, height, 10, iter=iteration, parent=parentname, ratio=ratio)
+        n, width, height, 10, iter=iteration, parent=parentname, ratio=ratio)
     # Build the environment
     test.build_environment_from_json()
     # Create the agents in the environment from the sampled behaviors
@@ -73,7 +73,7 @@ def test_loop(phenotypes, iteration, parentname=None, ratio=1):
     # Store the initial result
     testresults = SimulationResultsTraps(
         test.pname, test.connect, test.sn, test.stepcnt,
-        test.foraging_percent(), phenotypes[0], test.no_agent_dead()
+        test.foraging_percent(), phenotypes[0], test.no_agent_dead(), db=True
         )
     # Save the phenotype to a json file
     testresults.save_phenotype()
@@ -87,7 +87,7 @@ def test_loop(phenotypes, iteration, parentname=None, ratio=1):
 
         testresults = SimulationResultsTraps(
             test.pname, test.connect, test.sn, test.stepcnt,
-            test.foraging_percent(), phenotypes[0], test.no_agent_dead()
+            test.foraging_percent(), phenotypes[0], test.no_agent_dead(),db=True
         )
         testresults.save_to_file()
 
@@ -105,7 +105,7 @@ def test_loop(phenotypes, iteration, parentname=None, ratio=1):
 def learning_phase(iteration, early_stop=False):
     """Learning Algorithm block."""
     # Evolution environment
-    env = EvolveModel(50, width, height, 10, iter=iteration)
+    env = EvolveModel(100, width, height, 10, iter=iteration)
     env.build_environment_from_json()
     env.create_agents()
     # Validation Step parameter
@@ -209,13 +209,19 @@ def main(iter):
 
 
 def test_json_phenotype(json):
-    jname = '/home/aadeshnpn/Documents/BYU/hcmi/swarm/results/1550083569946511-12000EvoSForge/' + json  # noqa : E501
+    # 16237197451679-10999.json
+    jname = '/tmp/16237201059243-all.json'# noqa : E501
     # jname = '/tmp/1543367322976111-8000EvoSForge/' + json
     phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
     print(len(phenotype))
     # phenotype = ' '
 
-    test_loop(phenotype, 5000)
+    # test_loop(phenotype, 5000)
+    for n in [50, 100, 200, 300, 400, 500]:
+        Parallel(
+            n_jobs=8)(delayed(test_loop)(
+                phenotype, 5000, '/tmp/swarm/data/experiments/', n=n) for i in range(128))
+
     # validation_loop(phenotype, 5000, '/tmp/swarm/data/experiments/')
     # if validation_loop(phenotype, 2000, 1):
     #    print('foraging success')
@@ -270,9 +276,9 @@ if __name__ == '__main__':
     # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 8000, 2000))
     # main(12000)
     # json = '1550083569946511-all.json'
-    # test_json_phenotype(json)
+    test_json_phenotype(None)
 
-    Parallel(n_jobs=10)(delayed(main)(12000) for i in range(128))
+    # Parallel(n_jobs=4)(delayed(main)(12000) for i in range(8))
     # main(12000)
     # test_all_phenotype('/tmp/links.txt')
     # jsonlist = sys.argv

@@ -15,7 +15,8 @@ import pathlib
 def plotgraph(n=100, fname='/tmp/old.txt', label='Old BNF Grammar'):
 
     # data = read_data_n_agent(n=n, agent=agent)
-    dataf = read_data_n_agent(n=n, filename=fname)
+    # dataf = read_data_n_agent(n=n, filename=fname)
+    dataf =  read_data()
     print(dataf.shape)
     medianf = np.quantile(dataf, 0.5, axis=0)
     q1f = np.quantile(dataf, 0.25, axis=0)
@@ -127,10 +128,27 @@ def read_data_n_agent(n=100, filename='/tmp/old.txt'):
     return data
 
 
+def read_data():
+    maindir = '/tmp/swarm/data/experiments/'
+    # nadir = os.path.join(maindir, str(n), agent)
+    folders = pathlib.Path(maindir).glob("*" + "ValidateSForgeNewPPAComm1")
+    flist = []
+    data = []
+    for f in folders:
+        flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
+        # print(flist)
+        _, _, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+        data.append(d)
+    data = np.array(data)
+    # print(data.shape)
+    return data
+
+
 def main():
     # read_data_n_agent()
-    # plotgraph()
-    boxplot()
+    plotgraph()
+    # boxplot()
+    # read_data()
 
 
 if __name__ == '__main__':
