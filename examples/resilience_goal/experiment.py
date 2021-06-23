@@ -355,6 +355,7 @@ def experiments(args):
         2: behavior_sampling,
         3: single_evo,
         4: behavior_sampling_after,
+        # 5: exp_with_size_trap
     }
     exp_no[args.exp_no](args)
 
@@ -368,8 +369,9 @@ def behavior_sampling_after(args):
             n_jobs=18)(delayed(validation_loop)(
                 phenotype, 5000, None, r, db=False) for i in range(18))
 
-def exp_with_evolved_beh(args):
-    pass
+# def exp_with_size_trap(args):
+#     jname = '/tmp/experiments/100/12000/1624352990396EvoSForgeNewPPA1/1624352990396-all.json'
+#     phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
 
 
 def exp_varying_n_evolution(args):

@@ -638,7 +638,8 @@ class SimForgModel(Model):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            xmlstrings=None, seed=None, viewer=False, pname=None, agent=ExecutingAgent, expsite=None):
+            xmlstrings=None, seed=None, viewer=False, pname=None,
+            agent=ExecutingAgent, expsite=None, trap=5, obs=5):
         """Initialize the attributes."""
         if seed is None:
             super(SimForgModel, self).__init__(seed=None)
@@ -654,6 +655,8 @@ class SimForgModel(Model):
         self.viewer = viewer
         self.agent = agent
         self.expsite = expsite
+        self.trap_radius = trap
+        self.obs_radius = obs
         # print('agent type', agent)
         # # Create db connection
         # try:
@@ -763,7 +766,12 @@ class SimForgModel(Model):
                 #     i, location, json_object["radius"], q_value=json_object[
                 #         "q_value"])
             else:
-                temp_obj = obj(i, location, json_object["radius"])
+                if name == 'traps':
+                    temp_obj = obj(i, location, self.trap_radius)
+                elif name =='obstacles':
+                    temp_obj = obj(i, location, self.obs_radius)
+                else:
+                    temp_obj = obj(i, location, json_object["radius"])
             if temp_obj is not None:
                 self.grid.add_object_to_grid(location, temp_obj)
                 temp_list.append(temp_obj)

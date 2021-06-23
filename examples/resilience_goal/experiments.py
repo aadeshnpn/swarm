@@ -16,13 +16,14 @@ height = 100
 UI = False
 
 
-def simulate_forg(env, iteration, agent=ExecutingAgent, N=100, site=None):
+def simulate_forg(env, iteration, agent=ExecutingAgent, N=100, site=None, trap=5, obs=5):
     """Test the performane of evolved behavior."""
     phenotypes = env[0]
     threshold = 1.0
     # print(iteration, phenotypes)
     sim = SimForgModel(
-        N, 200, 200, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1], viewer=False, agent=agent, expsite=site)
+        N, 200, 200, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1],
+        viewer=False, agent=agent, expsite=site, trap=trap, obs=obs)
     sim.build_environment_from_json()
 
     # for all agents store the information about hub
@@ -65,43 +66,39 @@ def main(args):
     n = args.n
     agent = args.agent
     runs = args.runs
-
-    # sitelocation  = [
-    #     {"x":51, "y":-51, "radius":10, "q_value":0.9},
-    #     {"x":51, "y":51, "radius":10, "q_value":0.9},
-    #     {"x":-51, "y":51, "radius":10, "q_value":0.9},
-    #     {"x":31, "y":-31, "radius":10, "q_value":0.9},
-    #     {"x":31, "y":31, "radius":10, "q_value":0.9},
-    #     {"x":-31, "y":31, "radius":10, "q_value":0.9},
-    #     {"x":91, "y":-91, "radius":10, "q_value":0.9},
-    #     {"x":-91, "y":91, "radius":10, "q_value":0.9},
-    # ]
+    trap_size = args.trap_size
+    obs_size = args.obstacle_size
     # site = sitelocation[args.site]
     sitelocation = [20] * 10 + [25] * 10 + [30] * 10 + [40] * 10 + [50]*10 + [60] *10 + [70]*10 + [80]*10 + [90]* 10
     site = sitelocation[args.site]
-    def exp(n, agent, runs, site):
+    trapsizes = range(5, 30, 5)
+    obssizes = range(5, 30, 5)
+    trap = trapsizes[0]
+    obs = obssizes[0]
+    def exp(n, agent, runs, site, trap, obs):
         agent = ExecutingAgent if agent == 0 else ExecutingAgent
         # dname = os.path.join('/tmp', 'swarm', 'data', 'experiments', str(n), agent.__name__, str(site['x'])+str(site['y']))
-        dname = os.path.join('/tmp', 'swarm', 'data', 'experiments', str(n), agent.__name__, str(site))
+        dname = os.path.join('/tmp', 'swarm', 'data', 'experiments', str(n), agent.__name__, str(site), trap, obs)
         pathlib.Path(dname).mkdir(parents=True, exist_ok=True)
         steps = [5000 for i in range(args.runs)]
         jname = '/tmp/16235340355923-10999.json'
         phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
         env = (phenotype, dname)
-        Parallel(n_jobs=8)(delayed(simulate_forg)(env, i, agent=agent, N=n, site=site) for i in steps)
+        Parallel(n_jobs=8)(delayed(simulate_forg)(env, i, agent=agent, N=n, site=site, trap=trap, obs=obs) for i in steps)
         # simulate_forg(env, 500, agent=agent, N=n, site=site)
 
     if args.all:
         # for agent in [0, 1]:
-        for site in sitelocation:
+        for site in [50]:
             # for agent in [0, 1]:
             for agent in [0]:
                 # for n in [50, 100, 200, 300, 400, 500]:
                 # for n in [50, 100]:
-                for n in [100]:
-                    exp(n, agent, runs, site)
+                for t in range(len(trapsizes)):
+                    for n in [100]:
+                        exp(n, agent, runs, site, trapsizes[t], obssizes[t])
     else:
-        exp(n, agent, runs, site)
+        exp(n, agent, runs, site, trap, obs)
 
 
 
@@ -117,6 +114,8 @@ if __name__ == '__main__':
     parser.add_argument('--agent', default=1, choices=[0, 1], type=int)
     parser.add_argument('--runs', default=20, type=int)
     parser.add_argument('--site', default=0, type=int)
+    parser.add_argument('--trap_size', default=5, type=int)
+    parser.add_argument('--obstacle_size', default=5, type=int)
     parser.add_argument('--all', default=False)
     args = parser.parse_args()
     print(args)
