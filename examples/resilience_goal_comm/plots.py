@@ -145,7 +145,8 @@ def read_data():
 
 
 def read_data_n_agent_site(n=100, i=5000):
-    maindir = '/tmp/plots/data/experiments/'
+    # maindir = '/tmp/plots/data/experiments/'
+    maindir = '/tmp/experiments/'
     # maindir = '/home/aadeshnpn/Desktop/evolved_ppa/experiments/'
     nadir = os.path.join(maindir, str(n), str(i))
     folders = pathlib.Path(nadir).glob("*TestSForgeNewPPAComm*")
@@ -170,7 +171,7 @@ def read_data_n_agent_site(n=100, i=5000):
 
 def boxplotsiteloc():
     # sites = ['-3030', '30-30', '3030', '-5050', '50-50', '5050', '-9090', '90-90']
-    agents = [50, 100, 200] #, 300, 400, 500]
+    agents = [50, 100, 200, 300, 400, 500]
     # agents = [100]
     # print(agent, site)
     dataf = [read_data_n_agent_site(n)[0][:,-1] for n in agents]
@@ -201,7 +202,7 @@ def boxplotsiteloc():
 
     # labels = ['Agent-Key', 'Key-Door', 'Door-Goal', 'Total']
     # labels = ['30', '30', '30', '50', '50', '50', '90', '90']
-    labels = ['50', '100', '200']  #, '300', '400', '500']
+    labels = ['50', '100', '200', '300', '400', '500']
     medianprops = dict(linewidth=1.5, color='firebrick')
     meanprops = dict(linewidth=1.5, color='#ff7f0e')
     # data = [data[:, i] for i in range(4)]
@@ -254,7 +255,7 @@ def boxplotsiteloc():
     nadir = os.path.join(maindir, str(50))
 
     fig.savefig(
-        nadir + 'agentsitecomp' + '.png')
+        nadir + 'agentsitecompcomm' + '.png')
     # fig.savefig(
     #     maindir + '/' + fname + '.png')
     # pylint: disable = E1101

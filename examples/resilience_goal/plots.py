@@ -739,7 +739,9 @@ def plot_evolution_algo_performance():
 
 def read_data_sample_ratio(ratio=0.1):
     # maindir = '/tmp/swarm/data/experiments/behavior_sampling'
-    maindir = '/tmp/swarm/data/experiments/exp_behavior_sample/all_experiments'
+    # maindir = '/tmp/swarms/data/experiment/'
+    ## Experiment ID for the plots/results in the paper
+    maindir = '/tmp/exp_behavior_sample/1624352990396EvoSForgeNewPPA1/'
     # nadir = os.path.join(maindir, str(n), agent)
     folders = pathlib.Path(maindir).glob("*_" + str(ratio) + "_ValidateSForgeNewPPA1")
     flist = []
@@ -787,11 +789,11 @@ def plot_sampling_differences():
     for patch, color in zip(bp1['boxes'], colordict.values()):
         patch.set_facecolor(color)
     # plt.xlim(0, len(mean))
-    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper left", title='Sampling Size')
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper center", title='Sampling Size')
     ax1.set_xticklabels(labels)
     ax1.set_yticks(range(0, 105, 20))
     ax1.set_xlabel('Sampling Size')
-    ax1.set_ylabel('Foraging Percentage')
+    ax1.set_ylabel('Foraging %')
     ax1.set_title('Swarm Foraging')
 
     plt.tight_layout()
@@ -802,6 +804,108 @@ def plot_sampling_differences():
     fig.savefig(
         maindir + '/' + fname + '.png')
 
+    plt.close(fig)
+
+
+def read_data_n(n=100, comm=True):
+    maindir = '/tmp/swarm/data/experiments/'
+    if comm:
+        folders = pathlib.Path(maindir + 'comm').glob('*SForgeNewPPAComm1')
+    else:
+        folders = pathlib.Path(maindir + 'withoutcomm').glob('*ForagingSimulation')
+    flist = []
+    dataf = []
+    datad = []
+    for f in folders:
+        try:
+            flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
+            # print(flist)
+            _, _, f, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+            dataf.append(f)
+            datad.append(d)
+        except:
+            pass
+    dataf = np.array(dataf)
+    datad = np.array(datad)
+    return dataf, datad
+
+
+def comp_with_witout_comm():
+    datac, datacd = read_data_n(n=100, comm=True)
+    datawc, datawcd = read_data_n(n=100, comm=False)
+    print(datac.shape, datawc.shape)
+
+    def return_quartiles(datas):
+        median = np.quantile(datas, 0.5, axis=0)
+        q1 = np.quantile(datas, 0.25, axis=0)
+        q3 = np.quantile(datas, 0.75, axis=0)
+        return median, q1, q3
+
+    medianc, q1c, q3c = return_quartiles(datac)
+    medianwc, q1wc, q3wc = return_quartiles(datawc)
+
+    color = [
+        'forestgreen', 'indianred',
+        'gold', 'tomato', 'royalblue']
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+
+    plt.style.use('fivethirtyeight')
+    fig = plt.figure()
+    ax1 = fig.add_subplot(2, 1, 1)
+    xvalues = range(datac.shape[1])
+    ax1.plot(
+        xvalues, medianc, color=color[0],
+        linewidth=1.0, label='With Communication')
+    ax1.fill_between(
+        xvalues, q3c, q1c,
+        color=colorshade[0], alpha=0.5)
+
+    ax1.plot(
+        xvalues, medianwc, color=color[1],
+        linewidth=1.0, label='Without Communication')
+    ax1.fill_between(
+        xvalues, q3wc, q1wc,
+        color=colorshade[1], alpha=0.5)
+
+    ax1.set_xlabel('Steps')
+    ax1.set_ylabel('Foraging %')
+    ax1.set_yticks(range(0, 105, 20))
+    ax1.legend()
+    mediancd, q1cd, q3cd = return_quartiles(datacd)
+    medianwcd, q1wcd, q3wcd = return_quartiles(datawcd)
+
+    ax2 = fig.add_subplot(2, 1, 2)
+    xvalues = range(datac.shape[1])
+    ax2.plot(
+        xvalues, mediancd, color=color[0],
+        linewidth=1.0, label='With Communication')
+    ax2.fill_between(
+        xvalues, q3cd, q1cd,
+        color=colorshade[0], alpha=0.5)
+
+    ax2.plot(
+        xvalues, medianwcd, color=color[1],
+        linewidth=1.0, label='Without Communication')
+    ax2.fill_between(
+        xvalues, q3wcd, q1wcd,
+        color=colorshade[1], alpha=0.5)
+
+    ax2.set_xlabel('Steps')
+    ax2.set_ylabel('No. Dead Agents')
+    ax2.set_yticks(range(0, 20, 4))
+    # ax1.set_xticks(
+    #     np.linspace(0, data.shape[-1], 5))
+    # plt.legend()
+    plt.tight_layout()
+
+    # fig.savefig(
+    #     '/tmp/goal/data/experiments/' + pname + '.pdf')
+    maindir = '/tmp/swarm/data/experiments/'
+    # nadir = os.path.join(maindir, str(n), agent)
+    fig.savefig(
+        maindir + 'comparewithoutcomm.png')
     plt.close(fig)
 
 
@@ -830,8 +934,9 @@ def main():
     # boxplotallsitesdist()
     # boxplotsiteloc()
     # plot_evolution_algo_performance()
-    plot_sampling_differences()
+    # plot_sampling_differences()
     # plotallsitesdist()
+    comp_with_witout_comm()
 
 
 if __name__ == '__main__':

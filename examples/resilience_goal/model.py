@@ -355,6 +355,7 @@ class EvolveModel(ForagingModel):
             for agent in self.agents:
                 phenotypes = {**agent.phenotypes, **phenotypes}
 
+            print('total phenotype from behavior sampling', len(phenotypes))
             # Sort the phenotypes
             phenotypes, _ = zip(
                 *sorted(phenotypes.items(), key=lambda x: (

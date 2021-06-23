@@ -275,12 +275,12 @@ def exp_evol_sample(iter, n, db):
         phenotypes, fpercent, pname = learning_phase(iter, n, db)
         # learning_phase(iter)
         # Run the evolved behaviors on a test environment
-        print('Behavior Sampling experiments', count_exp, fpercent)
+        print('Behavior Sampling experiments', count_exp, fpercent, len(phenotypes))
         if (phenotypes is not None and fpercent >= 80):
             for r in [0.1, 0.2, 0.3, 0.5, 0.7, 1.0]:
                 print(r)
                 Parallel(
-                    n_jobs=8)(delayed(validation_loop)(
+                    n_jobs=2)(delayed(validation_loop)(
                         phenotypes, 5000, pname, r, db) for i in range(40))
             count_exp += 1
 
