@@ -100,26 +100,31 @@ def main(args):
                 for site in sitelocation:
                     for agent in [0]:
                             for n in [50, 100, 200, 300, 400, 500]:
+                                print(n, agent, runs, site, trapsizes[t], obssizes[t], windowsizes[w], windowsizes[w])
                                 exp(n, agent, runs, site, trapsizes[t], obssizes[t], windowsizes[w], windowsizes[w])
     else:
         if args.exp_no == 0:
             # Every thing constant just change in agent size
             for n in [50, 100, 200, 300, 400, 500]:
+                print(n, agent, runs, site, trap, obs)
                 exp(n, agent, runs, site, trap, obs)
         elif args.exp_no ==1:
             # Every thing constant site distance changes
             for site in sitelocation:
+                print(n, agent, runs, site, trap, obs)
                 exp(n, agent, runs, site, trap, obs)
         elif args.exp_no ==2:
             # Every thing constant trap/obstacle size changes
             for i in range(len(trapsizes)):
+                print(n, agent, runs, site, trapsizes[i], obssizes[i])
                 exp(n, agent, runs, site, trapsizes[i], obssizes[i])
-        elif args.exp_np ==3:
+        elif args.exp_no ==3:
             for w in range(len(windowsizes)):
+                print(n, agent, runs, site, trap, obs, windowsizes[w], windowsizes[w])
                 exp(n, agent, runs, site, trap, obs, windowsizes[w], windowsizes[w])
-
-        exp(n, agent, runs, site, trap, obs)
-
+        else:
+            print(n, agent, runs, site, trap, obs)
+            exp(n, agent, runs, site, trap, obs)
 
 
 if __name__ == '__main__':
@@ -137,7 +142,7 @@ if __name__ == '__main__':
     parser.add_argument('--trap_size', default=5, type=int)
     parser.add_argument('--obstacle_size', default=5, type=int)
     parser.add_argument('--exp_no', default=0, type=int)
-    # parser.add_argument('--all', default=False)
+    parser.add_argument('--all', default=False)
     args = parser.parse_args()
     print(args)
     main(args)

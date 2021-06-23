@@ -741,7 +741,7 @@ def read_data_sample_ratio(ratio=0.1):
     # maindir = '/tmp/swarm/data/experiments/behavior_sampling'
     # maindir = '/tmp/swarms/data/experiment/'
     ## Experiment ID for the plots/results in the paper
-    maindir = '/tmp/experiments/100/12000/1624352990396EvoSForgeNewPPA1'
+    maindir = '/tmp/experiments/'
     # maindir = '/tmp/experiments/100/12000/16243666378807EvoSForgeNewPPA1'
     # nadir = os.path.join(maindir, str(n), agent)
     folders = pathlib.Path(maindir).glob("*_" + str(ratio) + "_ValidateSForgeNewPPA1")
@@ -790,7 +790,7 @@ def plot_sampling_differences():
     for patch, color in zip(bp1['boxes'], colordict.values()):
         patch.set_facecolor(color)
     # plt.xlim(0, len(mean))
-    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper center", title='Sampling Size')
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="lower left", title='Sampling Size')
     ax1.set_xticklabels(labels)
     ax1.set_yticks(range(0, 105, 20))
     ax1.set_xlabel('Sampling Size')
