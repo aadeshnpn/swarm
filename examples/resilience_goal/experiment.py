@@ -29,7 +29,7 @@ def validation_loop(
     # Build the environment
     valid.build_environment_from_json()
     # Create the agents in the environment from the sampled behaviors
-    phenotypes = valid.behavior_sampling(ratio_value=ratio, phenotype=phenotypes)
+    phenotypes = valid.behavior_sampling(method='ratio', ratio_value=ratio, phenotype=phenotypes)
     valid.create_agents(phenotypes=phenotypes)
     # print('total food units', valid.total_food_units)
     # Print the BT
@@ -346,12 +346,30 @@ def test_all_phenotype(idfile='/tmp/experiments/idvalid.txt'):
 
 
 def experiments(args):
+    ## New experiments
+    ## Remove the communication behavior nodes
+    ## Increase the size of the traps and obstacles
+    ## Increase the size of the world
     exp_no = {
         1: exp_varying_n_evolution,
         2: behavior_sampling,
-        3: single_evo
+        3: single_evo,
+        4: behavior_sampling_after,
     }
     exp_no[args.exp_no](args)
+
+
+def behavior_sampling_after(args):
+    jname = '/tmp/experiments/100/12000/1624352990396EvoSForgeNewPPA1/1624352990396-all.json'
+    phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
+    print(len(phenotype))
+    for r in [0.1, 0.2, 0.3, 0.5, 0.7, 1.0]:
+        Parallel(
+            n_jobs=18)(delayed(validation_loop)(
+                phenotype, 5000, None, r, db=False) for i in range(18))
+
+def exp_with_evolved_beh(args):
+    pass
 
 
 def exp_varying_n_evolution(args):

@@ -482,10 +482,7 @@ class ValidationModel(ForagingModel):
         # Just for testing. Not needed
 
         if method == 'ratio':
-            upper_bound = ratio_value * self.num_agents
-            # selected_agents = self.agents[0:int(upper_bound)]
-            # selected_phenotype = [
-            #    agent.individual[0].phenotype for agent in selected_agents]
+            upper_bound = round(ratio_value * len(phenotypes))
             selected_phenotype = list(phenotypes)[:int(upper_bound)]
             return selected_phenotype
         else:
@@ -562,7 +559,7 @@ class TestModel(ForagingModel):
         # Just for testing. Not needed
 
         if method == 'ratio':
-            upper_bound = ratio_value * self.num_agents
+            upper_bound = round(ratio_value * len(phenotypes))
             # selected_agents = self.agents[0:int(upper_bound)]
             # selected_phenotype = [
             #    agent.individual[0].phenotype for agent in selected_agents]

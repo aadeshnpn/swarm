@@ -741,7 +741,8 @@ def read_data_sample_ratio(ratio=0.1):
     # maindir = '/tmp/swarm/data/experiments/behavior_sampling'
     # maindir = '/tmp/swarms/data/experiment/'
     ## Experiment ID for the plots/results in the paper
-    maindir = '/tmp/exp_behavior_sample/1624352990396EvoSForgeNewPPA1/'
+    maindir = '/tmp/experiments/100/12000/1624352990396EvoSForgeNewPPA1'
+    # maindir = '/tmp/experiments/100/12000/16243666378807EvoSForgeNewPPA1'
     # nadir = os.path.join(maindir, str(n), agent)
     folders = pathlib.Path(maindir).glob("*_" + str(ratio) + "_ValidateSForgeNewPPA1")
     flist = []
@@ -934,9 +935,9 @@ def main():
     # boxplotallsitesdist()
     # boxplotsiteloc()
     # plot_evolution_algo_performance()
-    # plot_sampling_differences()
+    plot_sampling_differences()
     # plotallsitesdist()
-    comp_with_witout_comm()
+    # comp_with_witout_comm()
 
 
 if __name__ == '__main__':
