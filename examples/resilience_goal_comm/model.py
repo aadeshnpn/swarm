@@ -18,7 +18,7 @@ import datetime
 import numpy as np
 from flloat.parser.ltlf import LTLfParser
 from py_trees import common, blackboard
-
+import py_trees
 
 # filename = os.path.join(imp.find_module("swarms")[1] + "/utils/world.json")
 # projectdir = "/home/aadeshnpn/Documents/BYU/HCMI/resilience/swarm/examples"
@@ -475,7 +475,7 @@ class TestModel(ForagingModel):
         super(TestModel, self).__init__(
             N, width, height, grid, iter, seed, name, viewer, parent, ratio)
 
-    def create_agents(self, random_init=False, phenotypes=None):
+    def create_agents(self, random_init=False, phenotypes=None, removesignal=False, removepheromone=False):
         """Initialize agents in the environment."""
         # Variable to tell how many agents will have the same phenotype
         bound = np.ceil((self.num_agents * 1.0) / len(phenotypes))
@@ -490,6 +490,12 @@ class TestModel(ForagingModel):
             # Initialize the BT. Since the agents are normal agents just
             # use the phenotype
             a.construct_bt()
+            # print(py_trees.display.ascii_tree(a.bt.behaviour_tree.root, indent=0, show_status=True))
+            if removesignal:
+                a.remove_signal()
+            if removepheromone:
+                a.remove_pheromone()
+            # print(py_trees.display.ascii_tree(a.bt.behaviour_tree.root, indent=0, show_status=True))
             if random_init:
                 # Add the agent to a random grid cell
                 x = self.random.randint(

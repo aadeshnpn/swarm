@@ -2,7 +2,11 @@ from inspect import CO_ITERABLE_COROUTINE
 from py_trees import common
 from py_trees.composites import Selector
 from py_trees import common, blackboard
+from py_trees.behaviour import Behaviour
 from swarms.behaviors.sbehaviors import DropCue, SendSignal, ObjectsStore
+from swarms.behaviors.scbehaviors import (
+    CompositeReceiveSignal, CompositeSendSignal, CompositeSensePheromone, CompositeDropPheromone
+)
 import numpy as np
 from swarms.lib.agent import Agent
 from swarms.utils.bt import BTConstruct
@@ -531,6 +535,29 @@ class ExecutingAgent(ForagingAgent):
         # py_trees.display.render_dot_tree(
         #    self.bt.behaviour_tree.root, name='/tmp/' + str(self.name))
 
+    def remove_signal(self):
+        # print(dir(self.bt.behaviour_tree.root))
+        nodes = list(self.bt.behaviour_tree.root.iterate())
+        for node in nodes:
+            if isinstance(node, CompositeSendSignal) or isinstance(node, CompositeReceiveSignal):
+                d1 = DummyBehavior('Dummy')
+                try:
+                    node.parent.replace_child(node, d1)
+                except AttributeError:
+                    node.parent.parent.replace_child(node.parent, d1)
+
+    def remove_pheromone(self):
+        nodes = list(self.bt.behaviour_tree.root.iterate())
+        # print(py_trees.display.ascii_tree(self.bt.behaviour_tree.root, indent=0, show_status=True))
+        for node in nodes:
+            if isinstance(node, CompositeDropPheromone) or isinstance(node, CompositeSensePheromone):
+                d1 = DummyBehavior('Dummy')
+                try:
+                    node.parent.replace_child(node, d1)
+                except AttributeError:
+                    node.parent.parent.replace_child(node.parent, d1)
+        # print(py_trees.display.ascii_tree(self.bt.behaviour_tree.root, indent=0, show_status=True))
+
     def step(self):
         """Agent action at a single time step."""
         # Maintain the location history of the agent
@@ -541,3 +568,24 @@ class ExecutingAgent(ForagingAgent):
 
         # Find the no.of food collected from the BT execution
         # self.food_collected = len(self.get_food_in_hub())
+
+
+# Behavior define for donot move
+class DummyBehavior(Behaviour):
+    """Dummy behaviors."""
+
+    def __init__(self, name):
+        """Initialize."""
+        super(DummyBehavior, self).__init__(name)
+
+    def setup(self, timeout, agent, item=None):
+        """Setup."""
+        pass
+
+    def initialise(self):
+        """Pass."""
+        pass
+
+    def update(self):
+        """Update agent moveable property."""
+        return common.Status.SUCCESS

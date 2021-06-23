@@ -61,7 +61,8 @@ def validation_loop(
     return success
 
 
-def test_loop(phenotypes, iteration, parentname=None, ratio=1, n=100):
+def test_loop(
+        phenotypes, iteration, parentname=None, ratio=1, n=100, signal=False, pheromone=False):
     """Test the phenotypes in a completely different environment."""
     # Create a validation environment instance
     test = TestModel(
@@ -69,8 +70,9 @@ def test_loop(phenotypes, iteration, parentname=None, ratio=1, n=100):
     # Build the environment
     test.build_environment_from_json()
     # Create the agents in the environment from the sampled behaviors
-    test.create_agents(phenotypes=phenotypes)
+    test.create_agents(phenotypes=phenotypes, removesignal=signal, removepheromone=pheromone)
     # Store the initial result
+    exit()
     testresults = SimulationResultsTraps(
         test.pname, test.connect, test.sn, test.stepcnt,
         test.foraging_percent(), phenotypes[0], test.no_agent_dead(), db=False
@@ -227,6 +229,22 @@ def test_json_phenotype(json):
     #    print('foraging success')
 
 
+def test_json_blocked_comm_behavior(json, signal=True, pheromone=True):
+    jname = '/tmp/16237201059243-all.json'# noqa : E501
+    # jname = '/tmp/1543367322976111-8000EvoSForge/' + json
+    phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
+    print(len(phenotype))
+    # phenotype = ' '
+    test_loop(phenotype, 5000, None, n=5, signal=signal, pheromone=pheromone)
+
+    # test_loop(phenotype, 5000)
+    # for n in [50, 100, 200, 300, 400, 500]:
+    #     Parallel(
+    #         n_jobs=8)(delayed(test_loop)(
+    #             phenotype, 5000, None, n=n, signal=signal, pheromone=pheromone) for i in range(128))
+
+
+
 def test_top_phenotype(jsonlist):
     #jsonlist = jsonlist.split(' ')
     # jname = '/tmp/1543367322976111-8000EvoSForge/' + json
@@ -276,7 +294,8 @@ if __name__ == '__main__':
     # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 8000, 2000))
     # main(12000)
     # json = '1550083569946511-all.json'
-    test_json_phenotype(None)
+    # test_json_phenotype(None)
+    test_json_blocked_comm_behavior(None)
 
     # Parallel(n_jobs=4)(delayed(main)(12000) for i in range(8))
     # main(12000)
