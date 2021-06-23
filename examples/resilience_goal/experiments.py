@@ -16,13 +16,15 @@ height = 100
 UI = False
 
 
-def simulate_forg(env, iteration, agent=ExecutingAgent, N=100, site=None, trap=5, obs=5):
+def simulate_forg(
+        env, iteration, agent=ExecutingAgent, N=100,
+        site=None, trap=5, obs=5, width=100, height=100):
     """Test the performane of evolved behavior."""
     phenotypes = env[0]
     threshold = 1.0
     # print(iteration, phenotypes)
     sim = SimForgModel(
-        N, 200, 200, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1],
+        N, width, height, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1],
         viewer=False, agent=agent, expsite=site, trap=trap, obs=obs)
     sim.build_environment_from_json()
 
@@ -75,29 +77,47 @@ def main(args):
     obssizes = range(5, 30, 5)
     trap = trapsizes[0]
     obs = obssizes[0]
-    def exp(n, agent, runs, site, trap, obs):
+    windowsizes = [100, 200, 300, 400, 500, 600]
+    def exp(n, agent, runs, site, trap, obs, width, height):
         agent = ExecutingAgent if agent == 0 else ExecutingAgent
-        # dname = os.path.join('/tmp', 'swarm', 'data', 'experiments', str(n), agent.__name__, str(site['x'])+str(site['y']))
-        dname = os.path.join('/tmp', 'swarm', 'data', 'experiments', str(n), agent.__name__, str(site), trap, obs)
+        dname = os.path.join(
+            '/tmp', 'swarm', 'data', 'experiments', str(n), agent.__name__,
+            str(site), str(trap)+'_'+str(obs), str(width) +'_'+str(height) )
         pathlib.Path(dname).mkdir(parents=True, exist_ok=True)
         steps = [5000 for i in range(args.runs)]
         jname = '/tmp/16235340355923-10999.json'
         phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
         env = (phenotype, dname)
-        Parallel(n_jobs=8)(delayed(simulate_forg)(env, i, agent=agent, N=n, site=site, trap=trap, obs=obs) for i in steps)
+        Parallel(
+            n_jobs=8)(delayed(simulate_forg)(
+                env, i, agent=agent, N=n, site=site,
+                trap=trap, obs=obs, width=width, height=height) for i in steps)
         # simulate_forg(env, 500, agent=agent, N=n, site=site)
 
     if args.all:
-        # for agent in [0, 1]:
-        for site in [50]:
-            # for agent in [0, 1]:
-            for agent in [0]:
-                # for n in [50, 100, 200, 300, 400, 500]:
-                # for n in [50, 100]:
-                for t in range(len(trapsizes)):
-                    for n in [100]:
-                        exp(n, agent, runs, site, trapsizes[t], obssizes[t])
+        for w in range(len(windowsizes)):
+            for t in range(len(trapsizes)):
+                for site in sitelocation:
+                    for agent in [0]:
+                            for n in [50, 100, 200, 300, 400, 500]:
+                                exp(n, agent, runs, site, trapsizes[t], obssizes[t], windowsizes[w], windowsizes[w])
     else:
+        if args.exp_no == 0:
+            # Every thing constant just change in agent size
+            for n in [50, 100, 200, 300, 400, 500]:
+                exp(n, agent, runs, site, trap, obs)
+        elif args.exp_no ==1:
+            # Every thing constant site distance changes
+            for site in sitelocation:
+                exp(n, agent, runs, site, trap, obs)
+        elif args.exp_no ==2:
+            # Every thing constant trap/obstacle size changes
+            for i in range(len(trapsizes)):
+                exp(n, agent, runs, site, trapsizes[i], obssizes[i])
+        elif args.exp_np ==3:
+            for w in range(len(windowsizes)):
+                exp(n, agent, runs, site, trap, obs, windowsizes[w], windowsizes[w])
+
         exp(n, agent, runs, site, trap, obs)
 
 
@@ -109,14 +129,15 @@ if __name__ == '__main__':
     # Parallel(n_jobs=16)(delayed(main)(i) for i in range(1000, 100000, 2000))
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--n', default=50, type=int)
+        '--n', default=100, type=int)
     # [SimForgAgentWith, SimForgAgentWithout])
     parser.add_argument('--agent', default=1, choices=[0, 1], type=int)
     parser.add_argument('--runs', default=20, type=int)
     parser.add_argument('--site', default=0, type=int)
     parser.add_argument('--trap_size', default=5, type=int)
     parser.add_argument('--obstacle_size', default=5, type=int)
-    parser.add_argument('--all', default=False)
+    parser.add_argument('--exp_no', default=0, type=int)
+    # parser.add_argument('--all', default=False)
     args = parser.parse_args()
     print(args)
     main(args)
