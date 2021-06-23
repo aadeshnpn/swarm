@@ -556,7 +556,7 @@ class ExecutingAgent(ForagingAgent):
         for node in nodes:
             if (
                 isinstance(node, CompositeDropPheromone) or isinstance(node, CompositeSensePheromone) or
-                isinstance(node, DidAvoidedObj) or isinstance(node, IsAgentDead) or isinstance(PheromoneExists)):
+                isinstance(node, DidAvoidedObj) or isinstance(node, IsAgentDead) or isinstance(node, PheromoneExists)):
                 d1 = DummyBehavior('Dummy')
                 try:
                     node.parent.replace_child(node, d1)
