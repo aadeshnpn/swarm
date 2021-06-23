@@ -3,7 +3,7 @@ from py_trees import common
 from py_trees.composites import Selector
 from py_trees import common, blackboard
 from py_trees.behaviour import Behaviour
-from swarms.behaviors.sbehaviors import DropCue, SendSignal, ObjectsStore
+from swarms.behaviors.sbehaviors import DropCue, SendSignal, ObjectsStore, DidAvoidedObj, IsAgentDead
 from swarms.behaviors.scbehaviors import (
     CompositeReceiveSignal, CompositeSendSignal, CompositeSensePheromone, CompositeDropPheromone
 )
@@ -539,7 +539,9 @@ class ExecutingAgent(ForagingAgent):
         # print(dir(self.bt.behaviour_tree.root))
         nodes = list(self.bt.behaviour_tree.root.iterate())
         for node in nodes:
-            if isinstance(node, CompositeSendSignal) or isinstance(node, CompositeReceiveSignal):
+            if (
+                isinstance(node, CompositeSendSignal) or isinstance(node, CompositeReceiveSignal) or
+                isinstance(node, DidAvoidedObj) or isinstance(node, IsAgentDead)):
                 d1 = DummyBehavior('Dummy')
                 try:
                     node.parent.replace_child(node, d1)
@@ -550,7 +552,9 @@ class ExecutingAgent(ForagingAgent):
         nodes = list(self.bt.behaviour_tree.root.iterate())
         # print(py_trees.display.ascii_tree(self.bt.behaviour_tree.root, indent=0, show_status=True))
         for node in nodes:
-            if isinstance(node, CompositeDropPheromone) or isinstance(node, CompositeSensePheromone):
+            if (
+                isinstance(node, CompositeDropPheromone) or isinstance(node, CompositeSensePheromone) or
+                isinstance(node, DidAvoidedObj) or isinstance(node, IsAgentDead)):
                 d1 = DummyBehavior('Dummy')
                 try:
                     node.parent.replace_child(node, d1)

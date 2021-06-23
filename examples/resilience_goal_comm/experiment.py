@@ -72,7 +72,6 @@ def test_loop(
     # Create the agents in the environment from the sampled behaviors
     test.create_agents(phenotypes=phenotypes, removesignal=signal, removepheromone=pheromone)
     # Store the initial result
-    exit()
     testresults = SimulationResultsTraps(
         test.pname, test.connect, test.sn, test.stepcnt,
         test.foraging_percent(), phenotypes[0], test.no_agent_dead(), db=False
@@ -233,16 +232,16 @@ def test_json_blocked_comm_behavior(json, signal=True, pheromone=True):
     jname = '/tmp/16237201059243-all.json'# noqa : E501
     # jname = '/tmp/1543367322976111-8000EvoSForge/' + json
     phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
-    print(len(phenotype))
+    # print(len(phenotype))
     # phenotype = ' '
-    test_loop(phenotype, 5000, None, n=5, signal=signal, pheromone=pheromone)
+    # test_loop(phenotype, 5000, None, n=5, signal=signal, pheromone=pheromone)
 
     # test_loop(phenotype, 5000)
     # for n in [50, 100, 200, 300, 400, 500]:
-    #     Parallel(
-    #         n_jobs=8)(delayed(test_loop)(
-    #             phenotype, 5000, None, n=n, signal=signal, pheromone=pheromone) for i in range(128))
-
+    for n in [50, 100]:# , 200, 300, 400, 500]:
+        Parallel(
+            n_jobs=8)(delayed(test_loop)(
+                phenotype, 5000, None, n=n, signal=signal, pheromone=pheromone) for i in range(8))
 
 
 def test_top_phenotype(jsonlist):

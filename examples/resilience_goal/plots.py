@@ -741,7 +741,7 @@ def read_data_sample_ratio(ratio=0.1):
     # maindir = '/tmp/swarm/data/experiments/behavior_sampling'
     # maindir = '/tmp/swarms/data/experiment/'
     ## Experiment ID for the plots/results in the paper
-    maindir = '/tmp/experiments/'
+    maindir = '/tmp/16244729911974EvoSForgeNewPPA1/'
     # maindir = '/tmp/experiments/100/12000/16243666378807EvoSForgeNewPPA1'
     # nadir = os.path.join(maindir, str(n), agent)
     folders = pathlib.Path(maindir).glob("*_" + str(ratio) + "_ValidateSForgeNewPPA1")
