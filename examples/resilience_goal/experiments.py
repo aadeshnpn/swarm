@@ -107,25 +107,25 @@ def main(args):
         if args.exp_no == 0:
             # Every thing constant just change in agent size
             for n in [50, 100, 200, 300, 400, 500]:
-                print(n, agent, runs, site, trap, obs, exp_no)
-                exp(n, agent, runs, site, trap, obs, exp_no)
+                print(n, agent, runs, site, trap, obs, windowsizes[0], windowsizes[0], exp_no)
+                exp(n, agent, runs, site, trap, obs, windowsizes[0], windowsizes[0], exp_no)
         elif args.exp_no ==1:
             # Every thing constant site distance changes
             for site in sitelocation:
-                print(n, agent, runs, site, trap, obs, exp_no)
-                exp(n, agent, runs, site, trap, obs, exp_no)
+                print(n, agent, runs, site, trap, obs, windowsizes[0], windowsizes[0], exp_no)
+                exp(n, agent, runs, site, trap, obs, windowsizes[0], windowsizes[0], exp_no)
         elif args.exp_no ==2:
             # Every thing constant trap/obstacle size changes
             for i in range(len(trapsizes)):
-                print(n, agent, runs, site, trapsizes[i], obssizes[i], exp_no)
-                exp(n, agent, runs, site, trapsizes[i], obssizes[i], exp_no)
+                print(n, agent, runs, site, trapsizes[i], obssizes[i], windowsizes[0], windowsizes[0], exp_no)
+                exp(n, agent, runs, site, trapsizes[i], obssizes[i],windowsizes[0], windowsizes[0], exp_no)
         elif args.exp_no ==3:
             for w in range(len(windowsizes)):
                 print(n, agent, runs, site, trap, obs, windowsizes[w], windowsizes[w], exp_no)
                 exp(n, agent, runs, site, trap, obs, windowsizes[w], windowsizes[w], exp_no)
         else:
-            print(n, agent, runs, site, trap, obs, exp_no)
-            exp(n, agent, runs, site, trap, obs, exp_no)
+            print(n, agent, runs, site, trap, obs, windowsizes[0], windowsizes[0], exp_no)
+            exp(n, agent, runs, site, trap, obs, windowsizes[0], windowsizes[0], exp_no)
 
 
 if __name__ == '__main__':
