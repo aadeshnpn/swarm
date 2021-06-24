@@ -831,34 +831,33 @@ def read_data_n(n=100, comm=True):
     return dataf, datad
 
 
-def read_data_exp_3(width=100, height=100, trap=5, obs=5, exp_no=3):
+def read_data_exp_3(width=100, height=100, trap=5, obs=5, exp_no=3, site=40):
     maindir = '/tmp/swarm/data/experiments/'
     ndir = os.path.join(maindir, str(100), 'ExecutingAgent', str(exp_no),
-            str(20), str(trap)+'_'+str(obs), str(width) +'_'+str(height))
+            str(site), str(trap)+'_'+str(obs), str(width) +'_'+str(height))
     print(ndir)
     folders = pathlib.Path(ndir).glob('*ForagingSimulation')
     flist = []
     dataf = []
-    # datad = []
+    datad = []
     for f in folders:
         try:
             flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
             # print(flist)
             _, _, f, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
             dataf.append(f)
-            # datad.append(d)
+            datad.append(d)
         except:
             pass
     dataf = np.array(dataf)
-    # datad = np.array(datad)
-    return dataf
+    datad = np.array(datad)
+    return dataf, datad
 
 
 def boxplot_exp_3():
     size = [100, 200, 300, 400, 500, 600]
-    data = [read_data_exp_3(s, s)[:,-1] for s in size]
+    data = [read_data_exp_3(s, s)[0][:,-1] for s in size]
     fig = plt.figure()
-
     ax1 = fig.add_subplot(1, 1, 1)
     colordict = {
         0: 'forestgreen',
@@ -901,10 +900,12 @@ def boxplot_exp_3():
 
 def boxplot_exp_2():
     size = [5, 10, 15, 20, 25]
-    data = [read_data_exp_3(100, 100, s, s, exp_mo=2)[:,-1] for s in size]
-    fig = plt.figure()
+    dataf = [read_data_exp_3(100, 100, s, s, exp_no=2)[0][:,-1] for s in size]
+    datad = [read_data_exp_3(100, 100, s, s, exp_no=2)[1][:,-1] for s in size]
+    datadp = [(d/100)*100.0 for d in datad]
+    fig = plt.figure(figsize=(6, 8), dpi=100)
 
-    ax1 = fig.add_subplot(1, 1, 1)
+    ax1 = fig.add_subplot(3, 1, 1)
     colordict = {
         0: 'forestgreen',
         1: 'indianred',
@@ -919,7 +920,7 @@ def boxplot_exp_2():
     meanprops = dict(linewidth=2.5, color='#ff7f0e')
     # data = [data[:, i] for i in range(4)]
     bp1 = ax1.boxplot(
-        data, 0, 'gD', showmeans=True, meanline=True,
+        dataf, 0, 'gD', showmeans=True, meanline=True,
         patch_artist=True, medianprops=medianprops,
         meanprops=meanprops)
     for patch, color in zip(bp1['boxes'], colordict.values()):
@@ -931,7 +932,33 @@ def boxplot_exp_2():
     ax1.set_ylabel('Foraging Percentage')
     ax1.set_yticks(range(0, 105, 20))
     # ax1.set_title('Swarm Foraging Evolved Behaviors')
+    ax2 = fig.add_subplot(3, 1, 2)
+    bp2 = ax2.boxplot(
+        datad, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops)
+    for patch, color in zip(bp2['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+    # plt.xlim(0, len(mean))
+    # ax2.legend(zip(bp2['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
+    ax2.set_yticks(range(0,105, 20))
+    ax2.set_xticklabels(labels)
+    # ax2.set_xlabel('Agent size')
+    ax2.set_ylabel('No. Dead Agents', fontsize="large")
 
+    ax3 = fig.add_subplot(3, 1, 3)
+    bp3 = ax3.boxplot(
+        datadp, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops)
+    for patch, color in zip(bp3['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+    # plt.xlim(0, len(mean))
+    # ax3.legend(zip(bp3['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
+    ax3.set_yticks(range(0,105, 20))
+    ax3.set_xticklabels(labels)
+    ax3.set_xlabel('Agent size', fontsize="large")
+    ax3.set_ylabel('Dead Agents %', fontsize="large")
     plt.tight_layout()
 
     maindir = '/tmp/swarm/data/experiments/'
@@ -1051,7 +1078,8 @@ def main():
     # plot_sampling_differences()
     # plotallsitesdist()
     # comp_with_witout_comm()
-    boxplot_exp_3()
+    # boxplot_exp_3()
+    boxplot_exp_2()
 
 
 if __name__ == '__main__':
