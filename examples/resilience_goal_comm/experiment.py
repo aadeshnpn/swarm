@@ -231,6 +231,7 @@ def test_json_phenotype(json):
 def test_json_blocked_comm_behavior(json, signal=True, pheromone=True):
     jname = '/tmp/16237201059243-all.json'# noqa : E501
     # jname = '/tmp/1543367322976111-8000EvoSForge/' + json
+    # jname = '/tmp/16244215326204-10999.json' # Awesome behaviors with 11 length
     phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
     # print(len(phenotype))
     # phenotype = ' '

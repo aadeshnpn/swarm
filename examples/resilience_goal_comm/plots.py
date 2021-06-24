@@ -146,7 +146,7 @@ def read_data():
 
 def read_data_n_agent_site(n=100, i=5000):
     # maindir = '/tmp/plots/data/experiments/'
-    maindir = '/tmp/swarm/data/experiments/'
+    maindir = '/tmp/experiments/'
     # maindir = '/home/aadeshnpn/Desktop/evolved_ppa/experiments/'
     nadir = os.path.join(maindir, str(n), str(i))
     folders = pathlib.Path(nadir).glob("*TestSForgeNewPPAComm1*")
@@ -254,7 +254,7 @@ def boxplotsiteloc():
     nadir = os.path.join(maindir, str(50))
 
     fig.savefig(
-        nadir + 'agentsitecompcomm' + '.png')
+        nadir + 'agentsitecompcommupdated' + '.png')
     # fig.savefig(
     #     maindir + '/' + fname + '.png')
     # pylint: disable = E1101

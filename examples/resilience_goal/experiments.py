@@ -78,10 +78,11 @@ def main(args):
     trap = trapsizes[0]
     obs = obssizes[0]
     windowsizes = [100, 200, 300, 400, 500, 600]
-    def exp(n, agent, runs, site, trap, obs, width, height):
+    exp_no = args.exp_no
+    def exp(n, agent, runs, site, trap, obs, width, height, exp_no):
         agent = ExecutingAgent if agent == 0 else ExecutingAgent
         dname = os.path.join(
-            '/tmp', 'swarm', 'data', 'experiments', str(n), agent.__name__,
+            '/tmp', 'swarm', 'data', 'experiments', str(n), agent.__name__, str(exp_no),
             str(site), str(trap)+'_'+str(obs), str(width) +'_'+str(height) )
         pathlib.Path(dname).mkdir(parents=True, exist_ok=True)
         steps = [5000 for i in range(args.runs)]
@@ -89,7 +90,7 @@ def main(args):
         phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
         env = (phenotype, dname)
         Parallel(
-            n_jobs=8)(delayed(simulate_forg)(
+            n_jobs=args.thread)(delayed(simulate_forg)(
                 env, i, agent=agent, N=n, site=site,
                 trap=trap, obs=obs, width=width, height=height) for i in steps)
         # simulate_forg(env, 500, agent=agent, N=n, site=site)
@@ -106,25 +107,25 @@ def main(args):
         if args.exp_no == 0:
             # Every thing constant just change in agent size
             for n in [50, 100, 200, 300, 400, 500]:
-                print(n, agent, runs, site, trap, obs)
-                exp(n, agent, runs, site, trap, obs)
+                print(n, agent, runs, site, trap, obs, exp_no)
+                exp(n, agent, runs, site, trap, obs, exp_no)
         elif args.exp_no ==1:
             # Every thing constant site distance changes
             for site in sitelocation:
-                print(n, agent, runs, site, trap, obs)
-                exp(n, agent, runs, site, trap, obs)
+                print(n, agent, runs, site, trap, obs, exp_no)
+                exp(n, agent, runs, site, trap, obs, exp_no)
         elif args.exp_no ==2:
             # Every thing constant trap/obstacle size changes
             for i in range(len(trapsizes)):
-                print(n, agent, runs, site, trapsizes[i], obssizes[i])
-                exp(n, agent, runs, site, trapsizes[i], obssizes[i])
+                print(n, agent, runs, site, trapsizes[i], obssizes[i], exp_no)
+                exp(n, agent, runs, site, trapsizes[i], obssizes[i], exp_no)
         elif args.exp_no ==3:
             for w in range(len(windowsizes)):
-                print(n, agent, runs, site, trap, obs, windowsizes[w], windowsizes[w])
-                exp(n, agent, runs, site, trap, obs, windowsizes[w], windowsizes[w])
+                print(n, agent, runs, site, trap, obs, windowsizes[w], windowsizes[w], exp_no)
+                exp(n, agent, runs, site, trap, obs, windowsizes[w], windowsizes[w], exp_no)
         else:
-            print(n, agent, runs, site, trap, obs)
-            exp(n, agent, runs, site, trap, obs)
+            print(n, agent, runs, site, trap, obs, exp_no)
+            exp(n, agent, runs, site, trap, obs, exp_no)
 
 
 if __name__ == '__main__':
@@ -137,7 +138,8 @@ if __name__ == '__main__':
         '--n', default=100, type=int)
     # [SimForgAgentWith, SimForgAgentWithout])
     parser.add_argument('--agent', default=1, choices=[0, 1], type=int)
-    parser.add_argument('--runs', default=20, type=int)
+    parser.add_argument('--thread', default=8, type=int)
+    parser.add_argument('--runs', default=50, type=int)
     parser.add_argument('--site', default=0, type=int)
     parser.add_argument('--trap_size', default=5, type=int)
     parser.add_argument('--obstacle_size', default=5, type=int)
