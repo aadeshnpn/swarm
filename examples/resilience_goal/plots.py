@@ -831,10 +831,10 @@ def read_data_n(n=100, comm=True):
     return dataf, datad
 
 
-def read_data_exp_3(width=100, height=100):
+def read_data_exp_3(width=100, height=100, trap=5, obs=5, exp_no=3):
     maindir = '/tmp/swarm/data/experiments/'
-    ndir = os.path.join(maindir, str(100), 'ExecutingAgent', str(3),
-            str(20), str(5)+'_'+str(5), str(width) +'_'+str(height))
+    ndir = os.path.join(maindir, str(100), 'ExecutingAgent', str(exp_no),
+            str(20), str(trap)+'_'+str(obs), str(width) +'_'+str(height))
     print(ndir)
     folders = pathlib.Path(ndir).glob('*ForagingSimulation')
     flist = []
@@ -891,6 +891,51 @@ def boxplot_exp_3():
 
     maindir = '/tmp/swarm/data/experiments/'
     fname = 'environment_size'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
+def boxplot_exp_2():
+    size = [5, 10, 15, 20, 25]
+    data = [read_data_exp_3(100, 100, s, s, exp_mo=2)[:,-1] for s in size]
+    fig = plt.figure()
+
+    ax1 = fig.add_subplot(1, 1, 1)
+    colordict = {
+        0: 'forestgreen',
+        1: 'indianred',
+        2: 'gold',
+        3: 'tomato',
+        4: 'royalblue',
+        5: 'peru'}
+
+    labels = [5, 10, 15, 20, 25]
+    labels = [str(l) for l in  labels]
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    # data = [data[:, i] for i in range(4)]
+    bp1 = ax1.boxplot(
+        data, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops)
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+    # plt.xlim(0, len(mean))
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="lower left", title='Trap/Obstacle Size')
+    ax1.set_xticklabels(labels)
+    ax1.set_xlabel('Trap/Obstacle Size')
+    ax1.set_ylabel('Foraging Percentage')
+    ax1.set_yticks(range(0, 105, 20))
+    # ax1.set_title('Swarm Foraging Evolved Behaviors')
+
+    plt.tight_layout()
+
+    maindir = '/tmp/swarm/data/experiments/'
+    fname = 'trap_obstacle_size'
 
     fig.savefig(
         maindir + '/' + fname + '.png')

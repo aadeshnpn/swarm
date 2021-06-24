@@ -639,7 +639,7 @@ class SimForgModel(Model):
     def __init__(
             self, N, width, height, grid=10, iter=100000,
             xmlstrings=None, seed=None, viewer=False, pname=None,
-            agent=ExecutingAgent, expsite=None, trap=5, obs=5):
+            agent=ExecutingAgent, expsite=None, trap=5, obs=5, no_trap=1, no_obs=1):
         """Initialize the attributes."""
         if seed is None:
             super(SimForgModel, self).__init__(seed=None)
@@ -657,6 +657,8 @@ class SimForgModel(Model):
         self.expsite = expsite
         self.trap_radius = trap
         self.obs_radius = obs
+        self.no_trap = no_trap
+        self.no_obs = no_obs
         # print('agent type', agent)
         # # Create db connection
         # try:
@@ -752,6 +754,21 @@ class SimForgModel(Model):
                 self.grid.add_object_to_grid(location, self.site)
                 break
 
+    def place_static_objs(self, obj, radius):
+        theta = np.linspace(0, 2*np.pi, 36)
+        while True:
+            dist = self.random.choice(range(15, self.width//2, 5))
+            t = self.random.choice(theta, 1, replace=False)[0]
+            x = int(self.hub.location[0] + np.cos(t) * dist)
+            y = int(self.hub.location[0] + np.sin(t) * dist)
+            location = (x, y)
+            other_bojects = self.grid.get_objects_from_list_of_grid(None, self.grid.get_neighborhood((x,y), radius))
+            if len(other_bojects) == 0:
+                envobj = obj(
+                        dist, location, radius)
+                self.grid.add_object_to_grid(location, envobj)
+                return envobj
+
     def create_environment_object(self, jsondata, obj):
         """Create env from jsondata."""
         name = obj.__name__.lower()
@@ -767,10 +784,11 @@ class SimForgModel(Model):
                 #         "q_value"])
             else:
                 if name == 'traps':
-                    temp_obj = obj(i, location, self.trap_radius)
-                elif name =='obstacles':
                     temp_obj = obj(i, location, self.obs_radius)
-                else:
+                    # for t in range(self.no_trap):
+                    #     # temp_obj = obj(i, location, self.trap_radius)
+                    #     temp_obj = self.place_static_objs(Traps)
+                elif name =='obstacles':
                     temp_obj = obj(i, location, json_object["radius"])
             if temp_obj is not None:
                 self.grid.add_object_to_grid(location, temp_obj)
