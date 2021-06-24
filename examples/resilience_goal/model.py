@@ -784,11 +784,13 @@ class SimForgModel(Model):
                 #         "q_value"])
             else:
                 if name == 'traps':
-                    temp_obj = obj(i, location, self.obs_radius)
+                    temp_obj = obj(i, location, self.trap_radius)
                     # for t in range(self.no_trap):
                     #     # temp_obj = obj(i, location, self.trap_radius)
                     #     temp_obj = self.place_static_objs(Traps)
                 elif name =='obstacles':
+                    temp_obj = obj(i, location, self.obs_radius)
+                elif name == 'hub':
                     temp_obj = obj(i, location, json_object["radius"])
             if temp_obj is not None:
                 self.grid.add_object_to_grid(location, temp_obj)
