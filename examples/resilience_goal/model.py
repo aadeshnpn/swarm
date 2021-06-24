@@ -639,7 +639,7 @@ class SimForgModel(Model):
     def __init__(
             self, N, width, height, grid=10, iter=100000,
             xmlstrings=None, seed=None, viewer=False, pname=None,
-            agent=ExecutingAgent, expsite=None, trap=5, obs=5, no_trap=1, no_obs=1):
+            agent=ExecutingAgent, expsite=None, trap=5, obs=5, notrap=1, noobs=1):
         """Initialize the attributes."""
         if seed is None:
             super(SimForgModel, self).__init__(seed=None)
@@ -657,8 +657,8 @@ class SimForgModel(Model):
         self.expsite = expsite
         self.trap_radius = trap
         self.obs_radius = obs
-        self.no_trap = no_trap
-        self.no_obs = no_obs
+        self.no_trap = notrap
+        self.no_obs = noobs
         # print('agent type', agent)
         # # Create db connection
         # try:
@@ -693,14 +693,8 @@ class SimForgModel(Model):
         self.grid = Grid(width, height, grid)
 
         self.schedule = SimultaneousActivation(self)
-
-        # self.site = Sites(id=1, location=(5, 5), radius=11, q_value=0.5)
-
-        # self.grid.add_object_to_grid(self.site.location, self.site)
-
-        # self.hub = Hub(id=1, location=(0, 0), radius=11)
-
-        # self.grid.add_object_to_grid(self.hub.location, self.hub)
+        self.traps = []
+        self.obstacles = []
 
         self.agents = []
 
@@ -759,15 +753,19 @@ class SimForgModel(Model):
         while True:
             dist = self.random.choice(range(15, self.width//2, 5))
             t = self.random.choice(theta, 1, replace=False)[0]
-            x = int(self.hub.location[0] + np.cos(t) * dist)
-            y = int(self.hub.location[0] + np.sin(t) * dist)
+            x = int(0 + np.cos(t) * dist)
+            y = int(0 + np.sin(t) * dist)
             location = (x, y)
             other_bojects = self.grid.get_objects_from_list_of_grid(None, self.grid.get_neighborhood((x,y), radius))
             if len(other_bojects) == 0:
                 envobj = obj(
                         dist, location, radius)
                 self.grid.add_object_to_grid(location, envobj)
-                return envobj
+                if isinstance(envobj, Traps):
+                    self.traps += [envobj]
+                if isinstance(envobj, Obstacles):
+                    self.obstacles += [envobj]
+                break
 
     def create_environment_object(self, jsondata, obj):
         """Create env from jsondata."""
@@ -784,12 +782,15 @@ class SimForgModel(Model):
                 #         "q_value"])
             else:
                 if name == 'traps':
-                    temp_obj = obj(i, location, self.trap_radius)
-                    # for t in range(self.no_trap):
-                    #     # temp_obj = obj(i, location, self.trap_radius)
-                    #     temp_obj = self.place_static_objs(Traps)
+                    # temp_obj = obj(i, location, self.trap_radius)
+                    temp_obj = None
+                    for t in range(self.no_trap):
+                        self.place_static_objs(Traps, self.trap_radius)
                 elif name =='obstacles':
-                    temp_obj = obj(i, location, self.obs_radius)
+                    temp_obj = None
+                    for o in range(self.no_obs):
+                        self.place_static_objs(Obstacles, self.obs_radius)
+                    # temp_obj = obj(i, location, self.obs_radius)
                 elif name == 'hub':
                     temp_obj = obj(i, location, json_object["radius"])
             if temp_obj is not None:
@@ -812,12 +813,12 @@ class SimForgModel(Model):
                 jsondata, obj)
 
         self.hub = self.render.objects['hub'][0]
-        self.obstacles = self.render.objects['obstacles'][0]
+        # self.obstacles = self.render.objects['obstacles'][0]
         # print(self.obstacles.passable)
-        self.traps = self.render.objects['traps'][0]
-
+        # self.traps = self.render.objects['traps'][0]
         # add site with random distances
         self.place_site()
+        # print(self.traps, self.obstacles, self.hub, self.site)
         # location = (self.expsite["x"], self.expsite["y"])
         # self.site = Sites(
         #         0, location, self.expsite["radius"], q_value=self.expsite[
@@ -913,7 +914,10 @@ class SimForgModel(Model):
 
     def no_agent_dead(self):
         grid = self.grid
-        trap_loc = self.traps.location
-        neighbours = grid.get_neighborhood(trap_loc, 10)
-        agents = grid.get_objects_from_list_of_grid(type(self.agents[0]).__name__, neighbours)
-        return sum([1 if a.dead else 0 for a in agents])
+        no_dead = 0
+        for trap in self.traps:
+            trap_loc = trap.location
+            neighbours = grid.get_neighborhood(trap_loc, 10)
+            agents = grid.get_objects_from_list_of_grid(type(self.agents[0]).__name__, neighbours)
+            no_dead += sum([1 if a.dead else 0 for a in agents])
+        return no_dead

@@ -18,14 +18,14 @@ UI = False
 
 def simulate_forg(
         env, iteration, agent=ExecutingAgent, N=100,
-        site=None, trap=5, obs=5, width=100, height=100):
+        site=None, trap=5, obs=5, width=100, height=100, notrap=1, noobs=1):
     """Test the performane of evolved behavior."""
     phenotypes = env[0]
     threshold = 1.0
     # print(iteration, phenotypes)
     sim = SimForgModel(
         N, width, height, 10, iter=iteration, xmlstrings=phenotypes, pname=env[1],
-        viewer=False, agent=agent, expsite=site, trap=trap, obs=obs)
+        viewer=False, agent=agent, expsite=site, trap=trap, obs=obs, notrap=notrap, noobs=noobs)
     sim.build_environment_from_json()
 
     # for all agents store the information about hub
@@ -75,57 +75,81 @@ def main(args):
     site = sitelocation[args.site]
     trapsizes = range(5, 30, 5)
     obssizes = range(5, 30, 5)
-    trap = trapsizes[0]
-    obs = obssizes[0]
+    notraps = range(1, 6)
+    trap = trap_size
+    obs = obs_size
     windowsizes = [100, 200, 300, 400, 500, 600]
+    width = args.width
+    height = args.height
     exp_no = args.exp_no
-    def exp(n, agent, runs, site, trap, obs, width, height, exp_no):
+    no_trap = args.no_trap
+    no_obs = args.no_obs
+    def exp(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no):
         agent = ExecutingAgent if agent == 0 else ExecutingAgent
         dname = os.path.join(
             '/tmp', 'swarm', 'data', 'experiments', str(n), agent.__name__, str(exp_no),
-            str(site), str(trap)+'_'+str(obs), str(width) +'_'+str(height) )
+            str(site), str(trap)+'_'+str(obs), str(no_trap)+'_'+str(no_obs), str(width) +'_'+str(height) )
         pathlib.Path(dname).mkdir(parents=True, exist_ok=True)
         steps = [5000 for i in range(args.runs)]
-        jname = '/tmp/16235340355923-10999.json'
-        phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
+        jname = args.json_file
+        phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes'][:4]
         env = (phenotype, dname)
         Parallel(
             n_jobs=args.thread)(delayed(simulate_forg)(
                 env, i, agent=agent, N=n, site=site,
-                trap=trap, obs=obs, width=width, height=height) for i in steps)
+                trap=trap, obs=obs, width=width, height=height, notrap=no_trap, noobs=no_obs) for i in steps)
         # simulate_forg(env, 500, agent=agent, N=n, site=site)
 
     if args.all:
         for w in range(len(windowsizes)):
             for t in range(len(trapsizes)):
-                for site in sitelocation:
-                    for agent in [0]:
-                            for n in [50, 100, 200, 300, 400, 500]:
-                                print(n, agent, runs, site, trapsizes[t], obssizes[t], windowsizes[w], windowsizes[w])
-                                exp(n, agent, runs, site, trapsizes[t], obssizes[t], windowsizes[w], windowsizes[w])
+                for nt in notraps:
+                    for site in sitelocation:
+                        for agent in [0]:
+                                for n in [50, 100, 200, 300, 400, 500]:
+                                    pprint(n, agent, site, trapsizes[t], obssizes[t], windowsizes[w], windowsizes[w], nt, nt, 99)
+                                    if not args.dry_run:
+                                        exp(n, agent, site, trapsizes[t], obssizes[t], windowsizes[w], windowsizes[w], nt, nt, 99)
     else:
         if args.exp_no == 0:
             # Every thing constant just change in agent size
             for n in [50, 100, 200, 300, 400, 500]:
-                print(n, agent, runs, site, trap, obs, windowsizes[0], windowsizes[0], exp_no)
-                exp(n, agent, runs, site, trap, obs, windowsizes[0], windowsizes[0], exp_no)
+                pprint(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no)
+                if not args.dry_run:
+                    exp(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no)
         elif args.exp_no ==1:
             # Every thing constant site distance changes
             for site in sitelocation:
-                print(n, agent, runs, site, trap, obs, windowsizes[0], windowsizes[0], exp_no)
-                exp(n, agent, runs, site, trap, obs, windowsizes[0], windowsizes[0], exp_no)
+                pprint(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no)
+                if not args.dry_run:
+                    exp(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no)
         elif args.exp_no ==2:
             # Every thing constant trap/obstacle size changes
             for i in range(len(trapsizes)):
-                print(n, agent, runs, site, trapsizes[i], obssizes[i], windowsizes[0], windowsizes[0], exp_no)
-                exp(n, agent, runs, site, trapsizes[i], obssizes[i],windowsizes[0], windowsizes[0], exp_no)
+                pprint(n, agent, site, trapsizes[i], obssizes[i], width, height, no_trap, no_obs, exp_no)
+                if not args.dry_run:
+                    exp(n, agent, site, trapsizes[i], obssizes[i],width, height, no_trap, no_obs, exp_no)
         elif args.exp_no ==3:
             for w in range(len(windowsizes)):
-                print(n, agent, runs, site, trap, obs, windowsizes[w], windowsizes[w], exp_no)
-                exp(n, agent, runs, site, trap, obs, windowsizes[w], windowsizes[w], exp_no)
+                pprint(n, agent, site, trap, obs, windowsizes[w], windowsizes[w], no_trap, no_obs, exp_no)
+                if not args.dry_run:
+                    exp(n, agent, site, trap, obs, windowsizes[w], windowsizes[w], no_trap, no_obs, exp_no)
+        elif args.exp_no==4:
+            for nt in range(1, 6):
+                pprint(n, agent, site, trap, obs, width, height, nt, nt, exp_no)
+                if not args.dry_run:
+                    exp(n, agent, site, trap, obs, width, height, nt, nt, exp_no)
         else:
-            print(n, agent, runs, site, trap, obs, windowsizes[0], windowsizes[0], exp_no)
-            exp(n, agent, runs, site, trap, obs, windowsizes[0], windowsizes[0], exp_no)
+            pprint(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no)
+            if not args.dry_run:
+                exp(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no)
+
+
+def pprint(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no):
+    print(
+        "N: %i, Site: %i, Trap: %i, Obstacles:%i, Width: %i, Height: %i, NoTrap: %i, NoObs: %i, ExpNo: %i" %
+        (n, site, trap, obs, width, height, no_trap, no_obs, exp_no)
+        )
 
 
 if __name__ == '__main__':
@@ -143,7 +167,13 @@ if __name__ == '__main__':
     parser.add_argument('--site', default=0, type=int)
     parser.add_argument('--trap_size', default=5, type=int)
     parser.add_argument('--obstacle_size', default=5, type=int)
+    parser.add_argument('--no_trap', default=1, type=int)
+    parser.add_argument('--no_obs', default=1, type=int)
+    parser.add_argument('--width', default=100, type=int)
+    parser.add_argument('--height', default=100, type=int)
+    parser.add_argument('--dry_run', action='store_false')
     parser.add_argument('--exp_no', default=0, type=int)
+    parser.add_argument('--json_file', default='/tmp/16244729911974-all.json', type=str)
     parser.add_argument('--all', default=False)
     args = parser.parse_args()
     print(args)

@@ -741,9 +741,10 @@ def read_data_sample_ratio(ratio=0.1):
     # maindir = '/tmp/swarm/data/experiments/behavior_sampling'
     # maindir = '/tmp/swarms/data/experiment/'
     ## Experiment ID for the plots/results in the paper
-    maindir = '/tmp/16244729911974EvoSForgeNewPPA1/'
+    # maindir = '/tmp/16244729911974EvoSForgeNewPPA1/'
     # maindir = '/tmp/experiments/100/12000/16243666378807EvoSForgeNewPPA1'
     # nadir = os.path.join(maindir, str(n), agent)
+    maindir = '/tmp/16244729911974EvoSForgeNewPPA1/'  # New sampling behaviors
     folders = pathlib.Path(maindir).glob("*_" + str(ratio) + "_ValidateSForgeNewPPA1")
     flist = []
     data = []
@@ -831,10 +832,10 @@ def read_data_n(n=100, comm=True):
     return dataf, datad
 
 
-def read_data_exp_3(width=100, height=100, trap=5, obs=5, exp_no=3, site=40):
+def read_data_exp_3(width=100, height=100, trap=5, obs=5, exp_no=3, site=40, no_trap=1, no_obs=1):
     maindir = '/tmp/swarm/data/experiments/'
     ndir = os.path.join(maindir, str(100), 'ExecutingAgent', str(exp_no),
-            str(site), str(trap)+'_'+str(obs), str(width) +'_'+str(height))
+            str(site), str(trap)+'_'+str(obs), str(no_trap)+'_'+str(no_obs), str(width) +'_'+str(height))
     print(ndir)
     folders = pathlib.Path(ndir).glob('*ForagingSimulation')
     flist = []
@@ -971,6 +972,79 @@ def boxplot_exp_2():
     plt.close(fig)
 
 
+def boxplot_exp_4():
+    size = [1, 2, 3, 4, 5]
+    dataf = [read_data_exp_3(100, 100, 5, 5, exp_no=4, site=20, no_trap=s, no_obs=s)[0][:,-1] for s in size]
+    datad = [read_data_exp_3(100, 100, 5, 5, exp_no=4, site=20, no_trap=s, no_obs=s)[1][:,-1] for s in size]
+    datadp = [(d/100)*100.0 for d in datad]
+    fig = plt.figure(figsize=(6, 8), dpi=100)
+
+    ax1 = fig.add_subplot(3, 1, 1)
+    colordict = {
+        0: 'forestgreen',
+        1: 'indianred',
+        2: 'gold',
+        3: 'tomato',
+        4: 'royalblue',
+        5: 'peru'}
+
+    labels = [5, 10, 15, 20, 25]
+    labels = [str(l) for l in  labels]
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    # data = [data[:, i] for i in range(4)]
+    bp1 = ax1.boxplot(
+        dataf, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops)
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+    # plt.xlim(0, len(mean))
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="lower left", title='Trap/Obstacle Size')
+    ax1.set_xticklabels(labels)
+    ax1.set_xlabel('Trap/Obstacle Size')
+    ax1.set_ylabel('Foraging Percentage')
+    ax1.set_yticks(range(0, 105, 20))
+    # ax1.set_title('Swarm Foraging Evolved Behaviors')
+    ax2 = fig.add_subplot(3, 1, 2)
+    bp2 = ax2.boxplot(
+        datad, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops)
+    for patch, color in zip(bp2['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+    # plt.xlim(0, len(mean))
+    # ax2.legend(zip(bp2['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
+    ax2.set_yticks(range(0,105, 20))
+    ax2.set_xticklabels(labels)
+    # ax2.set_xlabel('Agent size')
+    ax2.set_ylabel('No. Dead Agents', fontsize="large")
+
+    ax3 = fig.add_subplot(3, 1, 3)
+    bp3 = ax3.boxplot(
+        datadp, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops)
+    for patch, color in zip(bp3['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+    # plt.xlim(0, len(mean))
+    # ax3.legend(zip(bp3['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
+    ax3.set_yticks(range(0,105, 20))
+    ax3.set_xticklabels(labels)
+    ax3.set_xlabel('Agent size', fontsize="large")
+    ax3.set_ylabel('Dead Agents %', fontsize="large")
+    plt.tight_layout()
+
+    maindir = '/tmp/swarm/data/experiments/'
+    fname = 'trap_obstacle_no'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
 def comp_with_witout_comm():
     datac, datacd = read_data_n(n=100, comm=True)
     datawc, datawcd = read_data_n(n=100, comm=False)
@@ -1079,7 +1153,8 @@ def main():
     # plotallsitesdist()
     # comp_with_witout_comm()
     # boxplot_exp_3()
-    boxplot_exp_2()
+    # boxplot_exp_2()
+    boxplot_exp_4()
 
 
 if __name__ == '__main__':
