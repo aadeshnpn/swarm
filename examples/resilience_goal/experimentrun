@@ -1,0 +1,7 @@
+#!/bin/bash
+# Experiment 4
+python experiments.py --exp_no 4 --runs 72 --thread 18 --dry_ru
+python experiments.py --exp_no 3 --runs 72 --thread 18 --dry_ru
+python experiments.py --exp_no 2 --runs 72 --thread 18 --dry_ru
+python experiments.py --exp_no 1 --runs 72 --thread 18 --dry_ru
+python experiments.py --exp_no 0 --runs 72 --thread 18 --dry_ru
