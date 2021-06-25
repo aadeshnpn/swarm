@@ -89,7 +89,7 @@ def main(args):
         pathlib.Path(dname).mkdir(parents=True, exist_ok=True)
         steps = [5000 for i in range(args.runs)]
         jname = args.json_file
-        phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes'][:4]
+        phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
         env = (phenotype, dname)
         Parallel(
             n_jobs=args.thread)(delayed(simulate_forg)(
@@ -162,7 +162,7 @@ def main(args):
             if not args.dry_run:
                 exp(n, width, height, signal=True, pheromone=True, action=True, condition=False, exp_no=9)
         else:
-            pprint(n, width, height, signal=False, pheromone=True, action=True, condition=True,  exp_no=99)
+            pprint(n, width, height, signal=False, pheromone=False, action=False, condition=False,  exp_no=99)
             if not args.dry_run:
                 exp(n, width, height, signal=False, pheromone=False, action=False, condition=False,  exp_no=99)
 
