@@ -535,34 +535,46 @@ class ExecutingAgent(ForagingAgent):
         # py_trees.display.render_dot_tree(
         #    self.bt.behaviour_tree.root, name='/tmp/' + str(self.name))
 
-    def remove_signal(self):
+    def remove_signal(self, action=False, condition=False):
         # print(dir(self.bt.behaviour_tree.root))
         # PheromoneExists|IsSignalActive|SignalDoesNotExists_<sobjects>
         nodes = list(self.bt.behaviour_tree.root.iterate())
         for node in nodes:
-            if (
-                isinstance(node, CompositeSendSignal) or isinstance(node, CompositeReceiveSignal) or
-                isinstance(node, DidAvoidedObj) or isinstance(node, IsAgentDead) or
-                isinstance(node, IsSignalActive) or isinstance(node, SignalDoesNotExists)):
-                d1 = DummyBehavior('Dummy')
-                try:
-                    node.parent.replace_child(node, d1)
-                except AttributeError:
-                    node.parent.parent.replace_child(node.parent, d1)
+            if action:
+                if (isinstance(node, CompositeSendSignal) or isinstance(node, CompositeReceiveSignal)):
+                    d1 = DummyBehavior('Dummy')
+                    try:
+                        node.parent.replace_child(node, d1)
+                    except AttributeError:
+                        node.parent.parent.replace_child(node.parent, d1)
+            if condition:
+                if (isinstance(node, IsSignalActive) or isinstance(node, SignalDoesNotExists)):
+                    d1 = DummyBehavior('Dummy')
+                    try:
+                        node.parent.replace_child(node, d1)
+                    except AttributeError:
+                        node.parent.parent.replace_child(node.parent, d1)
 
-    def remove_pheromone(self):
+    def remove_pheromone(self, action=False, condition=False):
         nodes = list(self.bt.behaviour_tree.root.iterate())
         # print(py_trees.display.ascii_tree(self.bt.behaviour_tree.root, indent=0, show_status=True))
         for node in nodes:
-            if (
-                isinstance(node, CompositeDropPheromone) or isinstance(node, CompositeSensePheromone) or
-                isinstance(node, DidAvoidedObj) or isinstance(node, IsAgentDead) or isinstance(node, PheromoneExists)):
-                d1 = DummyBehavior('Dummy')
-                try:
-                    node.parent.replace_child(node, d1)
-                except AttributeError:
-                    node.parent.parent.replace_child(node.parent, d1)
-        # print(py_trees.display.ascii_tree(self.bt.behaviour_tree.root, indent=0, show_status=True))
+            if action:
+                if (isinstance(node, CompositeDropPheromone) or isinstance(node, CompositeSensePheromone)):
+                    # isinstance(node, DidAvoidedObj) or isinstance(node, IsAgentDead) or isinstance(node, PheromoneExists)):
+                    d1 = DummyBehavior('Dummy')
+                    try:
+                        node.parent.replace_child(node, d1)
+                    except AttributeError:
+                        node.parent.parent.replace_child(node.parent, d1)
+
+            if condition:
+                if (isinstance(node, PheromoneExists)):
+                    d1 = DummyBehavior('Dummy')
+                    try:
+                        node.parent.replace_child(node, d1)
+                    except AttributeError:
+                        node.parent.parent.replace_child(node.parent, d1)
 
     def step(self):
         """Agent action at a single time step."""
