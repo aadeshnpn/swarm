@@ -83,7 +83,7 @@ def main(args):
     site = 30
     def exp(n, width, height, signal, pheromone, action, condition, exp_no):
         dname = os.path.join(
-            '/tmp', 'swarm', 'data', 'experiments', str(n), agent.__name__, str(exp_no),
+            '/tmp', 'swarm', 'data', 'experiments', str(n), ExecutingAgent.__name__, str(exp_no),
             str(site), str(width) +'_'+str(height),
             str(signal)+'_'+str(pheromone)+'_'+str(action)+'_'+str(condition))
         pathlib.Path(dname).mkdir(parents=True, exist_ok=True)
@@ -93,8 +93,8 @@ def main(args):
         env = (phenotype, dname)
         Parallel(
             n_jobs=args.thread)(delayed(simulate_forg)(
-                env, i, agent=ExecutingAgent, N=n, width=width, height=height, signal=signal,
-                pheromone=pheromone, action=action, condition=condition, exp_no=exp_no) for i in steps)
+                env, i, agent=ExecutingAgent, N=n, width=width, height=height, site=site, signal=signal,
+                pheromone=pheromone, action=action, condition=condition) for i in steps)
 
     # simulate_forg(env, 500, agent=agent, N=n, site=site)
     # Signal Pheromone Condition Action
