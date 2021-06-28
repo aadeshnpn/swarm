@@ -832,7 +832,7 @@ def read_data_n(n=100, comm=True):
     return dataf, datad
 
 
-def read_data_exp_3(width=100, height=100, trap=5, obs=5, exp_no=3, site=40, no_trap=1, no_obs=1):
+def read_data_exp_3(width=100, height=100, trap=5, obs=5, exp_no=3, site=30, no_trap=1, no_obs=1):
     maindir = '/tmp/swarm/data/experiments/'
     ndir = os.path.join(maindir, str(100), 'ExecutingAgent', str(exp_no),
             str(site), str(trap)+'_'+str(obs), str(no_trap)+'_'+str(no_obs), str(width) +'_'+str(height))
@@ -1153,8 +1153,8 @@ def main():
     # plotallsitesdist()
     # comp_with_witout_comm()
     # boxplot_exp_3()
-    # boxplot_exp_2()
-    boxplot_exp_4()
+    boxplot_exp_2()
+    # boxplot_exp_4()
 
 
 if __name__ == '__main__':
