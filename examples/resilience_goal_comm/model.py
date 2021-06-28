@@ -578,3 +578,266 @@ class ViewerModel(ForagingModel):
         # If viewer required do take a step in UI
         if self.viewer:
             self.ui.step()
+
+
+class SimForgModelComm(Model):
+    """A environemnt to model swarms."""
+
+    def __init__(
+            self, N, width, height, grid=10, iter=100000,
+            xmlstrings=None, seed=None, viewer=False, pname=None,
+            agent=ExecutingAgent, expsite=None, trap=5, obs=5, notrap=1, noobs=1,
+            signal=False, pheromone=False, action=False, condition=False):
+        """Initialize the attributes."""
+        if seed is None:
+            super(SimForgModelComm, self).__init__(seed=None)
+        else:
+            super(SimForgModelComm, self).__init__(seed)
+
+        self.width = width
+        self.height = height
+        self.stepcnt = 1
+        self.iter = iter
+        self.xmlstrings = xmlstrings
+
+        self.viewer = viewer
+        self.agent = agent
+        self.expsite = expsite
+        self.trap_radius = trap
+        self.obs_radius = obs
+        self.no_trap = notrap
+        self.no_obs = noobs
+        self.signal = signal
+        self.pheromone = pheromone
+        self.action = action
+        self.condition = condition
+        self.connect = None
+        self.sn = 1
+        # Create a folder to store results
+        while True:
+            self.runid = datetime.datetime.now().strftime(
+                    "%s") + str(self.random.randint(1, 10000, 1)[0])
+            if pname is None:
+                self.pname = os.getcwd() + '/' + self.runid + "SForagingSimulationComm"
+            else:
+                self.pname = pname + '/' + self.runid + "SForagingSimulationComm"
+            if not Path(self.pname).exists():
+                Path(self.pname).mkdir(parents=True, exist_ok=False)
+                break
+
+        self.num_agents = N
+
+        self.grid = Grid(width, height, grid)
+
+        self.schedule = SimultaneousActivation(self)
+        self.traps = []
+        self.obstacles = []
+        self.agents = []
+
+        self.blackboard = blackboard.Client(name='Pheromones')
+        self.blackboard.register_key(key='pheromones', access=common.Access.WRITE)
+        self.blackboard.pheromones = list()
+
+        bound = np.ceil((self.num_agents * 1.0) / len(self.xmlstrings))
+
+        j = 0
+        # Create agents
+        for i in range(self.num_agents):
+            # print (i, j, self.xmlstrings[j])
+            a = self.agent(i, self, xmlstring=self.xmlstrings[j])
+            self.schedule.add(a)
+            # Add the hub to agents memory
+            # Initialize the BT. Since the agents are normal agents just
+            # use the phenotype
+            a.construct_bt()
+            if self.signal:
+                a.remove_signal(self.action, self.condition)
+            if self.pheromone:
+                a.remove_pheromone(self.action, self.condition)
+
+            x = 0
+            y = 0
+
+            a.location = (x, y)
+            self.grid.add_object_to_grid((x, y), a)
+            a.operation_threshold = 2  # self.num_agents // 10
+            self.agents.append(a)
+
+            if (i + 1) % bound == 0:
+                j += 1
+
+    def place_site(self):
+        theta = np.linspace(0, 2*np.pi, 36)
+        while True:
+            t = self.random.choice(theta, 1, replace=False)[0]
+            x = int(self.hub.location[0] + np.cos(t) * self.expsite)
+            y = int(self.hub.location[0] + np.sin(t) * self.expsite)
+            location = (x, y)
+            radius = 10
+            q_value = 0.9
+            other_bojects = self.grid.get_objects_from_list_of_grid(None, self.grid.get_neighborhood((x,y), radius))
+            if len(other_bojects) == 0:
+                self.site = Sites(
+                        0, location, radius, q_value=q_value)
+                self.grid.add_object_to_grid(location, self.site)
+                break
+
+    def place_static_objs(self, obj, radius):
+        theta = np.linspace(0, 2*np.pi, 36)
+        while True:
+            dist = self.random.choice(range(15, self.width//2, 5))
+            t = self.random.choice(theta, 1, replace=False)[0]
+            x = int(0 + np.cos(t) * dist)
+            y = int(0 + np.sin(t) * dist)
+            location = (x, y)
+            other_bojects = self.grid.get_objects_from_list_of_grid(None, self.grid.get_neighborhood((x,y), radius))
+            if len(other_bojects) == 0:
+                envobj = obj(
+                        dist, location, radius)
+                self.grid.add_object_to_grid(location, envobj)
+                if isinstance(envobj, Traps):
+                    self.traps += [envobj]
+                if isinstance(envobj, Obstacles):
+                    self.obstacles += [envobj]
+                break
+
+    def create_environment_object(self, jsondata, obj):
+        """Create env from jsondata."""
+        name = obj.__name__.lower()
+        temp_list = []
+        i = 0
+        for json_object in jsondata[name]:
+            location = (json_object["x"], json_object["y"])
+            if "q_value" in json_object:
+                temp_obj = None
+                pass
+                # temp_obj = obj(
+                #     i, location, json_object["radius"], q_value=json_object[
+                #         "q_value"])
+            else:
+                if name == 'traps':
+                    # temp_obj = obj(i, location, self.trap_radius)
+                    temp_obj = None
+                    for t in range(self.no_trap):
+                        self.place_static_objs(Traps, self.trap_radius)
+                elif name =='obstacles':
+                    temp_obj = None
+                    for o in range(self.no_obs):
+                        self.place_static_objs(Obstacles, self.obs_radius)
+                    # temp_obj = obj(i, location, self.obs_radius)
+                elif name == 'hub':
+                    temp_obj = obj(i, location, json_object["radius"])
+            if temp_obj is not None:
+                self.grid.add_object_to_grid(location, temp_obj)
+                temp_list.append(temp_obj)
+                i += 1
+        return temp_list
+
+    def build_environment_from_json(self):
+        """Build env from jsondata."""
+        jsondata = JsonData.load_json_file(filename)
+        # Create a instance of JsonData to store object that
+        # needs to be sent to UI
+        self.render = JsonData()
+        self.render.objects = {}
+
+        for name in jsondata.keys():
+            obj = eval(name.capitalize())
+            self.render.objects[name] = self.create_environment_object(
+                jsondata, obj)
+
+        self.hub = self.render.objects['hub'][0]
+        # add site with random distances
+        self.place_site()
+        try:
+            # self.site = self.render.objects['sites'][0]
+            self.foods = []
+            for i in range(self.num_agents * 1):
+                f = Food(
+                    i, location=self.site.location, radius=self.site.radius)
+                f.agent_name = None
+                self.grid.add_object_to_grid(f.location, f)
+                self.foods.append(f)
+        except KeyError:
+            pass
+
+        if self.viewer:
+            self.ui = UI(
+                (self.width, self.height), [self.hub], self.agents,
+                [self.site], food=self.foods)
+
+    def step(self):
+        """Step through the environment."""
+        # Gather info from all the agents
+        # self.gather_info()
+        # Next step
+        self.schedule.step()
+        # Increment the step count
+        self.stepcnt += 1
+        if self.viewer:
+            self.ui.step()
+
+        self.update_pheromones()
+
+    def find_higest_performer(self):
+        """Find the best agent."""
+        fitness = self.agents[0].individual[0].fitness
+        fittest = self.agents[0]
+        for agent in self.agents:
+            if agent.individual[0].fitness > fitness:
+                fittest = agent
+        return fittest
+
+    def find_higest_food_collector(self):
+        """Find the best agent to collect food."""
+        fitness = self.agents[0].food_collected
+        fittest = self.agents[0]
+        for agent in self.agents:
+            if agent.food_collected > fitness:
+                fittest = agent
+        return fittest
+
+    def detect_food_moved(self):
+        """Detect food moved."""
+        grid = self.grid
+        food_loc = self.site.location
+        neighbours = grid.get_neighborhood(food_loc, 10)
+        food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+
+        # print (food_objects)
+        return food_objects
+
+    def food_in_hub(self):
+        """Find amount of food in hub."""
+        grid = self.grid
+        food_loc = self.hub.location
+        neighbours = grid.get_neighborhood(food_loc, 10)
+        food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+        return len(food_objects)
+
+    def food_in_loc(self, loc):
+        """Find amount of food in hub."""
+        grid = self.grid
+        neighbours = grid.get_neighborhood(loc, 10)
+        food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+        return food_objects
+
+    def no_agent_dead(self):
+        grid = self.grid
+        no_dead = 0
+        for trap in self.traps:
+            trap_loc = trap.location
+            neighbours = grid.get_neighborhood(trap_loc, 10)
+            agents = grid.get_objects_from_list_of_grid(type(self.agents[0]).__name__, neighbours)
+            no_dead += sum([1 if a.dead else 0 for a in agents])
+        return no_dead
+
+    def update_pheromones(self):
+        for pheromone in self.blackboard.pheromones:
+            pheromone.step()
+            if pheromone.strength[pheromone.current_time] <= 0.0000:
+                try:
+                    self.grid.remove_object_from_grid(pheromone.location, pheromone)
+                except ValueError:
+                    pass
+                self.blackboard.pheromones.remove(pheromone)
