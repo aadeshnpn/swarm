@@ -563,26 +563,12 @@ def boxplotallsitesdist(agent='ExecutingAgent'):
     plt.close(fig)
 
 
-def plotallsitesdist(agent='ExecutingAgent'):
+def experiment_1(agent='ExecutingAgent'):
     plt.style.use('fivethirtyeight')
-    # sites = ['-3131', '31-31', '3131', '-5151', '51-51', '5151', '-9191', '91-91']
-    # sites = ['-3131', '31-31', '3131', '-5151', '5151', '-9191', '91-91']
-    sites = [20, 25, 30, 40, 50, 60, 70, 80, 90]
-    agents = [100] #, 200, 300, 400]
-    # print(agent, site)
-    datasf = []
-    # datasd = []
-    # datasdp = []
-    for k in sites:
-        # print(site)
-        dataf = read_data_n_agent_site(n=100, agent=agent, site=k)[0]
-        # print(k, dataf.shape)
-        # datad = [read_data_n_agent_site(n=100, agent=agent, site=k)[1][:,-1] ]
-        # datadp = [(d/n)*100.0 for d in datad]
-        # print(n, np.hstack(dataf).shape, np.hstack(datad).shape)
-        datasf.append(dataf)
-        # datasd.append(np.hstack(datad))
-        # datasdp.append(np.hstack(datadp))
+    sites = [20, 25, 30, 40, 50]
+    datasf = [read_data_exp_3(100, 100, 5, 5, exp_no=1, site=s, no_trap=1, no_obs=1)[0] for s in sites]
+    # datasd = [read_data_exp_3(100, 100, 5, 5, exp_no=1, site=s, no_trap=1, no_obs=1)[1][:,-1] for s in sites]            
+
     fig = plt.figure()
 
     ax1 = fig.add_subplot(1, 1, 1)
@@ -615,12 +601,13 @@ def plotallsitesdist(agent='ExecutingAgent'):
         q1f = np.quantile(datasf[i], 0.25, axis=0)
         q3f = np.quantile(datasf[i], 0.75, axis=0)
         xvalues = range(datasf[i].shape[1])
+        print(len(xvalues), medianf.shape)
         ax1.plot(
             xvalues, medianf, color=colordict[i],
             linewidth=1.0, label=labels[i])
         ax1.fill_between(
             xvalues, q3f, q1f,
-            # color=colorshade[i],
+            color=colorshade[i],
             alpha=0.3)
     # plt.xlim(0, len(mean))
     # ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="lower left", title='Distance')
@@ -901,8 +888,10 @@ def boxplot_exp_3():
 
 def boxplot_exp_2():
     size = [5, 10, 15, 20, 25]
-    dataf = [read_data_exp_3(100, 100, s, s, exp_no=2)[0][:,-1] for s in size]
-    datad = [read_data_exp_3(100, 100, s, s, exp_no=2)[1][:,-1] for s in size]
+    dataf = [read_data_exp_3(100, 100, s, s, exp_no=2, site=30, no_trap=1, no_obs=1)[0][:,-1] for s in size]    
+    datad = [read_data_exp_3(100, 100, s, s, exp_no=2, site=30, no_trap=1, no_obs=1)[1][:,-1] for s in size]        
+    # dataf = [read_data_exp_3(100, 100, s, s, exp_no=2)[0][:,-1] for s in size]
+    # datad = [read_data_exp_3(100, 100, s, s, exp_no=2)[1][:,-1] for s in size]
     datadp = [(d/100)*100.0 for d in datad]
     fig = plt.figure(figsize=(6, 8), dpi=100)
 
@@ -1152,8 +1141,9 @@ def main():
     # plot_sampling_differences()
     # plotallsitesdist()
     # comp_with_witout_comm()
-    boxplot_exp_3()
-    # boxplot_exp_2()
+    experiment_1()
+    # boxplot_exp_2()    
+    # boxplot_exp_3()
     # boxplot_exp_4()
 
 
