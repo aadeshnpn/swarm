@@ -857,7 +857,7 @@ def read_data_exp_3(width=100, height=100, trap=5, obs=5, exp_no=3, site=30, no_
 
 def boxplot_exp_3():
     size = [100, 200, 300, 400, 500, 600]
-    data = [read_data_exp_3(s, s)[0][:,-1] for s in size]
+    data = [read_data_exp_3(s, s, 5, 5, exp_no=3, site=30, no_trap=1, no_obs=1)[0][:,-1] for s in size]
     fig = plt.figure()
     ax1 = fig.add_subplot(1, 1, 1)
     colordict = {
@@ -974,8 +974,8 @@ def boxplot_exp_2():
 
 def boxplot_exp_4():
     size = [1, 2, 3, 4, 5]
-    dataf = [read_data_exp_3(100, 100, 5, 5, exp_no=4, site=20, no_trap=s, no_obs=s)[0][:,-1] for s in size]
-    datad = [read_data_exp_3(100, 100, 5, 5, exp_no=4, site=20, no_trap=s, no_obs=s)[1][:,-1] for s in size]
+    dataf = [read_data_exp_3(100, 100, 5, 5, exp_no=4, site=30, no_trap=s, no_obs=s)[0][:,-1] for s in size]
+    datad = [read_data_exp_3(100, 100, 5, 5, exp_no=4, site=30, no_trap=s, no_obs=s)[1][:,-1] for s in size]
     datadp = [(d/100)*100.0 for d in datad]
     fig = plt.figure(figsize=(6, 8), dpi=100)
 
@@ -1152,8 +1152,8 @@ def main():
     # plot_sampling_differences()
     # plotallsitesdist()
     # comp_with_witout_comm()
-    # boxplot_exp_3()
-    boxplot_exp_2()
+    boxplot_exp_3()
+    # boxplot_exp_2()
     # boxplot_exp_4()
 
 
