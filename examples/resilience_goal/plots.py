@@ -231,65 +231,6 @@ def read_data_n_agent_site(n=100, agent='ExecutingAgent', site='20'):
     return dataf, datad
 
 
-def boxplotagent(agent='ExecutingAgent', site='51-51'):
-    # data = [read_data_n_agent(n, agent)[:,-1] for n in [50, 100, 200, 300, 400]]
-    # data = [read_data_n_agent(n, agent)[:,-1] for n in [50, 100]]
-    # data = [read_data_n_agent_site(n, agent, site=site)[0][:,-1] for n in agents]
-    agents = [50, 100, 200, 300, 400]
-    # print(agent, site)
-    data = [read_data_n_agent_site(n, agent, site=site)[0][:,-1] for n in agents]
-    # datad = [read_data_n_agent_site(n, agent, site=site)[1][:,-1] for n in agents]
-    # datadp = [(datad[i]/agents[i])*100 for i in range(len(agents))]
-    fig = plt.figure()
-
-    ax1 = fig.add_subplot(1, 1, 1)
-    colordict = {
-        0: 'forestgreen',
-        1: 'indianred',
-        2: 'gold',
-        3: 'tomato',
-        4: 'royalblue'}
-    colorshade = [
-        'springgreen', 'lightcoral',
-        'khaki', 'lightsalmon', 'deepskyblue']
-    # colordict = {
-    #     0: 'bisque',
-    #     1: 'darkorange',
-    #     2: 'orangered',
-    #     3: 'seagreen'
-    # }
-
-    # labels = ['Agent-Key', 'Key-Door', 'Door-Goal', 'Total']
-    labels = [50, 100, 200, 300, 400]
-    # labels = [50, 100]
-    medianprops = dict(linewidth=2.5, color='firebrick')
-    meanprops = dict(linewidth=2.5, color='#ff7f0e')
-    # data = [data[:, i] for i in range(4)]
-    bp1 = ax1.boxplot(
-        data, 0, 'gD', showmeans=True, meanline=True,
-        patch_artist=True, medianprops=medianprops,
-        meanprops=meanprops)
-    for patch, color in zip(bp1['boxes'], colordict.values()):
-        patch.set_facecolor(color)
-    # plt.xlim(0, len(mean))
-    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper right", title='no. of agents')
-    ax1.set_xticklabels(labels)
-    ax1.set_xlabel('No. of agents ')
-    ax1.set_ylabel('Foraging Percentage')
-    ax1.set_title('Swarm Foraging')
-
-    plt.tight_layout()
-
-    maindir = '/tmp/swarm/data/experiments/'
-    fname = 'agentscomp' + agent
-
-    fig.savefig(
-        maindir + '/' + fname + '.png')
-    # pylint: disable = E1101
-
-    plt.close(fig)
-
-
 def boxplotsiteloc(agent='ExecutingAgent', site='51-51'):
     # sites = ['-3030', '30-30', '3030', '-5050', '50-50', '5050', '-9090', '90-90']
     agents = [50, 100, 200, 300, 400, 500]
@@ -563,11 +504,65 @@ def boxplotallsitesdist(agent='ExecutingAgent'):
     plt.close(fig)
 
 
+def experiment_0():
+    agents = [50, 100, 200, 300, 400]
+    data = [read_data_exp_3(100, 100, 5, 5, exp_no=0, site=30, no_trap=1, no_obs=1, agent=a)[0][:,-1] for a in agents]
+    # data = [read_data_n_agent_site(n, agent, site=site)[0][:,-1] for n in agents]
+    fig = plt.figure()
+
+    ax1 = fig.add_subplot(1, 1, 1)
+    colordict = {
+        0: 'forestgreen',
+        1: 'indianred',
+        2: 'gold',
+        3: 'tomato',
+        4: 'royalblue'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+    # colordict = {
+    #     0: 'bisque',
+    #     1: 'darkorange',
+    #     2: 'orangered',
+    #     3: 'seagreen'
+    # }
+
+    # labels = ['Agent-Key', 'Key-Door', 'Door-Goal', 'Total']
+    labels = [50, 100, 200, 300, 400]
+    # labels = [50, 100]
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    # data = [data[:, i] for i in range(4)]
+    bp1 = ax1.boxplot(
+        data, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops)
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+    # plt.xlim(0, len(mean))
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper right", title='no. of agents')
+    ax1.set_xticklabels(labels)
+    ax1.set_xlabel('No. of agents ')
+    ax1.set_ylabel('Foraging Percentage')
+    ax1.set_title('Swarm Foraging')
+
+    plt.tight_layout()
+
+    maindir = '/tmp/swarm/data/experiments/'
+    fname = 'agentscomp'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
 def experiment_1(agent='ExecutingAgent'):
     plt.style.use('fivethirtyeight')
     sites = [20, 25, 30, 40, 50]
     datasf = [read_data_exp_3(100, 100, 5, 5, exp_no=1, site=s, no_trap=1, no_obs=1)[0] for s in sites]
-    # datasd = [read_data_exp_3(100, 100, 5, 5, exp_no=1, site=s, no_trap=1, no_obs=1)[1][:,-1] for s in sites]            
+    # datasd = [read_data_exp_3(100, 100, 5, 5, exp_no=1, site=s, no_trap=1, no_obs=1)[1][:,-1] for s in sites]
 
     fig = plt.figure()
 
@@ -819,9 +814,9 @@ def read_data_n(n=100, comm=True):
     return dataf, datad
 
 
-def read_data_exp_3(width=100, height=100, trap=5, obs=5, exp_no=3, site=30, no_trap=1, no_obs=1):
+def read_data_exp_3(width=100, height=100, trap=5, obs=5, exp_no=3, site=30, no_trap=1, no_obs=1, agent=100):
     maindir = '/tmp/swarm/data/experiments/'
-    ndir = os.path.join(maindir, str(100), 'ExecutingAgent', str(exp_no),
+    ndir = os.path.join(maindir, str(agent), 'ExecutingAgent', str(exp_no),
             str(site), str(trap)+'_'+str(obs), str(no_trap)+'_'+str(no_obs), str(width) +'_'+str(height))
     print(ndir)
     folders = pathlib.Path(ndir).glob('*ForagingSimulation')
@@ -888,8 +883,8 @@ def boxplot_exp_3():
 
 def boxplot_exp_2():
     size = [5, 10, 15, 20, 25]
-    dataf = [read_data_exp_3(100, 100, s, s, exp_no=2, site=30, no_trap=1, no_obs=1)[0][:,-1] for s in size]    
-    datad = [read_data_exp_3(100, 100, s, s, exp_no=2, site=30, no_trap=1, no_obs=1)[1][:,-1] for s in size]        
+    dataf = [read_data_exp_3(100, 100, s, s, exp_no=2, site=30, no_trap=1, no_obs=1)[0][:,-1] for s in size]
+    datad = [read_data_exp_3(100, 100, s, s, exp_no=2, site=30, no_trap=1, no_obs=1)[1][:,-1] for s in size]
     # dataf = [read_data_exp_3(100, 100, s, s, exp_no=2)[0][:,-1] for s in size]
     # datad = [read_data_exp_3(100, 100, s, s, exp_no=2)[1][:,-1] for s in size]
     datadp = [(d/100)*100.0 for d in datad]
@@ -1141,8 +1136,9 @@ def main():
     # plot_sampling_differences()
     # plotallsitesdist()
     # comp_with_witout_comm()
-    experiment_1()
-    # boxplot_exp_2()    
+    experiment_0()
+    # experiment_1()
+    # boxplot_exp_2()
     # boxplot_exp_3()
     # boxplot_exp_4()
 
