@@ -241,6 +241,79 @@ def boxplotcommexp():
     plt.close(fig)
 
 
+def boxplotcommexp_1to9():
+    agents = [100]
+    dataf = [read_data_n_agent_site(n)[0][:,-1] for n in agents]     # 100%
+    datad = [read_data_n_agent_site(n)[1][:,-1] for n in agents]     # 0 %
+    datadp = [(datad[i]/agents[i])*100 for i in range(len(agents))]
+
+    data_all_t_t = datad.copy()[0]
+    data_condition_t_t = datad.copy()[0]
+    data_action_t_t = dataf.copy()[0]
+
+    data_all_f_t = datad.copy()[0]
+    data_condition_f_t = datad.copy()[0]
+    data_action_f_t = dataf.copy()[0]
+
+    data_all_t_f = dataf.copy()[0]
+    data_condition_t_f = dataf.copy()[0]
+    data_action_t_f = dataf.copy()[0]
+
+    data = [
+        data_all_t_t, data_condition_t_t, data_action_t_t,
+        data_all_f_t, data_condition_f_t, data_action_f_t,
+        data_all_t_f, data_condition_t_f, data_action_t_f
+        ]
+    fig = plt.figure()
+
+    ax1 = fig.add_subplot(1, 1, 1)
+    colordict = {
+        0: 'forestgreen',
+        1: 'indianred',
+        2: 'gold',
+        3: 'tomato',
+        4: 'royalblue',
+        5: 'orchid',
+        6: 'olivedrab',
+        7: 'peru',
+        8: 'linen'}
+
+    labels = [
+        'All_T_T', 'Condition_T_T', 'Action_T_T',
+        'All_F_T', 'Condition_F_T', 'Action_F_T',
+        'All_T_F', 'Condition_T_F', 'Action_T_F']
+
+    labels = [str(i) +'. '+labels[i-1] for i in range(1,10)]
+    medianprops = dict(linewidth=1.5, color='firebrick')
+    meanprops = dict(linewidth=1.5, color='#ff7f0e')
+    # data = [data[:, i] for i in range(4)]
+    bp1 = ax1.boxplot(
+        data, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops)
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+    # plt.xlim(0, len(mean))
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="medium", loc="center", title='Experiment Type')
+    ax1.set_xticklabels(range(1, 10))
+    ax1.set_yticks(range(0, 105, 20))
+    # ax1.set_xlabel('Agent size')
+    ax1.set_ylabel('Foraging Percentage', fontsize="large")
+    # ax1.set_title('Swarm Foraging with distance '+ str(50))
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments/'
+    # fname = 'agentsitecomp' + agent
+    nadir = os.path.join(maindir, str(50))
+
+    fig.savefig(
+        nadir + 'agentablationcommunication' + '.png')
+    # fig.savefig(
+    #     maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
 def boxplotsiteloc():
     # sites = ['-3030', '30-30', '3030', '-5050', '50-50', '5050', '-9090', '90-90']
     agents = [50, 100] # 200, 300, 400, 500]
