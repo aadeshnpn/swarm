@@ -308,7 +308,7 @@ def boxplotsiteloc(agent='ExecutingAgent', site='51-51'):
     ax3.set_yticks(range(0,105, 20))
     ax3.set_xticklabels(labels)
     ax3.set_xlabel('Agent size', fontsize="large")
-    ax3.set_ylabel('Dead Agents %', fontsize="large")
+    ax3.set_ylabel('Dead Agents (%)', fontsize="large")
     # ax2.set_title('Swarm Foraging with distance '+ site[-2:])
     # plt.tight_layout()
 
@@ -408,7 +408,7 @@ def boxplotallsites(agent='ExecutingAgent'):
     # ax3.legend(zip(bp3['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
     ax3.set_xticklabels(labels)
     ax3.set_xlabel('Agent size')
-    ax3.set_ylabel('Dead Agents %')
+    ax3.set_ylabel('Dead Agents (%)')
     # ax2.set_title('Swarm Foraging with distance '+ site[-2:])
     plt.tight_layout()
 
@@ -565,7 +565,7 @@ def boxplot_exp_0():
     # ax3.legend(zip(bp3['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
     ax3.set_xticklabels(labels)
     ax3.set_xlabel('No. of agents', fontsize="large")
-    ax3.set_ylabel('Dead Agents %', fontsize="large")
+    ax3.set_ylabel('Dead Agents (%)', fontsize="large")
     ax3.set_yticks(range(0,105, 20))
     ax3.set_xticklabels(labels)
 
@@ -638,7 +638,7 @@ def experiment_1(agent='ExecutingAgent'):
         xvalues = range(datasf[i].shape[1])
         # print(len(xvalues), medianf.shape)
         ax1.plot(
-            xvalues, medianf,
+            xvalues, medianf, '--',
             linewidth=2.0, label=labels[i])
         ax1.fill_between(
             xvalues, q3f, q1f,
@@ -901,10 +901,10 @@ def boxplot_exp_3():
     for patch, color in zip(bp1['boxes'], colordict.values()):
         patch.set_facecolor(color)
     # plt.xlim(0, len(mean))
-    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="lower left", title='Environment Size')
-    ax1.set_xticklabels(labels)
-    ax1.set_xlabel('Environment Size [Width x Height]')
-    ax1.set_ylabel('Foraging Percentage')
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="large", loc="upper right", title='Environment Size')
+    ax1.set_xticklabels(labels, fontsize='large')
+    ax1.set_xlabel('Environment Size [Width x Height]', fontsize='large')
+    ax1.set_ylabel('Foraging (%)', fontsize='large')
     ax1.set_yticks(range(0, 105, 20))
     # ax1.set_title('Swarm Foraging Evolved Behaviors')
 
@@ -952,8 +952,8 @@ def boxplot_exp_2():
     # plt.xlim(0, len(mean))
     ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="lower left", title='Trap/Obstacle Size')
     ax1.set_xticklabels(labels)
-    ax1.set_xlabel('Trap/Obstacle Size')
-    ax1.set_ylabel('Foraging Percentage')
+    # ax1.set_xlabel('Trap/Obstacle Size', fontsize='large')
+    ax1.set_ylabel('Foraging (%)',  fontsize='large')
     ax1.set_yticks(range(0, 105, 20))
     # ax1.set_title('Swarm Foraging Evolved Behaviors')
     ax2 = fig.add_subplot(3, 1, 2)
@@ -981,8 +981,8 @@ def boxplot_exp_2():
     # ax3.legend(zip(bp3['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
     ax3.set_yticks(range(0,105, 20))
     ax3.set_xticklabels(labels)
-    ax3.set_xlabel('Agent size', fontsize="large")
-    ax3.set_ylabel('Dead Agents %', fontsize="large")
+    ax3.set_xlabel('Trap/Obstacle Size', fontsize="large")
+    ax3.set_ylabel('Dead Agents (%)', fontsize="large")
     plt.tight_layout()
 
     maindir = '/tmp/swarm/data/experiments/'
@@ -1023,10 +1023,9 @@ def boxplot_exp_4():
     for patch, color in zip(bp1['boxes'], colordict.values()):
         patch.set_facecolor(color)
     # plt.xlim(0, len(mean))
-    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="lower left", title='Trap/Obstacle No.')
     ax1.set_xticklabels(labels)
-    ax1.set_xlabel('Trap/Obstacle No.')
-    ax1.set_ylabel('Foraging Percentage')
+    # ax1.set_xlabel('Trap/Obstacle No.')
+    ax1.set_ylabel('Foraging (%)', fontsize='large')
     ax1.set_yticks(range(0, 105, 20))
     # ax1.set_title('Swarm Foraging Evolved Behaviors')
     ax2 = fig.add_subplot(3, 1, 2)
@@ -1052,10 +1051,11 @@ def boxplot_exp_4():
         patch.set_facecolor(color)
     # plt.xlim(0, len(mean))
     # ax3.legend(zip(bp3['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
+    ax3.legend(zip(bp1['boxes']), labels, fontsize="small", loc="lower right", title='Trap/Obstacle No.')
     ax3.set_yticks(range(0,105, 20))
     ax3.set_xticklabels(labels)
     ax3.set_xlabel('Trap/Obstacle No.', fontsize="large")
-    ax3.set_ylabel('Dead Agents %', fontsize="large")
+    ax3.set_ylabel('Dead Agents (%)', fontsize="large")
     plt.tight_layout()
 
     maindir = '/tmp/swarm/data/experiments/'
@@ -1175,11 +1175,11 @@ def main():
     # plot_sampling_differences()
     # plotallsitesdist()
     # comp_with_witout_comm()
-    boxplot_exp_0()
+    # boxplot_exp_0()
     # experiment_1()
     # boxplot_exp_2()
     # boxplot_exp_3()
-    # boxplot_exp_4()
+    boxplot_exp_4()
 
 
 if __name__ == '__main__':
