@@ -598,15 +598,14 @@ def experiment_1(agent='ExecutingAgent'):
         xvalues = range(datasf[i].shape[1])
         print(len(xvalues), medianf.shape)
         ax1.plot(
-            xvalues, medianf, color=colordict[i],
+            xvalues, medianf,
             linewidth=1.0, label=labels[i])
         ax1.fill_between(
             xvalues, q3f, q1f,
-            color=colorshade[i],
-            alpha=0.3)
+            alpha=0.5)
     # plt.xlim(0, len(mean))
     # ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="lower left", title='Distance')
-    ax1.legend()
+    ax1.legend(labels, fontsize="small", loc="lower left", title='Distance')
     # ax1.set_xticklabels(labels)
     ax1.set_yticks(range(0, 105, 20))
     ax1.set_xlabel('Time Steps')
@@ -617,7 +616,7 @@ def experiment_1(agent='ExecutingAgent'):
 
     maindir = '/tmp/swarm/data/experiments/'
     # fname = 'agentsitecomp' + agent
-    nadir = os.path.join(maindir, str(50), agent)
+    nadir = os.path.join(maindir, agent)
 
     fig.savefig(
         nadir + 'agentallsitecompdistplot' + '.png')
@@ -1136,8 +1135,8 @@ def main():
     # plot_sampling_differences()
     # plotallsitesdist()
     # comp_with_witout_comm()
-    experiment_0()
-    # experiment_1()
+    # experiment_0()
+    experiment_1()
     # boxplot_exp_2()
     # boxplot_exp_3()
     # boxplot_exp_4()
