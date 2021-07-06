@@ -504,13 +504,16 @@ def boxplotallsitesdist(agent='ExecutingAgent'):
     plt.close(fig)
 
 
-def experiment_0():
+def boxplot_exp_0():
     agents = [50, 100, 200, 300, 400]
-    data = [read_data_exp_3(100, 100, 5, 5, exp_no=0, site=30, no_trap=1, no_obs=1, agent=a)[0][:,-1] for a in agents]
-    # data = [read_data_n_agent_site(n, agent, site=site)[0][:,-1] for n in agents]
-    fig = plt.figure()
+    dataf = [read_data_exp_3(100, 100, 5, 5, exp_no=0, site=30, no_trap=1, no_obs=1, agent=a)[0][:,-1] for a in agents]
+    datad = [read_data_exp_3(100, 100, 5, 5, exp_no=0, site=30, no_trap=1, no_obs=1, agent=a)[1][:,-1] for a in agents]
+    datadp = [(datad[d]/agents[d])*100.0 for d in range(len(datad))]
+    fig = plt.figure(figsize=(6, 8), dpi=100)
+    # dataall = [read_data_exp_3(100, 100, 5, 5, exp_no=0, site=30, no_trap=1, no_obs=1, agent=a)[0] for a in agents]
+    # data = [data[:,-1] for data in dataall]
 
-    ax1 = fig.add_subplot(1, 1, 1)
+    ax1 = fig.add_subplot(3, 1, 1)
     colordict = {
         0: 'forestgreen',
         1: 'indianred',
@@ -520,36 +523,73 @@ def experiment_0():
     colorshade = [
         'springgreen', 'lightcoral',
         'khaki', 'lightsalmon', 'deepskyblue']
-    # colordict = {
-    #     0: 'bisque',
-    #     1: 'darkorange',
-    #     2: 'orangered',
-    #     3: 'seagreen'
-    # }
 
-    # labels = ['Agent-Key', 'Key-Door', 'Door-Goal', 'Total']
     labels = [50, 100, 200, 300, 400]
-    # labels = [50, 100]
-    medianprops = dict(linewidth=2.5, color='firebrick')
-    meanprops = dict(linewidth=2.5, color='#ff7f0e')
-    # data = [data[:, i] for i in range(4)]
+    medianprops = dict(linewidth=1.5, color='firebrick')    # Strong line is median
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')    # Dashed line is mean
     bp1 = ax1.boxplot(
-        data, 0, 'gD', showmeans=True, meanline=True,
+        dataf, 0, 'gD', showmeans=True, meanline=True,
         patch_artist=True, medianprops=medianprops,
         meanprops=meanprops)
     for patch, color in zip(bp1['boxes'], colordict.values()):
         patch.set_facecolor(color)
-    # plt.xlim(0, len(mean))
-    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper right", title='no. of agents')
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="lower right", title='No. of agents')
     ax1.set_xticklabels(labels)
-    ax1.set_xlabel('No. of agents ')
-    ax1.set_ylabel('Foraging Percentage')
-    ax1.set_title('Swarm Foraging')
+    ax1.set_yticks(range(0, 105, 20))
+    # ax1.set_xlabel('No. of agents ')
+    ax1.set_ylabel('Foraging (%)', fontsize="large")
+    ax1.set_title('Swarm Foraging', fontsize="large")
 
-    plt.tight_layout()
+    ax2 = fig.add_subplot(3, 1, 2)
+    bp2 = ax2.boxplot(
+        datad, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops)
+    for patch, color in zip(bp2['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+    # plt.xlim(0, len(mean))
+    # ax2.legend(zip(bp2['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
+    ax2.set_yticks([0, 100, 200, 300, 400])
+    ax2.set_xticklabels(labels)
+    # ax2.set_xlabel('Agent size')
+    ax2.set_ylabel('No. Dead Agents', fontsize="large")
+
+    ax3 = fig.add_subplot(3, 1, 3)
+    bp3 = ax3.boxplot(
+        datadp, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops)
+    for patch, color in zip(bp3['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+    # plt.xlim(0, len(mean))
+    # ax3.legend(zip(bp3['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
+    ax3.set_xticklabels(labels)
+    ax3.set_xlabel('No. of agents', fontsize="large")
+    ax3.set_ylabel('Dead Agents %', fontsize="large")
+    ax3.set_yticks(range(0,105, 20))
+    ax3.set_xticklabels(labels)
+
+    # ax2 = fig.add_subplot(2, 1, 2)
+    # for i in range(len(dataall)):
+    #     medianf = np.quantile(dataall[i], 0.5, axis=0)
+    #     q1f = np.quantile(dataall[i], 0.25, axis=0)
+    #     q3f = np.quantile(dataall[i], 0.75, axis=0)
+    #     xvalues = range(dataall[i].shape[1])
+    #     ax2.plot(
+    #         xvalues, medianf,
+    #         linewidth=2.0, label=labels[i])
+    #     # ax2.fill_between(
+    #     #     xvalues, q3f, q1f,
+    #     #     alpha=0.5)
+    # ax2.legend(labels, fontsize="small", loc="lower right", title='No. of agents')
+    # # ax1.set_xticklabels(labels)
+    # ax2.set_yticks(range(0, 105, 20))
+    # ax2.set_xlabel('Time Steps')
+    # ax2.set_ylabel('Foraging (%)')
+    # plt.tight_layout()
 
     maindir = '/tmp/swarm/data/experiments/'
-    fname = 'agentscomp'
+    fname = 'agentscompboxplot'
 
     fig.savefig(
         maindir + '/' + fname + '.png')
@@ -596,16 +636,16 @@ def experiment_1(agent='ExecutingAgent'):
         q1f = np.quantile(datasf[i], 0.25, axis=0)
         q3f = np.quantile(datasf[i], 0.75, axis=0)
         xvalues = range(datasf[i].shape[1])
-        print(len(xvalues), medianf.shape)
+        # print(len(xvalues), medianf.shape)
         ax1.plot(
             xvalues, medianf,
-            linewidth=1.0, label=labels[i])
+            linewidth=2.0, label=labels[i])
         ax1.fill_between(
             xvalues, q3f, q1f,
-            alpha=0.5)
+            alpha=0.2)
     # plt.xlim(0, len(mean))
     # ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="lower left", title='Distance')
-    ax1.legend(labels, fontsize="small", loc="lower left", title='Distance')
+    ax1.legend(labels, fontsize="small", loc="upper left", title='Distance')
     # ax1.set_xticklabels(labels)
     ax1.set_yticks(range(0, 105, 20))
     ax1.set_xlabel('Time Steps')
@@ -983,9 +1023,9 @@ def boxplot_exp_4():
     for patch, color in zip(bp1['boxes'], colordict.values()):
         patch.set_facecolor(color)
     # plt.xlim(0, len(mean))
-    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="lower left", title='Trap/Obstacle Size')
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="lower left", title='Trap/Obstacle No.')
     ax1.set_xticklabels(labels)
-    ax1.set_xlabel('Trap/Obstacle Size')
+    ax1.set_xlabel('Trap/Obstacle No.')
     ax1.set_ylabel('Foraging Percentage')
     ax1.set_yticks(range(0, 105, 20))
     # ax1.set_title('Swarm Foraging Evolved Behaviors')
@@ -1014,7 +1054,7 @@ def boxplot_exp_4():
     # ax3.legend(zip(bp3['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
     ax3.set_yticks(range(0,105, 20))
     ax3.set_xticklabels(labels)
-    ax3.set_xlabel('Agent size', fontsize="large")
+    ax3.set_xlabel('Trap/Obstacle No.', fontsize="large")
     ax3.set_ylabel('Dead Agents %', fontsize="large")
     plt.tight_layout()
 
@@ -1135,8 +1175,8 @@ def main():
     # plot_sampling_differences()
     # plotallsitesdist()
     # comp_with_witout_comm()
-    # experiment_0()
-    experiment_1()
+    boxplot_exp_0()
+    # experiment_1()
     # boxplot_exp_2()
     # boxplot_exp_3()
     # boxplot_exp_4()
