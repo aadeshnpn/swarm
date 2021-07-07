@@ -1177,9 +1177,9 @@ def main():
     # comp_with_witout_comm()
     # boxplot_exp_0()
     # experiment_1()
-    # boxplot_exp_2()
+    boxplot_exp_2()
     # boxplot_exp_3()
-    boxplot_exp_4()
+    # boxplot_exp_4()
 
 
 if __name__ == '__main__':

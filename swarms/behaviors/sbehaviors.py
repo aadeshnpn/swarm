@@ -1419,7 +1419,7 @@ class AvoidSObjects(Behaviour):
         pass
 
     def update(self):
-        """Logic for pickup cue."""
+        """Logic for avoid static objects."""
         try:
             objects = ObjectsStore.find(
                 self.blackboard.neighbourobj, self.agent.shared_content,

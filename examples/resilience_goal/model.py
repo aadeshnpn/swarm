@@ -757,10 +757,13 @@ class SimForgModel(Model):
             y = int(0 + np.sin(t) * dist)
             location = (x, y)
             other_bojects = self.grid.get_objects_from_list_of_grid(None, self.grid.get_neighborhood((x,y), radius))
+            print(obj, radius, location)
             if len(other_bojects) == 0:
                 envobj = obj(
                         dist, location, radius)
                 self.grid.add_object_to_grid(location, envobj)
+                # bojects = self.grid.get_objects_from_list_of_grid('Traps', self.grid.get_neighborhood(location, radius))
+                # print('reverse', bojects)
                 if isinstance(envobj, Traps):
                     self.traps += [envobj]
                 if isinstance(envobj, Obstacles):
@@ -818,6 +821,7 @@ class SimForgModel(Model):
         # self.traps = self.render.objects['traps'][0]
         # add site with random distances
         self.place_site()
+        print(self.traps, self.obstacles)
         # print(self.traps, self.obstacles, self.hub, self.site)
         # location = (self.expsite["x"], self.expsite["y"])
         # self.site = Sites(
