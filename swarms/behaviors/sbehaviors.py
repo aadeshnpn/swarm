@@ -198,7 +198,7 @@ class NeighbourObjectsDist(Behaviour):
                 (x, y), self.agent.direction)
             # grids += self.agent.model.grid.get_neighborhood(new_location, 1)
             _, grid = self.agent.model.grid.find_grid(new_location)
-            grids += grid
+            grids += [grid]
         grids = list(set(grids))
         # midpoint = ((self.agent.location[0] + new_location[0])//2, (self.agent.location[1] + new_location[1])//2)
         # grid2 = self.agent.model.grid.get_neighborhood(midpoint, 1)
