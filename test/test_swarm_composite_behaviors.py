@@ -243,7 +243,7 @@ class TestGoToObsTrapSwarmSmallGrid(TestCase):
 
     def test_agent_path(self):
         # Checking if the agents reaches site or not
-        self.assertEqual(self.environment.agent.location, (40, 42))
+        self.assertEqual(self.environment.agent.location, (39, 41))
 
 
 class MoveTowardsModelObsTrapBig(Model):
@@ -612,7 +612,7 @@ class TestExploreObsSwarmSmallGrid(TestCase):
 
     def test_agent_path(self):
         self.assertEqual(self.trimmed_results, [
-            (0, 0), (-1, -1), (0, -43), (0, -44), (0, -45)])
+            (0, 0), (-1, -1), (2, -43), (1, -44), (0, -45)])
 
 
 class SwarmSingleCarry(Agent):

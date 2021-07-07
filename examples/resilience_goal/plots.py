@@ -1072,10 +1072,10 @@ def boxplot_exp_4():
     plt.close(fig)
 
 
-def boxplot_exp_5():
+def boxplot_exp_5(t=1):
     grids = [2, 5, 10]
-    dataf = [read_data_exp_3(100, 100, 5, 5, exp_no=5, site=30, no_trap=1, no_obs=1, grid=g)[0][:,-1] for g in grids]
-    datad = [read_data_exp_3(100, 100, 5, 5, exp_no=5, site=30, no_trap=1, no_obs=1, grid=g)[1][:,-1] for g in grids]
+    dataf = [read_data_exp_3(100, 100, t, t, exp_no=5, site=30, no_trap=1, no_obs=1, grid=g)[0][:,-1] for g in grids]
+    datad = [read_data_exp_3(100, 100, t, t, exp_no=5, site=30, no_trap=1, no_obs=1, grid=g)[1][:,-1] for g in grids]
     datadp = [(d/100)*100.0 for d in datad]
     fig = plt.figure(figsize=(6, 8), dpi=100)
 
@@ -1139,7 +1139,7 @@ def boxplot_exp_5():
     fname = 'grid_size'
 
     fig.savefig(
-        maindir + '/' + fname + '.png')
+        maindir + '/' + fname + '_' + str(t) +'.png')
     # pylint: disable = E1101
 
     plt.close(fig)
@@ -1257,7 +1257,8 @@ def main():
     # boxplot_exp_2()
     # boxplot_exp_3()
     # boxplot_exp_4()
-    boxplot_exp_5()
+    for t in range(1, 8):
+        boxplot_exp_5(t)
 
 
 if __name__ == '__main__':
