@@ -241,6 +241,7 @@ class Grid:
         # new_grid_key, new_grid_value = self.find_grid(next_loc)
         dead = False
         objects_in_next_grid = self.get_objects(None, new_grid_value)
+        # print('dead const', objects_in_next_grid)
         for obj in objects_in_next_grid:
             try:
                 if obj.deathable:

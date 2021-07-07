@@ -13,9 +13,7 @@ viewer = True
 def main():
     """Block main."""
     iteration = 2500
-    # jname = '/tmp/16235340355923-10999.json'
-    # jname = '/tmp/16235342688381-4999.json'
-    jname = '/tmp/16235346558663.json'
+    jname = '/tmp/16244729911974-all.json'
     phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
     # Create a test environment to visualize
     viewer = ViewerModel(

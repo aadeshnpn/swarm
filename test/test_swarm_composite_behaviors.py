@@ -62,6 +62,46 @@ class SwarmMoveTowards(Agent):
         self.behaviour_tree.tick()
 
 
+# Class to composite behaviors. For now there are 7 composite behaviors
+class MoveTowardsAgent(Agent):
+    """An minimalistic behavior tree for swarm agent implementing MoveTowards
+    behavior using accleration and velocity
+    """
+    def __init__(self, name, model):
+        super().__init__(name, model)
+        self.location = ()
+
+        self.direction = model.random.rand() * (2 * np.pi)
+        # self.speed = 2
+        self.radius = 3
+
+        self.moveable = True
+        self.shared_content = dict()
+
+        self.shared_content['Sites'] = {model.target}
+
+        # Defining the composite behavior
+        movetowards = MoveTowards('MoveTowards')
+
+        # Setup for the behavior
+        movetowards.setup(0, self, 'Sites')
+
+        # This behavior is just defined to check if the composite tree
+        # can be combined with other primite behaviors
+        seq = Sequence('Seq')
+        seq.add_children([movetowards])
+
+        # Since its root is a sequence, we can use it directly
+        self.behaviour_tree = BehaviourTree(seq)
+
+        # Debugging stuffs for py_trees
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # print(py_trees.display.ascii_tree(movetowards))
+
+    def step(self):
+        self.behaviour_tree.tick()
+
+
 class MoveTowardsModel(Model):
     """ A environment to model swarms """
     def __init__(self, N, width, height, grid=10, seed=None):
@@ -200,6 +240,58 @@ class TestGoToObsTrapSwarmSmallGrid(TestCase):
 
         for i in range(100):
             self.environment.step()
+
+    def test_agent_path(self):
+        # Checking if the agents reaches site or not
+        self.assertEqual(self.environment.agent.location, (40, 42))
+
+
+class MoveTowardsModelObsTrapBig(Model):
+    """ A environment to model swarms """
+    def __init__(self, N, width, height, grid=10, seed=None):
+        if seed is None:
+            super(MoveTowardsModelObsTrapBig, self).__init__(seed=None)
+        else:
+            super(MoveTowardsModelObsTrapBig, self).__init__(seed)
+
+        self.num_agents = N
+
+        self.grid = Grid(width, height, grid)
+
+        self.schedule = SimultaneousActivation(self)
+
+        self.target = Sites(id=1, location=(45, 45), radius=5, q_value=0.5)
+        self.grid.add_object_to_grid(self.target.location, self.target)
+
+        # self.obstacle = Obstacles(id=2, location=(5, 0), radius=20)
+        # self.grid.add_object_to_grid(self.obstacle.location, self.obstacle)
+
+        self.trap = Traps(id=2, location=(15, 15), radius=15)
+        self.grid.add_object_to_grid(self.trap.location, self.trap)
+
+        # self.agents = []
+        for i in range(self.num_agents):
+            a = MoveTowardsAgent(i, self)
+            self.schedule.add(a)
+            x = -5
+            y = -5
+            a.location = (x, y)
+            a.direction = -2.3561944901923448
+            self.grid.add_object_to_grid((x, y), a)
+            self.agent = a
+
+    def step(self):
+        self.schedule.step()
+
+
+class TestGoToObsTrapBigSwarmSmallGrid(TestCase):
+
+    def setUp(self):
+        self.environment = MoveTowardsModelObsTrapBig(1, 100, 100, 10, 123)
+
+        for i in range(80):
+            self.environment.step()
+            print(i, self.environment.agent.location, self.environment.agent.dead)
 
     def test_agent_path(self):
         # Checking if the agents reaches site or not
@@ -520,7 +612,7 @@ class TestExploreObsSwarmSmallGrid(TestCase):
 
     def test_agent_path(self):
         self.assertEqual(self.trimmed_results, [
-            (0, 0), (-1, -1), (3, -43), (2, -44), (1, -45)])
+            (0, 0), (-1, -1), (0, -43), (0, -44), (0, -45)])
 
 
 class SwarmSingleCarry(Agent):

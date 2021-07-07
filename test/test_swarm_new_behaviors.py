@@ -11,7 +11,7 @@ from swarms.behaviors.sbehaviors import (
 from swarms.behaviors.scbehaviors import (
     AvoidTrapObstaclesBehaviour, NewMoveTowards, NewExplore,
     NewMoveAway, Explore
-    )    
+    )
 from swarms.lib.objects import Sites, Hub, Obstacles, Traps
 import py_trees
 from py_trees import Blackboard
@@ -129,12 +129,12 @@ class SwarmAgentAvoid(Agent):
 
         low = GoTo('1')
         low.setup(0, self, type(model.target).__name__)
-        medium = failure_is_success(AvoidTrapObstaclesBehaviour)('2')        
-        medium.setup(0, self, None)        
+        medium = failure_is_success(AvoidTrapObstaclesBehaviour)('2')
+        medium.setup(0, self, None)
         high = Move('3')
         high.setup(0, self)
         # root.add_children([low, medium, med, high])
-        root.add_children([low, medium, high])        
+        root.add_children([low, medium, high])
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
         # py_trees.display.print_ascii_tree(root)
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
@@ -188,7 +188,7 @@ class TestAvoidSwarmSmallGrid(TestCase):
 
         for i in range(77):
             self.environment.step()
-            # print(i, self.environment.agent.location)   
+            # print(i, self.environment.agent.location)
 
     def test_agent_path(self):
         self.assertEqual(self.environment.agent.location, (45, 45))
@@ -198,7 +198,7 @@ class TestAvoidSwarmSmallGrid(TestCase):
             self.environment.grid.get_objects_from_grid('Sites',self.environment.agent.location)[0], Sites)
 
 
-        
+
 
 # Class to tets agent dead in trap
 class SwarmAgentTrap(Agent):
@@ -278,10 +278,10 @@ class TestTrapSwarmSmallGrid(TestCase):
             # print(i, self.environment.agent.location, self.environment.agent.dead)
 
     def test_agent_path(self):
-        self.assertEqual(self.environment.agent.location, (22, 20))         
+        self.assertEqual(self.environment.agent.location, (22, 20))
 
     def test_agent_dead(self):
-        self.assertEqual(self.environment.agent.dead, True)                 
+        self.assertEqual(self.environment.agent.dead, True)
 
 
 
@@ -310,14 +310,14 @@ class SwarmAgentAvoidTrap(Agent):
 
         low = GoTo('1')
         low.setup(0, self, type(model.target).__name__)
-        
-        medium = failure_is_success(AvoidTrapObstaclesBehaviour)('2')                
+
+        medium = failure_is_success(AvoidTrapObstaclesBehaviour)('2')
         medium.setup(0, self)
 
         high = Move('3')
         high.setup(0, self)
         # root.add_children([low, medium, med, high])
-        root.add_children([low, medium, high])        
+        root.add_children([low, medium, high])
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
         # py_trees.display.print_ascii_tree(root)
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
@@ -380,7 +380,7 @@ class TestAvoidTrapSwarmSmallGrid(TestCase):
     def test_agent_goal(self):
         self.assertIsInstance(
             self.environment.grid.get_objects_from_grid(
-                'Sites',self.environment.agent.location)[0], Sites)        
+                'Sites',self.environment.agent.location)[0], Sites)
 
 
 # Class to tets the avoid trap behavior for the agent
@@ -410,7 +410,7 @@ class SwarmAgentAvoidTrapNew(Agent):
         low.setup(0, self, type(model.target).__name__)
 
         # root.add_children([low, medium, med, high])
-        root.add_children([low])        
+        root.add_children([low])
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
         # py_trees.display.print_ascii_tree(root)
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
@@ -473,7 +473,7 @@ class TestAvoidTrapNewSwarmSmallGrid(TestCase):
     def test_agent_goal(self):
         self.assertIsInstance(
             self.environment.grid.get_objects_from_grid(
-                'Sites',self.environment.agent.location)[0], Sites)        
+                'Sites',self.environment.agent.location)[0], Sites)
 
 
 
@@ -504,7 +504,7 @@ class SwarmAgentExploreNew(Agent):
         low.setup(0, self)
 
         # root.add_children([low, medium, med, high])
-        root.add_children([low])        
+        root.add_children([low])
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
         # py_trees.display.print_ascii_tree(root)
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
@@ -566,7 +566,7 @@ class TestExploreNewSwarmSmallGrid(TestCase):
 
 # Class to tets the avoid trap behavior for the agent
 class SwarmAgentMoveAway(Agent):
-    """ An minimalistic behavior tree for swarm agent implementing 
+    """ An minimalistic behavior tree for swarm agent implementing
     move away behavior.
     """
     def __init__(self, name, model):
@@ -588,11 +588,11 @@ class SwarmAgentMoveAway(Agent):
         self.shared_content[type(model.target).__name__] = {model.target}
 
         low = NewMoveAway('1')
-        # low = NewMoveTowards('1')        
+        # low = NewMoveTowards('1')
         low.setup(0, self, type(model.target).__name__)
 
         # root.add_children([low, medium, med, high])
-        root.add_children([low])        
+        root.add_children([low])
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
         # py_trees.display.print_ascii_tree(root)
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
@@ -651,7 +651,7 @@ class TestMoveAwaySwarmSmallGrid(TestCase):
     def test_agent_path(self):
         self.assertEqual(self.environment.agent.location, (-48, -48))
 
-                
+
 class SwarmAgentExplore(Agent):
     """ An minimalistic behavior tree for swarm agent implementing goto
     behavior
@@ -678,7 +678,7 @@ class SwarmAgentExplore(Agent):
         low.setup(0, self)
 
         # root.add_children([low, medium, med, high])
-        root.add_children([low])        
+        root.add_children([low])
         self.behaviour_tree = py_trees.trees.BehaviourTree(root)
         # py_trees.display.print_ascii_tree(root)
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
@@ -736,4 +736,3 @@ class TestExploreSwarmSmallGrid(TestCase):
 
     def test_agent_path(self):
         self.assertEqual(self.environment.agent.location, (15, -11))
-
