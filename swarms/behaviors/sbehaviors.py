@@ -1427,9 +1427,9 @@ class AvoidSObjects(Behaviour):
             objects = ObjectsStore.find(
                 self.blackboard.neighbourobj, self.agent.shared_content,
                 self.item, self.agent.name)[0]
-            alpha = get_direction(self.agent.location, objects.location)
-            theta = self.agent.direction
-            angle_diff = theta-alpha
+            # alpha = get_direction(self.agent.location, objects.location)
+            # theta = self.agent.direction
+            # angle_diff = theta-alpha
             self.agent.direction += np.pi/2
             return common.Status.SUCCESS
         except (IndexError, AttributeError):

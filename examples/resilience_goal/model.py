@@ -751,7 +751,7 @@ class SimForgModel(Model):
     def place_static_objs(self, obj, radius):
         theta = np.linspace(0, 2*np.pi, 36)
         while True:
-            dist = self.random.choice(range(15, self.width//2, 5))
+            dist = self.random.choice(range(25, self.width//2, 5))
             t = self.random.choice(theta, 1, replace=False)[0]
             x = int(0 + np.cos(t) * dist)
             y = int(0 + np.sin(t) * dist)
