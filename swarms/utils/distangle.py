@@ -19,3 +19,8 @@ def get_direction(x, y):
     dx = x[0] - y[0]
     dy = x[1] - y[1]
     return np.arctan2(dy, dx)
+
+
+def round_angles(direction):
+    """Round angles such that direction is less that 2*np.pi"""
+    return direction % (2 * np.pi)

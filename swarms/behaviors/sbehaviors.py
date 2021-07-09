@@ -200,6 +200,7 @@ class NeighbourObjectsDist(Behaviour):
             _, grid = self.agent.model.grid.find_grid(new_location)
             grids += [grid]
         grids = list(set(grids))
+        # print(self.agent.name, grids, self.name, round(self.agent.direction, 2), self.id)
         # midpoint = ((self.agent.location[0] + new_location[0])//2, (self.agent.location[1] + new_location[1])//2)
         # grid2 = self.agent.model.grid.get_neighborhood(midpoint, 1)
         # grid3 = self.agent.model.grid.get_neighborhood(self.agent.location, 1)
@@ -229,10 +230,11 @@ class NeighbourObjectsDist(Behaviour):
                     except KeyError:
                         self.blackboard.neighbourobj[name] = {item}
 
-                    if status == common.Status.SUCCESS:
-                        pass
-                    else:
-                        status = common.Status.SUCCESS
+                    # if status == common.Status.SUCCESS:
+                    #     pass
+                    # else:
+                    status = common.Status.SUCCESS
+                    break
             return status
         else:
             return status
@@ -286,7 +288,7 @@ class GoTo(Behaviour):
                 self.blackboard.neighbourobj, self.agent.shared_content,
                 self.item, self.agent.name)[0]
             self.agent.direction = get_direction(
-                objects.location, self.agent.location)
+                objects.location, self.agent.location) % (2 * np.pi)
             return common.Status.SUCCESS
         except (AttributeError, IndexError):
             return common.Status.FAILURE
@@ -358,6 +360,7 @@ class RandomWalk(Behaviour):
         """Compute random direction and set it to agent direction."""
         delta_d = self.agent.model.random.normal(0, .1)
         self.agent.direction = (self.agent.direction + delta_d) % (2 * np.pi)
+
         return common.Status.SUCCESS
 
 
@@ -1430,7 +1433,9 @@ class AvoidSObjects(Behaviour):
             # alpha = get_direction(self.agent.location, objects.location)
             # theta = self.agent.direction
             # angle_diff = theta-alpha
-            self.agent.direction += np.pi/2
+            direction = self.agent.direction + np.pi/2
+            self.agent.direction = direction % (2 * np.pi)
+            # print(self.agent.name, direction, self.agent.direction)
             return common.Status.SUCCESS
         except (IndexError, AttributeError):
             return common.Status.FAILURE
@@ -1593,9 +1598,10 @@ class SensePheromone(Behaviour):
                 sin, cos, weight = zip(*angles)
                 sin, cos, weight = np.array(sin), np.array(cos), np.array(weight)
                 direction = np.arctan2(sum(sin * weight), sum(cos * weight))
-                self.agent.direction = direction
+                self.agent.direction = direction % (2 * np.pi)
             else:
-                self.agent.direction += np.pi/2
+                direction = self.agent.direction + np.pi/2
+                self.agent.direction = direction % (2 * np.pi)
             return common.Status.SUCCESS
 
         except (IndexError, AttributeError):

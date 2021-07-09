@@ -1257,7 +1257,7 @@ def main():
     # boxplot_exp_2()
     # boxplot_exp_3()
     # boxplot_exp_4()
-    for t in [1, 3, 9, 13, 15]:
+    for t in [9, 13, 15]:
         boxplot_exp_5(t)
 
 

@@ -42,11 +42,16 @@ def simulate_forg(
     simresults.save_to_file()
 
     # Iterate and execute each step in the environment
+    # print('trap', sim.traps[0].location, sim.traps[0].radius, sim.grid.find_grid(sim.traps[0].location))
+    # print('obs', sim.obstacles[0].location, sim.obstacles[0].radius, sim.grid.find_grid(sim.obstacles[0].location))
     for i in range(iteration):
         # For every iteration we need to store the results
         # Save them into db or a file
+        # print(i, [(a.name, a.location, sim.grid.find_grid(a.location), a.dead, round(a.direction, 2)) for a in sim.agents])
         sim.step()
-        # print("total dead agents",i, )
+        # print(i, [(a.name, a.location, sim.grid.find_grid(a.location), a.dead, round(a.direction, 2)) for a in sim.agents])
+        # print("total dead agents",i, sim.no_agent_dead())
+
         value = sim.food_in_hub()
 
         foraging_percent = (
@@ -79,7 +84,7 @@ def main(args):
     trap = trap_size
     obs = obs_size
     windowsizes = [100, 200, 300, 400, 500, 600]
-    gridsizes = [2, 5, 10]
+    gridsizes = [10] # [2, 5, 10]
     width = args.width
     height = args.height
     exp_no = args.exp_no
@@ -92,7 +97,7 @@ def main(args):
             '/tmp', 'swarm', 'data', 'experiments', str(n), agent.__name__, str(exp_no),
             str(site), str(trap)+'_'+str(obs), str(no_trap)+'_'+str(no_obs), str(width) +'_'+str(height), str(grid) )
         pathlib.Path(dname).mkdir(parents=True, exist_ok=True)
-        steps = [5000 for i in range(args.runs)]
+        steps = [args.steps for i in range(args.runs)]
         jname = args.json_file
         phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes'][:4]
         env = (phenotype, dname)
@@ -173,6 +178,7 @@ if __name__ == '__main__':
     parser.add_argument('--runs', default=50, type=int)
     parser.add_argument('--site', default=25, type=int)
     parser.add_argument('--trap_size', default=5, type=int)
+    parser.add_argument('--steps', default=5000, type=int)
     parser.add_argument('--obstacle_size', default=5, type=int)
     parser.add_argument('--no_trap', default=1, type=int)
     parser.add_argument('--no_obs', default=1, type=int)

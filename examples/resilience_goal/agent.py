@@ -531,7 +531,7 @@ class ExecutingAgent(ForagingAgent):
         # py_trees.display.render_dot_tree(
         #    self.bt.behaviour_tree.root, name='/tmp/' + str(self.name))
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
-        # print(py_trees.display.ascii_tree(self.bt.behaviour_tree.root))
+        # print(self.name, py_trees.display.ascii_tree(self.bt.behaviour_tree.root))
 
     def step(self):
         """Agent action at a single time step."""
