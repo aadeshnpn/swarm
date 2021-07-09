@@ -1074,8 +1074,8 @@ def boxplot_exp_4():
 
 def boxplot_exp_5(t=1):
     grids = [2, 5, 10]
-    dataf = [read_data_exp_3(100, 100, t, t, exp_no=5, site=30, no_trap=1, no_obs=1, grid=g)[0][:,-1] for g in grids]
-    datad = [read_data_exp_3(100, 100, t, t, exp_no=5, site=30, no_trap=1, no_obs=1, grid=g)[1][:,-1] for g in grids]
+    dataf = [read_data_exp_3(100, 100, t, 1, exp_no=5, site=30, no_trap=1, no_obs=1, grid=g)[0][:,-1] for g in grids]
+    datad = [read_data_exp_3(100, 100, t, 1, exp_no=5, site=30, no_trap=1, no_obs=1, grid=g)[1][:,-1] for g in grids]
     datadp = [(d/100)*100.0 for d in datad]
     fig = plt.figure(figsize=(6, 8), dpi=100)
 
@@ -1257,7 +1257,7 @@ def main():
     # boxplot_exp_2()
     # boxplot_exp_3()
     # boxplot_exp_4()
-    for t in [1, 3, 5, 9, 15]:
+    for t in [1, 3, 9, 13, 15]:
         boxplot_exp_5(t)
 
 

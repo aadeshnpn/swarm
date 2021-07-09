@@ -189,7 +189,7 @@ class NeighbourObjectsDist(Behaviour):
         #     self.agent.location, self.agent.radius)
         grids = []
         # for i in range(1, self.agent.model.grid.grid_size):
-        for i in range(0, self.agent.radius**2):
+        for i in range(0, self.agent.radius):
             x = int(self.agent.location[0] + np.cos(
                 self.agent.direction) * i)
             y = int(self.agent.location[1] + np.sin(
