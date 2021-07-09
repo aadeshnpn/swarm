@@ -104,7 +104,7 @@ def main(args):
         Parallel(
             n_jobs=args.thread)(delayed(simulate_forg)(
                 env, i, agent=agent, N=n, site=site,
-                trap=trap, obs=obs, width=width, height=height, notrap=no_trap, noobs=no_obs) for i in steps)
+                trap=trap, obs=obs, width=width, height=height, notrap=no_trap, noobs=no_obs, grid=grid) for i in steps)
         # simulate_forg(env, 500, agent=agent, N=n, site=site)
 
     if args.all:
