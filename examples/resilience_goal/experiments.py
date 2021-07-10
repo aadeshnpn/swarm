@@ -84,7 +84,7 @@ def main(args):
     trap = trap_size
     obs = obs_size
     windowsizes = [100, 200, 300, 400, 500, 600]
-    gridsizes = [10] # [2, 5, 10]
+    gridsizes = [2, 5, 10]
     width = args.width
     height = args.height
     exp_no = args.exp_no
