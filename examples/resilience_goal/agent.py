@@ -363,14 +363,7 @@ class LearningAgent(ForagingAgent):
         # First block gives importance to exploration and when as soon
         # food has been found, the next block will focus on dropping
         # the food on hub
-        # self.delayed_reward = round(self.beta * self.delayed_reward, 4)
-
-        # self.individual[0].fitness = (
-        #     self.ef + self.cf * 4 + self.food_collected * 8)
-
-        # self.individual[0].fitness = (1 - self.beta) * self.delayed_reward \
-        #     + self.ef + self.cf \
-        #     + self.food_collected
+        self.delayed_reward = round(self.beta * self.delayed_reward, 4)
 
         # Goal Specification Fitness
         self.individual[0].fitness = (1 - self.beta) * self.delayed_reward \

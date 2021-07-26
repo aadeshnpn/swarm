@@ -95,8 +95,8 @@ class Results:
 
     def __init__(
         self, foldername, connect, id, agent_name, step, timestep, beta,
-        fitness, diversity, explore, foraging, neighbour, genotype,
-            phenotype, bt):
+        fitness, diversity, explore, foraging, postcond,
+        constraints, selector, genotype, phenotype, bt):
         """Initialize the attributes."""
         self.foldername = foldername
         self.connect = connect
@@ -107,21 +107,23 @@ class Results:
             ("timestep", timestep),
             ("beta", float(beta)),
             ("fitness", float(fitness)),
-            ("prospective", float(diversity)),
+            ("diversity", float(diversity)),
             ("explore", float(explore)),
-            ("foraging", float(foraging)),
-            ("neighbour", int(neighbour)),
+            ("foragingp", float(foraging)),
+            ("postcond", float(postcond)),
+            ("constraints", float(constraints)),
+            ("selector", float(selector)),
             ("genotype", genotype),
             ("phenotype", phenotype),
-            ("bt", "Nan")
+            ("bt", str(bt))
         ])
         # self.template = """
         # Id, Agent Name, Step, Beta, Fitness, Diversity, Explore, Foraging,\
         # Neighbours, Genotype, Phenotype, BT
-        self.template = """{id}|{name}|{step}|{timestep}|{beta}|{fitness}|{prospective}|{explore}|{foraging}|{neighbour}|{genotype}|{phenotype}|{bt}
+        self.template = """{id}|{name}|{step}|{timestep}|{beta}|{fitness}|{diversity}|{explore}|{foragingp}|{postcond}|{constraints}|{selector}|{genotype}|{phenotype}|{bt}
         """
         # Write a header to the file for pandas dataframe
-        self.header = """id|name|step|timestep|beta|fitness|prospective|explore|foraging|neighbour|genotype|phenotype|bt\n
+        self.header = """id|name|step|timestep|beta|fitness|diversity|explore|foragingp|postcond|constraints|selctor|genotype|phenotype|bt\n
         """
 
     def save_to_file(self):
@@ -155,7 +157,7 @@ class Best:
 
     def __init__(
         self, foldername, connect, id, agent_name, header, step, beta, fitness,
-        diversity, explore, foraging, phenotype, db=False
+        diversity, explore, foraging, postcond, constraints, selector, genotype, phenotype, db=False
             ):
         """Initialize the attributes."""
         self.foldername = foldername
@@ -168,16 +170,20 @@ class Best:
             ("step", step),
             ("beta", float(beta)),
             ("fitness", float(fitness)),
-            ("prospective", float(diversity)),
+            ("diversity", float(diversity)),
             ("explore", float(explore)),
-            ("foraging", float(foraging)),
+            ("foragingp", float(foraging)),
+            ("postcond", float(postcond)),
+            ("constraints", float(constraints)),
+            ("selector", float(selector)),
+            ("genotype", genotype),
             ("phenotype", phenotype)
         ])
 
-        self.template = """{id}|{header}|{name}|{step}|{beta}|{fitness}|{prospective}|{explore}|{foraging}|{phenotype}
+        self.template = """{id}|{header}|{name}|{step}|{beta}|{fitness}|{diversity}|{explore}|{foragingp}|{postcond}|{constraints}|{selector}|{genotype}|{phenotype}
         """
         # Write a header to the file for pandas dataframe
-        self.header = """id|header|name|step|beta|fitness|prospective|explore|foraging|phenotype\n
+        self.header = """id|header|name|step|beta|fitness|diversity|explore|foragingp|postcond|constraints|selctor|genotype|phenotype\n
         """
 
     def save(self):
