@@ -345,12 +345,20 @@ def test_all_phenotype(idfile='/tmp/experiments/idvalid.txt'):
             phenotypes, 5000, '/tmp/swarm/data/experiments/') for i in range(4))
 
 
+def standard_evolution(args):
+    # phenotypes = learning_phase(iter, n, db)
+    Parallel(
+            n_jobs=args.threads)(delayed(learning_phase)(
+                args.iter, 50, db=False) for i in range(args.runs))
+
+
 def experiments(args):
     ## New experiments
     ## Remove the communication behavior nodes
     ## Increase the size of the traps and obstacles
     ## Increase the size of the world
     exp_no = {
+        0: standard_evolution,
         1: exp_varying_n_evolution,
         2: behavior_sampling,
         3: single_evo,
