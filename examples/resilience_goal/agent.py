@@ -250,10 +250,10 @@ class LearningAgent(ForagingAgent):
             lambda x: x.name.split('_')[-1] == 'postcond', allnodes)
             )
         # print(list(self.bt.behaviour_tree.visitors))
-        selectors_reward = sum([1 for sel in selectors if sel.status == common.Status.SUCCESS])
-        constraints_reward = sum([-2 for const in constraints if const.status == common.Status.FAILURE])
-        postcond_reward = sum([1 for pcond in postcond if pcond.status == common.Status.SUCCESS])
-        return selectors_reward + constraints_reward + postcond_reward
+        self.selectors_reward = sum([1 for sel in selectors if sel.status == common.Status.SUCCESS])
+        self.constraints_reward = sum([-2 for const in constraints if const.status == common.Status.FAILURE])
+        self.postcond_reward = sum([1 for pcond in postcond if pcond.status == common.Status.SUCCESS])
+        return self.selectors_reward + self.constraints_reward + self.postcond_reward
 
     def init_evolution_algo(self):
         """Agent's GE algorithm operation defination."""

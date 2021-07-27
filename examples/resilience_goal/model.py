@@ -161,38 +161,44 @@ class ForagingModel(Model):
         exploration = np.ones(len(self.agents))
         foraging = np.ones(len(self.agents))
         fittest = np.ones(len(self.agents))
-        prospective = np.ones(len(self.agents))
+        diversity = np.ones(len(self.agents))
+        postcondition = np.ones(len(self.agents))
+        constraints = np.ones(len(self.agents))
+        selector = np.ones(len(self.agents))
         for id in range(len(self.agents)):
-            # diversity[id] = self.agents[id].diversity_fitness
-            # exploration[id] = self.agents[id].exploration_fitness()
-            # foraging[id] = self.agents[id].food_collected
-            # fittest[id] = self.agents[id].individual[0].fitness
-            # prospective[id] = self.agents[id].carrying_fitness()
             exploration[id] = self.agents[id].exploration_fitness()
             foraging[id] = self.agents[id].food_collected
             fittest[id] = self.agents[id].individual[0].fitness
-            prospective[id] = self.agents[id].carrying_fitness()
+            diversity[id] = self.agents[id].diversity_fitness
+            postcondition[id] = self.agents[id].postcond_reward
+            constraints[id] = self.agents[id].constraints_reward
+            selector[id] = self.agents[id].selectors_reward
 
         beta = self.agents[-1].beta
 
         mean = Best(
             self.pname, self.connect, self.sn, 1, 'MEAN', self.stepcnt,
-            beta, np.mean(fittest), np.mean(prospective), np.mean(exploration),
-            np.mean(foraging), "None", db=False
+            beta, np.mean(fittest), np.mean(diversity), np.mean(exploration),
+            np.mean(foraging), np.mean(postcondition), np.mean(constraints),
+            np.mean(selector), "None", "None", db=False
             )
         mean.save()
 
         std = Best(
             self.pname, self.connect, self.sn, 1, 'STD', self.stepcnt, beta,
-            np.std(fittest), np.std(prospective), np.std(exploration),
-            np.std(foraging), "None", db=False
+            np.std(fittest), np.std(diversity), np.std(exploration),
+            np.std(foraging), np.mean(postcondition), np.mean(constraints),
+            np.mean(selector), "None", "None", db=False
             )
         std.save()
 
         # Compute best agent for each fitness
-        self.best_agents(prospective, beta, "PROSPE")
+        self.best_agents(diversity, beta, "DIVERSE")
         self.best_agents(exploration, beta, "EXPLORE")
         self.best_agents(foraging, beta, "FORGE")
+        self.best_agents(postcondition, beta, "PCOND")
+        self.best_agents(constraints, beta, "CNSTR")
+        self.best_agents(selector, beta, "SELECT")
         self.best_agents(fittest, beta, "OVERALL")
         return np.argmax(foraging)
 
@@ -203,12 +209,16 @@ class ForagingModel(Model):
         ofitness = self.agents[idx].individual[0].fitness
         ffitness = self.agents[idx].food_collected
         efitness = self.agents[idx].exploration_fitness()
-        pfitness = self.agents[idx].carrying_fitness()
+        pfitness = self.agents[idx].diversity_fitness
+        pcfitness = self.agents[idx].postcond_reward
+        sefitness = self.agents[idx].selectors_reward
+        cnstrfitness = self.agents[idx].constraints_reward
         phenotype = self.agents[idx].individual[0].phenotype
 
         best_agent = Best(
             self.pname, self.connect, self.sn, idx, header, self.stepcnt, beta,
-            ofitness, pfitness, efitness, ffitness, phenotype, db=False
+            ofitness, pfitness, efitness, ffitness, pcfitness, cnstrfitness,
+            sefitness, phenotype, "None", db=False
         )
 
         best_agent.save()
