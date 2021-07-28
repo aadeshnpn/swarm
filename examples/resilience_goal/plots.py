@@ -114,6 +114,75 @@ def boxplot(fname='/tmp/old.txt'):
     plt.close(fig)
 
 
+def boxplot_fitness():
+    names = ['diversity_withdecay', 'diversity_withoutdecay']
+    datas = [read_data_fitness('/tmp/div/'+n)[:,-1] for n in names]
+
+    fig = plt.figure()
+
+    ax1 = fig.add_subplot(1, 1, 1)
+    colordict = {
+        0: 'forestgreen',
+        1: 'indianred',
+        2: 'gold',
+        3: 'tomato',
+        4: 'royalblue'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+    labels = ['Diversity WDecay', 'Diversity WODecay']
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=1.5, color='#ff7f0e')
+    # data = [data[:, i] for i in range(4)]
+    bp1 = ax1.boxplot(
+        datas, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops)
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+    # plt.xlim(0, len(mean))
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper right", title='Fitness')
+    ax1.set_xticklabels(labels)
+    ax1.set_yticks(range(0, 105, 20))
+    ax1.set_xlabel('Fitness Function Type')
+    ax1.set_ylabel('Foraging Percentage')
+    # ax1.set_title('Swarm Foraging Evolved Behaviors')
+
+    plt.tight_layout()
+
+    maindir = '/tmp/div/'
+    fname = 'fitnesscomp'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
+def read_data_fitness(n=100, maindir='/tmp/div/diversity_withdecay'):
+    # maindir = '/tmp/results_site_distance/experiments/'
+    # maindir = '/home/aadeshnpn/Desktop/evolved_ppa/experiments/'
+    # nadir = os.path.join(maindir, str(n), agent, str(site))
+    folders = pathlib.Path(maindir).glob("*EvoSForgeNew*")
+    flist = []
+    dataf = []
+    datad = []
+    for f in folders:
+        flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
+        try:
+            _, _, f, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+            dataf.append(f)
+            datad.append(d)
+        except IndexError:
+            pass
+    # print(data)
+    dataf = np.array(dataf)
+    datad = np.array(datad)
+    # print(dataf.shape, datad.shape, n)
+    return dataf
+
+
 def read_data_n_agent(n=100, filename='/tmp/old.txt'):
     maindir = '/tmp/swarm/data/experiments/'
     files = np.genfromtxt(filename, unpack=True, autostrip=True, dtype=np.str)
@@ -1257,8 +1326,9 @@ def main():
     # boxplot_exp_2()
     # boxplot_exp_3()
     # boxplot_exp_4()
-    for t in  [9, 13, 15, 3]:
-        boxplot_exp_5(t)
+    # for t in  [9, 13, 15, 3]:
+    #     boxplot_exp_5(t)
+    boxplot_fitness()
 
 
 if __name__ == '__main__':
