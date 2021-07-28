@@ -11,6 +11,6 @@
 <conditions>::=[cond]<condition>[/cond]<conditions>|[cond]<condition>[/cond]
 <condition>::=IsDropable_<sobjects>|NeighbourObjects_<objects>|NeighbourObjects_<objects>_invert|IsVisitedBefore_<sobjects>|IsVisitedBefore_<sobjects>_invert|IsCarrying_<dobjects>|IsCarrying_<dobjects>_invert
 <action>::=MoveTowards_<sobjects>|Explore|CompositeSingleCarry_<dobjects>|CompositeDrop_<dobjects>|MoveAway_<sobjects>
-<sobjects>::=Hub|Sites
-<dobjects>::=Food
+<sobjects>::=Hub|Sites|Traps|Obstacles
+<dobjects>::=Food|Debris
 <objects>::=<sobjects>|<dobjects>

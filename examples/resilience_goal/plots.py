@@ -115,8 +115,10 @@ def boxplot(fname='/tmp/old.txt'):
 
 
 def boxplot_fitness():
-    names = ['diversity_withdecay', 'diversity_withoutdecay']
-    datas = [read_data_fitness('/tmp/div/'+n)[:,-1] for n in names]
+    names = [
+        'diversity_withdecay',
+        'diversity_withoutdecay', 'diversity_exploration']
+    datas = [read_data_fitness(maindir='/tmp/div/'+n)[:,-1] for n in names]
 
     fig = plt.figure()
 
@@ -130,7 +132,7 @@ def boxplot_fitness():
     colorshade = [
         'springgreen', 'lightcoral',
         'khaki', 'lightsalmon', 'deepskyblue']
-    labels = ['Diversity WDecay', 'Diversity WODecay']
+    labels = ['Diversity WDecay', 'Diversity WODecay', 'Diversity Explore']
     medianprops = dict(linewidth=2.5, color='firebrick')
     meanprops = dict(linewidth=1.5, color='#ff7f0e')
     # data = [data[:, i] for i in range(4)]
@@ -152,6 +154,58 @@ def boxplot_fitness():
 
     maindir = '/tmp/div/'
     fname = 'fitnesscomp'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
+def boxplot_oldVsPPA_diversity():
+    # datas = [read_data_fitness('/tmp/div/'+n)[:,-1] for n in names]
+    ppa_data = read_data_fitness(maindir='/tmp/div/diversity_ppa')[:,-1]
+    # This data was obtained from database. Since there was just 2 runs
+    # with forgaing% 4 it as just efficient to create a numpy matric
+    old_data = np.ones((320))
+    old_data[16] = 4
+    old_data[24] = 4
+    print(old_data.shape, ppa_data.shape)
+    datas = [old_data, ppa_data]
+    fig = plt.figure()
+
+    ax1 = fig.add_subplot(1, 1, 1)
+    colordict = {
+        0: 'indianred',
+        1: 'forestgreen',
+        2: 'gold',
+        3: 'tomato',
+        4: 'royalblue'}
+    colorshade = [
+        'lightcoral', 'springgreen',
+        'khaki', 'lightsalmon', 'deepskyblue']
+    labels = ['GEESE-BT', 'GEESE-BT++']
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=1.5, color='#ff7f0e')
+    # data = [data[:, i] for i in range(4)]
+    bp1 = ax1.boxplot(
+        datas, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops)
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+    # plt.xlim(0, len(mean))
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper right", title='Methods')
+    ax1.set_xticklabels(labels)
+    ax1.set_yticks(range(0, 105, 20))
+    ax1.set_xlabel('GEESE Methods')
+    ax1.set_ylabel('Foraging Percentage')
+    # ax1.set_title('Swarm Foraging Evolved Behaviors')
+
+    plt.tight_layout()
+
+    maindir = '/tmp/div/'
+    fname = 'fitnesscompdiv'
 
     fig.savefig(
         maindir + '/' + fname + '.png')
@@ -1329,6 +1383,7 @@ def main():
     # for t in  [9, 13, 15, 3]:
     #     boxplot_exp_5(t)
     boxplot_fitness()
+    boxplot_oldVsPPA_diversity()
 
 
 if __name__ == '__main__':

@@ -364,13 +364,13 @@ class LearningAgent(ForagingAgent):
         # food has been found, the next block will focus on dropping
         # the food on hub
 
-        self.delayed_reward = round(self.beta * self.delayed_reward, 4)
+        # self.delayed_reward = round(self.beta * self.delayed_reward, 4)
 
         # # Goal Specification Fitness
-        # self.individual[0].fitness = (1 - self.beta) * self.delayed_reward \
-        #     + self.ef + self.evaluate_constraints_conditions()
+        self.individual[0].fitness = (1 - self.beta) * self.delayed_reward \
+              + self.ef # + self.evaluate_constraints_conditions()
 
-        self.individual[0].fitness = self.delayed_reward
+        # self.individual[0].fitness = self.delayed_reward
 
 
     def get_food_in_hub(self, agent_name=True):
