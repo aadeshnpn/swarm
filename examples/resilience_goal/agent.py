@@ -367,10 +367,9 @@ class LearningAgent(ForagingAgent):
         # self.delayed_reward = round(self.beta * self.delayed_reward, 4)
 
         # # Goal Specification Fitness
-        self.individual[0].fitness = (1 - self.beta) * self.delayed_reward \
-              + self.ef # + self.evaluate_constraints_conditions()
+        # self.individual[0].fitness = (1 - self.beta) * self.diversity_fitness + self.ef  + self.evaluate_constraints_conditions()
 
-        # self.individual[0].fitness = self.delayed_reward
+        self.individual[0].fitness = self.diversity_fitness
 
 
     def get_food_in_hub(self, agent_name=True):
@@ -427,11 +426,11 @@ class LearningAgent(ForagingAgent):
         # Hash the phenotype with its fitness
         # We need to move this from here to genetic step
         # self.cf = self.carrying_fitness()
-        self.ef = self.exploration_fitness()
+        # self.ef = self.exploration_fitness()
         # self.scf = self.communication_fitness()
 
         # Computes overall fitness using Beta function
-        self.overall_fitness()
+        # self.overall_fitness()
         # print(self.name, self.individual[0].fitness)
         # Debugging
         # decodedata = "b\'" + self.individual[0].phenotype + "\'"
