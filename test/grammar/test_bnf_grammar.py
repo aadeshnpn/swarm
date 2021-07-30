@@ -48,8 +48,8 @@ class SwarmMoveTowards(Agent):
         # Grammatical Evolution part
         from ponyge.algorithm.parameters import Parameters
         parameter = Parameters()
-        parameter_list = ['--parameters', '../..,test_swarm.txt']
-        parameter.params['RANDOM_SEED'] = 1234
+        parameter_list = ['--parameters', '../..,test_res.txt']
+        parameter.params['RANDOM_SEED'] = None
         parameter.params['POPULATION_SIZE'] = 10 // 2
         parameter.set_params(parameter_list)
         self.parameter = parameter
@@ -66,7 +66,7 @@ class SwarmMoveTowards(Agent):
         # Debugging stuffs for py_trees
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
         # print(py_trees.display.ascii_tree(self.bt.behaviour_tree.root))
-        self.blackboard = blackboard.Client(name=name)
+        self.blackboard = blackboard.Client(name=str(name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.WRITE)
         self.blackboard.neighbourobj = dict()
 
@@ -109,7 +109,7 @@ class MoveTowardsModel(Model):
 
         self.target = Sites(id=1, location=(45, 45), radius=5, q_value=0.5)
         self.grid.add_object_to_grid(self.target.location, self.target)
-
+        self.agents = []
         for i in range(self.num_agents):
             a = SwarmMoveTowards(i, self)
             self.schedule.add(a)
@@ -118,7 +118,7 @@ class MoveTowardsModel(Model):
             a.location = (x, y)
             a.direction = -2.3561944901923448
             self.grid.add_object_to_grid((x, y), a)
-
+            self.agents.append(a)
         self.agent = a
 
     def step(self):
@@ -151,13 +151,32 @@ class TestVisitorSwarmSmallGrid(TestCase):
         self.assertEqual(self.environment.agent.btfitness(), (1, 0, 0))
 
 
-# def main():
-#     environment = MoveTowardsModel(1, 100, 100, 10, 123)
+class TestDiversityFitnessSwarmSmallGrid(TestCase):
 
-#     for i in range(1):
-#         environment.step()
+    def setUp(self):
+        self.environment = MoveTowardsModel(1, 100, 100, 10, 123)
 
-#     print(environment.agent.btfitness())
+        for i in range(1):
+            self.environment.step()
+
+    def test_agent_path(self):
+        # Checking if the agents reaches site or not
+        # self.assertEqual(self.environment.agent.btfitness(), (1, 0, 0))
+        self.assertEqual(self.environment.agent.individual[0].fitness, 20.0)
 
 
-# main()
+def main():
+    environment = MoveTowardsModel(1, 100, 100, 10, 123)
+
+    for i in range(1):
+        environment.step()
+
+    # print(environment.agent.btfitness())
+    # print(environment.agent.individual[0].fitness)
+    for a in environment.agents:
+        print(a.individual[0].fitness)
+        print(a.bt.behaviour_tree.root)
+        print(a.individual[0].phenotype)
+        print(py_trees.display.ascii_tree(a.bt.behaviour_tree.root))
+
+main()

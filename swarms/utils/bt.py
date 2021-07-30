@@ -14,7 +14,7 @@ from swarms.behaviors.scbehaviors import (      # noqa: F401
 from swarms.behaviors.sbehaviors import (       # noqa: F401
     IsCarrying, NeighbourObjects, Move, IsDropable,
     IsVisitedBefore, IsInPartialAttached, CanMove,
-    DidAvoidedObj, IsCarryable, IsAgentDead, IsAttractivePheromone, 
+    DidAvoidedObj, IsCarryable, IsAgentDead, IsAttractivePheromone,
     IsRepulsivePheromone, IsSignalActive, SignalDoesNotExists,
     PheromoneExists
     )
@@ -52,6 +52,7 @@ class BTConstruct:
         # print('root',root, len(root))
         def leafnode(root):
             node_text = root.text
+            print(node_text)
             # If the behavior needs to look for specific item
             if node_text.find('_') != -1:
                 nodeval = node_text.split('_')
@@ -61,15 +62,15 @@ class BTConstruct:
                     behavior = eval(method)(method + str(
                         self.agent.model.random.randint(
                             100, 200)) + '_' + item+ '_' + root.tag)
+                    behavior.setup(0, self.agent, item)
                 else:
                     method, item, _ = nodeval
                     behavior = eval(method)(
                         method + str(
                             self.agent.model.random.randint(
                                 100, 200)) + '_' + item + '_inv' + '_' + root.tag)
-
-                behavior.setup(0, self.agent, item)
-                behavior = Inverter(behavior)
+                    behavior.setup(0, self.agent, item)
+                    behavior = Inverter(behavior)
 
             else:
                 method = node_text

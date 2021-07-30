@@ -116,7 +116,7 @@ def boxplot(fname='/tmp/old.txt'):
 
 def boxplot_fitness():
     names = [
-        'div_ppa', 'div_ppa_exp', 'div_ppa_all']
+        'div_ppa1', 'div_ppa_exp', 'div_ppa_all']
     datas = [read_data_fitness(maindir='/tmp/div/'+n)[:,-1] for n in names]
 
     fig = plt.figure()

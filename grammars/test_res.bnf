@@ -1,8 +1,8 @@
 <s> ::= [?xml version=%1.0% encoding=%UTF-8%?]<root>
 <root>::=[Sequence]<cf>[/Sequence]|[Sequence]<root><cf>[/Sequence]
 <cf> ::= <selector>
-<selector> ::= [Selector]<postcondition><sequence>[/Selector] | [Selector]<sequence>[/Selector]
-<postcondition>::= [postcond]<pcondition>[/postcond]
+<selector> ::= [Selector][Sequence]<postcondition>[/Sequence]<sequence>[/Selector] | [Selector]<sequence>[/Selector]
+<postcondition>::= [postcond]<pcondition>[/postcond] |[postcond]<pcondition>[/postcond]<postcondition>
 <sequence> ::= [Sequence]<execution>[/Sequence]|[Sequence]<execution>[/Sequence]<sequence>
 <execution>::=<constraints>[act]<action>[/act]|[act]<action>[/act]
 <pcondition>::=NeighbourObjects_<objects>|NeighbourObjects_<sobjects>|NeighbourObjects_<dobjects>|DidAvoidedObj_<sobjects>|IsCarrying_<dobjects>|IsVisitedBefore_<sobjects>
