@@ -52,7 +52,7 @@ class BTConstruct:
         # print('root',root, len(root))
         def leafnode(root):
             node_text = root.text
-            print(node_text)
+            # print(node_text)
             # If the behavior needs to look for specific item
             if node_text.find('_') != -1:
                 nodeval = node_text.split('_')

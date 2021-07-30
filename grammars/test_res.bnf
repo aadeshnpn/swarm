@@ -4,9 +4,9 @@
 <selector> ::= [Selector][Sequence]<postcondition>[/Sequence]<sequence>[/Selector] | [Selector]<sequence>[/Selector]
 <postcondition>::= [postcond]<pcondition>[/postcond] |[postcond]<pcondition>[/postcond]<postcondition>
 <sequence> ::= [Sequence]<execution>[/Sequence]|[Sequence]<execution>[/Sequence]<sequence>
+<constraints>::=[constraint]<constraint>[/constraint]<conditions>|<conditions>
 <execution>::=<constraints>[act]<action>[/act]|[act]<action>[/act]
 <pcondition>::=NeighbourObjects_<objects>|NeighbourObjects_<sobjects>|NeighbourObjects_<dobjects>|DidAvoidedObj_<sobjects>|IsCarrying_<dobjects>|IsVisitedBefore_<sobjects>
-<constraints>::=[constraint]<constraint>[/constraint]<conditions>|<conditions>
 <constraint>::=CanMove|IsCarryable_<dobjects>|IsDropable_<sobjects>
 <conditions>::=[cond]<condition>[/cond]<conditions>|[cond]<condition>[/cond]
 <condition>::=IsDropable_<sobjects>|NeighbourObjects_<objects>|NeighbourObjects_<objects>_invert|IsVisitedBefore_<sobjects>|IsVisitedBefore_<sobjects>_invert|IsCarrying_<dobjects>|IsCarrying_<dobjects>_invert
