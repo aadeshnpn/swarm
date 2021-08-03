@@ -116,7 +116,7 @@ def boxplot(fname='/tmp/old.txt'):
 
 def boxplot_fitness():
     names = [
-        'div_ppa1', 'div_ppa_exp', 'div_ppa_all']
+        'div_ppa_evo', 'div_ppa_evo_exp', 'div_ppa_evo_exp_cf', 'div_ppa_evo_cf_fc']
     datas = [read_data_fitness(maindir='/tmp/div/'+n)[:,-1] for n in names]
 
     fig = plt.figure()
@@ -131,7 +131,7 @@ def boxplot_fitness():
     colorshade = [
         'springgreen', 'lightcoral',
         'khaki', 'lightsalmon', 'deepskyblue']
-    labels = ['Diversity', 'Diversity+Exploration', 'All']
+    labels = ['Diversity', 'Div+Exp', 'Div+Exp+CF', 'Div+Exp+Cf+FC']
     medianprops = dict(linewidth=2.5, color='firebrick')
     meanprops = dict(linewidth=1.5, color='#ff7f0e')
     # data = [data[:, i] for i in range(4)]
@@ -152,7 +152,7 @@ def boxplot_fitness():
     plt.tight_layout()
 
     maindir = '/tmp/div/'
-    fname = 'fitnesscomp'
+    fname = 'fitnesscomp1'
 
     fig.savefig(
         maindir + '/' + fname + '.png')
@@ -1382,8 +1382,8 @@ def main():
     # boxplot_exp_4()
     # for t in  [9, 13, 15, 3]:
     #     boxplot_exp_5(t)
-    # boxplot_fitness()
-    boxplot_oldVsPPA_diversity()
+    boxplot_fitness()
+    # boxplot_oldVsPPA_diversity()
 
 
 if __name__ == '__main__':
