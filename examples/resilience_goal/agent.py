@@ -178,6 +178,10 @@ class LearningAgent(ForagingAgent):
         self.blackboard = blackboard.Client(name=str(self.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.WRITE)
         self.blackboard.neighbourobj = dict()
+
+        self.selectors_reward = 0
+        self.constraints_reward = 0
+        self.postcond_reward = 0
         # self.trace.append({k:self.functions[k]() for k in self.keys})
         # self.trace[self.step_count] = {k:self.functions[k]() for k in self.keys}
 
@@ -369,7 +373,7 @@ class LearningAgent(ForagingAgent):
         # # Goal Specification Fitness
         # self.individual[0].fitness = (1 - self.beta) * self.diversity_fitness + self.ef  + self.evaluate_constraints_conditions()
 
-        self.individual[0].fitness = self.diversity_fitness
+        self.individual[0].fitness = (1- self.beta) * self.diversity_fitness + self.ef
 
 
     def get_food_in_hub(self, agent_name=True):
@@ -426,11 +430,11 @@ class LearningAgent(ForagingAgent):
         # Hash the phenotype with its fitness
         # We need to move this from here to genetic step
         # self.cf = self.carrying_fitness()
-        # self.ef = self.exploration_fitness()
+        self.ef = self.exploration_fitness()
         # self.scf = self.communication_fitness()
 
         # Computes overall fitness using Beta function
-        # self.overall_fitness()
+        self.overall_fitness()
         # print(self.name, self.individual[0].fitness)
         # Debugging
         # decodedata = "b\'" + self.individual[0].phenotype + "\'"

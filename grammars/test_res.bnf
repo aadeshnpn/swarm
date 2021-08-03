@@ -1,16 +1,23 @@
 <s> ::= [?xml version=%1.0% encoding=%UTF-8%?]<root>
-<root>::=[Sequence]<cf>[/Sequence]|[Sequence]<root><cf>[/Sequence]
-<cf> ::= <selector>
-<selector> ::= [Selector][Sequence]<postcondition>[/Sequence]<sequence>[/Selector] | [Selector]<sequence>[/Selector]
-<postcondition>::= [postcond]<pcondition>[/postcond] |[postcond]<pcondition>[/postcond]<postcondition>
-<sequence> ::= [Sequence]<execution>[/Sequence]|[Sequence]<execution>[/Sequence]<sequence>
-<constraints>::=[constraint]<constraint>[/constraint]<conditions>|<conditions>
-<execution>::=<constraints>[act]<action>[/act]|[act]<action>[/act]
-<pcondition>::=NeighbourObjects_<objects>|NeighbourObjects_<sobjects>|NeighbourObjects_<dobjects>|DidAvoidedObj_<sobjects>|IsCarrying_<dobjects>|IsVisitedBefore_<sobjects>
-<constraint>::=CanMove|IsCarryable_<dobjects>|IsDropable_<sobjects>
-<conditions>::=[cond]<condition>[/cond]<conditions>|[cond]<condition>[/cond]
-<condition>::=IsDropable_<sobjects>|NeighbourObjects_<objects>|NeighbourObjects_<objects>_invert|IsVisitedBefore_<sobjects>|IsVisitedBefore_<sobjects>_invert|IsCarrying_<dobjects>|IsCarrying_<dobjects>_invert
-<action>::=MoveTowards_<sobjects>|Explore|CompositeSingleCarry_<dobjects>|CompositeDrop_<dobjects>|MoveAway_<sobjects>
+<root> ::= <sequence> | <selector>
+<sequence> ::= [Sequence]<ppa>[/Sequence] | [Sequence]<root><root>[/Sequence] | [Sequence]<sequence> <root>[/Sequence]
+<selector> ::= [Selector]<ppa>[/Selector] | [Selector]<root><root>[/Selector] | [Selector]<selector> <root>[/Selector]
+<ppa> ::= [Selector]<postconditions><ppasequence>[/Selector]
+<postconditions>::= <SuccessNode> | <ppa> | [Sequence]<postcondition>[/Sequence]
+<postcondition> ::= <postcondition><postconditiont>|<postconditiont>
+<postconditiont> ::= NeighbourObjects_<objects>|NeighbourObjects_<sobjects>|NeighbourObjects_<dobjects>|DidAvoidedObj_<sobjects>|IsCarrying_<dobjects>|IsVisitedBefore_<sobjects>
+<ppasequence> ::=  [Sequence]<preconditions><action>[/Sequence]|[Sequence]<constraints><action>[/Sequence]|[Sequence]<preconditions><constraints><action>[/Sequence]
+
+<preconditions> ::= [Sequence]<precondition>[/Sequence]
+<precondition> ::= <preconditiont>|<precondition><preconditiont>
+<preconditiont> ::= IsDropable_<sobjects>|NeighbourObjects_<objects>|NeighbourObjects_<objects>_invert|IsVisitedBefore_<sobjects>|IsVisitedBefore_<sobjects>_invert|IsCarrying_<dobjects>|IsCarrying_<dobjects>_invert
+
+<constraints> ::= [Sequence] <constraint> [/Sequence]
+<constraint> ::= <constraintt> | <constraintt><constraint>
+<constraintt> ::= CanMove|IsCarryable_<dobjects>|IsDropable_<sobjects>
+
+<action> ::= MoveTowards_<sobjects>|Explore|CompositeSingleCarry_<dobjects>|CompositeDrop_<dobjects>|MoveAway_<sobjects>
 <sobjects>::=Hub|Sites
 <dobjects>::=Food
 <objects>::=<sobjects>|<dobjects>
+<SuccessNode> ::= DummyNode

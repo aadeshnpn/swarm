@@ -163,7 +163,7 @@ def boxplot_fitness():
 
 def boxplot_oldVsPPA_diversity():
     # datas = [read_data_fitness('/tmp/div/'+n)[:,-1] for n in names]
-    ppa_data = read_data_fitness(maindir='/tmp/div/diversity_ppa')[:,-1]
+    ppa_data = read_data_fitness(maindir='/tmp/div/div_ppa_same')[:,-1]
     # This data was obtained from database. Since there was just 2 runs
     # with forgaing% 4 it as just efficient to create a numpy matric
     old_data = np.ones((320))
@@ -197,8 +197,8 @@ def boxplot_oldVsPPA_diversity():
     ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper right", title='Methods')
     ax1.set_xticklabels(labels)
     ax1.set_yticks(range(0, 105, 20))
-    ax1.set_xlabel('GEESE Methods')
-    ax1.set_ylabel('Foraging Percentage')
+    ax1.set_xlabel('GEESE Methods', fontsize="medium")
+    ax1.set_ylabel('Foraging (%)', fontsize="medium")
     # ax1.set_title('Swarm Foraging Evolved Behaviors')
 
     plt.tight_layout()
@@ -227,6 +227,7 @@ def read_data_fitness(n=100, maindir='/tmp/div/diversity_withdecay'):
             _, _, f, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
             dataf.append(f)
             datad.append(d)
+            # print(flist[0], f.shape)
         except IndexError:
             pass
     # print(data)
@@ -1381,8 +1382,8 @@ def main():
     # boxplot_exp_4()
     # for t in  [9, 13, 15, 3]:
     #     boxplot_exp_5(t)
-    boxplot_fitness()
-    # boxplot_oldVsPPA_diversity()
+    # boxplot_fitness()
+    boxplot_oldVsPPA_diversity()
 
 
 if __name__ == '__main__':

@@ -9,7 +9,7 @@ from model import EvolveModel, ValidationModel, TestModel, ViewerModel
 from swarms.utils.jsonhandler import JsonPhenotypeData
 from swarms.utils.graph import Graph, GraphACC  # noqa : F401
 from joblib import Parallel, delayed    # noqa : F401
-from swarms.utils.results import SimulationResults, SimulationResultsTraps
+from swarms.utils.results import SimulationResults, SimulationResultsTraps, Results
 # import py_trees
 # Global variables for width and height
 width = 100
@@ -174,6 +174,7 @@ def learning_phase(iteration, no_agents=50, db=False, early_stop=False):
             )
         # Save the data in a result csv file
         results.save_to_file()
+        env.gather_info()
     # for i in range(iteration):
     #     # Take a step in evolution
     #     env.step()

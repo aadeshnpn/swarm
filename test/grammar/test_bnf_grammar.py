@@ -61,6 +61,7 @@ class SwarmMoveTowards(Agent):
         # print(individual[0])
         self.bt = BTConstruct(None, self)
         self.bt.xmlstring = self.individual[0].phenotype
+        print(self.bt.xmlstring)
         # Construct actual BT from xmlstring
         self.bt.construct()
         # Debugging stuffs for py_trees
@@ -164,18 +165,18 @@ class TestDiversityFitnessSwarmSmallGrid(TestCase):
         self.assertEqual(self.environment.agent.individual[0].fitness, 10.4167)
 
 
-# def main():
-#     environment = MoveTowardsModel(1, 100, 100, 10, 123)
+def main():
+    environment = MoveTowardsModel(1, 100, 100, 10, None)
 
-#     for i in range(10):
-#         environment.step()
+    for i in range(10):
+        environment.step()
 
-#     print(environment.agent.btfitness())
-#     print(environment.agent.individual[0].fitness)
-#     for a in environment.agents:
-#         print(a.individual[0].fitness)
-#         print(a.bt.behaviour_tree.root)
-#         print(a.individual[0].phenotype)
-#         print(py_trees.display.ascii_tree(a.bt.behaviour_tree.root))
+    print(environment.agent.btfitness())
+    print(environment.agent.individual[0].fitness)
+    for a in environment.agents:
+        print(a.individual[0].fitness)
+        print(a.bt.behaviour_tree.root)
+        print(a.individual[0].phenotype)
+        print(py_trees.display.ascii_tree(a.bt.behaviour_tree.root))
 
-# main()
+main()

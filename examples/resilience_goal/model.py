@@ -213,7 +213,7 @@ class ForagingModel(Model):
         pcfitness = self.agents[idx].postcond_reward
         sefitness = self.agents[idx].selectors_reward
         cnstrfitness = self.agents[idx].constraints_reward
-        phenotype = self.agents[idx].individual[0].phenotype
+        phenotype = "None" # self.agents[idx].individual[0].phenotype
 
         best_agent = Best(
             self.pname, self.connect, self.sn, idx, header, self.stepcnt, beta,
