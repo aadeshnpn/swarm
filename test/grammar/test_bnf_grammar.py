@@ -49,7 +49,7 @@ class SwarmMoveTowards(Agent):
         from ponyge.algorithm.parameters import Parameters
         parameter = Parameters()
         parameter_list = ['--parameters', '../..,test_res.txt']
-        parameter.params['RANDOM_SEED'] = 139
+        parameter.params['RANDOM_SEED'] = 123
         parameter.params['POPULATION_SIZE'] = 10 // 2
         parameter.set_params(parameter_list)
         self.parameter = parameter
@@ -61,7 +61,6 @@ class SwarmMoveTowards(Agent):
         # print(individual[0])
         self.bt = BTConstruct(None, self)
         self.bt.xmlstring = self.individual[0].phenotype
-        print(self.bt.xmlstring)
         # Construct actual BT from xmlstring
         self.bt.construct()
         # Debugging stuffs for py_trees
@@ -136,7 +135,7 @@ class TestGoToSwarmSmallGrid(TestCase):
 
     def test_agent_path(self):
         # Checking if the agents reaches site or not
-        self.assertEqual(len(list(self.environment.agent.bt.behaviour_tree.root.iterate())), 20)
+        self.assertEqual(len(list(self.environment.agent.bt.behaviour_tree.root.iterate())), 29)
 
 
 class TestVisitorSwarmSmallGrid(TestCase):
@@ -148,7 +147,7 @@ class TestVisitorSwarmSmallGrid(TestCase):
             self.environment.step()
 
     def test_agent_fitness(self):
-        self.assertEqual(self.environment.agent.btfitness(), (2, -2, 0))
+        self.assertEqual(self.environment.agent.btfitness(), (4, 0, 0))
 
 
 class TestDiversityFitnessSwarmSmallGrid(TestCase):
@@ -162,21 +161,21 @@ class TestDiversityFitnessSwarmSmallGrid(TestCase):
     def test_agent_diversity(self):
         # Checking if the agents reaches site or not
         # self.assertEqual(self.environment.agent.btfitness(), (1, 0, 0))
-        self.assertEqual(self.environment.agent.individual[0].fitness, 10.4167)
+        self.assertEqual(self.environment.agent.individual[0].fitness, 12.5)
 
 
-def main():
-    environment = MoveTowardsModel(1, 100, 100, 10, None)
+# def main():
+#     environment = MoveTowardsModel(1, 100, 100, 10, None)
 
-    for i in range(10):
-        environment.step()
+#     for i in range(1):
+#         environment.step()
 
-    print(environment.agent.btfitness())
-    print(environment.agent.individual[0].fitness)
-    for a in environment.agents:
-        print(a.individual[0].fitness)
-        print(a.bt.behaviour_tree.root)
-        print(a.individual[0].phenotype)
-        print(py_trees.display.ascii_tree(a.bt.behaviour_tree.root))
+#     print(environment.agent.btfitness())
+#     # print(environment.agent.individual[0].fitness)
+#     for a in environment.agents:
+#         print(a.individual[0].fitness)
+#         print(a.bt.behaviour_tree.root)
+#         print(a.individual[0].phenotype)
+#         print(py_trees.display.ascii_tree(a.bt.behaviour_tree.root))
 
-main()
+# main()

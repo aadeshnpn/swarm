@@ -174,7 +174,7 @@ def learning_phase(iteration, no_agents=50, db=False, early_stop=False):
             )
         # Save the data in a result csv file
         results.save_to_file()
-        env.gather_info()
+        # env.gather_info()
     # for i in range(iteration):
     #     # Take a step in evolution
     #     env.step()

@@ -16,7 +16,7 @@ from swarms.behaviors.sbehaviors import (       # noqa: F401
     IsVisitedBefore, IsInPartialAttached, CanMove,
     DidAvoidedObj, IsCarryable, IsAgentDead, IsAttractivePheromone,
     IsRepulsivePheromone, IsSignalActive, SignalDoesNotExists,
-    PheromoneExists
+    PheromoneExists, DummyNode
     )
 
 from py_trees.decorators import SuccessIsRunning, Inverter
@@ -75,7 +75,7 @@ class BTConstruct:
             else:
                 method = node_text
                 behavior = eval(method)(method + str(
-                    self.agent.model.random.randint(100, 200)))
+                    self.agent.model.random.randint(100, 200)) + '_' + root.tag)
                 behavior.setup(0, self.agent, None)
             return behavior
 
@@ -115,7 +115,9 @@ class BTConstruct:
         else:
             print("Cannont create BT. Check the filename or stream")
             exit()
-        # print('root tree', self.root)
+        # print('root tree', self.root, dir(self.root))
+        # print(list(self.root.getiterator()))
+        # print(list(self.root))
         whole_list = self.create_bt(self.root)
         top = eval(self.root.tag)('Root' + self.root.tag)
         # print('whole list', whole_list)

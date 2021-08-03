@@ -1753,3 +1753,27 @@ class IsRepulsivePheromone(Behaviour):
 
         except (IndexError, AttributeError):
             return common.Status.FAILURE
+
+
+# Dummy node
+class DummyNode(Behaviour):
+    """Dummy node.
+
+    BT node that always returns Success.
+    """
+
+    def __init__(self, name):
+        """Initialize."""
+        super(DummyNode, self).__init__(name)
+
+    def setup(self, timeout, agent, item=None):
+        """Setup."""
+        self.agent = agent
+
+    def initialise(self):
+        """Pass."""
+        pass
+
+    def update(self):
+        """Nothing much to do."""
+        return common.Status.SUCCESS
