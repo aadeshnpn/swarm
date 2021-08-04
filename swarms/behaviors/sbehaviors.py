@@ -189,16 +189,16 @@ class NeighbourObjectsDist(Behaviour):
         #     self.agent.location, self.agent.radius)
         grids = []
         # for i in range(1, self.agent.model.grid.grid_size):
-        for i in range(0, self.agent.radius):
+        for i in range(0, self.agent.model.grid.grid_size):
             x = int(self.agent.location[0] + np.cos(
                 self.agent.direction) * i)
             y = int(self.agent.location[1] + np.sin(
                 self.agent.direction) * i)
             new_location, direction = self.agent.model.grid.check_limits(
                 (x, y), self.agent.direction)
-            # grids += self.agent.model.grid.get_neighborhood(new_location, 1)
-            _, grid = self.agent.model.grid.find_grid(new_location)
-            grids += [grid]
+            grids += self.agent.model.grid.get_neighborhood(new_location, 1)
+            # _, grid = self.agent.model.grid.find_grid(new_location)
+            # grids += [grid]
         grids = list(set(grids))
         # print(self.agent.name, grids, self.name, round(self.agent.direction, 2), self.id)
         # midpoint = ((self.agent.location[0] + new_location[0])//2, (self.agent.location[1] + new_location[1])//2)
@@ -491,6 +491,7 @@ class Move(Behaviour):
                 self.agent.direction) * self.agent.velocity)
             new_location, direction = self.agent.model.grid.check_limits(
                 (x, y), self.agent.direction)
+            # print('from move', self.name, self.agent.location, new_location, direction)
             if self.agent.model.grid.move_object(
                 self.agent.location, self.agent, new_location):
 
@@ -1433,6 +1434,7 @@ class AvoidSObjects(Behaviour):
             # alpha = get_direction(self.agent.location, objects.location)
             # theta = self.agent.direction
             # angle_diff = theta-alpha
+            # print('From', self.name, objects, self.agent.direction)
             direction = self.agent.direction + np.pi/2
             self.agent.direction = direction % (2 * np.pi)
             # print(self.agent.name, direction, self.agent.direction)
