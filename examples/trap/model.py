@@ -29,7 +29,7 @@ class SimTrapModel(Model):
         self.obstacles = Obstacles(id=3, location=(-30, -30), radius=28)
         self.grid.add_object_to_grid(self.obstacles.location, self.obstacles)
 
-        self.trap = Traps(id=4, location=(110, 130), radius=28)
+        self.trap = Traps(id=4, location=(110, 130), radius=8)
         self.grid.add_object_to_grid(self.trap.location, self.trap)
 
         self.agents = []
