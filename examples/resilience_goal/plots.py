@@ -116,7 +116,7 @@ def boxplot(fname='/tmp/old.txt'):
 
 def boxplot_fitness():
     names = [
-        'div_ppa_evo', 'div_ppa_evo_exp', 'div_ppa_evo_exp_cf', 'div_ppa_evo_cf_fc']
+        'div_thresh', 'div_thresh_exp', 'div_thresh_exp_cf', 'div_thresh_exp_cf_fc']
     datas = [read_data_fitness(maindir='/tmp/div/'+n)[:,-1] for n in names]
 
     fig = plt.figure()
@@ -131,7 +131,12 @@ def boxplot_fitness():
     colorshade = [
         'springgreen', 'lightcoral',
         'khaki', 'lightsalmon', 'deepskyblue']
-    labels = ['Diversity', 'Div+Exp', 'Div+Exp+CF', 'Div+Exp+Cf+FC']
+    xlabels = [
+        'I', 'I + II',
+        'I + II + II', 'I + II + III + IV']
+    labels = [
+        'Diversity', 'Diversity+Exporation',
+        'Divesity+Exploration+Prospective', 'Divesity+Exploration+Prospective+Foraging']
     medianprops = dict(linewidth=2.5, color='firebrick')
     meanprops = dict(linewidth=1.5, color='#ff7f0e')
     # data = [data[:, i] for i in range(4)]
@@ -142,11 +147,12 @@ def boxplot_fitness():
     for patch, color in zip(bp1['boxes'], colordict.values()):
         patch.set_facecolor(color)
     # plt.xlim(0, len(mean))
-    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper right", title='Fitness')
-    ax1.set_xticklabels(labels)
+    legend = ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper left", title='Fitness')
+    legend.get_frame().set_alpha(None)
+    ax1.set_xticklabels(xlabels)
     ax1.set_yticks(range(0, 105, 20))
-    ax1.set_xlabel('Fitness Function Type')
-    ax1.set_ylabel('Foraging Percentage')
+    ax1.set_xlabel('Fitness Function Type', fontsize="large")
+    ax1.set_ylabel('Foraging (%)', fontsize="large")
     # ax1.set_title('Swarm Foraging Evolved Behaviors')
 
     plt.tight_layout()
@@ -163,7 +169,7 @@ def boxplot_fitness():
 
 def boxplot_oldVsPPA_diversity():
     # datas = [read_data_fitness('/tmp/div/'+n)[:,-1] for n in names]
-    ppa_data = read_data_fitness(maindir='/tmp/div/div_ppa_same')[:,-1]
+    ppa_data = read_data_fitness(maindir='/tmp/div/div_thresh')[:,-1]
     # This data was obtained from database. Since there was just 2 runs
     # with forgaing% 4 it as just efficient to create a numpy matric
     old_data = np.ones((320))
@@ -197,8 +203,8 @@ def boxplot_oldVsPPA_diversity():
     ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper right", title='Methods')
     ax1.set_xticklabels(labels)
     ax1.set_yticks(range(0, 105, 20))
-    ax1.set_xlabel('GEESE Methods', fontsize="medium")
-    ax1.set_ylabel('Foraging (%)', fontsize="medium")
+    ax1.set_xlabel('GEESE Methods', fontsize="large")
+    ax1.set_ylabel('Foraging (%)', fontsize="large")
     # ax1.set_title('Swarm Foraging Evolved Behaviors')
 
     plt.tight_layout()
@@ -221,6 +227,7 @@ def read_data_fitness(n=100, maindir='/tmp/div/diversity_withdecay'):
     flist = []
     dataf = []
     datad = []
+    print(maindir)
     for f in folders:
         flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
         try:
@@ -1382,8 +1389,8 @@ def main():
     # boxplot_exp_4()
     # for t in  [9, 13, 15, 3]:
     #     boxplot_exp_5(t)
-    boxplot_fitness()
-    # boxplot_oldVsPPA_diversity()
+    # boxplot_fitness()
+    boxplot_oldVsPPA_diversity()
 
 
 if __name__ == '__main__':
