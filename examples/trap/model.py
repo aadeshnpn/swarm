@@ -36,10 +36,10 @@ class SimTrapModel(Model):
         for i in range(self.num_agents):
             a = SwarmAgentAvoid(i, self)
             self.schedule.add(a)
-            x = -80 #-190 + self.random.randint(-10, 50)
-            y = -80 #-190 + self.random.randint(-10, 50)
+            x = -190 + self.random.randint(-10, 50)
+            y = -190 + self.random.randint(-10, 50)
             a.location = (x, y)
-            a.direction = -2.3561944901923448
+            a.direction = -2.3661944901923448
             self.grid.add_object_to_grid((x, y), a)
             self.agents.append(a)
 
