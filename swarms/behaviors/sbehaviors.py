@@ -189,55 +189,48 @@ class NeighbourObjectsDist(Behaviour):
         #     self.agent.location, self.agent.radius)
         grids = []
         # for i in range(1, self.agent.model.grid.grid_size):
-        for i in range(0, self.agent.model.grid.grid_size):
+        status = common.Status.FAILURE
+        for i in range(0, self.agent.radius):
             x = int(self.agent.location[0] + np.cos(
                 self.agent.direction) * i)
             y = int(self.agent.location[1] + np.sin(
                 self.agent.direction) * i)
             new_location, direction = self.agent.model.grid.check_limits(
                 (x, y), self.agent.direction)
-            grids += self.agent.model.grid.get_neighborhood(new_location, 1)
-            # _, grid = self.agent.model.grid.find_grid(new_location)
-            # grids += [grid]
-        grids = list(set(grids))
-        # print(self.agent.name, grids, self.name, round(self.agent.direction, 2), self.id)
-        # midpoint = ((self.agent.location[0] + new_location[0])//2, (self.agent.location[1] + new_location[1])//2)
-        # grid2 = self.agent.model.grid.get_neighborhood(midpoint, 1)
-        # grid3 = self.agent.model.grid.get_neighborhood(self.agent.location, 1)
-        # grids = list(set(grid1 + grid2 + grid3))
-        # grids = grid3 + grid2 + grid1
-        # print('nighbourdist', grids)
-        objects = self.agent.model.grid.get_objects_from_list_of_grid(
-            self.item, grids)
-        # print('nighbourdist', grids, objects, self.agent.location, (new_location))
-        # Need to reset blackboard contents after each sense
-        self.blackboard.neighbourobj = dict()
-        status = common.Status.FAILURE
-        if len(objects) >= 1:
-            if self.agent in objects:
-                objects.remove(self.agent)
+            # grids += self.agent.model.grid.get_neighborhood(new_location, 1)
+            limits, grid = self.agent.model.grid.find_grid(new_location)
+            # print(self.agent.name, grid, self.name, round(self.agent.direction, 2), self.id, limits)
 
-            for item in objects:
-                name = type(item).__name__
-                # Is the item is not carrable, its location
-                # and property doesnot change. So we can commit its
-                # information to memory
-                # if item.carryable is False and item.deathable is False:
-                # name = name + str(self.agent.name)
-                if item.passable is False:
-                    try:
-                        self.blackboard.neighbourobj[name].add(item)
-                    except KeyError:
-                        self.blackboard.neighbourobj[name] = {item}
+            objects = self.agent.model.grid.get_objects(
+                self.item, grid)
+            print('nighbourdist', grid, objects, self.agent.location, (new_location), limits)
+            # Need to reset blackboard contents after each sense
+            self.blackboard.neighbourobj = dict()
 
-                    # if status == common.Status.SUCCESS:
-                    #     pass
-                    # else:
-                    status = common.Status.SUCCESS
-                    break
-            return status
-        else:
-            return status
+            if len(objects) >= 1:
+                if self.agent in objects:
+                    objects.remove(self.agent)
+
+                for item in objects:
+                    name = type(item).__name__
+                    # Is the item is not carrable, its location
+                    # and property doesnot change. So we can commit its
+                    # information to memory
+                    # if item.carryable is False and item.deathable is False:
+                    # name = name + str(self.agent.name)
+                    if item.passable is False:
+                        try:
+                            self.blackboard.neighbourobj[name].add(item)
+                        except KeyError:
+                            self.blackboard.neighbourobj[name] = {item}
+
+                        # if status == common.Status.SUCCESS:
+                        #     pass
+                        # else:
+                        status = common.Status.SUCCESS
+                        return status
+
+        return status
 
 
 class GoTo(Behaviour):

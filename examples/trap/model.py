@@ -26,7 +26,7 @@ class SimTrapModel(Model):
         self.target = Sites(id=2, location=(145, 145), radius=5, q_value=0.5)
         self.grid.add_object_to_grid(self.target.location, self.target)
 
-        self.obstacles = Obstacles(id=3, location=(-30, -30), radius=28)
+        self.obstacles = Obstacles(id=3, location=(0, 0), radius=38)
         self.grid.add_object_to_grid(self.obstacles.location, self.obstacles)
 
         self.trap = Traps(id=4, location=(110, 130), radius=8)
@@ -36,8 +36,8 @@ class SimTrapModel(Model):
         for i in range(self.num_agents):
             a = SwarmAgentAvoid(i, self)
             self.schedule.add(a)
-            x = -190 + self.random.randint(-10, 50)
-            y = -190 + self.random.randint(-10, 50)
+            x = -80 #-190 + self.random.randint(-10, 50)
+            y = -80 #-190 + self.random.randint(-10, 50)
             a.location = (x, y)
             a.direction = -2.3561944901923448
             self.grid.add_object_to_grid((x, y), a)
@@ -48,4 +48,3 @@ class SimTrapModel(Model):
 
     def step(self):
         self.schedule.step()
-
