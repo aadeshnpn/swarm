@@ -45,6 +45,7 @@ class Grid:
         self.y_limit = height / 2
         self.grid_size = grid_size
         self.grid = dict()
+        self.grid_reverse = dict()
         self.grid_objects = dict()
         # self.width_fix = int(self.x_limit % self.grid_size)
         # self.height_fix = int(self.y_limit % self.grid_size)
@@ -69,6 +70,7 @@ class Grid:
                 x_2 = xcord + self.grid_size
                 y_2 = ycord + self.grid_size
                 self.grid[(x_1, y_1), (x_2, y_2)] = indx
+                self.grid_reverse[indx] = (x_1, y_1), (x_2, y_2)
                 self.grid_objects[indx] = []
                 indx += 1
 
@@ -157,6 +159,7 @@ class Grid:
     def add_object_to_grid(self, point, objects):
         """Add object to a given grid."""
         grid_values = self.get_neighborhood(point, objects.radius)
+        # print('add object to grid',grid_values, objects)
         for grid in grid_values:
             # gridobjects = self.get_objects(None, grid)
             # for gobject in gridobjects:
@@ -177,6 +180,7 @@ class Grid:
         """Move object from the give grid to new grid."""
         grid_key, grid_value = self.find_grid(point)
         new_grid_key, new_grid_value = self.find_grid(newpoint)
+        # print('move object', point, newpoint, grid_value, new_grid_value)
         if grid_value != new_grid_value:
             if re.match('.*Agent.*' , type(objects).__name__) and objects.dead:
                 return False

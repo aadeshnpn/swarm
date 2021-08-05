@@ -10,8 +10,17 @@ from py_trees.composites import Sequence, Selector, Parallel
 from py_trees import common, blackboard
 import py_trees
 
-from swarms.utils.distangle import get_direction, intersect
+from swarms.utils.distangle import get_direction, check_intersect
 from swarms.lib.objects import Pheromones, Signal, Cue
+import os
+import matplotlib
+
+# If there is $DISPLAY, display the plot
+if os.name == 'posix' and "DISPLAY" not in os.environ:
+    matplotlib.use('Agg')
+
+import matplotlib.pyplot as plt
+
 
 
 class ObjectsStore:
@@ -1427,7 +1436,7 @@ class AvoidSObjects(Behaviour):
         # alpha = get_direction(self.agent.location, objects.location)
         # theta = self.agent.direction
         # angle_diff = theta-alpha
-        print('From', self.agent.name, self.name, item, self.agent.direction, item.location, item.radius)
+        # print('From', self.agent.name, self.name, item, self.agent.direction, item.location, item.radius)
         x = int(np.ceil(self.agent.location[0] + np.cos(
             self.agent.direction) * self.agent.radius))
         y = int(np.ceil(self.agent.location[1] + np.sin(
@@ -1437,29 +1446,46 @@ class AvoidSObjects(Behaviour):
         # agent_C = agent_A * self.agent.location[0] + agent_B * self.agent.location[1]
 
         # print('agetn ABC', agent_A, agent_B, agent_C)
-        obj_x2 = int(item.location[0] + (np.cos(np.pi/4) * item.radius))
-        obj_y2 = int(item.location[1] + (np.sin(np.pi/4) * item.radius))
-        obj_loc_2 = self.agent.model.grid.find_upperbound((obj_x2, obj_y2))
-        # print('obj x2', obj_x2, obj_y2, obj_loc_2)
-        obj_x0 = int(item.location[0] + (np.cos(np.pi/4 + np.pi) * item.radius))
-        obj_y0 = int(item.location[1] + (np.sin(np.pi/4 + np.pi) * item.radius))
-        obj_loc_0 = self.agent.model.grid.find_lowerbound((obj_x0, obj_y0))
-        # print('obj x1', obj_x0, obj_y0, obj_loc_0)
-        obj_loc_1 = (obj_loc_2[0], obj_loc_0[1])
-        obj_loc_3 = (obj_loc_0[0], obj_loc_2[1])
-        lines = [
-            [obj_loc_0, obj_loc_1], [obj_loc_1, obj_loc_0],
-            [obj_loc_1, obj_loc_2], [obj_loc_2, obj_loc_1],
-            [obj_loc_2, obj_loc_3], [obj_loc_3, obj_loc_2],
-            [obj_loc_0, obj_loc_3], [obj_loc_3, obj_loc_0]
-            ]
-        # print('agent ray', self.agent.location, (x,y))
-        # print('rectangle obstacle',lines)
-        for line in lines:
-            if intersect(self.agent.location, (x, y), line[0], line[1]):
-                direction = np.arctan2(line[1][1] - line[0][1], line[1][0] - line[0][0])
-                print('direction',direction)
-                self.agent.direction = (direction + 2*np.pi) % (2*np.pi)
+        # obj_x2 = int(np.ceil(item.location[0] + (np.cos(np.pi/4) * (item.radius))))
+        # obj_y2 = int(np.ceil(item.location[1] + (np.sin(np.pi/4) * (item.radius))))
+        # obj_loc_2 = self.agent.model.grid.find_upperbound((obj_x2, obj_y2))
+        # # print('obj x2', obj_x2, obj_y2, obj_loc_2)
+        # obj_x0 = int(np.floor(item.location[0] + (np.cos(np.pi/4 + np.pi) * (item.radius))))
+        # obj_y0 = int(np.floor(item.location[1] + (np.sin(np.pi/4 + np.pi) * (item.radius))))
+        # obj_loc_0 = self.agent.model.grid.find_lowerbound((obj_x0, obj_y0))
+        # # print('obj x1', obj_x0, obj_y0, obj_loc_0)
+        # obj_loc_1 = (obj_loc_2[0], obj_loc_0[1])
+        # obj_loc_3 = (obj_loc_0[0], obj_loc_2[1])
+        grids = self.agent.model.grid.get_neighborhood(item.location, item.radius)
+        intersect = False
+        for grid in grids:
+            p1, p2 = self.agent.model.grid.grid_reverse[grid]
+            x1, y1 = p1
+            x2, y2 = p2
+
+            lines = [
+                [(x1, y1), (x2, y1)],
+                [(x2, y1), (x2, y2)],
+                [(x2, y2), (x1, y2)],
+                [(x1, y2), (x1, y1)]
+                ]
+            # print('agent ray', self.agent.location, (x,y))
+            # print('rectangle obstacle',lines)
+            # plt.plot([self.agent.location[0], x], [self.agent.location[1], y], 'r--')
+            # plt.plot([lines[0][0][0], lines[0][1][0]], [lines[0][0][1], lines[0][1][1]],'b.-')
+            # plt.plot([lines[1][0][0], lines[1][1][0]], [lines[1][0][1], lines[1][1][1]],'b.-')
+            # plt.plot([lines[2][0][0], lines[2][1][0]], [lines[2][0][1], lines[2][1][1]],'b.-')
+            # plt.plot([lines[3][0][0], lines[3][1][0]], [lines[3][0][1], lines[3][1][1]],'b.-')
+            # plt.xticks(range(-20, 20, 1))
+            # plt.yticks(range(-20, 20, 1))
+            # plt.show()
+            for line in lines:
+                intersect = check_intersect(self.agent.location, (x, y), line[0], line[1])
+                if intersect:
+                    direction = np.arctan2(line[1][1] - line[0][1], line[1][0] - line[0][0])
+                    self.agent.direction = (direction + 2*np.pi) % (2*np.pi)
+                    break
+            if intersect:
                 break
             # line_A = line[1][1] - line[0][1]
             # line_B = line[0][0] - line[1][0]
