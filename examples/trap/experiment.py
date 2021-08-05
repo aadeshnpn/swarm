@@ -25,7 +25,7 @@ def main():
     #     [env.target], food=[], traps=[], obstacles=[env.obstacles])
 
     # Iterate and execute each step in the environment
-    for i in range(80):
+    for i in range(30):
         env.step()
         print(i, env.agent.location, env.agent.direction)
 

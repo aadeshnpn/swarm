@@ -203,7 +203,7 @@ class NeighbourObjectsDist(Behaviour):
 
             objects = self.agent.model.grid.get_objects(
                 self.item, grid)
-            print('nighbourdist', grid, objects, self.agent.location, (new_location), limits)
+            # print('nighbourdist', grid, objects, self.agent.location, (new_location), limits)
             # Need to reset blackboard contents after each sense
             self.blackboard.neighbourobj = dict()
 
@@ -1420,20 +1420,64 @@ class AvoidSObjects(Behaviour):
 
     def update(self):
         """Logic for avoid static objects."""
-        try:
-            objects = ObjectsStore.find(
-                self.blackboard.neighbourobj, self.agent.shared_content,
-                self.item, self.agent.name)[0]
-            # alpha = get_direction(self.agent.location, objects.location)
-            # theta = self.agent.direction
-            # angle_diff = theta-alpha
-            # print('From', self.name, objects, self.agent.direction)
-            direction = self.agent.direction + np.pi/2
-            self.agent.direction = direction % (2 * np.pi)
-            # print(self.agent.name, direction, self.agent.direction)
-            return common.Status.SUCCESS
-        except (IndexError, AttributeError):
-            return common.Status.FAILURE
+        # try:
+        item = ObjectsStore.find(
+            self.blackboard.neighbourobj, self.agent.shared_content,
+            self.item, self.agent.name)[0]
+        # alpha = get_direction(self.agent.location, objects.location)
+        # theta = self.agent.direction
+        # angle_diff = theta-alpha
+        print('From', self.name, item, self.agent.direction, item.location, item.radius)
+        x = int(self.agent.location[0] + np.cos(
+            self.agent.direction) * self.agent.radius)
+        y = int(self.agent.location[1] + np.sin(
+            self.agent.direction) * self.agent.radius)
+        agent_A = y - self.agent.location[1]
+        agent_B = self.agent.location[0] - x
+        agent_C = agent_A * self.agent.location[0] + agent_B * self.agent.location[1]
+
+        print('agetn ABC', agent_A, agent_B, agent_C)
+        obj_x2 = int(item.location[0] + (np.cos(np.pi/4) * item.radius))
+        obj_y2 = int(item.location[1] + (np.sin(np.pi/4) * item.radius))
+        obj_loc_2 = self.agent.model.grid.find_upperbound((obj_x2, obj_y2))
+        print('obj x2', obj_x2, obj_y2, obj_loc_2)
+        obj_x0 = int(item.location[0] + (np.cos(np.pi/4 + np.pi) * item.radius))
+        obj_y0 = int(item.location[1] + (np.sin(np.pi/4 + np.pi) * item.radius))
+        obj_loc_0 = self.agent.model.grid.find_lowerbound((obj_x0, obj_y0))
+        print('obj x1', obj_x0, obj_y0, obj_loc_0)
+        obj_loc_1 = (obj_loc_2[0], obj_loc_0[1])
+        obj_loc_3 = (obj_loc_0[0], obj_loc_2[1])
+        lines = [
+            [obj_loc_0, obj_loc_1], [obj_loc_1, obj_loc_2],
+            [obj_loc_2, obj_loc_3], [obj_loc_0, obj_loc_3]
+            ]
+        print('agent ray', self.agent.location, (x,y))
+        print('rectangle obstacle',lines)
+        for line in lines:
+            line_A = line[1][1] - line[0][1]
+            line_B = line[0][0] - line[1][0]
+            line_C = line_A * line[0][0] + line_B * line[0][1]
+            slope = round(line_A * agent_B - line_B * agent_A, 2)
+            print('slope', slope)
+            if slope == 0.0:
+                break
+            else:
+                intersection_x = int((line_B * agent_C - agent_B * line_C) / slope)
+                intersection_y = int((agent_A * line_C - line_A * agent_C) / slope)
+                print('itersection point', intersection_x, intersection_y, line)
+                if (
+                    (intersection_x <= x) and ( intersection_x >= self.agent.location[0]) and
+                    (intersection_y <= y) and ( intersection_y >= self.agent.location[1])):
+                        direction = np.arctan2(line[1][1] - line[0][1], line[1][0] - line[0][0])
+                        print('computed direction', direction)
+                        self.agent.direction = (direction + 2*np.pi + 0.2) % (2*np.pi)
+                        break
+        # direction = self.agent.direction + np.pi/2
+        # self.agent.direction = direction % (2 * np.pi)
+        # print(self.agent.name, direction, self.agent.direction)
+        return common.Status.SUCCESS
+        # except (IndexError, AttributeError):
+        #    return common.Status.FAILURE
 
 
 # Behavior to check if the agent avoided obj
