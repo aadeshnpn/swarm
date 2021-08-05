@@ -1493,7 +1493,7 @@ class AvoidSObjects(Behaviour):
             if intersect:
                 direction = np.arctan2(line[1][1] - line[0][1] , line[1][0] - line[0][0])
                 # print(direction)
-                self.agent.direction = direction * -1.0
+                self.agent.direction = (direction * -1.0 ) % (2 * np.pi)
                 break
         # if intersect:
         #     break
