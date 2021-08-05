@@ -1457,36 +1457,46 @@ class AvoidSObjects(Behaviour):
         # obj_loc_1 = (obj_loc_2[0], obj_loc_0[1])
         # obj_loc_3 = (obj_loc_0[0], obj_loc_2[1])
         grids = self.agent.model.grid.get_neighborhood(item.location, item.radius)
+        points = [self.agent.model.grid.grid_reverse[grid] for grid in grids]
+        p1s, p2s = zip(*points)
+        x1s, y1s = zip(*p1s)
+        x2s, y2s = zip(*p2s)
+        x1 = min(x1s)
+        y1 = min(y1s)
+        x2 = max(x2s)
+        y2 = max(y2s)
+        # print(grids, [self.agent.model.grid.grid_reverse[grid] for grid in grids])
         intersect = False
-        for grid in grids:
-            p1, p2 = self.agent.model.grid.grid_reverse[grid]
-            x1, y1 = p1
-            x2, y2 = p2
+        # for grid in grids:
+        #     p1, p2 = self.agent.model.grid.grid_reverse[grid]
+        #     x1, y1 = p1
+        #     x2, y2 = p2
 
-            lines = [
-                [(x1, y1), (x2, y1)],
-                [(x2, y1), (x2, y2)],
-                [(x2, y2), (x1, y2)],
-                [(x1, y2), (x1, y1)]
-                ]
-            # print('agent ray', self.agent.location, (x,y))
-            # print('rectangle obstacle',lines)
-            # plt.plot([self.agent.location[0], x], [self.agent.location[1], y], 'r--')
-            # plt.plot([lines[0][0][0], lines[0][1][0]], [lines[0][0][1], lines[0][1][1]],'b.-')
-            # plt.plot([lines[1][0][0], lines[1][1][0]], [lines[1][0][1], lines[1][1][1]],'b.-')
-            # plt.plot([lines[2][0][0], lines[2][1][0]], [lines[2][0][1], lines[2][1][1]],'b.-')
-            # plt.plot([lines[3][0][0], lines[3][1][0]], [lines[3][0][1], lines[3][1][1]],'b.-')
-            # plt.xticks(range(-20, 20, 1))
-            # plt.yticks(range(-20, 20, 1))
-            # plt.show()
-            for line in lines:
-                intersect = check_intersect(self.agent.location, (x, y), line[0], line[1])
-                if intersect:
-                    direction = np.arctan2(line[1][1] - line[0][1], line[1][0] - line[0][0])
-                    self.agent.direction = (direction + 2*np.pi) % (2*np.pi)
-                    break
+        lines = [
+            [(x1, y1), (x2, y1)],
+            [(x2, y1), (x2, y2)],
+            [(x2, y2), (x1, y2)],
+            [(x1, y2), (x1, y1)]
+            ]
+        # print('agent ray', self.agent.location, (x,y))
+        # print('rectangle obstacle',lines)
+        # plt.plot([self.agent.location[0], x], [self.agent.location[1], y], 'r--')
+        # plt.plot([lines[0][0][0], lines[0][1][0]], [lines[0][0][1], lines[0][1][1]],'b.-')
+        # plt.plot([lines[1][0][0], lines[1][1][0]], [lines[1][0][1], lines[1][1][1]],'b.-')
+        # plt.plot([lines[2][0][0], lines[2][1][0]], [lines[2][0][1], lines[2][1][1]],'b.-')
+        # plt.plot([lines[3][0][0], lines[3][1][0]], [lines[3][0][1], lines[3][1][1]],'b.-')
+        # # plt.xticks(range(-20, 20, 1))
+        # # plt.yticks(range(-20, 20, 1))
+        # plt.show()
+        for line in lines:
+            intersect = check_intersect(self.agent.location, (x, y), line[0], line[1])
             if intersect:
+                direction = np.arctan2(line[1][1] - line[0][1] , line[1][0] - line[0][0])
+                # print(direction)
+                self.agent.direction = direction * -1.0
                 break
+        # if intersect:
+        #     break
             # line_A = line[1][1] - line[0][1]
             # line_B = line[0][0] - line[1][0]
             # line_C = line_A * line[0][0] + line_B * line[0][1]
