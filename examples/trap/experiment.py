@@ -13,7 +13,7 @@ def main():
 
     # Create a test environment to visualize
     env = SimTrapModel(
-        1, width, height, 10)
+        2, width, height, 10, seed=123)
 
     # for all agents store the information about hub
     for agent in env.agents:
@@ -25,9 +25,9 @@ def main():
     #     [env.target], food=[], traps=[], obstacles=[env.obstacles])
 
     # Iterate and execute each step in the environment
-    for i in range(30):
+    for i in range(80):
         env.step()
-        print(i, env.agent.location, env.agent.direction)
+        print(i, env.agent.location, env.agent.direction, env.agent.dead)
 
 
 if __name__  == '__main__':

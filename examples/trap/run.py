@@ -17,7 +17,7 @@ def main():
 
     # Create a test environment to visualize
     env = SimTrapModel(
-        50, width, height, 10, seed=None)
+        2, width, height, 10, seed=None)
 
     # for all agents store the information about hub
     for agent in env.agents:

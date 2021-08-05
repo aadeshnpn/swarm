@@ -22,7 +22,7 @@ class SwarmAgentAvoid(Agent):
 
         self.direction = model.random.rand() * (2 * np.pi)
         self.speed = 2
-        self.radius = 8
+        self.radius = 5
         self.moveable = True
         self.carryable = False
         self.shared_content = dict()
