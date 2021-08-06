@@ -26,7 +26,7 @@ def main():
     # Overiding the default viewer properties
     env.ui = UI(
         (width, height), [env.hub], env.agents,
-        [env.target], food=[], traps=env.traps, obstacles=[env.obstacles])
+        [env.target], food=[], traps=env.traps, obstacles=env.obstacles)
 
     # Iterate and execute each step in the environment
     for i in range(iteration):
