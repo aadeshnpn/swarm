@@ -10,8 +10,17 @@ from py_trees.composites import Sequence, Selector, Parallel
 from py_trees import common, blackboard
 import py_trees
 
-from swarms.utils.distangle import get_direction, point_distance
+from swarms.utils.distangle import get_direction, check_intersect
 from swarms.lib.objects import Pheromones, Signal, Cue
+import os
+import matplotlib
+
+# If there is $DISPLAY, display the plot
+if os.name == 'posix' and "DISPLAY" not in os.environ:
+    matplotlib.use('Agg')
+
+import matplotlib.pyplot as plt
+
 
 
 class ObjectsStore:
@@ -189,6 +198,7 @@ class NeighbourObjectsDist(Behaviour):
         #     self.agent.location, self.agent.radius)
         grids = []
         # for i in range(1, self.agent.model.grid.grid_size):
+        status = common.Status.FAILURE
         for i in range(0, self.agent.radius):
             x = int(self.agent.location[0] + np.cos(
                 self.agent.direction) * i)
@@ -197,47 +207,39 @@ class NeighbourObjectsDist(Behaviour):
             new_location, direction = self.agent.model.grid.check_limits(
                 (x, y), self.agent.direction)
             # grids += self.agent.model.grid.get_neighborhood(new_location, 1)
-            _, grid = self.agent.model.grid.find_grid(new_location)
-            grids += [grid]
-        grids = list(set(grids))
-        # print(self.agent.name, grids, self.name, round(self.agent.direction, 2), self.id)
-        # midpoint = ((self.agent.location[0] + new_location[0])//2, (self.agent.location[1] + new_location[1])//2)
-        # grid2 = self.agent.model.grid.get_neighborhood(midpoint, 1)
-        # grid3 = self.agent.model.grid.get_neighborhood(self.agent.location, 1)
-        # grids = list(set(grid1 + grid2 + grid3))
-        # grids = grid3 + grid2 + grid1
-        # print('nighbourdist', grids)
-        objects = self.agent.model.grid.get_objects_from_list_of_grid(
-            self.item, grids)
-        # print('nighbourdist', grids, objects, self.agent.location, (new_location))
-        # Need to reset blackboard contents after each sense
-        self.blackboard.neighbourobj = dict()
-        status = common.Status.FAILURE
-        if len(objects) >= 1:
-            if self.agent in objects:
-                objects.remove(self.agent)
+            limits, grid = self.agent.model.grid.find_grid(new_location)
+            # print(self.agent.name, grid, self.name, round(self.agent.direction, 2), self.id, limits)
 
-            for item in objects:
-                name = type(item).__name__
-                # Is the item is not carrable, its location
-                # and property doesnot change. So we can commit its
-                # information to memory
-                # if item.carryable is False and item.deathable is False:
-                # name = name + str(self.agent.name)
-                if item.passable is False:
-                    try:
-                        self.blackboard.neighbourobj[name].add(item)
-                    except KeyError:
-                        self.blackboard.neighbourobj[name] = {item}
+            objects = self.agent.model.grid.get_objects(
+                self.item, grid)
+            # print('nighbourdist', grid, objects, self.agent.location, (new_location), limits)
+            # Need to reset blackboard contents after each sense
+            self.blackboard.neighbourobj = dict()
 
-                    # if status == common.Status.SUCCESS:
-                    #     pass
-                    # else:
-                    status = common.Status.SUCCESS
-                    break
-            return status
-        else:
-            return status
+            if len(objects) >= 1:
+                if self.agent in objects:
+                    objects.remove(self.agent)
+
+                for item in objects:
+                    name = type(item).__name__
+                    # Is the item is not carrable, its location
+                    # and property doesnot change. So we can commit its
+                    # information to memory
+                    # if item.carryable is False and item.deathable is False:
+                    # name = name + str(self.agent.name)
+                    if item.passable is False:
+                        try:
+                            self.blackboard.neighbourobj[name].add(item)
+                        except KeyError:
+                            self.blackboard.neighbourobj[name] = {item}
+
+                        # if status == common.Status.SUCCESS:
+                        #     pass
+                        # else:
+                        status = common.Status.SUCCESS
+                        return status
+
+        return status
 
 
 class GoTo(Behaviour):
@@ -491,6 +493,7 @@ class Move(Behaviour):
                 self.agent.direction) * self.agent.velocity)
             new_location, direction = self.agent.model.grid.check_limits(
                 (x, y), self.agent.direction)
+            # print('from move', self.name, self.agent.location, new_location, direction)
             if self.agent.model.grid.move_object(
                 self.agent.location, self.agent, new_location):
 
@@ -1426,19 +1429,100 @@ class AvoidSObjects(Behaviour):
 
     def update(self):
         """Logic for avoid static objects."""
-        try:
-            objects = ObjectsStore.find(
-                self.blackboard.neighbourobj, self.agent.shared_content,
-                self.item, self.agent.name)[0]
-            # alpha = get_direction(self.agent.location, objects.location)
-            # theta = self.agent.direction
-            # angle_diff = theta-alpha
-            direction = self.agent.direction + np.pi/2
-            self.agent.direction = direction % (2 * np.pi)
-            # print(self.agent.name, direction, self.agent.direction)
-            return common.Status.SUCCESS
-        except (IndexError, AttributeError):
-            return common.Status.FAILURE
+        # try:
+        item = ObjectsStore.find(
+            self.blackboard.neighbourobj, self.agent.shared_content,
+            self.item, self.agent.name)[0]
+        # alpha = get_direction(self.agent.location, objects.location)
+        # theta = self.agent.direction
+        # angle_diff = theta-alpha
+        # print('From', self.agent.name, self.name, item, self.agent.direction, item.location, item.radius)
+        x = int(np.ceil(self.agent.location[0] + np.cos(
+            self.agent.direction) * self.agent.radius))
+        y = int(np.ceil(self.agent.location[1] + np.sin(
+            self.agent.direction) * self.agent.radius))
+        # agent_A = y - self.agent.location[1]
+        # agent_B = self.agent.location[0] - x
+        # agent_C = agent_A * self.agent.location[0] + agent_B * self.agent.location[1]
+
+        # print('agetn ABC', agent_A, agent_B, agent_C)
+        # obj_x2 = int(np.ceil(item.location[0] + (np.cos(np.pi/4) * (item.radius))))
+        # obj_y2 = int(np.ceil(item.location[1] + (np.sin(np.pi/4) * (item.radius))))
+        # obj_loc_2 = self.agent.model.grid.find_upperbound((obj_x2, obj_y2))
+        # # print('obj x2', obj_x2, obj_y2, obj_loc_2)
+        # obj_x0 = int(np.floor(item.location[0] + (np.cos(np.pi/4 + np.pi) * (item.radius))))
+        # obj_y0 = int(np.floor(item.location[1] + (np.sin(np.pi/4 + np.pi) * (item.radius))))
+        # obj_loc_0 = self.agent.model.grid.find_lowerbound((obj_x0, obj_y0))
+        # # print('obj x1', obj_x0, obj_y0, obj_loc_0)
+        # obj_loc_1 = (obj_loc_2[0], obj_loc_0[1])
+        # obj_loc_3 = (obj_loc_0[0], obj_loc_2[1])
+        grids = self.agent.model.grid.get_neighborhood(item.location, item.radius)
+        points = [self.agent.model.grid.grid_reverse[grid] for grid in grids]
+        p1s, p2s = zip(*points)
+        x1s, y1s = zip(*p1s)
+        x2s, y2s = zip(*p2s)
+        x1 = min(x1s)
+        y1 = min(y1s)
+        x2 = max(x2s)
+        y2 = max(y2s)
+        # print(grids, [self.agent.model.grid.grid_reverse[grid] for grid in grids])
+        intersect = False
+        # for grid in grids:
+        #     p1, p2 = self.agent.model.grid.grid_reverse[grid]
+        #     x1, y1 = p1
+        #     x2, y2 = p2
+
+        lines = [
+            [(x1, y1), (x2, y1)],
+            [(x2, y1), (x2, y2)],
+            [(x2, y2), (x1, y2)],
+            [(x1, y2), (x1, y1)]
+            ]
+        # print('agent ray', self.agent.location, (x,y))
+        # print('rectangle obstacle',lines)
+        # plt.plot([self.agent.location[0], x], [self.agent.location[1], y], 'r--')
+        # plt.plot([lines[0][0][0], lines[0][1][0]], [lines[0][0][1], lines[0][1][1]],'b.-')
+        # plt.plot([lines[1][0][0], lines[1][1][0]], [lines[1][0][1], lines[1][1][1]],'b.-')
+        # plt.plot([lines[2][0][0], lines[2][1][0]], [lines[2][0][1], lines[2][1][1]],'b.-')
+        # plt.plot([lines[3][0][0], lines[3][1][0]], [lines[3][0][1], lines[3][1][1]],'b.-')
+        # # plt.xticks(range(-20, 20, 1))
+        # # plt.yticks(range(-20, 20, 1))
+        # plt.show()
+        for line in lines:
+            intersect = check_intersect(self.agent.location, (x, y), line[0], line[1])
+            if intersect:
+                dx = line[1][0] - line[0][0]
+                dy = line[1][1] - line[0][1]
+                self.agent.direction = np.arctan2(dy,dx)
+                break
+        # if intersect:
+        #     break
+            # line_A = line[1][1] - line[0][1]
+            # line_B = line[0][0] - line[1][0]
+            # line_C = line_A * line[0][0] + line_B * line[0][1]
+            # slope = round(agent_A * line_B - line_A * agent_B, 2)
+            # # print('slope', slope)
+            # if slope == 0.0:
+            #     break
+            # else:
+            #     intersection_x = int((line_B * agent_C - agent_B * line_C) / slope)
+            #     intersection_y = int((agent_A * line_C - line_A * agent_C) / slope)
+            #     print('itersection point', intersection_x, intersection_y, self.agent.location, x, y, line)
+            #     if (
+            #         (intersection_x <= x) and ( intersection_x >= self.agent.location[0]) and
+            #         (intersection_y <= y) and ( intersection_y >= self.agent.location[1])):
+            #         # ((intersection_x <= line[1][0]) and ( intersection_x >= line[0][0]) and
+            #         # (intersection_y <= line[1][1]) and ( intersection_y >= line[0][1]))):
+            #             direction = np.arctan2(line[1][1] - line[0][1], line[1][0] - line[0][0])
+            #             print('computed direction', direction)
+            #             self.agent.direction = (direction + 2*np.pi) % (2*np.pi)
+            #             break
+        # direction = self.agent.direction + np.pi/2
+        # self.agent.direction = direction % (2 * np.pi)
+        # print(self.agent.name, direction, self.agent.direction)
+        return common.Status.SUCCESS
+        # except (IndexError, AttributeError):
+        #    return common.Status.FAILURE
 
 
 # Behavior to check if the agent avoided obj
