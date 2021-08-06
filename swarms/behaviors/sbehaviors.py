@@ -1491,9 +1491,9 @@ class AvoidSObjects(Behaviour):
         for line in lines:
             intersect = check_intersect(self.agent.location, (x, y), line[0], line[1])
             if intersect:
-                direction = np.arctan2(line[1][1] - line[0][1] , line[1][0] - line[0][0])
-                # print(direction)
-                self.agent.direction = (direction * -1.0 ) % (2 * np.pi)
+                dx = line[1][0] - line[0][0]
+                dy = line[1][1] - line[0][1]
+                self.agent.direction = np.arctan2(dy,dx)
                 break
         # if intersect:
         #     break

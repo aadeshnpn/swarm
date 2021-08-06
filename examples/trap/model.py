@@ -26,14 +26,14 @@ class SimTrapModel(Model):
         self.target = Sites(id=2, location=(145, 145), radius=5, q_value=0.5)
         self.grid.add_object_to_grid(self.target.location, self.target)
 
-        self.obstacles = Obstacles(id=3, location=(110, 140), radius=10)
+        self.obstacles = Obstacles(id=3, location=(60, 80), radius=21)
         self.grid.add_object_to_grid(self.obstacles.location, self.obstacles)
         self.traps = []
 
         self.trap1 = Traps(id=4, location=(0, 0), radius=11)
         self.grid.add_object_to_grid(self.trap1.location, self.trap1)
 
-        self.trap2 = Traps(id=4, location=(110, 70), radius=11)
+        self.trap2 = Traps(id=4, location=(100, 80), radius=15)
         self.grid.add_object_to_grid(self.trap2.location, self.trap2)
 
         self.traps = [self.trap1, self.trap2]
