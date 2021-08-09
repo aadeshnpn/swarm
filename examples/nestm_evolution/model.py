@@ -397,10 +397,10 @@ class EvolveModel(NestMModel):
         # neighbours = grid.get_neighborhood(hub_loc, 20)
         # food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
         phenotypes = dict()
-        for food in self.foods:
+        for debri in self.debris:
             # phenotypes += list(food.phenotype.values())
             try:
-                phenotypes = {**food.phenotype, ** phenotypes}
+                phenotypes = {**debri.phenotype, ** phenotypes}
             except (AttributeError, ValueError):
                 pass
         # print ('phenotypes for attached objects', phenotypes)
@@ -846,17 +846,17 @@ class SimNestMModel(Model):
 
         # self.grid.add_object_to_grid(location, self.site)
 
-        try:
-            # self.site = self.render.objects['sites'][0]
-            self.foods = []
-            for i in range(self.num_agents * 1):
-                f = Food(
-                    i, location=self.site.location, radius=self.site.radius)
-                f.agent_name = None
-                self.grid.add_object_to_grid(f.location, f)
-                self.foods.append(f)
-        except KeyError:
-            pass
+        # try:
+        #     # self.site = self.render.objects['sites'][0]
+        #     self.foods = []
+        #     for i in range(self.num_agents * 1):
+        #         f = Food(
+        #             i, location=self.site.location, radius=self.site.radius)
+        #         f.agent_name = None
+        #         self.grid.add_object_to_grid(f.location, f)
+        #         self.foods.append(f)
+        # except KeyError:
+        #     pass
 
         # Add trap
         # try:
