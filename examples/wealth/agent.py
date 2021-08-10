@@ -117,6 +117,9 @@ class SwarmAgent(Agent):
 
         root.add_children([low, higest, high, med])
         self.behaviour_tree = BehaviourTree(root)
+        ## Visulalize the Behavior Tree
+        # print(py_trees.display.ascii_tree(self.behaviour_tree.root))
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
 
         # """
         # This above part should be replaced by Grammatical Evolution.
