@@ -149,7 +149,7 @@ def learning_phase(iteration, no_agents=50, db=False, early_stop=False):
     # Evolution environment
     env = EvolveModel(no_agents, width, height, 10, iter=iteration, db=db)
     env.build_environment_from_json()
-    env.create_agents()
+    env.create_agents(random_init=False)
     # Validation Step parameter
     # Run the validation test every these many steps
     validation_step = 11000
