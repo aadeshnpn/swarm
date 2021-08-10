@@ -289,7 +289,7 @@ class LearningAgent(NestAgent):
         # # Goal Specification Fitness
         # self.individual[0].fitness = (1 - self.beta) * self.diversity_fitness + self.ef  + self.evaluate_constraints_conditions()
 
-        self.individual[0].fitness = (1 - self.beta) * self.diversity_fitness  # + self.ef # + self.cf + self.debris_collected
+        self.individual[0].fitness = (1 - self.beta) * self.diversity_fitness + self.ef # + self.cf + self.debris_collected
 
     def get_debris_transported(self, distance_threshold=45):
         """Return debris that have been cleared from hub."""
@@ -343,7 +343,7 @@ class LearningAgent(NestAgent):
         # Hash the phenotype with its fitness
         # We need to move this from here to genetic step
         # self.cf = self.carrying_fitness()
-        # self.ef = self.exploration_fitness()
+        self.ef = self.exploration_fitness()
         # self.scf = self.communication_fitness()
 
         # Computes overall fitness using Beta function
@@ -398,7 +398,7 @@ class LearningAgent(NestAgent):
         elif (
                 (
                     storage_threshold is False and self.timestamp > 200
-                    )): # and (self.exploration_fitness() < 2)):
+                    ) and (self.exploration_fitness() < 2)):
             individual = initialisation(self.parameter, 10)
             individual = evaluate_fitness(individual, self.parameter)
             self.genome_storage = self.genome_storage + individual
