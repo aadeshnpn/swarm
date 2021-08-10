@@ -261,7 +261,7 @@ class NestMModel(Model):
             [debris.weight for debris in debris_objects])
         return ((total_debris_weights * 1.0) / self.total_debris_units) * 100
 
-    def debris_cleaned(self, distance_threshold=30):
+    def debris_cleaned(self, distance_threshold=45):
         """Find amount of debris cleaned."""
         debris_objects = []
         for debry in self.debris:
