@@ -371,7 +371,7 @@ class LearningAgent(ForagingAgent):
         # self.delayed_reward = round(self.beta * self.delayed_reward, 4)
 
         # # Goal Specification Fitness
-        self.individual[0].fitness = (1 - self.beta) * self.diversity_fitness  # + self.ef  + self.evaluate_constraints_conditions()
+        self.individual[0].fitness = (1 - self.beta) * self.diversity_fitness + self.ef + self.evaluate_constraints_conditions()
 
     def get_food_in_hub(self, agent_name=True):
         """Get the food in the hub stored by the agent."""

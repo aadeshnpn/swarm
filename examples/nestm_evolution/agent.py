@@ -289,7 +289,7 @@ class LearningAgent(NestAgent):
         # # Goal Specification Fitness
         # self.individual[0].fitness = (1 - self.beta) * self.diversity_fitness + self.ef  + self.evaluate_constraints_conditions()
 
-        self.individual[0].fitness = (1 - self.beta) * self.diversity_fitness + self.ef # + self.cf + self.debris_collected
+        self.individual[0].fitness = (1 - self.beta) * self.diversity_fitness + self.ef + self.cf + self.debris_collected
 
     def get_debris_transported(self, distance_threshold=45):
         """Return debris that have been cleared from hub."""
@@ -338,11 +338,11 @@ class LearningAgent(NestAgent):
         # self.trace[self.step_count] = {k:self.functions[k]() for k in self.keys}
 
         # Find the no.of food collected from the BT execution
-        # self.debris_collected = self.get_debris_transported()
+        self.debris_collected = self.get_debris_transported()
 
         # Hash the phenotype with its fitness
         # We need to move this from here to genetic step
-        # self.cf = self.carrying_fitness()
+        self.cf = self.carrying_fitness()
         self.ef = self.exploration_fitness()
         # self.scf = self.communication_fitness()
 

@@ -115,8 +115,10 @@ def boxplot(fname='/tmp/old.txt'):
 
 
 def boxplot_fitness():
+    # names = [
+    #     'div_thresh', 'div_thresh_exp', 'div_thresh_exp_cf', 'div_thresh_exp_cf_fc']
     names = [
-        'div_thresh', 'div_thresh_exp', 'div_thresh_exp_cf', 'div_thresh_exp_cf_fc']
+        'forge_div', 'forge_div_exp', 'forge_div_exp_bt']
     datas = [read_data_fitness(maindir='/tmp/div/'+n)[:,-1] for n in names]
 
     fig = plt.figure()
@@ -133,10 +135,10 @@ def boxplot_fitness():
         'khaki', 'lightsalmon', 'deepskyblue']
     xlabels = [
         'I', 'I + II',
-        'I + II + II', 'I + II + III + IV']
+        'I + II + III',]
     labels = [
-        'Diversity', 'Diversity+Exporation',
-        'Divesity+Exploration+Prospective', 'Divesity+Exploration+Prospective+Foraging']
+        'Diversity', 'Diversity + Exporation',
+        'Divesity + Exploration + BT Feedback']
     medianprops = dict(linewidth=2.5, color='firebrick')
     meanprops = dict(linewidth=1.5, color='#ff7f0e')
     # data = [data[:, i] for i in range(4)]
@@ -147,8 +149,8 @@ def boxplot_fitness():
     for patch, color in zip(bp1['boxes'], colordict.values()):
         patch.set_facecolor(color)
     # plt.xlim(0, len(mean))
-    legend = ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper left", title='Fitness')
-    legend.get_frame().set_alpha(None)
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper left", title='Fitness', fancybox=True, framealpha=0.5)
+    # legend.get_frame().set_alpha(None)
     ax1.set_xticklabels(xlabels)
     ax1.set_yticks(range(0, 105, 20))
     ax1.set_xlabel('Fitness Function Type', fontsize="large")
@@ -158,7 +160,7 @@ def boxplot_fitness():
     plt.tight_layout()
 
     maindir = '/tmp/div/'
-    fname = 'fitnesscomp1'
+    fname = 'fitnesscompnew'
 
     fig.savefig(
         maindir + '/' + fname + '.png')
@@ -1389,8 +1391,8 @@ def main():
     # boxplot_exp_4()
     # for t in  [9, 13, 15, 3]:
     #     boxplot_exp_5(t)
-    # boxplot_fitness()
-    boxplot_oldVsPPA_diversity()
+    boxplot_fitness()
+    # boxplot_oldVsPPA_diversity()
 
 
 if __name__ == '__main__':
