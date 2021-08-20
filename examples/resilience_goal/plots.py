@@ -172,13 +172,14 @@ def boxplot_fitness():
 def boxplot_oldVsPPA_diversity():
     # datas = [read_data_fitness('/tmp/div/'+n)[:,-1] for n in names]
     ppa_data = read_data_fitness(maindir='/tmp/div/div_thresh')[:,-1]
+    ppa_new_data = read_data_fitness(maindir='/tmp/div/forge_div')[:,-1]
     # This data was obtained from database. Since there was just 2 runs
     # with forgaing% 4 it as just efficient to create a numpy matric
     old_data = np.ones((320))
     old_data[16] = 4
     old_data[24] = 4
     print(old_data.shape, ppa_data.shape)
-    datas = [old_data, ppa_data]
+    datas = [old_data, ppa_data, ppa_new_data]
     fig = plt.figure()
 
     ax1 = fig.add_subplot(1, 1, 1)
@@ -191,7 +192,7 @@ def boxplot_oldVsPPA_diversity():
     colorshade = [
         'lightcoral', 'springgreen',
         'khaki', 'lightsalmon', 'deepskyblue']
-    labels = ['GEESE-BT', 'GEESE-BT++']
+    labels = ['Grammar I + Non-PPA Behaviors', 'Grammar I + PPA Behaviors', 'Grammar II + PPA Behaviors']
     medianprops = dict(linewidth=2.5, color='firebrick')
     meanprops = dict(linewidth=1.5, color='#ff7f0e')
     # data = [data[:, i] for i in range(4)]
@@ -202,10 +203,11 @@ def boxplot_oldVsPPA_diversity():
     for patch, color in zip(bp1['boxes'], colordict.values()):
         patch.set_facecolor(color)
     # plt.xlim(0, len(mean))
-    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper right", title='Methods')
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper left", title='Grammar and Behavior Types')
+    labels = ['I + I', 'I + II', 'II + II']
     ax1.set_xticklabels(labels)
     ax1.set_yticks(range(0, 105, 20))
-    ax1.set_xlabel('GEESE Methods', fontsize="large")
+    ax1.set_xlabel('BNF Grammar and Primitive Behavior Types', fontsize="large")
     ax1.set_ylabel('Foraging (%)', fontsize="large")
     # ax1.set_title('Swarm Foraging Evolved Behaviors')
 
