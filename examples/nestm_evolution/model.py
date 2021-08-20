@@ -34,7 +34,8 @@ class NestMModel(Model):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name='NestMPPA1', viewer=False, parent=None, ratio=1.0, db=False):
+            seed=None, name='NestMPPA1', viewer=False, parent=None, ratio=1.0,
+            db=False, fitid=0):
         """Initialize the attributes."""
         if seed is None:
             super(NestMModel, self).__init__(seed=None)
@@ -64,6 +65,14 @@ class NestMModel(Model):
         # UI
         self.viewer = viewer
 
+        # Fitness id
+        self.fmodels = {
+            0: [True, False, False, False],
+            1: [True, True, False, False],
+            2: [True, True, True, False],
+            3: [True, True, True, True],
+        }
+        self.fitid = fitid
         # Create db connection
         if db:
             try:
@@ -261,7 +270,7 @@ class NestMModel(Model):
             [debris.weight for debris in debris_objects])
         return ((total_debris_weights * 1.0) / self.total_debris_units) * 100
 
-    def debris_cleaned(self, distance_threshold=45):
+    def debris_cleaned(self, distance_threshold=40):
         """Find amount of debris cleaned."""
         debris_objects = []
         for debry in self.debris:
@@ -285,10 +294,10 @@ class EvolveModel(NestMModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="EvoNestMNewPPA1", viewer=False, db=False):
+            seed=None, name="EvoNestMNewPPA1", viewer=False, db=False, fitid=0):
         """Initialize the attributes."""
         super(EvolveModel, self).__init__(
-            N, width, height, grid, iter, seed, name, viewer, db=db)
+            N, width, height, grid, iter, seed, name, viewer, db=db, fitid=fitid)
 
     def create_agents(self, random_init=True, phenotypes=None):
         """Initialize agents in the environment."""

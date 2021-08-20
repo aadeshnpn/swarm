@@ -80,7 +80,7 @@ class NestAgent(Agent):
         """Require for staged activation."""
         pass
 
-    def get_debris_transported(self, distance_threshold=45):
+    def get_debris_transported(self, distance_threshold=40):
         """Return debris that have been cleared from hub."""
         # Not computational efficient method
         debris_objects = []
@@ -288,10 +288,18 @@ class LearningAgent(NestAgent):
 
         # # Goal Specification Fitness
         # self.individual[0].fitness = (1 - self.beta) * self.diversity_fitness + self.ef  + self.evaluate_constraints_conditions()
+        divb = self.model.fmodels[self.model.fitid][0]
+        efb = self.model.fmodels[self.model.fitid][1]
+        cfb = self.model.fmodels[self.model.fitid][2]
+        dfb = self.model.fmodels[self.model.fitid][3]
+        self.individual[0].fitness = (
+            (1 - self.beta) * self.diversity_fitness * divb +
+            self.ef * efb +
+            self.cf * cfb +
+            self.debris_collected * dfb
+            )
 
-        self.individual[0].fitness = (1 - self.beta) * self.diversity_fitness + self.ef + self.cf + self.debris_collected
-
-    def get_debris_transported(self, distance_threshold=45):
+    def get_debris_transported(self, distance_threshold=40):
         """Return debris that have been cleared from hub."""
         # Not computational efficient method
         debris_objects = []

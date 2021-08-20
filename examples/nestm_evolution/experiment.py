@@ -144,7 +144,7 @@ def ui_loop(phenotypes, iteration, parentname=None, ratio=1):
     # Plot the result in the graph
 
 
-def learning_phase(iteration, no_agents=50, db=False, early_stop=False):
+def learning_phase(iteration, no_agents=50, db=False, early_stop=False, fitid=0):
     """Learning Algorithm block."""
     # Evolution environment
     env = EvolveModel(no_agents, width, height, 10, iter=iteration, db=db)
@@ -350,7 +350,7 @@ def standard_evolution(args):
     # phenotypes = learning_phase(iter, n, db)
     Parallel(
             n_jobs=args.threads)(delayed(learning_phase)(
-                args.iter, 50, db=False) for i in range(args.runs))
+                args.iter, 50, db=False, id=args.fitid) for i in range(args.runs))
 
 
 def experiments(args):
@@ -419,6 +419,7 @@ if __name__ == '__main__':
     parser.add_argument('--threads', default=18, type=int)
     parser.add_argument('--iter', default=12000, type=int)
     parser.add_argument('--db', default=False, type=bool)
+    parser.add_argument('--fitid', default=0, type=int)
     args = parser.parse_args()
     print(args)
     experiments(args)
