@@ -54,7 +54,7 @@ class NestMModel(Model):
         else:
             self.pname = os.path.join(
                 '/tmp', 'swarm', 'data', 'experiments',
-                str(N), str(iter), str(self.runid) + name
+                str(N), str(iter), str(fitid), str(self.runid) + name
                 )
         Path(self.pname).mkdir(parents=True, exist_ok=True)
 

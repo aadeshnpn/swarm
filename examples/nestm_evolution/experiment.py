@@ -147,7 +147,7 @@ def ui_loop(phenotypes, iteration, parentname=None, ratio=1):
 def learning_phase(iteration, no_agents=50, db=False, early_stop=False, fitid=0):
     """Learning Algorithm block."""
     # Evolution environment
-    env = EvolveModel(no_agents, width, height, 10, iter=iteration, db=db)
+    env = EvolveModel(no_agents, width, height, 10, iter=iteration, db=db, fitid=fitid)
     env.build_environment_from_json()
     env.create_agents(random_init=False)
     # Validation Step parameter
@@ -350,7 +350,7 @@ def standard_evolution(args):
     # phenotypes = learning_phase(iter, n, db)
     Parallel(
             n_jobs=args.threads)(delayed(learning_phase)(
-                args.iter, 50, db=False, id=args.fitid) for i in range(args.runs))
+                args.iter, 50, db=False, fitid=args.fitid) for i in range(args.runs))
 
 
 def experiments(args):
