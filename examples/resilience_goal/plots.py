@@ -169,6 +169,72 @@ def boxplot_fitness():
     plt.close(fig)
 
 
+def read_npy(fname='all.npy'):
+    # /tmp/olddata/
+    data = np.load('/tmp/olddata/' + fname)
+    return data[:, -1]
+
+
+def boxplot_fitness_paper():
+    newnames = [
+        'div_thresh', 'div_thresh_exp', 'div_thresh_exp_cf', 'div_thresh_exp_cf_fc']
+    oldnames = [
+        'exploreonly.npy', 'expcf.npy', 'all.npy'
+    ]
+    old_data = np.ones((128))
+    old_data[16] = 4
+    old_data[24] = 4
+    newdatas = [read_data_fitness(maindir='/tmp/div/'+n)[:,-1] for n in newnames]
+    olddatas = [read_npy(fname=n) for n in oldnames]
+    olddatas = [old_data] + olddatas
+
+    fig = plt.figure()
+
+    ax1 = fig.add_subplot(1, 1, 1)
+    colordict = {
+        0: 'forestgreen',
+        1: 'indianred',
+        2: 'gold',
+        3: 'tomato',
+        4: 'royalblue'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+    xlabels = [
+        'I', 'I + II',
+        'I + II + III',]
+    labels = [
+        'Diversity', 'Diversity + Exporation',
+        'Divesity + Exploration + BT Feedback']
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=1.5, color='#ff7f0e')
+    # data = [data[:, i] for i in range(4)]
+    bp1 = ax1.boxplot(
+        datas, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops)
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+    # plt.xlim(0, len(mean))
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper left", title='Fitness', fancybox=True, framealpha=0.5)
+    # legend.get_frame().set_alpha(None)
+    ax1.set_xticklabels(xlabels)
+    ax1.set_yticks(range(0, 105, 20))
+    ax1.set_xlabel('Fitness Function Type', fontsize="large")
+    ax1.set_ylabel('Foraging (%)', fontsize="large")
+    # ax1.set_title('Swarm Foraging Evolved Behaviors')
+
+    plt.tight_layout()
+
+    maindir = '/tmp/div/'
+    fname = 'fitnesscompnew'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
 def boxplot_oldVsPPA_diversity():
     # datas = [read_data_fitness('/tmp/div/'+n)[:,-1] for n in names]
     ppa_data = read_data_fitness(maindir='/tmp/div/div_thresh')[:,-1]
