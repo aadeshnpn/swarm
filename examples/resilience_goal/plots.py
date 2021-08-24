@@ -177,32 +177,46 @@ def read_npy(fname='all.npy'):
 
 def boxplot_fitness_paper():
     newnames = [
-        'div_thresh', 'div_thresh_exp', 'div_thresh_exp_cf', 'div_thresh_exp_cf_fc']
+        'forge_div', 'forge_div_exp', 'forge_div_exp_bt'
+        ]
     oldnames = [
-        'exploreonly.npy', 'expcf.npy', 'all.npy'
+        'exploreonly.npy', 'all.npy'
     ]
     old_data = np.ones((128))
     old_data[16] = 4
     old_data[24] = 4
     newdatas = [read_data_fitness(maindir='/tmp/div/'+n)[:,-1] for n in newnames]
+    midnames = [
+        'div_thresh', 'div_thresh_exp', 'div_thresh_exp_cf_fc'
+        ]
+    middatas = [read_data_fitness(maindir='/tmp/div/'+n)[:,-1] for n in midnames]
     olddatas = [read_npy(fname=n) for n in oldnames]
     olddatas = [old_data] + olddatas
 
+    print(
+        [newdatas[i].shape for i in range(3)],
+        [middatas[i].shape for i in range(3)],
+        [olddatas[i].shape for i in range(3)],
+        )
+    just_diversity = [olddatas[0], middatas[0], newdatas[0]]
+    diversity_exp = [olddatas[1], middatas[1], newdatas[1]]
+    all = [olddatas[2], middatas[2], newdatas[2]]
     fig = plt.figure()
 
     ax1 = fig.add_subplot(1, 1, 1)
     colordict = {
         0: 'forestgreen',
-        1: 'indianred',
+        1: 'royalblue',
         2: 'gold',
-        3: 'tomato',
-        4: 'royalblue'}
+        3: 'indianred',
+        4: 'tomato',
+        }
     colorshade = [
-        'springgreen', 'lightcoral',
-        'khaki', 'lightsalmon', 'deepskyblue']
+        'springgreen', 'deepskyblue', 'lightcoral',
+        'khaki', 'lightsalmon' ]
     xlabels = [
         'I', 'I + II',
-        'I + II + III',]
+        'I + II + III']
     labels = [
         'Diversity', 'Diversity + Exporation',
         'Divesity + Exploration + BT Feedback']
@@ -210,15 +224,34 @@ def boxplot_fitness_paper():
     meanprops = dict(linewidth=1.5, color='#ff7f0e')
     # data = [data[:, i] for i in range(4)]
     bp1 = ax1.boxplot(
-        datas, 0, 'gD', showmeans=True, meanline=True,
+        just_diversity, 0, 'gD', showmeans=True, meanline=True,
         patch_artist=True, medianprops=medianprops,
-        meanprops=meanprops)
+        meanprops=meanprops, positions=[1,2,3], widths=0.6)
+
     for patch, color in zip(bp1['boxes'], colordict.values()):
         patch.set_facecolor(color)
+
+    bp2 = ax1.boxplot(
+        diversity_exp, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, positions=[5,6,7], widths=0.6)
+
+    for patch, color in zip(bp2['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+
+    bp3 = ax1.boxplot(
+        all, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, positions=[9,10,11], widths=0.6)
+
+    for patch, color in zip(bp3['boxes'], colordict.values()):
+        patch.set_facecolor(color)
     # plt.xlim(0, len(mean))
-    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper left", title='Fitness', fancybox=True, framealpha=0.5)
+    # ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper left", title='Fitness', fancybox=True, framealpha=0.5)
     # legend.get_frame().set_alpha(None)
+    ax1.set_xticks([2, 6, 10])
     ax1.set_xticklabels(xlabels)
+
     ax1.set_yticks(range(0, 105, 20))
     ax1.set_xlabel('Fitness Function Type', fontsize="large")
     ax1.set_ylabel('Foraging (%)', fontsize="large")
@@ -227,7 +260,7 @@ def boxplot_fitness_paper():
     plt.tight_layout()
 
     maindir = '/tmp/div/'
-    fname = 'fitnesscompnew'
+    fname = 'fitnesscompall'
 
     fig.savefig(
         maindir + '/' + fname + '.png')
@@ -1459,8 +1492,9 @@ def main():
     # boxplot_exp_4()
     # for t in  [9, 13, 15, 3]:
     #     boxplot_exp_5(t)
-    boxplot_fitness()
+    # boxplot_fitness()
     # boxplot_oldVsPPA_diversity()
+    boxplot_fitness_paper()
 
 
 if __name__ == '__main__':
