@@ -201,6 +201,7 @@ def boxplot_fitness_paper():
     just_diversity = [olddatas[0], middatas[0], newdatas[0]]
     diversity_exp = [olddatas[1], middatas[1], newdatas[1]]
     all = [olddatas[2], middatas[2], newdatas[2]]
+    # plt.style.use('fivethirtyeight')
     fig = plt.figure()
 
     ax1 = fig.add_subplot(1, 1, 1)
@@ -217,16 +218,16 @@ def boxplot_fitness_paper():
     xlabels = [
         'I', 'I + II',
         'I + II + III']
-    labels = [
-        'Diversity', 'Diversity + Exporation',
-        'Divesity + Exploration + BT Feedback']
+    # labels = [
+    #     'Diversity', 'Diversity + Exporation',
+    #     'Divesity + Exploration + BT Feedback']
     medianprops = dict(linewidth=2.5, color='firebrick')
     meanprops = dict(linewidth=1.5, color='#ff7f0e')
     # data = [data[:, i] for i in range(4)]
     bp1 = ax1.boxplot(
         just_diversity, 0, 'gD', showmeans=True, meanline=True,
         patch_artist=True, medianprops=medianprops,
-        meanprops=meanprops, positions=[1,2,3], widths=0.6)
+        meanprops=meanprops, positions=[1,2,3], widths=0.8)
 
     for patch, color in zip(bp1['boxes'], colordict.values()):
         patch.set_facecolor(color)
@@ -234,7 +235,7 @@ def boxplot_fitness_paper():
     bp2 = ax1.boxplot(
         diversity_exp, 0, 'gD', showmeans=True, meanline=True,
         patch_artist=True, medianprops=medianprops,
-        meanprops=meanprops, positions=[5,6,7], widths=0.6)
+        meanprops=meanprops, positions=[5,6,7], widths=0.8)
 
     for patch, color in zip(bp2['boxes'], colordict.values()):
         patch.set_facecolor(color)
@@ -242,17 +243,19 @@ def boxplot_fitness_paper():
     bp3 = ax1.boxplot(
         all, 0, 'gD', showmeans=True, meanline=True,
         patch_artist=True, medianprops=medianprops,
-        meanprops=meanprops, positions=[9,10,11], widths=0.6)
+        meanprops=meanprops, positions=[9,10,11], widths=0.8)
 
     for patch, color in zip(bp3['boxes'], colordict.values()):
         patch.set_facecolor(color)
     # plt.xlim(0, len(mean))
-    # ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper left", title='Fitness', fancybox=True, framealpha=0.5)
+    labels = ['GEESE I', 'GEESE II', 'GEESE III']
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper left", title='GEESE Type', fancybox=True, framealpha=0.5)
     # legend.get_frame().set_alpha(None)
     ax1.set_xticks([2, 6, 10])
-    ax1.set_xticklabels(xlabels)
+    ax1.set_xticklabels(xlabels, fontsize="large")
 
     ax1.set_yticks(range(0, 105, 20))
+    ax1.set_yticklabels(range(0, 105, 20), fontsize="large")
     ax1.set_xlabel('Fitness Function Type', fontsize="large")
     ax1.set_ylabel('Foraging (%)', fontsize="large")
     # ax1.set_title('Swarm Foraging Evolved Behaviors')
