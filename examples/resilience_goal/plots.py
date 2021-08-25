@@ -217,7 +217,7 @@ def boxplot_fitness_paper():
         'khaki', 'lightsalmon' ]
     xlabels = [
         'I', 'I + II',
-        'I + II + III']
+        'I + II + (III + IV) | V']
     # labels = [
     #     'Diversity', 'Diversity + Exporation',
     #     'Divesity + Exploration + BT Feedback']
@@ -248,7 +248,7 @@ def boxplot_fitness_paper():
     for patch, color in zip(bp3['boxes'], colordict.values()):
         patch.set_facecolor(color)
     # plt.xlim(0, len(mean))
-    labels = ['GEESE I', 'GEESE II', 'GEESE III']
+    labels = ['GEESE-BT (BNF-I + NO-PPA-PB) ', 'GEESE-BT (BNF-I + PPA-PB)', 'BrBt-GEESE (BNF-II + PPA-PB)']
     ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper left", title='GEESE Type', fancybox=True, framealpha=0.5)
     # legend.get_frame().set_alpha(None)
     ax1.set_xticks([2, 6, 10])
@@ -266,7 +266,7 @@ def boxplot_fitness_paper():
     fname = 'fitnesscompall'
 
     fig.savefig(
-        maindir + '/' + fname + '.png')
+        maindir + '/' + fname + '.png', dpi=200)
     # pylint: disable = E1101
 
     plt.close(fig)
