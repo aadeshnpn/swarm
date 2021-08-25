@@ -384,10 +384,13 @@ def behavior_sampling_after(args):
 
 
 def exp_varying_n_evolution(args):
-    # for n in range(50, 300, 50):
-    # Parallel(n_jobs=args.threads)(delayed(exp_evol)(args.iter, n, args.db) for i in range(args.runs))
-    for i in range(args.runs):
-        exp_evol_sample(args.iter, 100, args.db)
+    for n in [20, 50, 100, 150, 200]:
+        Parallel(
+            n_jobs=args.threads)(
+                delayed(
+                    exp_evol)(args.iter, n, args.db) for i in range(args.runs))
+    # for i in range(args.runs):
+    #     exp_evol_sample(args.iter, 100, args.db)
 
 
 def behavior_sampling(args):
