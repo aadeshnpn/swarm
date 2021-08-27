@@ -384,7 +384,7 @@ def behavior_sampling_after(args):
 
 
 def exp_varying_n_evolution(args):
-    for n in [20, 50, 100, 150, 200]:
+    for n in [100, 150, 200]:
         Parallel(
             n_jobs=args.threads)(
                 delayed(
