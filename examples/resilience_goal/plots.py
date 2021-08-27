@@ -1001,7 +1001,7 @@ def read_data_sample_ratio(ratio=0.1):
     # maindir = '/tmp/16244729911974EvoSForgeNewPPA1/'
     # maindir = '/tmp/experiments/100/12000/16243666378807EvoSForgeNewPPA1'
     # nadir = os.path.join(maindir, str(n), agent)
-    maindir = '/tmp/16244729911974EvoSForgeNewPPA1/'  # New sampling behaviors
+    maindir = '/tmp/bsampling/'  # New sampling behaviors
     folders = pathlib.Path(maindir).glob("*_" + str(ratio) + "_ValidateSForgeNewPPA1")
     flist = []
     data = []
@@ -1485,7 +1485,7 @@ def main():
     # boxplotallsitesdist()
     # boxplotsiteloc()
     # plot_evolution_algo_performance()
-    # plot_sampling_differences()
+    plot_sampling_differences()
     # plotallsitesdist()
     # comp_with_witout_comm()
     # boxplot_exp_0()
@@ -1497,7 +1497,7 @@ def main():
     #     boxplot_exp_5(t)
     # boxplot_fitness()
     # boxplot_oldVsPPA_diversity()
-    boxplot_fitness_paper()
+    # boxplot_fitness_paper()
 
 
 if __name__ == '__main__':
