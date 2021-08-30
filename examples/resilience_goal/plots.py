@@ -467,6 +467,66 @@ def read_data_n_agent_site(n=100, agent='ExecutingAgent', site='20'):
     return dataf, datad
 
 
+def read_data_n_agent_6000(n=100, iter=6000):
+    maindir = '/tmp/swarm/data/experiments/'
+    nadir = os.path.join(maindir, str(n), str(iter))
+    folders = pathlib.Path(nadir).glob("*EvoSForgeNew*")
+    flist = []
+    data = []
+    for f in folders:
+        flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
+        # print(flist)
+        _, _, d, _ = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+        # print(d.shape)
+        data.append(d)
+    data = np.array(data)
+    print(data.shape)
+    return data
+
+
+def boxplot_exp_agent_varying():
+    agents = [50, 100, 150, 200]
+    dataf = [read_data_n_agent_6000(n=a)[:,-1] for a in agents]
+    fig = plt.figure(figsize=(6, 8), dpi=100)
+
+    ax1 = fig.add_subplot(1, 1, 1)
+    colordict = {
+        0: 'forestgreen',
+        1: 'indianred',
+        2: 'gold',
+        3: 'tomato',
+        4: 'royalblue'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+
+    labels = [50, 100, 150, 200]
+    medianprops = dict(linewidth=1.5, color='firebrick')    # Strong line is median
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')    # Dashed line is mean
+    bp1 = ax1.boxplot(
+        dataf, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops)
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="lower right", title='No. of agents')
+    ax1.set_xticklabels(labels)
+    ax1.set_yticks(range(0, 105, 20))
+    # ax1.set_xlabel('No. of agents ')
+    ax1.set_ylabel('Foraging (%)', fontsize="large")
+    ax1.set_title('Swarm Foraging', fontsize="large")
+
+
+    maindir = '/tmp/swarm/data/experiments/'
+    fname = 'agentssizecompboxplot'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
 def boxplotsiteloc(agent='ExecutingAgent', site='51-51'):
     # sites = ['-3030', '30-30', '3030', '-5050', '50-50', '5050', '-9090', '90-90']
     agents = [50, 100, 200, 300, 400, 500]
@@ -1485,7 +1545,7 @@ def main():
     # boxplotallsitesdist()
     # boxplotsiteloc()
     # plot_evolution_algo_performance()
-    plot_sampling_differences()
+    # plot_sampling_differences()
     # plotallsitesdist()
     # comp_with_witout_comm()
     # boxplot_exp_0()
@@ -1498,6 +1558,7 @@ def main():
     # boxplot_fitness()
     # boxplot_oldVsPPA_diversity()
     # boxplot_fitness_paper()
+    boxplot_exp_agent_varying()
 
 
 if __name__ == '__main__':
