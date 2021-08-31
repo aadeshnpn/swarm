@@ -245,6 +245,8 @@ def learning_phase(iteration, no_agents=50, db=False, early_stop=False):
     # save the phenotype to json file
     phenotype_to_json(
         env.pname, env.runid + '-' + 'all', allphenotypes)
+
+    print('total generation', [agent.generation for agent in env.agents])
     try:
         # return list(phenotypes.keys())
         return allphenotypes, foraging_percent, env.pname

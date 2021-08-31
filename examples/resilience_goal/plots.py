@@ -467,8 +467,18 @@ def read_data_n_agent_site(n=100, agent='ExecutingAgent', site='20'):
     return dataf, datad
 
 
+def read_data_time(n=100):
+    maindir = '/home/aadeshnpn/Desktop/experiments/'
+    # nadir = os.path.join(maindir, str(n), str(iter))
+    # folders = pathlib.Path(nadir).glob("*EvoSForgeNew*")
+    data = np.genfromtxt(maindir + str(n) +'.txt', autostrip=True, unpack=True)
+    data = np.array(data)
+    print(data.shape)
+    return data
+
+
 def read_data_n_agent_6000(n=100, iter=6000):
-    maindir = '/tmp/swarm/data/experiments/'
+    maindir = '/home/aadeshnpn/Desktop/experiments/'
     nadir = os.path.join(maindir, str(n), str(iter))
     folders = pathlib.Path(nadir).glob("*EvoSForgeNew*")
     flist = []
@@ -487,9 +497,10 @@ def read_data_n_agent_6000(n=100, iter=6000):
 def boxplot_exp_agent_varying():
     agents = [50, 100, 150, 200]
     dataf = [read_data_n_agent_6000(n=a)[:,-1] for a in agents]
+    datat = [read_data_time(n=a) for a in agents]
     fig = plt.figure(figsize=(6, 8), dpi=100)
 
-    ax1 = fig.add_subplot(1, 1, 1)
+    ax1 = fig.add_subplot(2, 1, 1)
     colordict = {
         0: 'forestgreen',
         1: 'indianred',
@@ -509,13 +520,26 @@ def boxplot_exp_agent_varying():
         meanprops=meanprops)
     for patch, color in zip(bp1['boxes'], colordict.values()):
         patch.set_facecolor(color)
-    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="lower right", title='No. of agents')
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="lower right", title='Population')
     ax1.set_xticklabels(labels)
     ax1.set_yticks(range(0, 105, 20))
     # ax1.set_xlabel('No. of agents ')
     ax1.set_ylabel('Foraging (%)', fontsize="large")
     ax1.set_title('Swarm Foraging', fontsize="large")
 
+    ax2 = fig.add_subplot(2, 1, 2)
+    bp2 = ax2.boxplot(
+        datat, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops)
+    for patch, color in zip(bp2['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+    # plt.xlim(0, len(mean))
+    # ax1.legend(zip(bp2['boxes']), labels, fontsize="small", loc="lower right", title='Agent Size')
+    ax2.set_xticklabels(labels)
+    # ax2.set_yticks(range(0, 105, 20))
+    ax2.set_xlabel('Population', fontsize="large")
+    ax2.set_ylabel('Run Time (Secs)', fontsize="large")
 
     maindir = '/tmp/swarm/data/experiments/'
     fname = 'agentssizecompboxplot'

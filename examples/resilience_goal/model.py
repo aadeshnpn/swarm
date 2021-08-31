@@ -363,8 +363,8 @@ class EvolveModel(ForagingModel):
         if phenotype is None:
             phenotypes = self.phenotype_attached_objects()
 
-            for agent in self.agents:
-                phenotypes = {**agent.phenotypes, **phenotypes}
+            # for agent in self.agents:
+            #     phenotypes = {**agent.phenotypes, **phenotypes}
 
             print('total phenotype from behavior sampling', len(phenotypes))
             # Sort the phenotypes

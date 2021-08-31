@@ -489,10 +489,10 @@ class LearningAgent(ForagingAgent):
         #             self.individual[0].fitness >= 0 and storage_threshold
         #             ) and (self.timestamp > 200 and self.food_collected <= 0)):
         #     self.genetic_step()
-        # # elif (
-        # #     self.food_collected > 0 and storage_threshold
-        # #         ):
-        # #         self.genetic_step()
+        # elif (
+        #     self.food_collected > 0 and storage_threshold
+        #         ):
+        #         self.genetic_step()
 
         #"""
         if storage_threshold:
