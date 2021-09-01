@@ -2,6 +2,7 @@ from inspect import CO_ITERABLE_COROUTINE
 from py_trees import common
 from py_trees.composites import Selector
 from py_trees import common, blackboard
+from py_trees.trees import BehaviourTree
 from swarms.behaviors.sbehaviors import DropCue, SendSignal, ObjectsStore
 import numpy as np
 from swarms.lib.agent import Agent
@@ -371,7 +372,7 @@ class LearningAgent(ForagingAgent):
         # self.delayed_reward = round(self.beta * self.delayed_reward, 4)
 
         # # Goal Specification Fitness
-        self.individual[0].fitness = (1 - self.beta) * self.diversity_fitness + self.ef + self.evaluate_constraints_conditions()
+        self.individual[0].fitness = (1 - self.beta) * self.delayed_reward + self.ef + self.evaluate_constraints_conditions()
 
     def get_food_in_hub(self, agent_name=True):
         """Get the food in the hub stored by the agent."""
@@ -499,7 +500,7 @@ class LearningAgent(ForagingAgent):
             self.genetic_step()
         elif (
                 (
-                    storage_threshold is False and self.timestamp > 200
+                    storage_threshold is False and self.timestamp > 1000
                     ) and (self.exploration_fitness() < 2)):
             individual = initialisation(self.parameter, 10)
             individual = evaluate_fitness(individual, self.parameter)
@@ -525,9 +526,20 @@ class ExecutingAgent(ForagingAgent):
     def construct_bt(self):
         """Construct BT."""
         # Get the phenotype of the genome and store as xmlstring
-        self.bt.xmlstring = self.xmlstring
-        # Construct actual BT from xmlstring
-        self.bt.construct()
+        # self.bt.xmlstring = self.xmlstring
+        # # Construct actual BT from xmlstring
+        # self.bt.construct()
+
+        # New way to create BT
+        bts = []
+        for i in range(len(self.xmlstring)):
+            bt = BTConstruct(None, self, self.xmlstring[i])
+            bt.construct()
+            bts.append(bt.behaviour_tree.root)
+        root = Selector('RootAll')
+        self.model.random.shuffle(bts)
+        root.add_children(bts)
+        self.bt.behaviour_tree = BehaviourTree(root)
         # py_trees.display.render_dot_tree(
         #    self.bt.behaviour_tree.root, name='/tmp/' + str(self.name))
         # py_trees.logging.level = py_trees.logging.Level.DEBUG

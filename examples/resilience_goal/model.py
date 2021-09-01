@@ -440,7 +440,7 @@ class ValidationModel(ForagingModel):
         # Create agents
         for i in range(self.num_agents):
             # print (i, j, self.xmlstrings[j])
-            a = ExecutingAgent(i, self, xmlstring=phenotypes[j])
+            a = ExecutingAgent(i, self, xmlstring=phenotypes)
             # a = TestingAgent(i, self, xmlstring=phenotypes[j])
             # Add the agent to schedular list
             self.schedule.add(a)

@@ -292,7 +292,7 @@ def test_json_phenotype(json):
     # jname = '/home/aadeshnpn/Documents/BYU/hcmi/swarm/results/1550083569946511-12000EvoSForge/' + json  # noqa : E501
     # jname = '/tmp/1543367322976111-8000EvoSForge/' + json
     # jname = '/tmp/16235346558663.json'
-    jname = '/tmp/1630428821653-all.json'
+    jname = '/tmp/16241073394409-all.json'
     phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
     print(len(phenotype))
     # phenotype = ' '
@@ -300,7 +300,7 @@ def test_json_phenotype(json):
     #
     # test_loop(phenotype, 5000)
     # ui_loop(phenotype, 500)
-    validation_loop(phenotype, 5000, '/tmp/swarm/data/experiments/')
+    validation_loop(phenotype, 5000, '/tmp/swarm/data/experiments/', ratio=0.3)
     # if validation_loop(phenotype, 2000, 1):
     #    print('foraging success')
 
