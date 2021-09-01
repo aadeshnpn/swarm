@@ -29,6 +29,7 @@ def validation_loop(
     # Build the environment
     valid.build_environment_from_json()
     # Create the agents in the environment from the sampled behaviors
+    # valid.random.shuffle(phenotypes)
     phenotypes = valid.behavior_sampling(method='ratio', ratio_value=ratio, phenotype=phenotypes)
     valid.create_agents(phenotypes=phenotypes, random_init=False)
     # print('total food units', valid.total_food_units)
@@ -279,7 +280,7 @@ def exp_evol_sample(iter, n, db, runs, thread):
         # learning_phase(iter)
         # Run the evolved behaviors on a test environment
         print('Behavior Sampling experiments', count_exp, fpercent, len(phenotypes))
-        if (phenotypes is not None and fpercent >= 80):
+        if (phenotypes is not None and fpercent >= 5):
             for r in [0.1, 0.2, 0.3, 0.5, 0.7, 1.0]:
                 print(r)
                 Parallel(
@@ -292,7 +293,7 @@ def test_json_phenotype(json):
     # jname = '/home/aadeshnpn/Documents/BYU/hcmi/swarm/results/1550083569946511-12000EvoSForge/' + json  # noqa : E501
     # jname = '/tmp/1543367322976111-8000EvoSForge/' + json
     # jname = '/tmp/16235346558663.json'
-    jname = '/tmp/16305105944070-all.json'
+    jname = '/tmp/16305336467632-all.json'
     phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
     print(len(phenotype))
     # phenotype = ' '
@@ -300,7 +301,14 @@ def test_json_phenotype(json):
     #
     # test_loop(phenotype, 5000)
     # ui_loop(phenotype, 500)
-    validation_loop(phenotype, 5000, '/tmp/swarm/data/experiments/', ratio=0.3)
+    # validation_loop(phenotype, 5000, '/tmp/swarm/data/experiments/', ratio=0.1)
+    # validation_loop(phenotype, 5000, '/tmp/swarm/data/experiments/', ratio=0.2)
+    # validation_loop(phenotype, 5000, '/tmp/swarm/data/experiments/', ratio=0.3)
+    # validation_loop(phenotype, 5000, '/tmp/swarm/data/experiments/', ratio=0.5)
+    r = [0.1, 0.2, 0.3, 0.5, 0.7, 1.0]
+    Parallel(
+            n_jobs=6)(delayed(validation_loop)(
+                phenotype, 5000, '/tmp/swarm/data/experiments/', i, db=False) for i in r)
     # if validation_loop(phenotype, 2000, 1):
     #    print('foraging success')
 
@@ -396,7 +404,7 @@ def exp_varying_n_evolution(args):
 
 
 def behavior_sampling(args):
-    exp_evol_sample(args.iter, 100, args.db, args.runs, args.threads)
+    exp_evol_sample(args.iter, 50, args.db, args.runs, args.threads)
 
 
 def single_evo(args):
@@ -418,15 +426,15 @@ if __name__ == '__main__':
     # print ('jsonlist',len(jsonlist))
     # test_top_phenotype(jsonlist[1:])
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--exp_no', default=1, type=int)
-    parser.add_argument('--runs', default=36, type=int)
-    parser.add_argument('--threads', default=18, type=int)
-    parser.add_argument('--iter', default=12000, type=int)
-    parser.add_argument('--db', default=False, type=bool)
-    args = parser.parse_args()
-    print(args)
-    experiments(args)
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument(
+    #     '--exp_no', default=1, type=int)
+    # parser.add_argument('--runs', default=36, type=int)
+    # parser.add_argument('--threads', default=18, type=int)
+    # parser.add_argument('--iter', default=12000, type=int)
+    # parser.add_argument('--db', default=False, type=bool)
+    # args = parser.parse_args()
+    # print(args)
+    # experiments(args)
 
-    # test_json_phenotype(None)
+    test_json_phenotype(None)

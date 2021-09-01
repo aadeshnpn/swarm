@@ -1,6 +1,6 @@
 from inspect import CO_ITERABLE_COROUTINE
 from py_trees import common
-from py_trees.composites import Selector
+from py_trees.composites import Selector, Sequence, Parallel
 from py_trees import common, blackboard
 from py_trees.trees import BehaviourTree
 from swarms.behaviors.sbehaviors import DropCue, SendSignal, ObjectsStore
@@ -480,14 +480,14 @@ class LearningAgent(ForagingAgent):
             self.genome_storage) >= (self.model.num_agents / 10)
 
         # New logic to invoke genetic step
-        # if self.individual[0].fitness <= 0 and self.timestamp > 100:
+        # if self.exploration_fitness() <= 1 and self.timestamp > 100:
         #     individual = initialisation(self.parameter, 10)
         #     individual = evaluate_fitness(individual, self.parameter)
         #     self.genome_storage = self.genome_storage + individual
         #     self.genetic_step()
         # elif (
         #         (
-        #             self.individual[0].fitness >= 0 and storage_threshold
+        #             self.exploration_fitness() >= 0 and storage_threshold
         #             ) and (self.timestamp > 200 and self.food_collected <= 0)):
         #     self.genetic_step()
         # elif (
@@ -496,11 +496,11 @@ class LearningAgent(ForagingAgent):
         #         self.genetic_step()
 
         #"""
-        if storage_threshold:
+        if storage_threshold and self.food_collected <= 0:
             self.genetic_step()
         elif (
                 (
-                    storage_threshold is False and self.timestamp > 1000
+                    storage_threshold is False and self.timestamp > 200
                     ) and (self.exploration_fitness() < 2)):
             individual = initialisation(self.parameter, 10)
             individual = evaluate_fitness(individual, self.parameter)
@@ -536,7 +536,9 @@ class ExecutingAgent(ForagingAgent):
             bt = BTConstruct(None, self, self.xmlstring[i])
             bt.construct()
             bts.append(bt.behaviour_tree.root)
-        root = Selector('RootAll')
+        # root = Selector('RootAll')
+        # root = Sequence('RootAll')
+        root = Parallel('RootAll')
         self.model.random.shuffle(bts)
         root.add_children(bts)
         self.bt.behaviour_tree = BehaviourTree(root)
