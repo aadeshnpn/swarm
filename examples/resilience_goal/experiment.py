@@ -30,7 +30,7 @@ def validation_loop(
     valid.build_environment_from_json()
     # Create the agents in the environment from the sampled behaviors
     phenotypes = valid.behavior_sampling(method='ratio', ratio_value=ratio, phenotype=phenotypes)
-    valid.create_agents(phenotypes=phenotypes)
+    valid.create_agents(phenotypes=phenotypes, random_init=False)
     # print('total food units', valid.total_food_units)
     # Print the BT
     # py_trees.display.print_ascii_tree(valid.agents[1].bt.behaviour_tree.root)
@@ -270,7 +270,7 @@ def exp_evol(iter, n, db):
     #     test_loop(phenotypes, 5000)
 
 
-def exp_evol_sample(iter, n, db):
+def exp_evol_sample(iter, n, db, runs, thread):
     """Block for the main function."""
     count_exp = 0
     while count_exp <= 15:
@@ -283,8 +283,8 @@ def exp_evol_sample(iter, n, db):
             for r in [0.1, 0.2, 0.3, 0.5, 0.7, 1.0]:
                 print(r)
                 Parallel(
-                    n_jobs=2)(delayed(validation_loop)(
-                        phenotypes, 5000, pname, r, db) for i in range(40))
+                    n_jobs=thread)(delayed(validation_loop)(
+                        phenotypes, 5000, pname, r, db) for i in range(runs))
             count_exp += 1
 
 
@@ -292,7 +292,7 @@ def test_json_phenotype(json):
     # jname = '/home/aadeshnpn/Documents/BYU/hcmi/swarm/results/1550083569946511-12000EvoSForge/' + json  # noqa : E501
     # jname = '/tmp/1543367322976111-8000EvoSForge/' + json
     # jname = '/tmp/16235346558663.json'
-    jname = '/tmp/16241073394409-all.json'
+    jname = '/tmp/16305105944070-all.json'
     phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
     print(len(phenotype))
     # phenotype = ' '
@@ -396,7 +396,7 @@ def exp_varying_n_evolution(args):
 
 
 def behavior_sampling(args):
-    exp_evol_sample(args.iter, 100, args.db)
+    exp_evol_sample(args.iter, 100, args.db, args.runs, args.threads)
 
 
 def single_evo(args):
@@ -417,15 +417,16 @@ if __name__ == '__main__':
     # jsonlist = sys.argv
     # print ('jsonlist',len(jsonlist))
     # test_top_phenotype(jsonlist[1:])
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument(
-    #     '--exp_no', default=1, type=int)
-    # parser.add_argument('--runs', default=36, type=int)
-    # parser.add_argument('--threads', default=18, type=int)
-    # parser.add_argument('--iter', default=12000, type=int)
-    # parser.add_argument('--db', default=False, type=bool)
-    # args = parser.parse_args()
-    # print(args)
-    # experiments(args)
 
-    test_json_phenotype(None)
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--exp_no', default=1, type=int)
+    parser.add_argument('--runs', default=36, type=int)
+    parser.add_argument('--threads', default=18, type=int)
+    parser.add_argument('--iter', default=12000, type=int)
+    parser.add_argument('--db', default=False, type=bool)
+    args = parser.parse_args()
+    print(args)
+    experiments(args)
+
+    # test_json_phenotype(None)

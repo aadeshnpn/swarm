@@ -479,7 +479,7 @@ class LearningAgent(ForagingAgent):
         storage_threshold = len(
             self.genome_storage) >= (self.model.num_agents / 10)
 
-        # # New logic to invoke genetic step
+        # New logic to invoke genetic step
         # if self.individual[0].fitness <= 0 and self.timestamp > 100:
         #     individual = initialisation(self.parameter, 10)
         #     individual = evaluate_fitness(individual, self.parameter)
