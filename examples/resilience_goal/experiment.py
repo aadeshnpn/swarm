@@ -380,13 +380,13 @@ def experiments(args):
 
 
 def behavior_sampling_after(args):
-    jname = '/tmp/experiments/100/12000/1624352990396EvoSForgeNewPPA1/1624352990396-all.json'
+    jname = '/tmp/swarm/data/experiments/50/4000/16305336467632EvoSForgeNewPPA1/16305336467632-all.json'
     phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
     print(len(phenotype))
     for r in [0.1, 0.2, 0.3, 0.5, 0.7, 1.0]:
         Parallel(
-            n_jobs=18)(delayed(validation_loop)(
-                phenotype, 5000, None, r, db=False) for i in range(18))
+            n_jobs=16)(delayed(validation_loop)(
+                phenotype, 5000, '/tmp/swarm/data/experiments/', ratio=r, db=False) for i in range(16))
 
 # def exp_with_size_trap(args):
 #     jname = '/tmp/experiments/100/12000/1624352990396EvoSForgeNewPPA1/1624352990396-all.json'
@@ -437,4 +437,5 @@ if __name__ == '__main__':
     # print(args)
     # experiments(args)
 
-    test_json_phenotype(None)
+    # test_json_phenotype(None)
+    behavior_sampling_after(None)

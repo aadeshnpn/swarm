@@ -1080,12 +1080,13 @@ def plot_evolution_algo_performance():
 
 def read_data_sample_ratio(ratio=0.1):
     # maindir = '/tmp/swarm/data/experiments/behavior_sampling'
-    # maindir = '/tmp/swarms/data/experiment/'
+    maindir = '/tmp/swarm/data/experiments/'
     ## Experiment ID for the plots/results in the paper
     # maindir = '/tmp/16244729911974EvoSForgeNewPPA1/'
     # maindir = '/tmp/experiments/100/12000/16243666378807EvoSForgeNewPPA1'
     # nadir = os.path.join(maindir, str(n), agent)
-    maindir = '/tmp/bsampling/'  # New sampling behaviors
+    # maindir = '/tmp/bsampling/'  # New sampling behaviors
+
     folders = pathlib.Path(maindir).glob("*_" + str(ratio) + "_ValidateSForgeNewPPA1")
     flist = []
     data = []
@@ -1102,7 +1103,7 @@ def read_data_sample_ratio(ratio=0.1):
 
 
 def plot_sampling_differences():
-    plt.style.use('fivethirtyeight')
+    # plt.style.use('fivethirtyeight')
     sampling_size = [0.1, 0.2, 0.3, 0.5, 0.7, 1.0]
     datas = []
     for s in sampling_size:
@@ -1110,7 +1111,7 @@ def plot_sampling_differences():
         print(s, data.shape)
         datas.append(data)
 
-    fig = plt.figure()
+    fig = plt.figure(dpi=200)
     ax1 = fig.add_subplot(1, 1, 1)
 
     colordict = {
@@ -1132,12 +1133,12 @@ def plot_sampling_differences():
     for patch, color in zip(bp1['boxes'], colordict.values()):
         patch.set_facecolor(color)
     # plt.xlim(0, len(mean))
-    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="lower left", title='Sampling Size')
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper left", title='Sampling Size')
     ax1.set_xticklabels(labels)
     ax1.set_yticks(range(0, 105, 20))
-    ax1.set_xlabel('Sampling Size')
-    ax1.set_ylabel('Foraging %')
-    ax1.set_title('Swarm Foraging')
+    ax1.set_xlabel('Sampling Size', fontsize="large")
+    ax1.set_ylabel('Foraging %',  fontsize="large")
+    ax1.set_title('Behavior Sampling',  fontsize="large")
 
     plt.tight_layout()
 
@@ -1582,7 +1583,8 @@ def main():
     # boxplot_fitness()
     # boxplot_oldVsPPA_diversity()
     # boxplot_fitness_paper()
-    boxplot_exp_agent_varying()
+    # boxplot_exp_agent_varying()
+    plot_sampling_differences()
 
 
 if __name__ == '__main__':
