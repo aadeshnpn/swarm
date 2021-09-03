@@ -380,10 +380,11 @@ def experiments(args):
 
 
 def behavior_sampling_after(args):
-    jname = '/tmp/swarm/data/experiments/50/4000/16305336467632EvoSForgeNewPPA1/16305336467632-all.json'
+    # jname = '/tmp/swarm/data/experiments/50/4000/16305336467632EvoSForgeNewPPA1/16305336467632-all.json'
+    jname = '/tmp/1630663528566-all.json'
     phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
     print(len(phenotype))
-    for r in [0.1, 0.2, 0.3, 0.5, 0.7, 1.0]:
+    for r in [0.1, 0.5, 0.7, 0.8, 0.9, 0.95]:
         Parallel(
             n_jobs=16)(delayed(validation_loop)(
                 phenotype, 5000, '/tmp/swarm/data/experiments/', ratio=r, db=False) for i in range(16))

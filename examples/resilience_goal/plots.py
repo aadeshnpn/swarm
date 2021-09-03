@@ -1544,6 +1544,10 @@ def comp_with_witout_comm():
         maindir + 'comparewithoutcomm.png')
     plt.close(fig)
 
+## Command to count the occurance of PPA sub-tree in each evolved behavior
+# find $PWD -type f -name "*.json" | xargs cat | awk -F ',' '{for(i=1;i<=NF;i++){print $i;}}'
+# | awk -F'<Act>' 'NF{print NF-1}' | awk '{a[$1]++}END{for(x in a)print a[x]"="x}'
+
 
 def main():
     # read_data_n_agent()
