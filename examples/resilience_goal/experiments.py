@@ -187,7 +187,7 @@ if __name__ == '__main__':
     parser.add_argument('--dry_run', action='store_false')
     parser.add_argument('--exp_no', default=0, type=int)
     parser.add_argument('--grid', default=10, type=int)
-    parser.add_argument('--json_file', default='/tmp/16306710387695-4999.json', type=str)
+    parser.add_argument('--json_file', default='/tmp/1630663528566-all.json', type=str)
     parser.add_argument('--all', default=False)
     args = parser.parse_args()
     print(args)

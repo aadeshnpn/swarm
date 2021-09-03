@@ -426,17 +426,15 @@ if __name__ == '__main__':
     # jsonlist = sys.argv
     # print ('jsonlist',len(jsonlist))
     # test_top_phenotype(jsonlist[1:])
-
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument(
-    #     '--exp_no', default=1, type=int)
-    # parser.add_argument('--runs', default=36, type=int)
-    # parser.add_argument('--threads', default=18, type=int)
-    # parser.add_argument('--iter', default=12000, type=int)
-    # parser.add_argument('--db', default=False, type=bool)
-    # args = parser.parse_args()
-    # print(args)
-    # experiments(args)
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--exp_no', default=1, type=int)
+    parser.add_argument('--runs', default=36, type=int)
+    parser.add_argument('--threads', default=18, type=int)
+    parser.add_argument('--iter', default=12000, type=int)
+    parser.add_argument('--db', default=False, type=bool)
+    args = parser.parse_args()
+    print(args)
+    experiments(args)
 
     # test_json_phenotype(None)
-    behavior_sampling_after(None)
