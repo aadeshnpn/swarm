@@ -1104,7 +1104,7 @@ def read_data_sample_ratio(ratio=0.1):
 
 def plot_sampling_differences():
     # plt.style.use('fivethirtyeight')
-    sampling_size = [0.1, 0.2, 0.3, 0.5, 0.7, 1.0]
+    sampling_size = [0.1, 0.3, 0.5, 0.7, 0.8, 0.9, 0.95]
     datas = []
     for s in sampling_size:
         data = read_data_sample_ratio(s)[:, -1]
@@ -1116,10 +1116,15 @@ def plot_sampling_differences():
 
     colordict = {
         0: 'forestgreen',
-        1: 'indianred',
-        2: 'gold',
-        3: 'tomato',
-        4: 'royalblue'}
+        1: 'gold',
+        2: 'royalblue',
+        3: 'orchid',
+        4: 'olivedrab',
+        5: 'peru',
+        6: 'linen',
+        7: 'indianred',
+        8: 'tomato'}
+
     colorshade = [
         'springgreen', 'lightcoral',
         'khaki', 'lightsalmon', 'deepskyblue']
