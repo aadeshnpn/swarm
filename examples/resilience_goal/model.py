@@ -718,6 +718,8 @@ class SimForgModel(Model):
             a = self.agent(i, self, xmlstring=self.xmlstrings)
             self.schedule.add(a)
             # Add the hub to agents memory
+            # Add the hub to agents memory
+            # a.shared_content['Hub'] = {self.hub}
             # Initialize the BT. Since the agents are normal agents just
             # use the phenotype
             a.construct_bt()
@@ -914,10 +916,23 @@ class SimForgModel(Model):
 
     def food_in_hub(self):
         """Find amount of food in hub."""
+        # grid = self.grid
+        # food_loc = self.hub.location
+        # neighbours = grid.get_neighborhood(food_loc, self.hub.radius)
+        # food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+        # return len(food_objects)
         grid = self.grid
-        food_loc = self.hub.location
-        neighbours = grid.get_neighborhood(food_loc, 10)
+        hub_loc = self.hub.location
+        neighbours = grid.get_neighborhood(hub_loc, self.hub.radius)
         food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+        _, hub_grid = grid.find_grid(hub_loc)
+        for food in self.foods:
+            _, food_grid = grid.find_grid(food.location)
+            if food_grid == hub_grid:
+                food_objects += [food]
+        food_objects = set(food_objects)
+        # total_food_weights = sum([food.weight for food in food_objects])
+        # return np.round(((total_food_weights * 1.0) / self.total_food_units) * 100, 1)
         return len(food_objects)
 
     def food_in_loc(self, loc):

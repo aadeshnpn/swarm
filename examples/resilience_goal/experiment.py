@@ -293,7 +293,7 @@ def test_json_phenotype(json):
     # jname = '/home/aadeshnpn/Documents/BYU/hcmi/swarm/results/1550083569946511-12000EvoSForge/' + json  # noqa : E501
     # jname = '/tmp/1543367322976111-8000EvoSForge/' + json
     # jname = '/tmp/16235346558663.json'
-    jname = '/tmp/16305336467632-all.json'
+    jname = '/tmp/16306710387695-4999.json'
     phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
     print(len(phenotype))
     # phenotype = ' '
@@ -305,10 +305,15 @@ def test_json_phenotype(json):
     # validation_loop(phenotype, 5000, '/tmp/swarm/data/experiments/', ratio=0.2)
     # validation_loop(phenotype, 5000, '/tmp/swarm/data/experiments/', ratio=0.3)
     # validation_loop(phenotype, 5000, '/tmp/swarm/data/experiments/', ratio=0.5)
-    r = [0.1, 0.2, 0.3, 0.5, 0.7, 1.0]
+    # r = [0.1, 0.2, 0.3, 0.5, 0.7, 1.0]
+    # Parallel(
+    #         n_jobs=6)(delayed(validation_loop)(
+    #             phenotype, 5000, '/tmp/swarm/data/experiments/', i, db=False) for i in r)
+
     Parallel(
-            n_jobs=6)(delayed(validation_loop)(
-                phenotype, 5000, '/tmp/swarm/data/experiments/', i, db=False) for i in r)
+            n_jobs=16)(delayed(validation_loop)(
+                phenotype, 5000, '/tmp/swarm/data/experiments/', 1.0, db=False) for i in range(16))
+
     # if validation_loop(phenotype, 2000, 1):
     #    print('foraging success')
 
@@ -426,15 +431,15 @@ if __name__ == '__main__':
     # jsonlist = sys.argv
     # print ('jsonlist',len(jsonlist))
     # test_top_phenotype(jsonlist[1:])
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--exp_no', default=1, type=int)
-    parser.add_argument('--runs', default=36, type=int)
-    parser.add_argument('--threads', default=18, type=int)
-    parser.add_argument('--iter', default=12000, type=int)
-    parser.add_argument('--db', default=False, type=bool)
-    args = parser.parse_args()
-    print(args)
-    experiments(args)
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument(
+    #     '--exp_no', default=1, type=int)
+    # parser.add_argument('--runs', default=36, type=int)
+    # parser.add_argument('--threads', default=18, type=int)
+    # parser.add_argument('--iter', default=12000, type=int)
+    # parser.add_argument('--db', default=False, type=bool)
+    # args = parser.parse_args()
+    # print(args)
+    # experiments(args)
 
-    # test_json_phenotype(None)
+    test_json_phenotype(None)

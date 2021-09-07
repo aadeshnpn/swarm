@@ -28,7 +28,7 @@ def simulate_forg(
         viewer=False, agent=agent, expsite=site, trap=trap, obs=obs, notrap=notrap, noobs=noobs)
     sim.build_environment_from_json()
 
-    # for all agents store the information about hub
+    # # for all agents store the information about hub
     for agent in sim.agents:
         agent.shared_content['Hub'] = {sim.hub}
         # agent.shared_content['Sites'] = {sim.site}
@@ -178,7 +178,7 @@ if __name__ == '__main__':
     parser.add_argument('--runs', default=50, type=int)
     parser.add_argument('--site', default=25, type=int)
     parser.add_argument('--trap_size', default=5, type=int)
-    parser.add_argument('--steps', default=5000, type=int)
+    parser.add_argument('--steps', default=1500, type=int)
     parser.add_argument('--obstacle_size', default=5, type=int)
     parser.add_argument('--no_trap', default=1, type=int)
     parser.add_argument('--no_obs', default=1, type=int)
