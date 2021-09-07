@@ -715,7 +715,7 @@ class SimForgModel(Model):
         # Create agents
         for i in range(self.num_agents):
             # print (i, j, self.xmlstrings[j])
-            a = self.agent(i, self, xmlstring=self.xmlstrings[j])
+            a = self.agent(i, self, xmlstring=self.xmlstrings)
             self.schedule.add(a)
             # Add the hub to agents memory
             # Initialize the BT. Since the agents are normal agents just
