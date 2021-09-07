@@ -178,7 +178,7 @@ if __name__ == '__main__':
     parser.add_argument('--runs', default=50, type=int)
     parser.add_argument('--site', default=25, type=int)
     parser.add_argument('--trap_size', default=5, type=int)
-    parser.add_argument('--steps', default=1500, type=int)
+    parser.add_argument('--steps', default=500, type=int)
     parser.add_argument('--obstacle_size', default=5, type=int)
     parser.add_argument('--no_trap', default=1, type=int)
     parser.add_argument('--no_obs', default=1, type=int)
