@@ -933,12 +933,12 @@ def boxplot_exp_0():
 
 
 def experiment_1(agent='ExecutingAgent'):
-    plt.style.use('fivethirtyeight')
+    # plt.style.use('fivethirtyeight')
     sites = [20, 25, 30, 40, 50]
-    datasf = [read_data_exp_3(100, 100, 5, 5, exp_no=1, site=s, no_trap=1, no_obs=1)[0] for s in sites]
+    datasf = [read_data_exp_3(100, 100, 5, 5, exp_no=1, site=s, no_trap=1, no_obs=1, grid=10)[0] for s in sites]
     # datasd = [read_data_exp_3(100, 100, 5, 5, exp_no=1, site=s, no_trap=1, no_obs=1)[1][:,-1] for s in sites]
 
-    fig = plt.figure()
+    fig = plt.figure(figsize=(8,6), dpi=200)
 
     ax1 = fig.add_subplot(1, 1, 1)
     colordict = {
@@ -1596,8 +1596,8 @@ def main():
     # plot_sampling_differences()
     # plotallsitesdist()
     # comp_with_witout_comm()
-    boxplot_exp_0()
-    # experiment_1()
+    # boxplot_exp_0()
+    experiment_1()
     # boxplot_exp_2()
     # boxplot_exp_3()
     # boxplot_exp_4()
