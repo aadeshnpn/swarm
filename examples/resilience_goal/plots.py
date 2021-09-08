@@ -825,15 +825,15 @@ def boxplotallsitesdist(agent='ExecutingAgent'):
 
 
 def boxplot_exp_0():
-    agents = [50, 100, 200, 300, 400]
-    dataf = [read_data_exp_3(100, 100, 5, 5, exp_no=0, site=30, no_trap=1, no_obs=1, agent=a)[0][:,-1] for a in agents]
-    datad = [read_data_exp_3(100, 100, 5, 5, exp_no=0, site=30, no_trap=1, no_obs=1, agent=a)[1][:,-1] for a in agents]
+    agents = [50, 100, 200, 300, 400, 500]
+    dataf = [read_data_exp_3(100, 100, 5, 5, exp_no=0, site=30, no_trap=1, no_obs=1, agent=a, grid=10)[0][:,-1] for a in agents]
+    datad = [read_data_exp_3(100, 100, 5, 5, exp_no=0, site=30, no_trap=1, no_obs=1, agent=a, grid=10)[1][:,-1] for a in agents]
     datadp = [(datad[d]/agents[d])*100.0 for d in range(len(datad))]
-    fig = plt.figure(figsize=(6, 8), dpi=100)
+    fig = plt.figure(figsize=(8,6), dpi=200)
     # dataall = [read_data_exp_3(100, 100, 5, 5, exp_no=0, site=30, no_trap=1, no_obs=1, agent=a)[0] for a in agents]
     # data = [data[:,-1] for data in dataall]
 
-    ax1 = fig.add_subplot(3, 1, 1)
+    ax1 = fig.add_subplot(1, 1, 1)
     colordict = {
         0: 'forestgreen',
         1: 'indianred',
@@ -844,50 +844,64 @@ def boxplot_exp_0():
         'springgreen', 'lightcoral',
         'khaki', 'lightsalmon', 'deepskyblue']
 
-    labels = [50, 100, 200, 300, 400]
+    labels = [50, 100, 200, 300, 400, 500]
     medianprops = dict(linewidth=1.5, color='firebrick')    # Strong line is median
     meanprops = dict(linewidth=2.5, color='#ff7f0e')    # Dashed line is mean
-    bp1 = ax1.boxplot(
-        dataf, 0, 'gD', showmeans=True, meanline=True,
-        patch_artist=True, medianprops=medianprops,
-        meanprops=meanprops)
-    for patch, color in zip(bp1['boxes'], colordict.values()):
-        patch.set_facecolor(color)
-    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="lower right", title='No. of agents')
+    positions = [
+        [1, 2], [4, 5], [7, 8], [10, 11], [13, 14], [16, 17]
+        ]
+    datas = [
+        [dataf[0], datadp[0]],
+        [dataf[1], datadp[1]],
+        [dataf[2], datadp[2]],
+        [dataf[3], datadp[3]],
+        [dataf[4], datadp[4]],
+        [dataf[5], datadp[5]],
+    ]
+    for j in range(len(positions)):
+        bp1 = ax1.boxplot(
+            datas[j], 0, 'gD', showmeans=True, meanline=True,
+            patch_artist=True, medianprops=medianprops,
+            meanprops=meanprops, positions=positions[j], widths=0.8)
+        for patch, color in zip(bp1['boxes'], colordict.values()):
+            patch.set_facecolor(color)
+
+    ax1.legend(zip(bp1['boxes']), ['Foraging', 'Dead Agents'], fontsize="small", loc="upper right", title='Performance Metric')
+    ax1.set_xticks([1.5, 4.5, 7.5, 10.5, 13.5, 16.5])
     ax1.set_xticklabels(labels)
     ax1.set_yticks(range(0, 105, 20))
-    # ax1.set_xlabel('No. of agents ')
-    ax1.set_ylabel('Foraging (%)', fontsize="large")
-    ax1.set_title('Swarm Foraging', fontsize="large")
+    ax1.set_xlabel('Agent Population', fontsize="large")
+    ax1.set_ylabel('Foraging / Dead Agent (%)', fontsize="large")
+    # ax1.set_title('Swarm Foraging', fontsize="large")
 
-    ax2 = fig.add_subplot(3, 1, 2)
-    bp2 = ax2.boxplot(
-        datad, 0, 'gD', showmeans=True, meanline=True,
-        patch_artist=True, medianprops=medianprops,
-        meanprops=meanprops)
-    for patch, color in zip(bp2['boxes'], colordict.values()):
-        patch.set_facecolor(color)
-    # plt.xlim(0, len(mean))
-    # ax2.legend(zip(bp2['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
-    ax2.set_yticks([0, 100, 200, 300, 400])
-    ax2.set_xticklabels(labels)
-    # ax2.set_xlabel('Agent size')
-    ax2.set_ylabel('No. Dead Agents', fontsize="large")
+    # ax2 = fig.add_subplot(3, 1, 2)
+    # bp2 = ax2.boxplot(
+    #     datad, 0, 'gD', showmeans=True, meanline=True,
+    #     patch_artist=True, medianprops=medianprops,
+    #     meanprops=meanprops)
+    # for patch, color in zip(bp2['boxes'], colordict.values()):
+    #     patch.set_facecolor(color)
+    # # plt.xlim(0, len(mean))
+    # # ax2.legend(zip(bp2['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
+    # ax2.set_yticks([0, 100, 200, 300, 400])
+    # ax2.set_xticklabels(labels)
+    # # ax2.set_xlabel('Agent size')
+    # ax2.set_ylabel('No. Dead Agents', fontsize="large")
 
-    ax3 = fig.add_subplot(3, 1, 3)
-    bp3 = ax3.boxplot(
-        datadp, 0, 'gD', showmeans=True, meanline=True,
-        patch_artist=True, medianprops=medianprops,
-        meanprops=meanprops)
-    for patch, color in zip(bp3['boxes'], colordict.values()):
-        patch.set_facecolor(color)
-    # plt.xlim(0, len(mean))
-    # ax3.legend(zip(bp3['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
-    ax3.set_xticklabels(labels)
-    ax3.set_xlabel('No. of agents', fontsize="large")
-    ax3.set_ylabel('Dead Agents (%)', fontsize="large")
-    ax3.set_yticks(range(0,105, 20))
-    ax3.set_xticklabels(labels)
+    # ax3 = fig.add_subplot(3, 1, 3)
+    # bp3 = ax3.boxplot(
+    #     datadp, 0, 'gD', showmeans=True, meanline=True,
+    #     patch_artist=True, medianprops=medianprops,
+    #     meanprops=meanprops)
+    # for patch, color in zip(bp3['boxes'], colordict.values()):
+    #     patch.set_facecolor(color)
+    # # plt.xlim(0, len(mean))
+    # # ax3.legend(zip(bp3['boxes']), labels, fontsize="small", loc="upper right", title='Agent Size')
+    # ax3.set_xticklabels(labels)
+    # ax3.set_xlabel('No. of agents', fontsize="large")
+    # ax3.set_ylabel('Dead Agents (%)', fontsize="large")
+    # ax3.set_yticks(range(0,105, 20))
+    # ax3.set_xticklabels(labels)
 
     # ax2 = fig.add_subplot(2, 1, 2)
     # for i in range(len(dataall)):
@@ -906,7 +920,7 @@ def boxplot_exp_0():
     # ax2.set_yticks(range(0, 105, 20))
     # ax2.set_xlabel('Time Steps')
     # ax2.set_ylabel('Foraging (%)')
-    # plt.tight_layout()
+    plt.tight_layout()
 
     maindir = '/tmp/swarm/data/experiments/'
     fname = 'agentscompboxplot'
@@ -1582,7 +1596,7 @@ def main():
     # plot_sampling_differences()
     # plotallsitesdist()
     # comp_with_witout_comm()
-    # boxplot_exp_0()
+    boxplot_exp_0()
     # experiment_1()
     # boxplot_exp_2()
     # boxplot_exp_3()
@@ -1593,7 +1607,7 @@ def main():
     # boxplot_oldVsPPA_diversity()
     # boxplot_fitness_paper()
     # boxplot_exp_agent_varying()
-    plot_sampling_differences()
+    # plot_sampling_differences()
 
 
 if __name__ == '__main__':
