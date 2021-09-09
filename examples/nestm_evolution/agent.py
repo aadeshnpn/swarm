@@ -288,16 +288,18 @@ class LearningAgent(NestAgent):
 
         # # Goal Specification Fitness
         # self.individual[0].fitness = (1 - self.beta) * self.diversity_fitness + self.ef  + self.evaluate_constraints_conditions()
-        divb = self.model.fmodels[self.model.fitid][0]
-        efb = self.model.fmodels[self.model.fitid][1]
-        cfb = self.model.fmodels[self.model.fitid][2]
-        dfb = self.model.fmodels[self.model.fitid][3]
-        self.individual[0].fitness = (
-            (1 - self.beta) * self.diversity_fitness * divb +
-            self.ef * efb +
-            self.cf * cfb +
-            self.debris_collected * dfb
-            )
+        # divb = self.model.fmodels[self.model.fitid][0]
+        # efb = self.model.fmodels[self.model.fitid][1]
+        # cfb = self.model.fmodels[self.model.fitid][2]
+        # dfb = self.model.fmodels[self.model.fitid][3]
+        # self.individual[0].fitness = (
+        #     (1 - self.beta) * self.diversity_fitness * divb +
+        #     self.ef * efb +
+        #     self.cf * cfb +
+        #     self.debris_collected * dfb
+        #     )
+        self.individual[0].fitness = (1 - self.beta) * self.delayed_reward + self.ef + self.evaluate_constraints_conditions()
+
 
     def get_debris_transported(self, distance_threshold=40):
         """Return debris that have been cleared from hub."""
@@ -401,7 +403,7 @@ class LearningAgent(NestAgent):
         #         self.genetic_step()
 
         #"""
-        if storage_threshold:
+        if storage_threshold and self.debris_collected <=0:
             self.genetic_step()
         elif (
                 (
