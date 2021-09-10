@@ -57,14 +57,6 @@ class ForagingAgent(Agent):
         # self.keys = ['p', 'c', 't', 'o']
         # self.keys = ['o', 'e', 'p']
         # iscarrying, issignalactive, avoided trap, avoided obstacle, food dropped at hub
-        self.keys = ['c', 's', 'at', 'ao', 'f']
-        self.goalspecs = {
-            self.keys[0]: 'c',
-            self.keys[1]: 's',
-            self.keys[2]: 'at',
-            self.keys[3]: 'ao',
-            self.keys[4]: 'f'
-            }
         # self.trace = [{k:list() for k in self.keys}]
         # self.trace = [None] * (model.iter+1)
 
@@ -166,13 +158,7 @@ class LearningAgent(ForagingAgent):
         super().__init__(name, model)
         self.delayed_reward = 0
         self.phenotypes = dict()
-        self.functions = {
-            self.keys[0]: self.proposition_c,
-            self.keys[1]: self.proposition_s,
-            self.keys[2]: self.proposition_at,
-            self.keys[3]: self.proposition_ao,
-            self.keys[4]: self.proposition_f
-            }
+
         # Flags to make the computation easier
         self.avoid_trap = False
         self.avoid_obs = False
@@ -185,61 +171,6 @@ class LearningAgent(ForagingAgent):
         self.postcond_reward = 0
         # self.trace.append({k:self.functions[k]() for k in self.keys})
         # self.trace[self.step_count] = {k:self.functions[k]() for k in self.keys}
-
-    def proposition_c(self):
-        if len(self.attached_objects) > 0:
-            return True
-        else:
-            return False
-
-    def proposition_s(self):
-        if len(self.signals) > 0:
-            return True
-        else:
-            return False
-
-    def proposition_at(self):
-        return self.avoid_trap
-
-    def proposition_ao(self):
-        return self.avoid_obs
-
-    def proposition_f(self):
-        grid = self.model.grid
-        hub_loc = self.model.hub.location
-        neighbours = grid.get_neighborhood(hub_loc, self.model.hub.radius)
-        food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
-        agent_food_objects = []
-        prop_o = False
-        for food in food_objects:
-            # print('p keys', self.name, food.phenotype.keys())
-            if (
-                food.agent_name == self.name and (
-                    self.individual[0].phenotype in list(
-                        food.phenotype.keys())
-                    )):
-                prop_o = True
-                break
-        return prop_o
-
-    def evaluate_goals(self):
-        goals = []
-        # print('from evaluate goals', self.trace)
-        trace = list(filter(None.__ne__, self.trace))
-        trace = [trace[-1]]
-        for key, value in self.goalspecs.items():
-            formula = self.model.parser(value)
-            goals += [formula.truth(trace)]
-            # if key == 'e':
-            #     goals += [formula.truth(trace, len(trace)-1)]
-            # else:
-            #    goals += [formula.truth(trace)]
-        #     if self.name ==1:
-        #         print(key, value)
-        # if self.name ==1:
-        # print('from evalutate goals', self.name, goals, end=' ')
-        goals += [1 if self.bt.behaviour_tree.root.status == py_trees.Status.SUCCESS else 0]
-        return sum(goals)
 
     def evaluate_constraints_conditions(self):
         allnodes = list(self.bt.behaviour_tree.root.iterate())

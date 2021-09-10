@@ -1,7 +1,8 @@
 from inspect import CO_ITERABLE_COROUTINE
 from py_trees import common
-from py_trees.composites import Selector
+from py_trees.composites import Selector, Parallel
 from py_trees import common, blackboard
+from py_trees.trees import BehaviourTree
 from swarms.behaviors.sbehaviors import DropCue, SendSignal, ObjectsStore
 import numpy as np
 from swarms.lib.agent import Agent
@@ -80,7 +81,7 @@ class NestAgent(Agent):
         """Require for staged activation."""
         pass
 
-    def get_debris_transported(self, distance_threshold=40):
+    def get_debris_transported(self, distance_threshold=35):
         """Return debris that have been cleared from hub."""
         # Not computational efficient method
         debris_objects = []
@@ -193,7 +194,7 @@ class LearningAgent(NestAgent):
         # Grammatical Evolution part
         from ponyge.algorithm.parameters import Parameters
         parameter = Parameters()
-        parameter_list = ['--parameters', '../..,res.txt']
+        parameter_list = ['--parameters', '../..,nest.txt']
         # Comment when different results is desired.
         # Else set this for testing purpose
         # parameter.params['RANDOM_SEED'] = name
@@ -301,7 +302,7 @@ class LearningAgent(NestAgent):
         self.individual[0].fitness = (1 - self.beta) * self.delayed_reward + self.ef + self.evaluate_constraints_conditions()
 
 
-    def get_debris_transported(self, distance_threshold=40):
+    def get_debris_transported(self, distance_threshold=35):
         """Return debris that have been cleared from hub."""
         # Not computational efficient method
         debris_objects = []
@@ -352,7 +353,7 @@ class LearningAgent(NestAgent):
 
         # Hash the phenotype with its fitness
         # We need to move this from here to genetic step
-        self.cf = self.carrying_fitness()
+        # self.cf = self.carrying_fitness()
         self.ef = self.exploration_fitness()
         # self.scf = self.communication_fitness()
 
@@ -433,9 +434,21 @@ class ExecutingAgent(NestAgent):
     def construct_bt(self):
         """Construct BT."""
         # Get the phenotype of the genome and store as xmlstring
-        self.bt.xmlstring = self.xmlstring
-        # Construct actual BT from xmlstring
-        self.bt.construct()
+        bts = []
+        for i in range(len(self.xmlstring)):
+            bt = BTConstruct(None, self, self.xmlstring[i])
+            bt.construct()
+            bts.append(bt.behaviour_tree.root)
+        # root = Selector('RootAll')
+        # root = Sequence('RootAll')
+        root = Parallel('RootAll')
+        self.model.random.shuffle(bts)
+        root.add_children(bts)
+        self.bt.behaviour_tree = BehaviourTree(root)
+
+        # self.bt.xmlstring = self.xmlstring
+        # # Construct actual BT from xmlstring
+        # self.bt.construct()
         # py_trees.display.render_dot_tree(
         #    self.bt.behaviour_tree.root, name='/tmp/' + str(self.name))
         # py_trees.logging.level = py_trees.logging.Level.DEBUG

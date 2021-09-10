@@ -253,15 +253,20 @@ class NestMModel(Model):
                 fittest = agent
         return fittest
 
-    def detect_debris_moved(self):
+    def detect_debris_moved(self, distance_threshold=35):
         """Detect debris moved."""
         grid = self.grid
         debris_loc = self.hub.location
-        neighbours = grid.get_neighborhood(debris_loc, 30)
+        neighbours = grid.get_neighborhood(debris_loc, distance_threshold)
         debris_objects = grid.get_objects_from_list_of_grid(
             'Debris', neighbours)
 
-        return debris_objects
+        neighbours_hub = grid.get_neighborhood(
+            debris_loc, self.hub.radius)
+        debris_objects_hub = grid.get_objects_from_list_of_grid(
+            'Debris', neighbours_hub)
+
+        return set(debris_objects) - set(debris_objects_hub)
 
     def foraging_percent(self):
         """Compute the percent of the debris removef from the hub."""
@@ -270,7 +275,7 @@ class NestMModel(Model):
             [debris.weight for debris in debris_objects])
         return ((total_debris_weights * 1.0) / self.total_debris_units) * 100
 
-    def debris_cleaned(self, distance_threshold=40):
+    def debris_cleaned(self, distance_threshold=35):
         """Find amount of debris cleaned."""
         debris_objects = []
         for debry in self.debris:
@@ -454,7 +459,7 @@ class ValidationModel(NestMModel):
         # Create agents
         for i in range(self.num_agents):
             # print (i, j, self.xmlstrings[j])
-            a = ExecutingAgent(i, self, xmlstring=phenotypes[j])
+            a = ExecutingAgent(i, self, xmlstring=phenotypes)
             # a = TestingAgent(i, self, xmlstring=phenotypes[j])
             # Add the agent to schedular list
             self.schedule.add(a)
@@ -534,7 +539,7 @@ class TestModel(NestMModel):
         # Create agents
         for i in range(self.num_agents):
             # print (i, j, self.xmlstrings[j])
-            a = ExecutingAgent(i, self, xmlstring=phenotypes[j])
+            a = ExecutingAgent(i, self, xmlstring=phenotypes)
             self.schedule.add(a)
             # Add the hub to agents memory
             a.shared_content['Hub'] = {self.hub}
@@ -613,7 +618,7 @@ class ViewerModel(NestMModel):
         # Create agents
         for i in range(self.num_agents):
             # print (i, j, self.xmlstrings[j])
-            a = ExecutingAgent(i, self, xmlstring=phenotypes[j])
+            a = ExecutingAgent(i, self, xmlstring=phenotypes)
             self.schedule.add(a)
             # Add the hub to agents memory
             a.shared_content['Hub'] = {self.hub}
@@ -729,7 +734,7 @@ class SimNestMModel(Model):
         # Create agents
         for i in range(self.num_agents):
             # print (i, j, self.xmlstrings[j])
-            a = self.agent(i, self, xmlstring=self.xmlstrings[j])
+            a = self.agent(i, self, xmlstring=self.xmlstrings)
             self.schedule.add(a)
             # Add the hub to agents memory
             # Initialize the BT. Since the agents are normal agents just

@@ -520,7 +520,7 @@ class TestModel(ForagingModel):
         # Create agents
         for i in range(self.num_agents):
             # print (i, j, self.xmlstrings[j])
-            a = ExecutingAgent(i, self, xmlstring=phenotypes[j])
+            a = ExecutingAgent(i, self, xmlstring=phenotypes)
             self.schedule.add(a)
             # Add the hub to agents memory
             a.shared_content['Hub'] = {self.hub}
@@ -599,7 +599,7 @@ class ViewerModel(ForagingModel):
         # Create agents
         for i in range(self.num_agents):
             # print (i, j, self.xmlstrings[j])
-            a = ExecutingAgent(i, self, xmlstring=phenotypes[j])
+            a = ExecutingAgent(i, self, xmlstring=phenotypes)
             self.schedule.add(a)
             # Add the hub to agents memory
             a.shared_content['Hub'] = {self.hub}
