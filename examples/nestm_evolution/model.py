@@ -12,7 +12,7 @@ from swarms.utils.ui import UI
 from swarms.utils.distangle import point_distance
 from agent import LearningAgent, ExecutingAgent  # noqa : F041
 from swarms.lib.objects import (    # noqa : F401
-    Hub, Sites, Food, Debris, Obstacles, Traps)
+    Hub, Sites, Food, Debris, Obstacles, Traps, Boundary)
 import os
 from pathlib import Path
 # import imp
@@ -139,8 +139,8 @@ class NestMModel(Model):
                 jsondata, obj)
 
         self.hub = self.render.objects['hub'][0]
-        # self.traps = self.render.objects['traps'][0]
-        # self.obstacles = self.render.objects['obstacles'][0]
+        self.traps = self.render.objects['traps'][0]
+        self.boundary = self.render.objects['boundary']
         self.total_debris_units = 0
         self.debris = []
         try:

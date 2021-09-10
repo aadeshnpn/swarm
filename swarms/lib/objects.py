@@ -257,3 +257,17 @@ class Pheromones(EnvironmentObject):
 
     def step(self):
         self.current_time += 1
+
+
+# Class to define boundary object
+class Boundary(EnvironmentObject):
+    """Boundary object."""
+
+    def __init__(self, id=1, location=(0, 0), radius=20):
+        """Initialize."""
+        super().__init__(id, location, radius)
+        self.dropable = True
+        self.carryable = False
+        self.passable = True
+        self.deathable = False
+        self.moveable = False
