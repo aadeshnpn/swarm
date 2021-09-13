@@ -146,11 +146,12 @@ class NestMModel(Model):
         try:
             for i in range(self.num_agents * 1):
                 # dx, dy = self.random.randint(10, 20, 2)
-                dx, dy = self.random.normal(0, 10, 2)
+                # dx, dy = self.random.normal(0, 10, 2)
+                dx, dy = self.random.choice(range(-9, 9), 2)
                 dx = self.hub.location[0] + dx
                 dy = self.hub.location[1] + dy
                 d = Debris(
-                    i, location=(int(dx), int(dy)), radius=5)
+                    i, location=(int(dx), int(dy)), radius=3)
                 d.agent_name = None
                 self.grid.add_object_to_grid(d.location, d)
                 self.total_debris_units += d.weight
@@ -277,24 +278,26 @@ class NestMModel(Model):
 
     def debris_cleaned(self, distance_threshold=35):
         """Find amount of debris cleaned."""
-        # debris_objects = []
-        # for debry in self.debris:
-        #     distance = point_distance(debry.location, self.hub.location)
-        #     if distance > distance_threshold:
-        #         debris_objects.append(debry)
+        debris_objects = []
+        for debry in self.debris:
+            distance = point_distance(debry.location, self.hub.location)
+            if distance > distance_threshold:
+                debris_objects.append(debry)
 
-        # return list(set(debris_objects))
-        grid = self.grid
-        boundary_loc = self.boundary.location
-        neighbours = grid.get_neighborhood(boundary_loc, self.hub.radius)
-        debris_objects = grid.get_objects_from_list_of_grid('Debris', neighbours)
-        _, debris_grid = grid.find_grid(boundary_loc)
-        for debris in self.debris:
-            _, debris_grid = grid.find_grid(debris.location)
-            if debris_grid == debris_grid:
-                debris_objects += [debris]
-        debris_objects = set(debris_objects)
-        return len(debris_objects)
+        return list(set(debris_objects))
+
+        # grid = self.grid
+        # boundary_loc = self.boundary.location
+        # neighbours = grid.get_neighborhood(boundary_loc, self.boundary.radius)
+        # debris_objects = grid.get_objects_from_list_of_grid('Debris', neighbours)
+        # _, debris_grid = grid.find_grid(boundary_loc)
+
+        # for debry in self.debris:
+        #     _, debry_grid = grid.find_grid(debry.location)
+        #     if debry_grid == debris_grid:
+        #         debris_objects += [debry]
+        # debris_objects = set(debris_objects)
+        # return debris_objects
 
     def no_agent_dead(self):
         # grid = self.grid
