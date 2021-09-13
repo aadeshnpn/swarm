@@ -140,7 +140,7 @@ class NestMModel(Model):
 
         self.hub = self.render.objects['hub'][0]
         self.traps = self.render.objects['traps'][0]
-        self.boundary = self.render.objects['boundary']
+        self.boundary = self.render.objects['boundary'][0]
         self.total_debris_units = 0
         self.debris = []
         try:
@@ -277,13 +277,24 @@ class NestMModel(Model):
 
     def debris_cleaned(self, distance_threshold=35):
         """Find amount of debris cleaned."""
-        debris_objects = []
-        for debry in self.debris:
-            distance = point_distance(debry.location, self.hub.location)
-            if distance > distance_threshold:
-                debris_objects.append(debry)
+        # debris_objects = []
+        # for debry in self.debris:
+        #     distance = point_distance(debry.location, self.hub.location)
+        #     if distance > distance_threshold:
+        #         debris_objects.append(debry)
 
-        return list(set(debris_objects))
+        # return list(set(debris_objects))
+        grid = self.grid
+        boundary_loc = self.boundary.location
+        neighbours = grid.get_neighborhood(boundary_loc, self.hub.radius)
+        debris_objects = grid.get_objects_from_list_of_grid('Debris', neighbours)
+        _, debris_grid = grid.find_grid(boundary_loc)
+        for debris in self.debris:
+            _, debris_grid = grid.find_grid(debris.location)
+            if debris_grid == debris_grid:
+                debris_objects += [debris]
+        debris_objects = set(debris_objects)
+        return len(debris_objects)
 
     def no_agent_dead(self):
         # grid = self.grid
@@ -313,6 +324,7 @@ class EvolveModel(NestMModel):
             self.schedule.add(a)
             # Add the hub to agents memory
             a.shared_content['Hub'] = {self.hub}
+            a.shared_content['Boundary'] = {self.boundary}
             # First intitialize the Genetic algorithm. Then BT
             a.init_evolution_algo()
             # Initialize the BT. Since the agents are evolutionary

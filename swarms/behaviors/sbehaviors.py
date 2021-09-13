@@ -123,7 +123,7 @@ class NeighbourObjects(Behaviour):
                 # and property doesnot change. So we can commit its
                 # information to memory
                 # if item.carryable is False and item.deathable is False:
-                if name in ['Sites', 'Hub']:
+                if name in ['Sites', 'Hub', 'Boundary']:
                     try:
                         self.agent.shared_content[name].add(item)
                     except KeyError:
