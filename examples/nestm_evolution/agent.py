@@ -353,7 +353,7 @@ class LearningAgent(NestAgent):
 
         # Hash the phenotype with its fitness
         # We need to move this from here to genetic step
-        # self.cf = self.carrying_fitness()
+        self.cf = self.carrying_fitness()
         self.ef = self.exploration_fitness()
         # self.scf = self.communication_fitness()
 
