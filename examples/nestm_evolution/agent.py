@@ -194,7 +194,7 @@ class LearningAgent(NestAgent):
         # Grammatical Evolution part
         from ponyge.algorithm.parameters import Parameters
         parameter = Parameters()
-        parameter_list = ['--parameters', '../..,nest.txt']
+        parameter_list = ['--parameters', '../..,nm.txt']
         # Comment when different results is desired.
         # Else set this for testing purpose
         # parameter.params['RANDOM_SEED'] = name
@@ -289,17 +289,17 @@ class LearningAgent(NestAgent):
 
         # # Goal Specification Fitness
         # self.individual[0].fitness = (1 - self.beta) * self.diversity_fitness + self.ef  + self.evaluate_constraints_conditions()
-        # divb = self.model.fmodels[self.model.fitid][0]
-        # efb = self.model.fmodels[self.model.fitid][1]
-        # cfb = self.model.fmodels[self.model.fitid][2]
-        # dfb = self.model.fmodels[self.model.fitid][3]
-        # self.individual[0].fitness = (
-        #     (1 - self.beta) * self.diversity_fitness * divb +
-        #     self.ef * efb +
-        #     self.cf * cfb +
-        #     self.debris_collected * dfb
-        #     )
-        self.individual[0].fitness = (1 - self.beta) * self.delayed_reward + self.ef + self.evaluate_constraints_conditions()
+        divb = self.model.fmodels[self.model.fitid][0]
+        efb = self.model.fmodels[self.model.fitid][1]
+        cfb = self.model.fmodels[self.model.fitid][2]
+        dfb = self.model.fmodels[self.model.fitid][3]
+        self.individual[0].fitness = (
+            (1 - self.beta) * self.diversity_fitness * divb +
+            self.ef * efb +
+            self.cf * cfb +
+            self.debris_collected * dfb
+            )
+        # self.individual[0].fitness = (1 - self.beta) * self.delayed_reward + self.ef + self.evaluate_constraints_conditions()
 
 
     def get_debris_transported(self, distance_threshold=35):
