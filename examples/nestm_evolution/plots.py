@@ -1356,6 +1356,107 @@ def comp_with_witout_comm():
     plt.close(fig)
 
 
+def read_old_data_txt(fname='0'):
+    maindir = '/tmp/div/GeeseBT/'
+    fname = maindir+fname+'/'+fname+'.txt'
+    # print(fname)
+    data = np.genfromtxt(fname, unpack=True, autostrip=True)
+    data = np.array(data)
+    # print(data.shape)
+    return data
+
+
+def boxplot_fitness_paper():
+    newnames = [
+        '0', '1', '3'
+        ]
+    oldnames = [
+        '0', '1', '3'
+    ]
+
+    newdatas = [read_data_fitness(maindir='/tmp/div/BeTrGeese/'+n)[:,-1] for n in newnames]
+    middatas = [read_data_fitness(maindir='/tmp/div/PPAGeese/'+n)[:,-1] for n in newnames]
+    olddatas = [read_old_data_txt(fname=n) for n in oldnames]
+
+    print(
+        [newdatas[i].shape for i in range(3)],
+        [middatas[i].shape for i in range(3)],
+        [olddatas[i].shape for i in range(3)],
+        )
+    just_diversity = [olddatas[0], middatas[0], newdatas[0]]
+    diversity_exp = [olddatas[1], middatas[1], newdatas[1]]
+    all = [olddatas[2], middatas[2], newdatas[2]]
+    # plt.style.use('fivethirtyeight')
+    fig = plt.figure()
+
+    ax1 = fig.add_subplot(1, 1, 1)
+    colordict = {
+        0: 'forestgreen',
+        1: 'royalblue',
+        2: 'gold',
+        3: 'indianred',
+        4: 'tomato',
+        }
+    colorshade = [
+        'springgreen', 'deepskyblue', 'lightcoral',
+        'khaki', 'lightsalmon' ]
+    xlabels = [
+        'I', 'I + II',
+        'I + II + (III + IV) | V']
+    # labels = [
+    #     'Diversity', 'Diversity + Exporation',
+    #     'Divesity + Exploration + BT Feedback']
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=1.5, color='#ff7f0e')
+    # data = [data[:, i] for i in range(4)]
+    bp1 = ax1.boxplot(
+        just_diversity, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, positions=[1,2,3], widths=0.8)
+
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+
+    bp2 = ax1.boxplot(
+        diversity_exp, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, positions=[5,6,7], widths=0.8)
+
+    for patch, color in zip(bp2['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+
+    bp3 = ax1.boxplot(
+        all, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, positions=[9,10,11], widths=0.8)
+
+    for patch, color in zip(bp3['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+    # plt.xlim(0, len(mean))
+    labels = ['GEESE-BT (BNF-I + NO-PPA-PB) ', 'GEESE-BT (BNF-I + PPA-PB)', 'BrBt-GEESE (BNF-II + PPA-PB)']
+    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper left", title='GEESE Type', fancybox=True, framealpha=0.5)
+    # legend.get_frame().set_alpha(None)
+    ax1.set_xticks([2, 6, 10])
+    ax1.set_xticklabels(xlabels, fontsize="large")
+
+    ax1.set_yticks(range(0, 105, 20))
+    ax1.set_yticklabels(range(0, 105, 20), fontsize="large")
+    ax1.set_xlabel('Fitness Function Type', fontsize="large")
+    ax1.set_ylabel('Nest Maintanence (%)', fontsize="large")
+    # ax1.set_title('Swarm Foraging Evolved Behaviors')
+
+    plt.tight_layout()
+
+    maindir = '/tmp/div/'
+    fname = 'nestmfitnesscompall'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png', dpi=200)
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
 def main():
     # read_data_n_agent()
     # plotgraph()
@@ -1391,7 +1492,8 @@ def main():
     # boxplot_exp_4()
     # for t in  [9, 13, 15, 3]:
     #     boxplot_exp_5(t)
-    boxplot_fitness()
+    # boxplot_fitness()
+    boxplot_fitness_paper()
     # boxplot_oldVsPPA_diversity()
 
 
