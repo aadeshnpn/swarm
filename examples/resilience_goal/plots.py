@@ -248,7 +248,8 @@ def boxplot_fitness_paper():
     for patch, color in zip(bp3['boxes'], colordict.values()):
         patch.set_facecolor(color)
     # plt.xlim(0, len(mean))
-    labels = ['GEESE-BT (BNF-I + NO-PPA-PB) ', 'GEESE-BT (BNF-I + PPA-PB)', 'BrBt-GEESE (BNF-II + PPA-PB)']
+    # labels = ['GEESE-BT (BNF-I + NO-PPA-PB) ', 'GEESE-BT (BNF-I + PPA-PB)', 'BrBt-GEESE (BNF-II + PPA-PB)']
+    labels = ['GEESE-BT', 'BeTr-PB', 'BeTr-GEESE']
     ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper left", title='GEESE Type', fancybox=True, framealpha=0.5)
     # legend.get_frame().set_alpha(None)
     ax1.set_xticks([2, 6, 10])
@@ -1627,16 +1628,16 @@ def main():
     # plot_sampling_differences()
     # plotallsitesdist()
     # comp_with_witout_comm()
-    boxplot_exp_0()
-    experiment_1()
-    boxplot_exp_2()
-    boxplot_exp_3()
-    boxplot_exp_4()
+    # boxplot_exp_0()
+    # experiment_1()
+    # boxplot_exp_2()
+    # boxplot_exp_3()
+    # boxplot_exp_4()
     # for t in  [9, 13, 15, 3]:
     #     boxplot_exp_5(t)
     # boxplot_fitness()
     # boxplot_oldVsPPA_diversity()
-    # boxplot_fitness_paper()
+    boxplot_fitness_paper()
     # boxplot_exp_agent_varying()
     # plot_sampling_differences()
 
