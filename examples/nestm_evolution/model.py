@@ -73,6 +73,7 @@ class NestMModel(Model):
             3: [True, True, True, True],
         }
         self.fitid = fitid
+        print(name, fitid)
         # Create db connection
         if db:
             try:

@@ -291,13 +291,14 @@ class LearningAgent(NestAgent):
         # self.individual[0].fitness = (1 - self.beta) * self.diversity_fitness + self.ef  + self.evaluate_constraints_conditions()
         divb = self.model.fmodels[self.model.fitid][0]
         efb = self.model.fmodels[self.model.fitid][1]
-        cfb = self.model.fmodels[self.model.fitid][2]
+        # cfb = self.model.fmodels[self.model.fitid][2]
         dfb = self.model.fmodels[self.model.fitid][3]
         self.individual[0].fitness = (
             (1 - self.beta) * self.diversity_fitness * divb +
             self.ef * efb +
-            self.cf * cfb +
-            self.debris_collected * dfb
+            # self.cf * cfb +
+            # self.debris_collected * dfb
+            self.evaluate_constraints_conditions() * dfb
             )
         # self.individual[0].fitness = (1 - self.beta) * self.delayed_reward + self.ef + self.evaluate_constraints_conditions()
 

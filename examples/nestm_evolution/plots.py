@@ -190,7 +190,8 @@ def boxplot_oldVsPPA_diversity():
     colorshade = [
         'lightcoral', 'springgreen',
         'khaki', 'lightsalmon', 'deepskyblue']
-    labels = ['Grammar I + Non-PPA Behaviors', 'Grammar I + PPA Behaviors', 'Grammar II + PPA Behaviors']
+    # labels = ['Grammar I + Non-PPA Behaviors', 'Grammar I + PPA Behaviors', 'Grammar II + PPA Behaviors']
+    labels = ['GEESE-BT', 'BeTr-PB', 'BeTr-GEESE']
     medianprops = dict(linewidth=2.5, color='firebrick')
     meanprops = dict(linewidth=1.5, color='#ff7f0e')
     # data = [data[:, i] for i in range(4)]
@@ -1433,7 +1434,8 @@ def boxplot_fitness_paper():
     for patch, color in zip(bp3['boxes'], colordict.values()):
         patch.set_facecolor(color)
     # plt.xlim(0, len(mean))
-    labels = ['GEESE-BT (BNF-I + NO-PPA-PB) ', 'GEESE-BT (BNF-I + PPA-PB)', 'BrBt-GEESE (BNF-II + PPA-PB)']
+    # labels = ['GEESE-BT (BNF-I + NO-PPA-PB) ', 'GEESE-BT (BNF-I + PPA-PB)', 'BrBt-GEESE (BNF-II + PPA-PB)']
+    labels = ['GEESE-BT', 'BeTr-PB', 'BeTr-GEESE']
     ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper left", title='GEESE Type', fancybox=True, framealpha=0.5)
     # legend.get_frame().set_alpha(None)
     ax1.set_xticks([2, 6, 10])
@@ -1442,7 +1444,7 @@ def boxplot_fitness_paper():
     ax1.set_yticks(range(0, 105, 20))
     ax1.set_yticklabels(range(0, 105, 20), fontsize="large")
     ax1.set_xlabel('Fitness Function Type', fontsize="large")
-    ax1.set_ylabel('Nest Maintanence (%)', fontsize="large")
+    ax1.set_ylabel('Maintanence (%)', fontsize="large")
     # ax1.set_title('Swarm Foraging Evolved Behaviors')
 
     plt.tight_layout()
