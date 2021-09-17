@@ -405,7 +405,7 @@ class LearningAgent(NestAgent):
         #         self.genetic_step()
 
         #"""
-        if storage_threshold and self.debris_collected <=0:
+        if storage_threshold: #and self.debris_collected <=0:
             self.genetic_step()
         elif (
                 (

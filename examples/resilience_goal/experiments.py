@@ -18,14 +18,15 @@ UI = False
 
 def simulate_forg(
         env, iteration, agent=ExecutingAgent, N=100,
-        site=None, trap=5, obs=5, width=100, height=100, notrap=1, noobs=1, grid=10):
+        site=None, trap=5, obs=5, width=100, height=100, notrap=1, noobs=1, nosite=1, grid=10):
     """Test the performane of evolved behavior."""
     phenotypes = env[0]
     threshold = 1.0
     # print(iteration, phenotypes)
     sim = SimForgModel(
         N, width, height, grid, iter=iteration, xmlstrings=phenotypes, pname=env[1],
-        viewer=False, agent=agent, expsite=site, trap=trap, obs=obs, notrap=notrap, noobs=noobs)
+        viewer=False, agent=agent, expsite=site, trap=trap, obs=obs, notrap=notrap, noobs=noobs,
+        nosite=nosite)
     sim.build_environment_from_json()
 
     # # for all agents store the information about hub
@@ -90,12 +91,13 @@ def main(args):
     exp_no = args.exp_no
     no_trap = args.no_trap
     no_obs = args.no_obs
+    no_site = args.no_site
     grid = args.grid
-    def exp(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid):
+    def exp(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, no_size):
         agent = ExecutingAgent if agent == 0 else ExecutingAgent
         dname = os.path.join(
             '/tmp', 'swarm', 'data', 'experiments', str(n), agent.__name__, str(exp_no),
-            str(site), str(trap)+'_'+str(obs), str(no_trap)+'_'+str(no_obs), str(width) +'_'+str(height), str(grid) )
+            str(site), str(trap)+'_'+str(obs), str(no_trap)+'_'+str(no_obs), str(width) +'_'+str(height), str(no_site), str(grid) )
         pathlib.Path(dname).mkdir(parents=True, exist_ok=True)
         steps = [args.steps for i in range(args.runs)]
         jname = args.json_file
@@ -104,7 +106,7 @@ def main(args):
         Parallel(
             n_jobs=args.thread)(delayed(simulate_forg)(
                 env, i, agent=agent, N=n, site=site,
-                trap=trap, obs=obs, width=width, height=height, notrap=no_trap, noobs=no_obs, grid=grid) for i in steps)
+                trap=trap, obs=obs, width=width, height=height, notrap=no_trap, noobs=no_obs, grid=grid, nosite=no_site) for i in steps)
         # simulate_forg(env, 500, agent=agent, N=n, site=site)
 
     if args.all:
@@ -114,53 +116,54 @@ def main(args):
                     for site in sitelocation:
                         for agent in [0]:
                                 for n in [50, 100, 200, 300, 400, 500]:
-                                    pprint(n, agent, site, trapsizes[t], obssizes[t], windowsizes[w], windowsizes[w], nt, nt, 99)
+                                    for sn in [1, 2, 3, 4, 5]:
+                                        pprint(n, agent, site, trapsizes[t], obssizes[t], windowsizes[w], windowsizes[w], nt, nt, 99, 10, sn)
                                     if not args.dry_run:
-                                        exp(n, agent, site, trapsizes[t], obssizes[t], windowsizes[w], windowsizes[w], nt, nt, 99)
+                                        exp(n, agent, site, trapsizes[t], obssizes[t], windowsizes[w], windowsizes[w], nt, nt, 99, 10, sn)
     else:
         if args.exp_no == 0:
             # Every thing constant just change in agent size
             for n in [50, 100, 200, 300, 400, 500]:
-                pprint(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid)
+                pprint(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, no_site)
                 if not args.dry_run:
-                    exp(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid)
+                    exp(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, no_site)
         elif args.exp_no == 1:
             # Every thing constant site distance changes
             for site in sitelocation:
-                pprint(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid)
+                pprint(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, no_site)
                 if not args.dry_run:
-                    exp(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid)
+                    exp(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, no_site)
         elif args.exp_no == 2:
             # Every thing constant trap/obstacle size changes
             for i in range(len(trapsizes)):
-                pprint(n, agent, site, trapsizes[i], obssizes[i], width, height, no_trap, no_obs, exp_no, grid)
+                pprint(n, agent, site, trapsizes[i], obssizes[i], width, height, no_trap, no_obs, exp_no, grid, no_site)
                 if not args.dry_run:
-                    exp(n, agent, site, trapsizes[i], obssizes[i],width, height, no_trap, no_obs, exp_no, grid)
+                    exp(n, agent, site, trapsizes[i], obssizes[i],width, height, no_trap, no_obs, exp_no, grid, no_site)
         elif args.exp_no == 3:
             for w in range(len(windowsizes)):
-                pprint(n, agent, site, trap, obs, windowsizes[w], windowsizes[w], no_trap, no_obs, exp_no, grid)
+                pprint(n, agent, site, trap, obs, windowsizes[w], windowsizes[w], no_trap, no_obs, exp_no, grid, no_site)
                 if not args.dry_run:
-                    exp(n, agent, site, trap, obs, windowsizes[w], windowsizes[w], no_trap, no_obs, exp_no, grid)
+                    exp(n, agent, site, trap, obs, windowsizes[w], windowsizes[w], no_trap, no_obs, exp_no, grid, no_site)
         elif args.exp_no == 4:
             for nt in range(1, 6):
-                pprint(n, agent, site, trap, obs, width, height, nt, nt, exp_no, grid)
+                pprint(n, agent, site, trap, obs, width, height, nt, nt, exp_no, grid, no_site)
                 if not args.dry_run:
-                    exp(n, agent, site, trap, obs, width, height, nt, nt, exp_no, grid)
+                    exp(n, agent, site, trap, obs, width, height, nt, nt, exp_no, grid, no_site)
         elif args.exp_no == 5:
             for grid in gridsizes:
-                pprint(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid)
+                pprint(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, no_site)
                 if not args.dry_run:
-                    exp(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid)
+                    exp(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, no_site)
         else:
-            pprint(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid)
+            pprint(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, no_site)
             if not args.dry_run:
-                exp(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid)
+                exp(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, no_site)
 
 
-def pprint(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid):
+def pprint(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, no_site):
     print(
-        "N: %i, Site: %i, Trap: %i, Obstacles:%i, Width: %i, Height: %i, NoTrap: %i, NoObs: %i, ExpNo: %i, Grid: %i" %
-        (n, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid)
+        "N: %i, Site: %i, Trap: %i, Obstacles:%i, Width: %i, Height: %i, NoTrap: %i, NoObs: %i, ExpNo: %i, Grid: %i, NoSite: %i" %
+        (n, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, no_site)
         )
 
 

@@ -650,7 +650,7 @@ class SimForgModel(Model):
     def __init__(
             self, N, width, height, grid=10, iter=100000,
             xmlstrings=None, seed=None, viewer=False, pname=None,
-            agent=ExecutingAgent, expsite=None, trap=5, obs=5, notrap=1, noobs=1):
+            agent=ExecutingAgent, expsite=None, trap=5, obs=5, notrap=1, noobs=1, nosite=1):
         """Initialize the attributes."""
         if seed is None:
             super(SimForgModel, self).__init__(seed=None)
@@ -670,6 +670,7 @@ class SimForgModel(Model):
         self.obs_radius = obs
         self.no_trap = notrap
         self.no_obs = noobs
+        self.no_site = nosite
         # print('agent type', agent)
         # # Create db connection
         # try:
@@ -833,7 +834,8 @@ class SimForgModel(Model):
         # print(self.obstacles.passable)
         # self.traps = self.render.objects['traps'][0]
         # add site with random distances
-        self.place_site()
+        for s in range(self.no_site):
+            self.place_site()
         # print(self.traps, self.obstacles)
         # print(self.traps, self.obstacles, self.hub, self.site)
         # location = (self.expsite["x"], self.expsite["y"])
