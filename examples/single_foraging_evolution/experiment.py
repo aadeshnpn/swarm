@@ -87,15 +87,15 @@ def test_loop(phenotypes, iteration):
     graph.gen_plot()
 
 
-def learning_phase(iteration, early_stop=False):
+def learning_phase(iteration, early_stop=False, fitmode=0):
     """Learning Algorithm block."""
     # Evolution environment
-    env = EvolveModel(100, 100, 100, 10, iter=iteration)
+    env = EvolveModel(50, 100, 100, 10, iter=iteration, name="EvoSForge_"+ str(fitmode), fitmode=fitmode)
     env.build_environment_from_json()
     env.create_agents()
     # Validation Step parameter
     # Run the validation test every these many steps
-    validation_step = 1000
+    validation_step = 13000
 
     # Iterate and execute each step in the environment
     # Take a step i number of step in evolution environment
@@ -125,8 +125,14 @@ def learning_phase(iteration, early_stop=False):
                 return phenotypes
             """
     # Update the experiment table
-    env.experiment.update_experiment()
-    return phenotypes
+    # env.experiment.update_experiment()
+    fpercentage = env.foraging_percent()
+    if fpercentage > 5:
+        env.experiment.update_experiment_simulation(fpercentage, True)
+    else:
+        env.experiment.update_experiment_simulation(fpercentage, False)
+    print('Foraging', fpercentage)
+    # return phenotypes
 
 
 def phenotype_to_json(pname, runid, phenotypes):
@@ -135,13 +141,13 @@ def phenotype_to_json(pname, runid, phenotypes):
     JsonPhenotypeData.to_json(phenotypes, jfilename)
 
 
-def main(iter):
+def main(i, iter, mode):
     """Block for the main function."""
     # Run the evolutionary learning algorithm
-    phenotypes = learning_phase(iter)
+    phenotypes = learning_phase(iter, fitmode=mode)
     # learning_phase(iter)
     # Run the evolved behaviors on a test environment
-    test_loop(phenotypes, 2000)
+    # test_loop(phenotypes, 2000)
 
 
 def test_json_phenotype(json):
@@ -153,11 +159,15 @@ def test_json_phenotype(json):
     if validation_loop(phenotype, 2000):
         print('foraging success')
 
+
 if __name__ == '__main__':
     # Running 50 experiments in parallel
     # Parallel(n_jobs=8)(delayed(main)(i) for i in range(2000, 100000, 2000))
     # Parallel(n_jobs=4)(delayed(main)(i) for i in range(1000, 8000, 2000))
-    # main(8000)
+    # main(12000)
     # json = '1543367322976111-5999.json'
     # test_json_phenotype(json)
-    Parallel(n_jobs=8)(delayed(main)(8000) for i in range(16))
+    Parallel(n_jobs=16)(delayed(main)(i, 12000, 0) for i in range(64))
+    Parallel(n_jobs=16)(delayed(main)(i, 12000, 1) for i in range(64))
+    Parallel(n_jobs=16)(delayed(main)(i, 12000, 2) for i in range(64))
+    Parallel(n_jobs=16)(delayed(main)(i, 12000, 3) for i in range(64))

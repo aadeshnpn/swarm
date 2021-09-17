@@ -21,7 +21,7 @@ class EvolModel(Model):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000, seed=None,
-            expname='NestM', agent='EvolAgent', parm='nm.txt'):
+            expname='NestM', agent='EvolAgent', parm='nm.txt', fitid=0):
         """Initialize the attributes."""
         if seed is None:
             super(EvolModel, self).__init__(seed=None)
@@ -29,10 +29,12 @@ class EvolModel(Model):
             super(EvolModel, self).__init__(seed)
 
         self.runid = datetime.datetime.now().strftime(
-            "%s") + str(self.random.randint(1, 1000, 1)[0])
+            "%s") + str(self.random.randint(1, 10000, 1)[0])
 
-        self.pname = '/'.join(os.getcwd().split('/')[:-2]) + '/results/' \
-            + self.runid + expname
+        self.pname = '/'.join(
+            os.getcwd().split('/')[:-2]) + '/results/' \
+            + str(fitid) + '/' \
+            + self.runid + '-' + str(iter) + expname
 
         self.stepcnt = 1
         self.iter = iter
@@ -43,7 +45,7 @@ class EvolModel(Model):
 
         # Fill out the experiment table
         self.experiment = Experiment(
-            self.connect, self.runid, N, seed, expname,
+            self.connect, self.runid, N, seed, expname + '-'+ str(fitid),
             iter, width, height, grid)
         self.experiment.insert_experiment()
 
@@ -60,6 +62,14 @@ class EvolModel(Model):
 
         self.agents = []
         self.parm = parm
+
+        self.modes = {
+            0: (True, False, False, False),
+            1: (True, True, False, False),
+            2: (True, True, True, False),
+            3: (True, True, True, True)
+        }
+        self.fitmode = fitid
 
         # Create agents
         for i in range(self.num_agents):
@@ -119,7 +129,7 @@ class EvolModel(Model):
                 dy = self.hub.location[1] + dy
                 d = Debris(
                     i, location=(dx, dy),
-                    radius=10)
+                    radius=5)
                 d.agent_name = None
                 self.grid.add_object_to_grid(d.location, d)
                 self.debris.append(d)
@@ -129,7 +139,7 @@ class EvolModel(Model):
         # Create a place for the agents to drop the derbis
         try:
             self.obstacles = []
-            for i in range(1):
+            for i in range(4):
                 dx, dy = self.random.randint(5, 10, 2)
                 dx = self.hub.location[0] + 25 + dx
                 dy = self.hub.location[1] + 25 + dy
@@ -150,7 +160,7 @@ class EvolModel(Model):
     def step(self):
         """Step through the environment."""
         # Gather info from all the agents
-        self.top = self.gather_info()
+        # self.top = self.gather_info()
         # Next step
         self.schedule.step()
         # Increment the step count
@@ -201,7 +211,7 @@ class EvolModel(Model):
 
         best_agent = Best(
             self.pname, self.connect, self.sn, idx, header, self.stepcnt, beta,
-            ofitness, dfitness, efitness, ffitness, phenotype
+            ofitness, dfitness, efitness, ffitness, 'None'
         )
 
         best_agent.save()
@@ -253,3 +263,17 @@ class EvolModel(Model):
                 'Debris', neighbours)
 
         return list(set(debris_objects))
+
+    def nestm_percent(self):
+        """Compute the percent of the total debris cleared from the hub."""
+        grid = self.grid
+        debris_objects = []
+        for obstacle in self.obstacles:
+            neighbours = grid.get_neighborhood(
+                obstacle.location, obstacle.radius)
+            debris_objects += grid.get_objects_from_list_of_grid(
+                'Debris', neighbours)
+
+        total_debry_weights = sum([debry.weight for debry in self.debris])
+        total_moved_debry = sum([debry.weight for debry in debris_objects])
+        return ((total_moved_debry * 1.0) / total_debry_weights) * 100

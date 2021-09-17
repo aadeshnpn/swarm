@@ -23,7 +23,7 @@ class ForagingModel(Model):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name='SForaging'):
+            seed=None, name='SForaging', fitid=0):
         """Initialize the attributes."""
         if seed is None:
             super(ForagingModel, self).__init__(seed=None)
@@ -31,13 +31,14 @@ class ForagingModel(Model):
             super(ForagingModel, self).__init__(seed)
 
         # Create a unique experiment id
-        self.runid = datetime.datetime.now().timestamp()
-        self.runid = str(self.runid).replace('.', '')
-
+        # self.runid = datetime.datetime.now().timestamp()
+        # self.runid = str(self.runid).replace('.', '') + self.random.randint(0,10000)
+        self.runid = datetime.datetime.now().strftime(
+            "%s") + str(self.random.randint(1, 10000, 1)[0])
         # Create the experiment folder
         self.pname = '/'.join(
             os.getcwd().split('/')[:-2]
-            ) + '/results/' + self.runid + '-' + str(iter) + name
+            ) + '/results/' + str(fitid) +'/'+ self.runid + '-' + str(iter) + name
 
         # Define some parameters to count the step
         self.stepcnt = 1
@@ -224,10 +225,17 @@ class EvolveModel(ForagingModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="EvoSForge"):
+            seed=None, name="EvoSForge", fitmode=0):
         """Initialize the attributes."""
         super(EvolveModel, self).__init__(
-            N, width, height, grid, iter, seed, name)
+            N, width, height, grid, iter, seed, name, fitid=fitmode)
+        self.modes = {
+            0: (True, False, False, False),
+            1: (True, True, False, False),
+            2: (True, True, True, False),
+            3: (True, True, True, True)
+        }
+        self.fitmode = fitmode
 
     def create_agents(self, random_init=False, phenotypes=None):
         """Initialize agents in the environment."""

@@ -54,10 +54,10 @@ def after_simulation(sim, phenotypes, iteration, threshold):
 
     simresults = SimulationResults(
         sim.pname, sim.connect, sim.sn, sim.stepcnt,
-        len(sim.debris_cleaned()), phenotypes[0]
+        len(sim.debris_cleaned()), 'None'
         )
 
-    simresults.save_phenotype()
+    # simresults.save_phenotype()
     simresults.save_to_file()
 
     # Iterate and execute each step in the environment
@@ -133,11 +133,11 @@ def simulate(env, iteration, N=100):
     after_simulation(sim, phenotypes, iteration, threshold)
 
 
-def evolve(iteration):
+def evolve(i, iteration, fitid):
     """Learning Algorithm block."""
-    # iteration = 10000
+    # iteration = 12000
 
-    env = EvolModel(100, 100, 100, 10, iter=iteration)
+    env = EvolModel(100, 100, 100, 10, iter=iteration, expname='EvoNestM_', fitid=fitid)
     env.build_environment_from_json()
 
     # for all agents store the information about hub
@@ -147,24 +147,36 @@ def evolve(iteration):
 
     # Iterate and execute each step in the environment
     for i in range(iteration):
+        results = SimulationResults(
+            env.pname, env.connect, env.sn, env.stepcnt,
+            env.nestm_percent(), 'None'
+        )
+        results.save_to_file()
         env.step()
 
-    env.experiment.update_experiment()
+    # env.experiment.update_experiment()
 
     # Collecting phenotypes on the basis of debris collected
     # Find if debris has been cleaned from the hub
-    debris_objects = env.debris_cleaned()
+    # debris_objects = env.debris_cleaned()
 
     env.phenotypes = []
-    for debris in debris_objects:
-        try:
-            print(debris.phenotype)
-            env.phenotypes += list(debris.phenotype.values())
-        except AttributeError:
-            pass
+    fpercentage = env.nestm_percent()
+    if fpercentage > 5:
+        env.experiment.update_experiment_simulation(fpercentage, True)
+    else:
+        env.experiment.update_experiment_simulation(fpercentage, False)
+    print('NestM', fpercentage)
 
-    jfilename = env.pname + '/' + env.runid + '.json'
-    JsonPhenotypeData.to_json(env.phenotypes, jfilename)
+    # for debris in debris_objects:
+    #     try:
+    #         print(debris.phenotype)
+    #         env.phenotypes += list(debris.phenotype.values())
+    #     except AttributeError:
+    #         pass
+
+    # jfilename = env.pname + '/' + env.runid + '.json'
+    # JsonPhenotypeData.to_json(env.phenotypes, jfilename)
 
     # Not using this method right now
     # env.phenotypes = extract_phenotype(env.agents, jfilename)
@@ -174,7 +186,7 @@ def evolve(iteration):
     # graph.gen_best_plots()
 
     # Test the evolved behavior
-    return env
+    # return env
 
 
 def main(iter):
@@ -217,4 +229,9 @@ if __name__ == '__main__':
     # Parallel(n_jobs=8)(delayed(main)(i) for i in range(8000, 1000000, 2000))
     # for i in range(10000, 100000, 2000):
     #    main(i)
-    main(20000)
+    # Parallel(n_jobs=16)(delayed(evolve)(12000) for i in range(128))
+    # Parallel(n_jobs=16)(delayed(evolve)(i, 12000, 0) for i in range(64))
+    # Parallel(n_jobs=16)(delayed(evolve)(i, 12000, 1) for i in range(64))
+    # Parallel(n_jobs=16)(delayed(evolve)(i, 12000, 2) for i in range(64))
+    Parallel(n_jobs=16)(delayed(evolve)(i, 12000, 3) for i in range(64))
+    # main(20000)

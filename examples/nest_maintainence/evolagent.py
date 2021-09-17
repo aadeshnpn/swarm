@@ -161,9 +161,18 @@ class EvolAgent(Agent):
         # First block gives importance to exploration and when as soon
         # debris has been found, the next block will focus on dropping
         # the debris far from the hub
-        self.individual[0].fitness = (1 - self.beta) * self.delayed_reward \
-            + self.exploration_fitness() + self.carrying_fitness() \
-            + self.debris_collected
+        div = self.model.modes[self.model.fitmode][0]
+        exp = self.model.modes[self.model.fitmode][1]
+        pros = self.model.modes[self.model.fitmode][2]
+        forg = self.model.modes[self.model.fitmode][3]
+        self.individual[0].fitness = (
+            self.diversity_fitness * div + self.exploration_fitness() * exp +
+            self.carrying_fitness() * pros + self.debris_collected * forg
+            )
+
+        # self.individual[0].fitness = (1 - self.beta) * self.delayed_reward \
+        #     + self.exploration_fitness() + self.carrying_fitness() \
+        #     + self.debris_collected
 
     def carrying_fitness(self):
         """Compute carrying fitness.
@@ -233,7 +242,7 @@ class EvolAgent(Agent):
         # 600 time step has passed and the agent has not done anything useful
         # then also perform genetic step
         storage_threshold = len(
-            self.genome_storage) >= (self.model.num_agents / 1.4)
+            self.genome_storage) >= (self.model.num_agents / 10)
         if storage_threshold:
             self.genetic_step()
         elif (

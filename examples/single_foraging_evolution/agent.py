@@ -219,10 +219,18 @@ class LearningAgent(ForagingAgent):
         # First block gives importance to exploration and when as soon
         # food has been found, the next block will focus on dropping
         # the food on hub
-        self.delayed_reward = self.beta * self.delayed_reward
-        self.individual[0].fitness = self.delayed_reward \
-            + self.exploration_fitness() + self.carrying_fitness() \
-            + self.food_collected
+        # self.delayed_reward = self.beta * self.delayed_reward
+        # self.individual[0].fitness = self.delayed_reward \
+        #     + self.exploration_fitness() + self.carrying_fitness() \
+        #     + self.food_collected
+        div = self.model.modes[self.model.fitmode][0]
+        exp = self.model.modes[self.model.fitmode][1]
+        pros = self.model.modes[self.model.fitmode][2]
+        forg = self.model.modes[self.model.fitmode][3]
+        self.individual[0].fitness = (
+            self.diversity_fitness * div + self.exploration_fitness() * exp +
+            self.carrying_fitness() * pros + self.food_collected * forg
+            )
 
     def get_food_in_hub(self, agent_name=True):
         """Get the food in the hub stored by the agent."""
