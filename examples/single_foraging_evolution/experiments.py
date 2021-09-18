@@ -3,7 +3,7 @@ from model import SimForgModel
 # from swarms.utils.jsonhandler import JsonData
 from swarms.utils.graph import GraphACC
 from joblib import Parallel, delayed    # noqa : F401
-from swarms.utils.results import SimulationResults, SimulationResultsTraps
+from swarms.utils.results import SimulationResults
 from swarms.utils.jsonhandler import JsonPhenotypeData
 from agent import ExecutingAgent
 import argparse
@@ -34,9 +34,9 @@ def simulate_forg(
         agent.shared_content['Hub'] = {sim.hub}
         # agent.shared_content['Sites'] = {sim.site}
 
-    simresults = SimulationResultsTraps(
+    simresults = SimulationResults(
         sim.pname, sim.connect, sim.sn, sim.stepcnt, sim.food_in_hub(),
-        phenotypes[0], sim.no_agent_dead()
+        'None'
         )
 
     # simresults.save_phenotype()
@@ -58,9 +58,9 @@ def simulate_forg(
         foraging_percent = (
             value * 100.0) / (sim.num_agents * 1)
 
-        simresults = SimulationResultsTraps(
+        simresults = SimulationResults(
             sim.pname, sim.connect, sim.sn, sim.stepcnt, foraging_percent,
-            phenotypes[0], sim.no_agent_dead()
+            'None'
             )
         simresults.save_to_file()
 
@@ -77,26 +77,27 @@ def main(args):
     trap_size = args.trap_size
     obs_size = args.obstacle_size
     # site = sitelocation[args.site]
-    sitelocation = [20] * 10 + [25] * 10 + [30] * 10 + [40] * 10 + [50]*10 + [60] *10 + [70]*10 + [80]*10 + [90]* 10
+    sitelocation = [20] * 10 + [25] * 10 + [30] * 10 + [40] * 10    # + [50]*10 + [60] *10 + [70]*10 + [80]*10 + [90]* 10
     site = sitelocation[args.site]
-    trapsizes = range(5, 30, 5)
-    obssizes = range(5, 30, 5)
-    notraps = range(1, 6)
-    trap = trap_size
-    obs = obs_size
+    trapsizes = range(0)
+    obssizes = range(0)
+    notraps = range(0)
+    nosites = range(0)
+    trap = 0 # trap_size
+    obs = 0 #obs_size
     windowsizes = [100, 200, 300, 400, 500, 600]
     gridsizes = [2, 5, 10]
     width = args.width
     height = args.height
     exp_no = args.exp_no
-    no_trap = args.no_trap
-    no_obs = args.no_obs
+    no_trap = 0 # args.no_trap
+    no_obs = 0 # args.no_obs
     no_site = args.no_site
     grid = args.grid
     def exp(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, no_size):
         agent = ExecutingAgent if agent == 0 else ExecutingAgent
         dname = os.path.join(
-            '/tmp', 'swarm', 'data', 'experiments', str(n), agent.__name__, str(exp_no),
+            '/tmp', 'oldswarm', 'data', 'experiments', str(n), agent.__name__, str(exp_no),
             str(site), str(trap)+'_'+str(obs), str(no_trap)+'_'+str(no_obs), str(width) +'_'+str(height), str(no_site), str(grid) )
         pathlib.Path(dname).mkdir(parents=True, exist_ok=True)
         steps = [args.steps for i in range(args.runs)]
@@ -134,26 +135,26 @@ def main(args):
                 if not args.dry_run:
                     exp(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, no_site)
         elif args.exp_no == 2:
-            # Every thing constant trap/obstacle size changes
-            for i in range(len(trapsizes)):
-                pprint(n, agent, site, trapsizes[i], obssizes[i], width, height, no_trap, no_obs, exp_no, grid, no_site)
+            # Every thing constant no of site changes
+            for i in range(len(nosites)):
+                pprint(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, nosites[i])
                 if not args.dry_run:
-                    exp(n, agent, site, trapsizes[i], obssizes[i],width, height, no_trap, no_obs, exp_no, grid, no_site)
+                    exp(n, agent, site, trap, obs,width, height, no_trap, no_obs, exp_no, grid, nosites[i])
         elif args.exp_no == 3:
             for w in range(len(windowsizes)):
                 pprint(n, agent, site, trap, obs, windowsizes[w], windowsizes[w], no_trap, no_obs, exp_no, grid, no_site)
                 if not args.dry_run:
                     exp(n, agent, site, trap, obs, windowsizes[w], windowsizes[w], no_trap, no_obs, exp_no, grid, no_site)
-        elif args.exp_no == 4:
-            for nt in range(1, 6):
-                pprint(n, agent, site, trap, obs, width, height, nt, nt, exp_no, grid, no_site)
-                if not args.dry_run:
-                    exp(n, agent, site, trap, obs, width, height, nt, nt, exp_no, grid, no_site)
-        elif args.exp_no == 5:
-            for grid in gridsizes:
-                pprint(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, no_site)
-                if not args.dry_run:
-                    exp(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, no_site)
+        # elif args.exp_no == 4:
+        #     for nt in range(1, 6):
+        #         pprint(n, agent, site, trap, obs, width, height, nt, nt, exp_no, grid, no_site)
+        #         if not args.dry_run:
+        #             exp(n, agent, site, trap, obs, width, height, nt, nt, exp_no, grid, no_site)
+        # elif args.exp_no == 5:
+        #     for grid in gridsizes:
+        #         pprint(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, no_site)
+        #         if not args.dry_run:
+        #             exp(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, no_site)
         else:
             pprint(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, no_site)
             if not args.dry_run:
@@ -180,17 +181,18 @@ if __name__ == '__main__':
     parser.add_argument('--thread', default=8, type=int)
     parser.add_argument('--runs', default=50, type=int)
     parser.add_argument('--site', default=25, type=int)
-    parser.add_argument('--trap_size', default=5, type=int)
+    parser.add_argument('--trap_size', default=0, type=int)
     parser.add_argument('--steps', default=500, type=int)
-    parser.add_argument('--obstacle_size', default=5, type=int)
+    parser.add_argument('--obstacle_size', default=0, type=int)
     parser.add_argument('--no_trap', default=1, type=int)
     parser.add_argument('--no_obs', default=1, type=int)
+    parser.add_argument('--no_site', default=1, type=int)
     parser.add_argument('--width', default=100, type=int)
     parser.add_argument('--height', default=100, type=int)
     parser.add_argument('--dry_run', action='store_false')
     parser.add_argument('--exp_no', default=0, type=int)
     parser.add_argument('--grid', default=10, type=int)
-    parser.add_argument('--json_file', default='/tmp/16306710387695-4999.json', type=str)
+    parser.add_argument('--json_file', default='/tmp/1538473090382007.json', type=str)
     parser.add_argument('--all', default=False)
     args = parser.parse_args()
     print(args)

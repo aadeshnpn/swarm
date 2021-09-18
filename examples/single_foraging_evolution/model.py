@@ -490,7 +490,7 @@ class SimForgModel(Model):
         # Create agents
         for i in range(self.num_agents):
             # print (i, j, self.xmlstrings[j])
-            a = self.agent(i, self, xmlstring=self.xmlstrings)
+            a = self.agent(i, self, xmlstring=self.xmlstrings[j])
             self.schedule.add(a)
             # Add the hub to agents memory
             # Add the hub to agents memory
@@ -600,6 +600,7 @@ class SimForgModel(Model):
 
         for name in jsondata.keys():
             obj = eval(name.capitalize())
+            # print(obj)
             self.render.objects[name] = self.create_environment_object(
                 jsondata, obj)
 
