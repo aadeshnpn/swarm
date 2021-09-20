@@ -194,7 +194,7 @@ class LearningAgent(NestAgent):
         # Grammatical Evolution part
         from ponyge.algorithm.parameters import Parameters
         parameter = Parameters()
-        parameter_list = ['--parameters', '../..,nm.txt']
+        parameter_list = ['--parameters', '../..,nest.txt']
         # Comment when different results is desired.
         # Else set this for testing purpose
         # parameter.params['RANDOM_SEED'] = name
@@ -306,11 +306,22 @@ class LearningAgent(NestAgent):
     def get_debris_transported(self, distance_threshold=35):
         """Return debris that have been cleared from hub."""
         # Not computational efficient method
-        debris_objects = []
-        for debry in self.model.debris:
-            distance = point_distance(debry.location, self.model.hub.location)
-            if distance > distance_threshold:
-                debris_objects.append(debry)
+        # debris_objects = []
+        # for debry in self.model.debris:
+        #     distance = point_distance(debry.location, self.model.hub.location)
+        #     if distance > distance_threshold:
+        #         debris_objects.append(debry)
+        grid = self.grid
+        boundary_loc = self.boundary.location
+        neighbours = grid.get_neighborhood(boundary_loc, self.boundary.radius)
+        debris_objects = grid.get_objects_from_list_of_grid('Debris', neighbours)
+        _, debris_grid = grid.find_grid(boundary_loc)
+
+        for debry in self.debris:
+            _, debry_grid = grid.find_grid(debry.location)
+            if debry_grid == debris_grid:
+                debris_objects += [debry]
+        debris_objects = set(debris_objects)
 
         agent_debris_objects = []
         for debris in debris_objects:

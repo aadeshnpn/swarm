@@ -279,26 +279,26 @@ class NestMModel(Model):
 
     def debris_cleaned(self, distance_threshold=35):
         """Find amount of debris cleaned."""
-        debris_objects = []
-        for debry in self.debris:
-            distance = point_distance(debry.location, self.hub.location)
-            if distance > distance_threshold:
-                debris_objects.append(debry)
-
-        return list(set(debris_objects))
-
-        # grid = self.grid
-        # boundary_loc = self.boundary.location
-        # neighbours = grid.get_neighborhood(boundary_loc, self.boundary.radius)
-        # debris_objects = grid.get_objects_from_list_of_grid('Debris', neighbours)
-        # _, debris_grid = grid.find_grid(boundary_loc)
-
+        # debris_objects = []
         # for debry in self.debris:
-        #     _, debry_grid = grid.find_grid(debry.location)
-        #     if debry_grid == debris_grid:
-        #         debris_objects += [debry]
-        # debris_objects = set(debris_objects)
-        # return debris_objects
+        #     distance = point_distance(debry.location, self.hub.location)
+        #     if distance > distance_threshold:
+        #         debris_objects.append(debry)
+
+        # return list(set(debris_objects))
+
+        grid = self.grid
+        boundary_loc = self.boundary.location
+        neighbours = grid.get_neighborhood(boundary_loc, self.boundary.radius)
+        debris_objects = grid.get_objects_from_list_of_grid('Debris', neighbours)
+        _, debris_grid = grid.find_grid(boundary_loc)
+
+        for debry in self.debris:
+            _, debry_grid = grid.find_grid(debry.location)
+            if debry_grid == debris_grid:
+                debris_objects += [debry]
+        debris_objects = set(debris_objects)
+        return debris_objects
 
     def no_agent_dead(self):
         # grid = self.grid
