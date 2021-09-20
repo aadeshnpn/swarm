@@ -1096,7 +1096,7 @@ def plot_evolution_algo_performance():
 
 def read_data_sample_ratio(ratio=0.1):
     # maindir = '/tmp/swarm/data/experiments/behavior_sampling'
-    maindir = '/tmp/swarm/data/experiments/'
+    maindir = '/tmp/bsample/'
     ## Experiment ID for the plots/results in the paper
     # maindir = '/tmp/16244729911974EvoSForgeNewPPA1/'
     # maindir = '/tmp/experiments/100/12000/16243666378807EvoSForgeNewPPA1'
@@ -1107,10 +1107,12 @@ def read_data_sample_ratio(ratio=0.1):
     flist = []
     data = []
     for f in folders:
+        # print(f)
         try:
             flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
             _, _, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
-            data.append(d)
+            # print(d.shape)
+            data.append(d[-1])
         except:
             pass
     data = np.array(data)
@@ -1120,11 +1122,11 @@ def read_data_sample_ratio(ratio=0.1):
 
 def plot_sampling_differences():
     # plt.style.use('fivethirtyeight')
-    sampling_size = [0.1, 0.3, 0.5, 0.7, 0.8, 0.9, 0.95]
+    sampling_size = [0.1, 0.3, 0.5, 0.7, 0.8, 0.9]
     datas = []
     for s in sampling_size:
-        data = read_data_sample_ratio(s)[:, -1]
-        print(s, data.shape)
+        data = read_data_sample_ratio(s)
+        # print(s, data.shape)
         datas.append(data)
 
     fig = plt.figure(dpi=200)
@@ -1637,9 +1639,9 @@ def main():
     #     boxplot_exp_5(t)
     # boxplot_fitness()
     # boxplot_oldVsPPA_diversity()
-    boxplot_fitness_paper()
+    # boxplot_fitness_paper()
     # boxplot_exp_agent_varying()
-    # plot_sampling_differences()
+    plot_sampling_differences()
 
 
 if __name__ == '__main__':
