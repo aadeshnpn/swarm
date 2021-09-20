@@ -82,7 +82,7 @@ def main(args):
     trapsizes = range(0)
     obssizes = range(0)
     notraps = range(0)
-    nosites = range(0)
+    nosites = [1, 2, 3, 4, 5]
     trap = 0 # trap_size
     obs = 0 #obs_size
     windowsizes = [100, 200, 300, 400, 500, 600]
@@ -139,7 +139,7 @@ def main(args):
             for i in range(len(nosites)):
                 pprint(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, nosites[i])
                 if not args.dry_run:
-                    exp(n, agent, site, trap, obs,width, height, no_trap, no_obs, exp_no, grid, nosites[i])
+                    exp(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, nosites[i])
         elif args.exp_no == 3:
             for w in range(len(windowsizes)):
                 pprint(n, agent, site, trap, obs, windowsizes[w], windowsizes[w], no_trap, no_obs, exp_no, grid, no_site)

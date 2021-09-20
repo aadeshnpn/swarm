@@ -445,6 +445,7 @@ class SimForgModel(Model):
         self.no_trap = notrap
         self.no_obs = noobs
         self.no_site = nosite
+        self.sites =[]
         # print('agent type', agent)
         # # Create db connection
         # try:
@@ -531,9 +532,11 @@ class SimForgModel(Model):
             q_value = 0.9
             other_bojects = self.grid.get_objects_from_list_of_grid(None, self.grid.get_neighborhood((x,y), radius))
             if len(other_bojects) == 0:
-                self.site = Sites(
+                site = Sites(
                         0, location, radius, q_value=q_value)
-                self.grid.add_object_to_grid(location, self.site)
+                self.grid.add_object_to_grid(location, site)
+                self.sites.append(site)
+                self.site = site
                 break
 
     def place_static_objs(self, obj, radius):
@@ -623,9 +626,10 @@ class SimForgModel(Model):
         try:
             # self.site = self.render.objects['sites'][0]
             self.foods = []
+            idxs = self.random.choice(len(self.sites), self.num_agents)
             for i in range(self.num_agents * 1):
                 f = Food(
-                    i, location=self.site.location, radius=self.site.radius)
+                    i, location=self.sites[idxs[i]].location, radius=self.sites[idxs[i]].radius)
                 f.agent_name = None
                 self.grid.add_object_to_grid(f.location, f)
                 self.foods.append(f)
