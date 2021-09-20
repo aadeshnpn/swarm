@@ -936,8 +936,8 @@ def boxplot_exp_0():
 
 def experiment_1(agent='ExecutingAgent'):
     # plt.style.use('fivethirtyeight')
-    sites = [20, 25, 30, 40, 50]
-    datasf = [read_data_exp_3(100, 100, 5, 5, exp_no=1, site=s, no_trap=1, no_obs=1, grid=10)[0] for s in sites]
+    sites = [20, 25, 30, 40]
+    datasf = [read_data_exp_3(100, 100, 0, 0, exp_no=1, site=s, no_trap=0, no_obs=0, grid=10) for s in sites]
     # datasd = [read_data_exp_3(100, 100, 5, 5, exp_no=1, site=s, no_trap=1, no_obs=1)[1][:,-1] for s in sites]
 
     fig = plt.figure(figsize=(8,6), dpi=200)
@@ -990,12 +990,12 @@ def experiment_1(agent='ExecutingAgent'):
     # ax2.set_title('Swarm Foraging with distance '+ site[-2:])
     plt.tight_layout()
 
-    maindir = '/tmp/swarm/data/experiments/'
+    maindir = '/tmp/oldswarm/data/experiments/'
     # fname = 'agentsitecomp' + agent
     nadir = os.path.join(maindir, agent)
 
     fig.savefig(
-        nadir + 'agentallsitecompdistplot' + '.png')
+        nadir + 'oldagentallsitecompdistplot' + '.png')
     # fig.savefig(
     #     maindir + '/' + fname + '.png')
     # pylint: disable = E1101
@@ -1224,7 +1224,7 @@ def read_data_exp_3(width=100, height=100, trap=0, obs=0, exp_no=3, site=30, no_
 
 def boxplot_exp_3():
     size = [100, 200, 300, 400, 500, 600]
-    data = [read_data_exp_3(s, s, 5, 5, exp_no=3, site=30, no_trap=1, no_obs=1, grid=10)[:,-1] for s in size]
+    data = [read_data_exp_3(s, s, 0, 0, exp_no=3, site=30, no_trap=0, no_obs=0, grid=10)[:,-1] for s in size]
     fig = plt.figure(figsize=(8,6), dpi=200)
     ax1 = fig.add_subplot(1, 1, 1)
     colordict = {
@@ -1256,7 +1256,7 @@ def boxplot_exp_3():
 
     plt.tight_layout()
 
-    maindir = '/tmp/swarm/data/experiments/'
+    maindir = '/tmp/oldswarm/data/experiments/'
     fname = 'environment_size'
 
     fig.savefig(
@@ -1267,12 +1267,12 @@ def boxplot_exp_3():
 
 
 def boxplot_exp_2():
-    size = [5, 10, 15, 20, 25]
-    dataf = [read_data_exp_3(100, 100, s, s, exp_no=2, site=30, no_trap=1, no_obs=1, grid=10)[0][:,-1] for s in size]
-    datad = [read_data_exp_3(100, 100, s, s, exp_no=2, site=30, no_trap=1, no_obs=1, grid=10)[1][:,-1] for s in size]
+    size = [ 1, 2, 3, 4, 5]
+    dataf = [read_data_exp_3(100, 100, 0, 0, exp_no=2, site=30, no_trap=0, no_obs=0, grid=10, no_site=s)[:,-1] for s in size]
+    # datad = [read_data_exp_3(100, 100, s, s, exp_no=2, site=30, no_trap=1, no_obs=1, grid=10)[1][:,-1] for s in size]
     # dataf = [read_data_exp_3(100, 100, s, s, exp_no=2)[0][:,-1] for s in size]
     # datad = [read_data_exp_3(100, 100, s, s, exp_no=2)[1][:,-1] for s in size]
-    datadp = [(d/100)*100.0 for d in datad]
+    # datadp = [(d/100)*100.0 for d in datad]
     fig = plt.figure(figsize=(8, 6), dpi=200)
 
     ax1 = fig.add_subplot(1, 1, 1)
@@ -1284,36 +1284,36 @@ def boxplot_exp_2():
         4: 'royalblue',
         5: 'peru'}
 
-    labels = [5, 10, 15, 20, 25]
+    labels = [1, 2, 3, 4, 5]
     labels = [str(l) for l in  labels]
     medianprops = dict(linewidth=2.5, color='firebrick')
     meanprops = dict(linewidth=2.5, color='#ff7f0e')
-    positions = [
-        [1, 2], [4, 5], [7, 8], [10, 11], [13, 14]
-        ]
-    datas = [
-        [dataf[0], datadp[0]],
-        [dataf[1], datadp[1]],
-        [dataf[2], datadp[2]],
-        [dataf[3], datadp[3]],
-        [dataf[4], datadp[4]]
-    ]
+    # positions = [
+    #     [1, 2], [4, 5], [7, 8], [10, 11], [13, 14]
+    #     ]
+    # datas = [
+    #     [dataf[0], datadp[0]],
+    #     [dataf[1], datadp[1]],
+    #     [dataf[2], datadp[2]],
+    #     [dataf[3], datadp[3]],
+    #     [dataf[4], datadp[4]]
+    # ]
 
     # data = [data[:, i] for i in range(4)]
-    for j in range(len(positions)):
-        bp1 = ax1.boxplot(
-            datas[j], 0, 'gD', showmeans=True, meanline=True,
-            patch_artist=True, medianprops=medianprops,
-            meanprops=meanprops, positions=positions[j], widths=0.8)
-        for patch, color in zip(bp1['boxes'], colordict.values()):
-            patch.set_facecolor(color)
+    # for j in range(len(positions)):
+    bp1 = ax1.boxplot(
+        dataf, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, widths=0.8)
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
 
     # plt.xlim(0, len(mean))
-    ax1.legend(zip(bp1['boxes']), ['Foraging', 'Dead Agents'], fontsize="small", loc="upper left", title='Performance Metric')
-    ax1.set_xticks([1.5, 4.5, 7.5, 10.5, 13.5])
+    ax1.legend(zip(bp1['boxes']), ['Foraging'], fontsize="small", loc="upper left", title='Performance Metric')
+    # ax1.set_xticks([1.5, 4.5, 7.5, 10.5, 13.5])
     ax1.set_xticklabels(labels)
-    ax1.set_xlabel('Trap / Obstacle Size', fontsize='large')
-    ax1.set_ylabel('Foraging / Dead Agent (%)',  fontsize='large')
+    ax1.set_xlabel('No.of Sites', fontsize='large')
+    ax1.set_ylabel('Foraging',  fontsize='large')
     ax1.set_yticks(range(0, 105, 20))
 
     # # ax1.set_title('Swarm Foraging Evolved Behaviors')
@@ -1628,10 +1628,10 @@ def main():
     # plot_sampling_differences()
     # plotallsitesdist()
     # comp_with_witout_comm()
-    boxplot_exp_0()
+    # boxplot_exp_0()
     # experiment_1()
     # boxplot_exp_2()
-    # boxplot_exp_3()
+    boxplot_exp_3()
     # boxplot_exp_4()
     # for t in  [9, 13, 15, 3]:
     #     boxplot_exp_5(t)
