@@ -311,13 +311,13 @@ class LearningAgent(NestAgent):
         #     distance = point_distance(debry.location, self.model.hub.location)
         #     if distance > distance_threshold:
         #         debris_objects.append(debry)
-        grid = self.grid
-        boundary_loc = self.boundary.location
-        neighbours = grid.get_neighborhood(boundary_loc, self.boundary.radius)
+        grid = self.model.grid
+        boundary_loc = self.model.boundary.location
+        neighbours = grid.get_neighborhood(boundary_loc, self.model.boundary.radius)
         debris_objects = grid.get_objects_from_list_of_grid('Debris', neighbours)
         _, debris_grid = grid.find_grid(boundary_loc)
 
-        for debry in self.debris:
+        for debry in self.model.debris:
             _, debry_grid = grid.find_grid(debry.location)
             if debry_grid == debris_grid:
                 debris_objects += [debry]
