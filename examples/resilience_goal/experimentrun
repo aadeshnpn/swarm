@@ -2,7 +2,7 @@
 
 ## Standard experiment
 
-python experiment.py --exp_no 0 --runs 16 --thread 16
+python experiments.py --exp_no 0 --runs 1 --thread 1 --dry_run
 
 # Experiment 4
 # python experiments.py --exp_no 0 --runs 36 --thread 18 --dry_ru

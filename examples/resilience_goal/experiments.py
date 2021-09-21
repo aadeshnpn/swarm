@@ -82,6 +82,7 @@ def main(args):
     trapsizes = range(5, 30, 5)
     obssizes = range(5, 30, 5)
     notraps = range(1, 6)
+
     trap = trap_size
     obs = obs_size
     windowsizes = [100, 200, 300, 400, 500, 600]
@@ -185,12 +186,13 @@ if __name__ == '__main__':
     parser.add_argument('--obstacle_size', default=5, type=int)
     parser.add_argument('--no_trap', default=1, type=int)
     parser.add_argument('--no_obs', default=1, type=int)
+    parser.add_argument('--no_site', default=1, type=int)
     parser.add_argument('--width', default=100, type=int)
     parser.add_argument('--height', default=100, type=int)
     parser.add_argument('--dry_run', action='store_false')
     parser.add_argument('--exp_no', default=0, type=int)
     parser.add_argument('--grid', default=10, type=int)
-    parser.add_argument('--json_file', default='/tmp/16306710387695-4999.json', type=str)
+    parser.add_argument('--json_file', default='/tmp/16321268747516-1499.json', type=str)
     parser.add_argument('--all', default=False)
     args = parser.parse_args()
     print(args)
