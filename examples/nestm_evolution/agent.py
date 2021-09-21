@@ -311,17 +311,23 @@ class LearningAgent(NestAgent):
         #     distance = point_distance(debry.location, self.model.hub.location)
         #     if distance > distance_threshold:
         #         debris_objects.append(debry)
-        grid = self.model.grid
-        boundary_loc = self.model.boundary.location
-        neighbours = grid.get_neighborhood(boundary_loc, self.model.boundary.radius)
-        debris_objects = grid.get_objects_from_list_of_grid('Debris', neighbours)
-        _, debris_grid = grid.find_grid(boundary_loc)
+        debris_objects = []
+        debris_grid = []
 
-        for debry in self.model.debris:
+        grid = self.grid
+        for boundary in self.boundaries:
+            boundary_loc = boundary.location
+            neighbours = grid.get_neighborhood(boundary_loc, boundary.radius)
+            debris_objects += grid.get_objects_from_list_of_grid('Debris', neighbours)
+            _, dgrid = grid.find_grid(boundary_loc)
+            debris_grid += dgrid
+
+        for debry in self.debris:
             _, debry_grid = grid.find_grid(debry.location)
-            if debry_grid == debris_grid:
+            if debry_grid in debris_grid:
                 debris_objects += [debry]
         debris_objects = set(debris_objects)
+        # return debris_objects
 
         agent_debris_objects = []
         for debris in debris_objects:
@@ -361,11 +367,11 @@ class LearningAgent(NestAgent):
         # self.trace[self.step_count] = {k:self.functions[k]() for k in self.keys}
 
         # Find the no.of food collected from the BT execution
-        self.debris_collected = self.get_debris_transported()
+        # self.debris_collected = self.get_debris_transported()
 
         # Hash the phenotype with its fitness
         # We need to move this from here to genetic step
-        self.cf = self.carrying_fitness()
+        # self.cf = self.carrying_fitness()
         self.ef = self.exploration_fitness()
         # self.scf = self.communication_fitness()
 

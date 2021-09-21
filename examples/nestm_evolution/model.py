@@ -140,8 +140,11 @@ class NestMModel(Model):
                 jsondata, obj)
 
         self.hub = self.render.objects['hub'][0]
-        self.traps = self.render.objects['traps'][0]
-        self.boundary = self.render.objects['boundary'][0]
+        # self.traps = self.render.objects['traps'][0]
+        # self.boundary = self.render.objects['boundary'][0]
+        self.boundaries = []
+        for i in range(5):
+            self.place_static_objs(Boundary, 10)
         self.total_debris_units = 0
         self.debris = []
         try:
@@ -152,14 +155,39 @@ class NestMModel(Model):
                 dx = self.hub.location[0] + dx
                 dy = self.hub.location[1] + dy
                 d = Debris(
-                    i, location=(int(dx), int(dy)), radius=3)
+                    i, location=(int(dx), int(dy)), radius=10, weight=2)
                 d.agent_name = None
                 self.grid.add_object_to_grid(d.location, d)
                 self.total_debris_units += d.weight
-                d.phenotype = dict()
+                # d.phenotype = dict()
                 self.debris.append(d)
         except KeyError:
             pass
+        # print(self.debris, [d.location for d in self.debris], [d.weight for d in self.debris], [d.calc_relative_weight() for d in self.debris])
+
+    def place_static_objs(self, obj, radius):
+        theta = np.linspace(0, 2*np.pi, 36)
+        while True:
+            # dist = self.random.choice(range(25, self.width//2, 5))
+            dist = 30
+            t = self.random.choice(theta, 1, replace=False)[0]
+            x = int(0 + np.cos(t) * dist)
+            y = int(0 + np.sin(t) * dist)
+            location = (x, y)
+            other_bojects = self.grid.get_objects_from_list_of_grid(None, self.grid.get_neighborhood((x,y), radius))
+            # print(obj, radius, location)
+            if len(other_bojects) == 0:
+                envobj = obj(
+                        dist, location, radius)
+                self.grid.add_object_to_grid(location, envobj)
+                # bojects = self.grid.get_objects_from_list_of_grid('Traps', self.grid.get_neighborhood(location, radius))
+                # print('reverse', bojects)
+                self.boundaries += [envobj]
+                # if isinstance(envobj, Traps):
+                #     self.traps += [envobj]
+                # if isinstance(envobj, Obstacles):
+                #     self.obstacles += [envobj]
+                break
 
     def step(self):
         """Step through the environment."""
@@ -279,7 +307,8 @@ class NestMModel(Model):
 
     def debris_cleaned(self, distance_threshold=35):
         """Find amount of debris cleaned."""
-        # debris_objects = []
+        debris_objects = []
+        debris_grid = []
         # for debry in self.debris:
         #     distance = point_distance(debry.location, self.hub.location)
         #     if distance > distance_threshold:
@@ -288,14 +317,16 @@ class NestMModel(Model):
         # return list(set(debris_objects))
 
         grid = self.grid
-        boundary_loc = self.boundary.location
-        neighbours = grid.get_neighborhood(boundary_loc, self.boundary.radius)
-        debris_objects = grid.get_objects_from_list_of_grid('Debris', neighbours)
-        _, debris_grid = grid.find_grid(boundary_loc)
+        for boundary in self.boundaries:
+            boundary_loc = boundary.location
+            neighbours = grid.get_neighborhood(boundary_loc, boundary.radius)
+            debris_objects += grid.get_objects_from_list_of_grid('Debris', neighbours)
+            _, dgrid = grid.find_grid(boundary_loc)
+            debris_grid += [dgrid]
 
         for debry in self.debris:
             _, debry_grid = grid.find_grid(debry.location)
-            if debry_grid == debris_grid:
+            if debry_grid in debris_grid:
                 debris_objects += [debry]
         debris_objects = set(debris_objects)
         return debris_objects
@@ -328,7 +359,7 @@ class EvolveModel(NestMModel):
             self.schedule.add(a)
             # Add the hub to agents memory
             a.shared_content['Hub'] = {self.hub}
-            a.shared_content['Boundary'] = {self.boundary}
+            # a.shared_content['Boundary'] = set(self.boundaries)
             # First intitialize the Genetic algorithm. Then BT
             a.init_evolution_algo()
             # Initialize the BT. Since the agents are evolutionary
