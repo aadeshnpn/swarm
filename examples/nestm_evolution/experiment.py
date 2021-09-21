@@ -149,7 +149,7 @@ def learning_phase(iteration, no_agents=50, db=False, early_stop=False, fitid=0)
     # Evolution environment
     env = EvolveModel(no_agents, width, height, 10, iter=iteration, db=db, fitid=fitid)
     env.build_environment_from_json()
-    env.create_agents(random_init=True)
+    env.create_agents(random_init=False)
     # print([a.get_capacity() for a in env.agents])
     # Validation Step parameter
     # Run the validation test every these many steps
@@ -351,7 +351,7 @@ def standard_evolution(args):
     # phenotypes = learning_phase(iter, n, db)
     Parallel(
             n_jobs=args.threads)(delayed(learning_phase)(
-                args.iter, 50, db=False, fitid=args.fitid) for i in range(args.runs))
+                args.iter, 100, db=False, fitid=args.fitid) for i in range(args.runs))
 
 
 def experiments(args):

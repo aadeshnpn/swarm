@@ -179,7 +179,7 @@ class LearningAgent(NestAgent):
         postcond = list(filter(
             lambda x: x.name.split('_')[-1] == 'postcond', allnodes)
             )
-        # print(list(self.bt.behaviour_tree.visitors))
+        # print([(node.name) for node in allnodes])
         self.selectors_reward = sum([1 for sel in selectors if sel.status == common.Status.SUCCESS])
         self.constraints_reward = sum([-2 for const in constraints if const.status == common.Status.FAILURE])
         self.postcond_reward = sum([1 for pcond in postcond if pcond.status == common.Status.SUCCESS])

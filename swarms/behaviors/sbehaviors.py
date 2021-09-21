@@ -557,10 +557,10 @@ class IsCarryable(Behaviour):
         """Initialize."""
         super(IsCarryable, self).__init__(name)
 
-    def setup(self, timeout, agent, thing):
+    def setup(self, timeout, agent, item):
         """Setup."""
         self.agent = agent
-        self.thing = thing
+        self.item = item
         self.blackboard = blackboard.Client(name=str(agent.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
@@ -573,7 +573,7 @@ class IsCarryable(Behaviour):
         try:
             objects = ObjectsStore.find(
                 self.blackboard.neighbourobj, self.agent.shared_content,
-                self.thing, self.agent.name)[0]
+                self.item, self.agent.name)[0]
             if objects.carryable:
                 return common.Status.SUCCESS
             else:
@@ -590,10 +590,10 @@ class IsDropable(Behaviour):
         """Initialize."""
         super(IsDropable, self).__init__(name)
 
-    def setup(self, timeout, agent, thing):
+    def setup(self, timeout, agent, item):
         """Setup."""
         self.agent = agent
-        self.thing = thing
+        self.item = item
         self.blackboard = blackboard.Client(name=str(agent.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
@@ -607,7 +607,7 @@ class IsDropable(Behaviour):
         try:
             objects = ObjectsStore.find(
                 self.blackboard.neighbourobj, self.agent.shared_content,
-                self.thing, self.agent.name)
+                self.item, self.agent.name)
             if len(objects) >= 1:
                 for obj in objects:
                     if status == common.Status.SUCCESS:
@@ -629,10 +629,10 @@ class IsSingleCarry(Behaviour):
         """Initialize."""
         super(IsSingleCarry, self).__init__(name)
 
-    def setup(self, timeout, agent, thing):
+    def setup(self, timeout, agent, item):
         """Setup."""
         self.agent = agent
-        self.thing = thing
+        self.item = item
         self.blackboard = blackboard.Client(name=str(agent.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
@@ -646,7 +646,7 @@ class IsSingleCarry(Behaviour):
         try:
             objects = ObjectsStore.find(
                 self.blackboard.neighbourobj, self.agent.shared_content,
-                self.thing, self.agent.name)[0]
+                self.item, self.agent.name)[0]
             if objects.weight:
                 if self.agent.get_capacity() > objects.calc_relative_weight():
                     return common.Status.SUCCESS
@@ -666,10 +666,10 @@ class IsMultipleCarry(Behaviour):
         """Initialize."""
         super(IsMultipleCarry, self).__init__(name)
 
-    def setup(self, timeout, agent, thing):
+    def setup(self, timeout, agent, item):
         """Setup."""
         self.agent = agent
-        self.thing = thing
+        self.item = item
         self.blackboard = blackboard.Client(name=str(agent.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
@@ -684,7 +684,7 @@ class IsMultipleCarry(Behaviour):
             # objects = self.blackboard.neighbourobj[self.thing].pop()
             objects = ObjectsStore.find(
                 self.blackboard.neighbourobj, self.agent.shared_content,
-                self.thing, self.agent.name)[0]
+                self.item, self.agent.name)[0]
             if objects.weight:
                 if self.agent.get_capacity() < objects.weight:
                     return common.Status.SUCCESS
@@ -1533,10 +1533,10 @@ class DidAvoidedObj(Behaviour):
         """Initialize."""
         super(DidAvoidedObj, self).__init__(name)
 
-    def setup(self, timeout, agent, thing):
+    def setup(self, timeout, agent, item):
         """Setup."""
         self.agent = agent
-        self.thing = thing
+        self.item = item
         self.blackboard = blackboard.Client(name=str(agent.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
 
@@ -1549,7 +1549,7 @@ class DidAvoidedObj(Behaviour):
         try:
             objects = ObjectsStore.find(
                 self.blackboard.neighbourobj, self.agent.shared_content,
-                self.thing, self.agent.name)[0]
+                self.item, self.agent.name)[0]
             alpha = get_direction(self.agent.location, objects.location)
             theta = self.agent.direction
             angle_diff = np.abs(theta-alpha)
@@ -1569,10 +1569,10 @@ class CanMove(Behaviour):
         """Initialize."""
         super(CanMove, self).__init__(name)
 
-    def setup(self, timeout, agent, thing=None):
+    def setup(self, timeout, agent, item=None):
         """Setup."""
         self.agent = agent
-        self.thing = thing
+        self.item = item
 
     def initialise(self):
         """Pass."""
@@ -1853,6 +1853,7 @@ class DummyNode(Behaviour):
     def setup(self, timeout, agent, item=None):
         """Setup."""
         self.agent = agent
+        self.item = item
 
     def initialise(self):
         """Pass."""

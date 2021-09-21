@@ -140,22 +140,23 @@ class NestMModel(Model):
                 jsondata, obj)
 
         self.hub = self.render.objects['hub'][0]
+        self.hub.dropable = False
         # self.traps = self.render.objects['traps'][0]
         # self.boundary = self.render.objects['boundary'][0]
         self.boundaries = []
-        for i in range(5):
-            self.place_static_objs(Boundary, 10)
+        for i in range(4):
+            self.place_static_objs(Boundary, 15)
         self.total_debris_units = 0
         self.debris = []
         try:
             for i in range(self.num_agents * 1):
                 # dx, dy = self.random.randint(10, 20, 2)
                 # dx, dy = self.random.normal(0, 10, 2)
-                dx, dy = self.random.choice(range(-9, 9), 2)
-                dx = self.hub.location[0] + dx
-                dy = self.hub.location[1] + dy
+                # dx, dy = self.random.choice(range(-9, 9), 2)
+                # dx = self.hub.location[0] + dx
+                # dy = self.hub.location[1] + dy
                 d = Debris(
-                    i, location=(int(dx), int(dy)), radius=10, weight=2)
+                    i, location=(int(0), int(0)), radius=10, weight=2)
                 d.agent_name = None
                 self.grid.add_object_to_grid(d.location, d)
                 self.total_debris_units += d.weight
@@ -179,6 +180,7 @@ class NestMModel(Model):
             if len(other_bojects) == 0:
                 envobj = obj(
                         dist, location, radius)
+                # envobj.passable = False
                 self.grid.add_object_to_grid(location, envobj)
                 # bojects = self.grid.get_objects_from_list_of_grid('Traps', self.grid.get_neighborhood(location, radius))
                 # print('reverse', bojects)
@@ -303,7 +305,7 @@ class NestMModel(Model):
         debris_objects = self.debris_cleaned()
         total_debris_weights = sum(
             [debris.weight for debris in debris_objects])
-        return ((total_debris_weights * 1.0) / self.total_debris_units) * 100
+        return round(((total_debris_weights * 1.0) / self.total_debris_units) * 100, 2)
 
     def debris_cleaned(self, distance_threshold=35):
         """Find amount of debris cleaned."""
@@ -324,10 +326,10 @@ class NestMModel(Model):
             _, dgrid = grid.find_grid(boundary_loc)
             debris_grid += [dgrid]
 
-        for debry in self.debris:
-            _, debry_grid = grid.find_grid(debry.location)
-            if debry_grid in debris_grid:
-                debris_objects += [debry]
+        # for debry in self.debris:
+        #     _, debry_grid = grid.find_grid(debry.location)
+        #     if debry_grid in debris_grid:
+        #         debris_objects += [debry]
         debris_objects = set(debris_objects)
         return debris_objects
 
@@ -359,7 +361,7 @@ class EvolveModel(NestMModel):
             self.schedule.add(a)
             # Add the hub to agents memory
             a.shared_content['Hub'] = {self.hub}
-            # a.shared_content['Boundary'] = set(self.boundaries)
+            a.shared_content['Boundary'] = set(self.boundaries)
             # First intitialize the Genetic algorithm. Then BT
             a.init_evolution_algo()
             # Initialize the BT. Since the agents are evolutionary
