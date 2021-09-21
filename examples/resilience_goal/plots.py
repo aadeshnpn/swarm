@@ -827,9 +827,10 @@ def boxplotallsitesdist(agent='ExecutingAgent'):
 
 def boxplot_exp_0():
     agents = [50, 100, 200, 300, 400, 500]
-    dataf = [read_data_exp_3(100, 100, 5, 5, exp_no=0, site=30, no_trap=1, no_obs=1, agent=a, grid=10)[0][:,-1] for a in agents]
-    datad = [read_data_exp_3(100, 100, 5, 5, exp_no=0, site=30, no_trap=1, no_obs=1, agent=a, grid=10)[1][:,-1] for a in agents]
-    datadp = [(datad[d]/agents[d])*100.0 for d in range(len(datad))]
+    data_betr = [read_data_exp_3(100, 100, 5, 5, exp_no=0, site=30, no_trap=1, no_obs=1, agent=a, grid=10)[0][:,-1] for a in agents]
+    data_bt = [read_data_exp_3_bt(100, 100, 0, 0, exp_no=0, site=30, no_trap=0, no_obs=0, agent=a, grid=10)[:,-1] for a in agents]
+    # datad = [read_data_exp_3(100, 100, 5, 5, exp_no=0, site=30, no_trap=1, no_obs=1, agent=a, grid=10)[1][:,-1] for a in agents]
+    # datadp = [(datad[d]/agents[d])*100.0 for d in range(len(datad))]
     fig = plt.figure(figsize=(8,6), dpi=200)
     # dataall = [read_data_exp_3(100, 100, 5, 5, exp_no=0, site=30, no_trap=1, no_obs=1, agent=a)[0] for a in agents]
     # data = [data[:,-1] for data in dataall]
@@ -852,12 +853,12 @@ def boxplot_exp_0():
         [1, 2], [4, 5], [7, 8], [10, 11], [13, 14], [16, 17]
         ]
     datas = [
-        [dataf[0], datadp[0]],
-        [dataf[1], datadp[1]],
-        [dataf[2], datadp[2]],
-        [dataf[3], datadp[3]],
-        [dataf[4], datadp[4]],
-        [dataf[5], datadp[5]],
+        [data_bt[0], data_betr[0]],
+        [data_bt[1], data_betr[1]],
+        [data_bt[2], data_betr[2]],
+        [data_bt[3], data_betr[3]],
+        [data_bt[4], data_betr[4]],
+        [data_bt[5], data_betr[5]],
     ]
 
     for j in range(len(positions)):
@@ -868,12 +869,12 @@ def boxplot_exp_0():
         for patch, color in zip(bp1['boxes'], colordict.values()):
             patch.set_facecolor(color)
 
-    ax1.legend(zip(bp1['boxes']), ['Foraging', 'Dead Agents'], fontsize="small", loc="upper right", title='Performance Metric')
+    ax1.legend(zip(bp1['boxes']), ['GEESE-BT', 'BeTr-GEESE'], fontsize="small", loc="upper right", title='Algorithms')
     ax1.set_xticks([1.5, 4.5, 7.5, 10.5, 13.5, 16.5])
     ax1.set_xticklabels(labels)
     ax1.set_yticks(range(0, 105, 20))
     ax1.set_xlabel('Agent Population', fontsize="large")
-    ax1.set_ylabel('Foraging / Dead Agent (%)', fontsize="large")
+    ax1.set_ylabel('Foraging (%)', fontsize="large")
     # ax1.set_title('Swarm Foraging', fontsize="large")
 
     # ax2 = fig.add_subplot(3, 1, 2)
@@ -924,7 +925,7 @@ def boxplot_exp_0():
     # ax2.set_ylabel('Foraging (%)')
     plt.tight_layout()
 
-    maindir = '/tmp/swarm/data/experiments/'
+    maindir = '/tmp/swarm/data/experiments'
     fname = 'agentscompboxplot'
 
     fig.savefig(
@@ -1290,7 +1291,7 @@ def read_data_n(n=100, comm=True):
 
 
 def read_data_exp_3(width=100, height=100, trap=5, obs=5, exp_no=3, site=30, no_trap=1, no_obs=1, agent=100, grid=None):
-    maindir = '/tmp/swarm/data/experiments/'
+    maindir = '/tmp/betrgeese0-4/'
     if grid is None:
         ndir = os.path.join(maindir, str(agent), 'ExecutingAgent', str(exp_no),
                 str(site), str(trap)+'_'+str(obs), str(no_trap)+'_'+str(no_obs), str(width) +'_'+str(height))
@@ -1314,6 +1315,34 @@ def read_data_exp_3(width=100, height=100, trap=5, obs=5, exp_no=3, site=30, no_
     dataf = np.array(dataf)
     datad = np.array(datad)
     return dataf, datad
+
+
+def read_data_exp_3_bt(width=100, height=100, trap=0, obs=0, exp_no=3, site=30, no_trap=0, no_obs=0, agent=100, grid=None, no_site=1):
+    maindir = '/tmp/geesebt0-4/'
+    if grid is None:
+        ndir = os.path.join(maindir, str(agent), 'ExecutingAgent', str(exp_no),
+                str(site), str(trap)+'_'+str(obs), str(no_trap)+'_'+str(no_obs), str(width) +'_'+str(height), str(no_site))
+    else:
+        ndir = os.path.join(maindir, str(agent), 'ExecutingAgent', str(exp_no),
+                str(site), str(trap)+'_'+str(obs), str(no_trap)+'_'+str(no_obs), str(width) +'_'+str(height), str(no_site), str(grid))
+    print(ndir)
+    folders = pathlib.Path(ndir).glob('*ForagingSimulationOld')
+    flist = []
+    dataf = []
+    # datad = []
+    for f in folders:
+        try:
+            flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
+            # print(flist)
+            _, _, forgingp = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+            # print(f, forgingp.shape)
+            dataf.append(forgingp)
+            # datad.append(d)
+        except:
+            pass
+    dataf = np.array(dataf)
+    # datad = np.array(datad)
+    return dataf
 
 
 def boxplot_exp_3():
@@ -1722,7 +1751,7 @@ def main():
     # plot_sampling_differences()
     # plotallsitesdist()
     # comp_with_witout_comm()
-    # boxplot_exp_0()
+    boxplot_exp_0()
     # experiment_1()
     # boxplot_exp_2()
     # boxplot_exp_3()
@@ -1734,7 +1763,7 @@ def main():
     # boxplot_fitness_paper()
     # boxplot_exp_agent_varying()
     # plot_sampling_differences()
-    compare_sampling_differences()
+    # compare_sampling_differences()
 
 
 if __name__ == '__main__':
