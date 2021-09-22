@@ -936,7 +936,7 @@ def boxplot_exp_0():
 
 
 def boxplot_exp_1():
-    sites = [20, 25, 30, 40]
+    sites = [20, 25, 30, 40, 50]
     data_betr = [read_data_exp_3(100, 100, 5, 5, exp_no=1, site=s, no_trap=1, no_obs=1, grid=10)[0][:,-1] for s in sites]
     data_bt = [read_data_exp_3_bt(100, 100, 0, 0, exp_no=1, site=s, no_trap=0, no_obs=0, grid=10)[:, -1] for s in sites]
 
@@ -953,18 +953,18 @@ def boxplot_exp_1():
         'springgreen', 'lightcoral',
         'khaki', 'lightsalmon', 'deepskyblue']
 
-    labels = [20, 25, 30, 40]
+    labels = [20, 25, 30, 40, 50]
     medianprops = dict(linewidth=1.5, color='firebrick')    # Strong line is median
     meanprops = dict(linewidth=2.5, color='#ff7f0e')    # Dashed line is mean
     positions = [
-        [1, 2], [4, 5], [7, 8], [10, 11], # [13, 14], [16, 17]
+        [1, 2], [4, 5], [7, 8], [10, 11], [13, 14], # [16, 17]
         ]
     datas = [
         [data_bt[0], data_betr[0]],
         [data_bt[1], data_betr[1]],
         [data_bt[2], data_betr[2]],
         [data_bt[3], data_betr[3]],
-        # [data_bt[4], data_betr[4]],
+        [data_bt[4], data_betr[4]],
         # [data_bt[5], data_betr[5]],
     ]
 
@@ -978,8 +978,8 @@ def boxplot_exp_1():
 
     ax1.legend(zip(bp1['boxes']), ['GEESE-BT', 'BeTr-GEESE'], fontsize="small", loc="center left", title='GEESE Types')
     ax1.set_xticks(
-        [1.5, 4.5, 7.5, 10.5,
-         # 13.5, 16.5
+        [1.5, 4.5, 7.5, 10.5, 13.5,
+        # 16.5
          ])
     ax1.set_xticklabels(labels)
     ax1.set_yticks(range(0, 105, 20))
@@ -1509,9 +1509,9 @@ def boxplot_exp_2():
 
     ax1 = fig.add_subplot(1, 1, 1)
     colordict = {
-        0: 'forestgreen',
+        0: 'gold',
         1: 'indianred',
-        2: 'gold',
+        2: 'forestgreen',
         3: 'tomato',
         4: 'royalblue',
         5: 'peru'}
@@ -1597,9 +1597,9 @@ def boxplot_exp_4():
 
     ax1 = fig.add_subplot(1, 1, 1)
     colordict = {
-        0: 'forestgreen',
+        0: 'gold',
         1: 'indianred',
-        2: 'gold',
+        2: 'forestgreen',
         3: 'tomato',
         4: 'royalblue',
         5: 'peru'}
@@ -1864,8 +1864,8 @@ def main():
     # boxplot_exp_1()
     # experiment_1()
     # boxplot_exp_2()
-    boxplot_exp_3()
-    # boxplot_exp_4()
+    # boxplot_exp_3()
+    boxplot_exp_4()
     # for t in  [9, 13, 15, 3]:
     #     boxplot_exp_5(t)
     # boxplot_fitness()
