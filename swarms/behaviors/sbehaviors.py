@@ -158,7 +158,11 @@ class GoTo(Behaviour):
         try:
             objects = ObjectsStore.find(
                 self.blackboard.shared_content, self.agent.shared_content,
-                self.item, self.agent.name)[0]
+                self.item, self.agent.name)
+            if len(objects) > 0:
+                objects = self.agent.model.random.choice(objects)
+            else:
+                objects = objects[0]
             self.agent.direction = get_direction(
                 objects.location, self.agent.location)
             return Status.SUCCESS

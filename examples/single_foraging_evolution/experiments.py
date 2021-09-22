@@ -134,7 +134,7 @@ def main(args):
                 pprint(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, no_site)
                 if not args.dry_run:
                     exp(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, no_site)
-        elif args.exp_no == 2:
+        elif args.exp_no == 5:
             # Every thing constant no of site changes
             for i in range(len(nosites)):
                 pprint(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, nosites[i])

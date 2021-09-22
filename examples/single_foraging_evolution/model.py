@@ -625,14 +625,17 @@ class SimForgModel(Model):
 
         try:
             # self.site = self.render.objects['sites'][0]
+            self.total_food_units = 0
             self.foods = []
-            idxs = self.random.choice(len(self.sites), self.num_agents)
-            for i in range(self.num_agents * 1):
-                f = Food(
-                    i, location=self.sites[idxs[i]].location, radius=self.sites[idxs[i]].radius)
-                f.agent_name = None
-                self.grid.add_object_to_grid(f.location, f)
-                self.foods.append(f)
+            # idxs = self.random.choice(len(self.sites), self.num_agents)
+            for site in self.sites:
+                for i in range(self.num_agents * 1):
+                    f = Food(
+                        i, location=site.location, radius=site.radius)
+                    f.agent_name = None
+                    self.grid.add_object_to_grid(f.location, f)
+                    self.total_food_units += f.weight
+                    self.foods.append(f)
         except KeyError:
             pass
 
@@ -712,9 +715,9 @@ class SimForgModel(Model):
             if food_grid == hub_grid:
                 food_objects += [food]
         food_objects = set(food_objects)
-        # total_food_weights = sum([food.weight for food in food_objects])
-        # return np.round(((total_food_weights * 1.0) / self.total_food_units) * 100, 1)
-        return len(food_objects)
+        total_food_weights = sum([food.weight for food in food_objects])
+        return int(((total_food_weights * 1.0) / self.total_food_units) * 100)
+        # return len(food_objects)
 
     def food_in_loc(self, loc):
         """Find amount of food in hub."""
