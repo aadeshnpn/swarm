@@ -293,8 +293,10 @@ class LearningAgent(NestAgent):
         efb = self.model.fmodels[self.model.fitid][1]
         # cfb = self.model.fmodels[self.model.fitid][2]
         dfb = self.model.fmodels[self.model.fitid][3]
+        # print(self.name, divb, efb, dfb)
+
         self.individual[0].fitness = (
-            (1 - self.beta) * self.diversity_fitness * divb +
+            (1 - self.beta) * self.delayed_reward * divb +
             self.ef * efb +
             # self.cf * cfb +
             # self.debris_collected * dfb

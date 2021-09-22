@@ -351,7 +351,7 @@ def standard_evolution(args):
     # phenotypes = learning_phase(iter, n, db)
     Parallel(
             n_jobs=args.threads)(delayed(learning_phase)(
-                args.iter, 100, db=False, fitid=args.fitid) for i in range(args.runs))
+                args.iter, 50, db=False, fitid=args.fitid) for i in range(args.runs))
 
 
 def experiments(args):
