@@ -838,8 +838,8 @@ def boxplot_exp_0():
     ax1 = fig.add_subplot(1, 1, 1)
     colordict = {
         0: 'forestgreen',
-        1: 'indianred',
-        2: 'gold',
+        1: 'gold',
+        2: 'indianred',
         3: 'tomato',
         4: 'royalblue'}
     colorshade = [
@@ -869,7 +869,7 @@ def boxplot_exp_0():
         for patch, color in zip(bp1['boxes'], colordict.values()):
             patch.set_facecolor(color)
 
-    ax1.legend(zip(bp1['boxes']), ['GEESE-BT', 'BeTr-GEESE'], fontsize="small", loc="upper right", title='Algorithms')
+    ax1.legend(zip(bp1['boxes']), ['GEESE-BT', 'BeTr-GEESE'], fontsize="small", loc="center right", title='GEESE Types')
     ax1.set_xticks([1.5, 4.5, 7.5, 10.5, 13.5, 16.5])
     ax1.set_xticklabels(labels)
     ax1.set_yticks(range(0, 105, 20))
@@ -1199,7 +1199,7 @@ def compare_sampling_differences():
     ax1.set_xticklabels(labels)
     ax1.set_yticks(range(0, 105, 20))
     ax1.set_xlabel('Sampling Size', fontsize="large")
-    ax1.set_ylabel('Foraging %',  fontsize="large")
+    ax1.set_ylabel('Foraging (%)',  fontsize="large")
     # ax1.set_title('Behavior Sampling',  fontsize="large")
 
     plt.tight_layout()
@@ -1290,14 +1290,14 @@ def read_data_n(n=100, comm=True):
     return dataf, datad
 
 
-def read_data_exp_3(width=100, height=100, trap=5, obs=5, exp_no=3, site=30, no_trap=1, no_obs=1, agent=100, grid=None):
+def read_data_exp_3(width=100, height=100, trap=5, obs=5, exp_no=3, site=30, no_trap=1, no_obs=1, agent=100, grid=None, no_site=1):
     maindir = '/tmp/betrgeese0-4/'
     if grid is None:
         ndir = os.path.join(maindir, str(agent), 'ExecutingAgent', str(exp_no),
-                str(site), str(trap)+'_'+str(obs), str(no_trap)+'_'+str(no_obs), str(width) +'_'+str(height))
+                str(site), str(trap)+'_'+str(obs), str(no_trap)+'_'+str(no_obs), str(width) +'_'+str(height), str(no_site))
     else:
         ndir = os.path.join(maindir, str(agent), 'ExecutingAgent', str(exp_no),
-                str(site), str(trap)+'_'+str(obs), str(no_trap)+'_'+str(no_obs), str(width) +'_'+str(height), str(grid))
+                str(site), str(trap)+'_'+str(obs), str(no_trap)+'_'+str(no_obs), str(width) +'_'+str(height), str(no_site), str(grid))
     print(ndir)
     folders = pathlib.Path(ndir).glob('*ForagingSimulation')
     flist = []
