@@ -1676,10 +1676,70 @@ def boxplot_exp_4():
     plt.close(fig)
 
 
-def boxplot_exp_5(t=1):
+def boxplot_exp_5():
+    size = [1, 2, 3, 4]
+    data_betr = [read_data_exp_3(100, 100, 5, 5, exp_no=5, site=30, no_trap=1, no_obs=1, agent=100, grid=10, no_site=s)[0][:,-1] for s in size]
+    data_bt = [read_data_exp_3_bt(100, 100, 0, 0, exp_no=5, site=30, no_trap=0, no_obs=0, agent=100, grid=10, no_site=s)[:,-1] for s in size]
+
+    fig = plt.figure(figsize=(8, 6), dpi=200)
+
+    ax1 = fig.add_subplot(1, 1, 1)
+    colordict = {
+        0: 'forestgreen',
+        1: 'gold',
+        2: 'indianred',
+        3: 'tomato',
+        4: 'royalblue'}
+
+    labels = [1, 2, 3, 4]
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+
+    positions = [
+        [1, 2], [4, 5], [7, 8], [10, 11],
+        # [13, 14]
+        ]
+
+    datas = [
+        [data_bt[0], data_betr[0]],
+        [data_bt[1], data_betr[1]],
+        [data_bt[2], data_betr[2]],
+        [data_bt[3], data_betr[3]],
+        # [data_bt[4], data_betr[4]],
+        # [data_bt[5], data_betr[5]],
+    ]
+
+    for j in range(len(positions)):
+        bp1 = ax1.boxplot(
+            datas[j], 0, 'gD', showmeans=True, meanline=True,
+            patch_artist=True, medianprops=medianprops,
+            meanprops=meanprops, positions=positions[j], widths=0.8)
+        for patch, color in zip(bp1['boxes'], colordict.values()):
+            patch.set_facecolor(color)
+    # plt.xlim(0, len(mean))
+    ax1.legend(zip(bp1['boxes']), ['GEESE-BT', 'BeTr-GEESE'], fontsize="small", loc="upper right", title='GEESE Types')
+    ax1.set_xticks([1.5, 4.5, 7.5, 10.5])
+    ax1.set_xticklabels(labels)
+    ax1.set_xlabel('No. of Sites', fontsize='large')
+    ax1.set_ylabel('Foraging',  fontsize='large')
+    ax1.set_yticks(range(0, 105, 20))
+
+    plt.tight_layout()
+
+    maindir = '/tmp/swarm/data/experiments/'
+    fname = 'site_no'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
+def boxplot_exp_6(t=1):
     grids = [2, 5, 10]
-    dataf = [read_data_exp_3(100, 100, t, 1, exp_no=5, site=30, no_trap=1, no_obs=1, grid=g)[0][:,-1] for g in grids]
-    datad = [read_data_exp_3(100, 100, t, 1, exp_no=5, site=30, no_trap=1, no_obs=1, grid=g)[1][:,-1] for g in grids]
+    dataf = [read_data_exp_3(100, 100, t, 1, exp_no=6, site=30, no_trap=1, no_obs=1, grid=g)[0][:,-1] for g in grids]
+    datad = [read_data_exp_3(100, 100, t, 1, exp_no=6, site=30, no_trap=1, no_obs=1, grid=g)[1][:,-1] for g in grids]
     datadp = [(d/100)*100.0 for d in datad]
     fig = plt.figure(figsize=(6, 8), dpi=100)
 
@@ -1865,7 +1925,8 @@ def main():
     # experiment_1()
     # boxplot_exp_2()
     # boxplot_exp_3()
-    boxplot_exp_4()
+    # boxplot_exp_4()
+    boxplot_exp_5()
     # for t in  [9, 13, 15, 3]:
     #     boxplot_exp_5(t)
     # boxplot_fitness()
