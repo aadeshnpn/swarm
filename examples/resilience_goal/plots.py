@@ -1411,34 +1411,78 @@ def read_data_exp_3_bt(width=100, height=100, trap=0, obs=0, exp_no=3, site=30, 
 
 def boxplot_exp_3():
     size = [100, 200, 300, 400, 500, 600]
-    data = [read_data_exp_3(s, s, 5, 5, exp_no=3, site=30, no_trap=1, no_obs=1, grid=10)[0][:,-1] for s in size]
+    data_betr = [read_data_exp_3(s, s, 5, 5, exp_no=3, site=30, no_trap=1, no_obs=1, agent=100, grid=10)[0][:,-1] for s in size]
+    data_bt = [read_data_exp_3_bt(s, s, 0, 0, exp_no=3, site=30, no_trap=0, no_obs=0, agent=100, grid=10)[:,-1] for s in size]
+
+    # data = [read_data_exp_3(s, s, 5, 5, exp_no=3, site=30, no_trap=1, no_obs=1, grid=10)[0][:,-1] for s in size]
     fig = plt.figure(figsize=(8,6), dpi=200)
     ax1 = fig.add_subplot(1, 1, 1)
     colordict = {
         0: 'forestgreen',
-        1: 'indianred',
-        2: 'gold',
+        1: 'gold',
+        2: 'indianred',
         3: 'tomato',
-        4: 'royalblue',
-        5: 'peru'}
+        4: 'royalblue'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
 
     labels = [100, 200, 300, 400, 500, 600]
-    labels = [str(l) +'x'+ str(l) for l in  labels]
-    medianprops = dict(linewidth=2.5, color='firebrick')
-    meanprops = dict(linewidth=2.5, color='#ff7f0e')
-    # data = [data[:, i] for i in range(4)]
-    bp1 = ax1.boxplot(
-        data, 0, 'gD', showmeans=True, meanline=True,
-        patch_artist=True, medianprops=medianprops,
-        meanprops=meanprops)
-    for patch, color in zip(bp1['boxes'], colordict.values()):
-        patch.set_facecolor(color)
-    # plt.xlim(0, len(mean))
-    ax1.legend(zip(bp1['boxes']), labels, fontsize="large", loc="upper right", title='Environment Size')
-    ax1.set_xticklabels(labels, fontsize='large')
-    ax1.set_xlabel('Environment Size [Width x Height]', fontsize='large')
-    ax1.set_ylabel('Foraging (%)', fontsize='large')
+    medianprops = dict(linewidth=1.5, color='firebrick')    # Strong line is median
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')    # Dashed line is mean
+    positions = [
+        [1, 2], [4, 5], [7, 8], [10, 11], [13, 14], [16, 17]
+        ]
+    datas = [
+        [data_bt[0], data_betr[0]],
+        [data_bt[1], data_betr[1]],
+        [data_bt[2], data_betr[2]],
+        [data_bt[3], data_betr[3]],
+        [data_bt[4], data_betr[4]],
+        [data_bt[5], data_betr[5]],
+    ]
+
+    for j in range(len(positions)):
+        bp1 = ax1.boxplot(
+            datas[j], 0, 'gD', showmeans=True, meanline=True,
+            patch_artist=True, medianprops=medianprops,
+            meanprops=meanprops, positions=positions[j], widths=0.8)
+        for patch, color in zip(bp1['boxes'], colordict.values()):
+            patch.set_facecolor(color)
+
+    ax1.legend(zip(bp1['boxes']), ['GEESE-BT', 'BeTr-GEESE'], fontsize="small", loc="upper right", title='GEESE Types')
+    ax1.set_xticks([1.5, 4.5, 7.5, 10.5, 13.5, 16.5])
+    ax1.set_xticklabels(labels)
     ax1.set_yticks(range(0, 105, 20))
+    ax1.set_xlabel('Environment Size [Width x Height]', fontsize='large')
+    ax1.set_ylabel('Foraging (%)', fontsize="large")
+
+    # ax1 = fig.add_subplot(1, 1, 1)
+    # colordict = {
+    #     0: 'forestgreen',
+    #     1: 'indianred',
+    #     2: 'gold',
+    #     3: 'tomato',
+    #     4: 'royalblue',
+    #     5: 'peru'}
+
+    # labels = [100, 200, 300, 400, 500, 600]
+    # labels = [str(l) +'x'+ str(l) for l in  labels]
+    # medianprops = dict(linewidth=2.5, color='firebrick')
+    # meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    # # data = [data[:, i] for i in range(4)]
+    # bp1 = ax1.boxplot(
+    #     data, 0, 'gD', showmeans=True, meanline=True,
+    #     patch_artist=True, medianprops=medianprops,
+    #     meanprops=meanprops)
+    # for patch, color in zip(bp1['boxes'], colordict.values()):
+    #     patch.set_facecolor(color)
+    # # plt.xlim(0, len(mean))
+    # ax1.legend(zip(bp1['boxes']), labels, fontsize="large", loc="upper right", title='Environment Size')
+    # ax1.set_xticklabels(labels, fontsize='large')
+    # ax1.set_xlabel('Environment Size [Width x Height]', fontsize='large')
+    # ax1.set_ylabel('Foraging (%)', fontsize='large')
+    # ax1.set_yticks(range(0, 105, 20))
     # ax1.set_title('Swarm Foraging Evolved Behaviors')
 
     plt.tight_layout()
@@ -1455,6 +1499,7 @@ def boxplot_exp_3():
 
 def boxplot_exp_2():
     size = [5, 10, 15, 20, 25]
+
     dataf = [read_data_exp_3(100, 100, s, s, exp_no=2, site=30, no_trap=1, no_obs=1, grid=10)[0][:,-1] for s in size]
     datad = [read_data_exp_3(100, 100, s, s, exp_no=2, site=30, no_trap=1, no_obs=1, grid=10)[1][:,-1] for s in size]
     # dataf = [read_data_exp_3(100, 100, s, s, exp_no=2)[0][:,-1] for s in size]
@@ -1496,7 +1541,7 @@ def boxplot_exp_2():
             patch.set_facecolor(color)
 
     # plt.xlim(0, len(mean))
-    ax1.legend(zip(bp1['boxes']), ['Foraging', 'Dead Agents'], fontsize="small", loc="upper left", title='Performance Metric')
+    ax1.legend(zip(bp1['boxes']), ['Foraging (%)', 'Dead Agents (%)'], fontsize="small", loc="center left", title='Performance Metric')
     ax1.set_xticks([1.5, 4.5, 7.5, 10.5, 13.5])
     ax1.set_xticklabels(labels)
     ax1.set_xlabel('Trap / Obstacle Size', fontsize='large')
@@ -1583,7 +1628,7 @@ def boxplot_exp_4():
         for patch, color in zip(bp1['boxes'], colordict.values()):
             patch.set_facecolor(color)
     # plt.xlim(0, len(mean))
-    ax1.legend(zip(bp1['boxes']), ['Foraging', 'Dead Agents'], fontsize="small", loc="upper left", title='Performance Metric')
+    ax1.legend(zip(bp1['boxes']), ['Foraging (%)', 'Dead Agents (%)'], fontsize="small", loc="upper right", title='Performance Metric')
     ax1.set_xticks([1.5, 4.5, 7.5, 10.5, 13.5])
     ax1.set_xticklabels(labels)
     ax1.set_xlabel('No. of Traps / Obstacles', fontsize='large')
@@ -1816,10 +1861,10 @@ def main():
     # plotallsitesdist()
     # comp_with_witout_comm()
     # boxplot_exp_0()
-    boxplot_exp_1()
+    # boxplot_exp_1()
     # experiment_1()
     # boxplot_exp_2()
-    # boxplot_exp_3()
+    boxplot_exp_3()
     # boxplot_exp_4()
     # for t in  [9, 13, 15, 3]:
     #     boxplot_exp_5(t)
