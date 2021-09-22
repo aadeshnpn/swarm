@@ -935,9 +935,73 @@ def boxplot_exp_0():
     plt.close(fig)
 
 
+def boxplot_exp_1():
+    sites = [20, 25, 30, 40]
+    data_betr = [read_data_exp_3(100, 100, 5, 5, exp_no=1, site=s, no_trap=1, no_obs=1, grid=10)[0][:,-1] for s in sites]
+    data_bt = [read_data_exp_3_bt(100, 100, 0, 0, exp_no=1, site=s, no_trap=0, no_obs=0, grid=10)[:, -1] for s in sites]
+
+    fig = plt.figure(figsize=(8,6), dpi=200)
+
+    ax1 = fig.add_subplot(1, 1, 1)
+    colordict = {
+        0: 'forestgreen',
+        1: 'gold',
+        2: 'indianred',
+        3: 'tomato',
+        4: 'royalblue'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+
+    labels = [20, 25, 30, 40]
+    medianprops = dict(linewidth=1.5, color='firebrick')    # Strong line is median
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')    # Dashed line is mean
+    positions = [
+        [1, 2], [4, 5], [7, 8], [10, 11], # [13, 14], [16, 17]
+        ]
+    datas = [
+        [data_bt[0], data_betr[0]],
+        [data_bt[1], data_betr[1]],
+        [data_bt[2], data_betr[2]],
+        [data_bt[3], data_betr[3]],
+        # [data_bt[4], data_betr[4]],
+        # [data_bt[5], data_betr[5]],
+    ]
+
+    for j in range(len(positions)):
+        bp1 = ax1.boxplot(
+            datas[j], 0, 'gD', showmeans=True, meanline=True,
+            patch_artist=True, medianprops=medianprops,
+            meanprops=meanprops, positions=positions[j], widths=0.8)
+        for patch, color in zip(bp1['boxes'], colordict.values()):
+            patch.set_facecolor(color)
+
+    ax1.legend(zip(bp1['boxes']), ['GEESE-BT', 'BeTr-GEESE'], fontsize="small", loc="center left", title='GEESE Types')
+    ax1.set_xticks(
+        [1.5, 4.5, 7.5, 10.5,
+         # 13.5, 16.5
+         ])
+    ax1.set_xticklabels(labels)
+    ax1.set_yticks(range(0, 105, 20))
+    ax1.set_xlabel('Distance of Site from Hub', fontsize="large")
+    ax1.set_ylabel('Foraging (%)', fontsize="large")
+    # ax1.set_title('Swarm Foraging', fontsize="large")
+
+    plt.tight_layout()
+
+    maindir = '/tmp/swarm/data/experiments'
+    fname = 'agentallsitecompdistplot'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
 def experiment_1(agent='ExecutingAgent'):
     # plt.style.use('fivethirtyeight')
-    sites = [20, 25, 30, 40, 50]
+    sites = [20, 25, 30, 40]
     datasf = [read_data_exp_3(100, 100, 5, 5, exp_no=1, site=s, no_trap=1, no_obs=1, grid=10)[0] for s in sites]
     # datasd = [read_data_exp_3(100, 100, 5, 5, exp_no=1, site=s, no_trap=1, no_obs=1)[1][:,-1] for s in sites]
 
@@ -1751,7 +1815,8 @@ def main():
     # plot_sampling_differences()
     # plotallsitesdist()
     # comp_with_witout_comm()
-    boxplot_exp_0()
+    # boxplot_exp_0()
+    boxplot_exp_1()
     # experiment_1()
     # boxplot_exp_2()
     # boxplot_exp_3()
