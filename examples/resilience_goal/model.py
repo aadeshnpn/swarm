@@ -757,9 +757,10 @@ class SimForgModel(Model):
             q_value = 0.9
             other_bojects = self.grid.get_objects_from_list_of_grid(None, self.grid.get_neighborhood((x,y), radius))
             if len(other_bojects) == 0:
-                self.site = Sites(
+                site = Sites(
                         0, location, radius, q_value=q_value)
-                self.grid.add_object_to_grid(location, self.site)
+                self.grid.add_object_to_grid(location, site)
+                self.sites.append(site)
                 break
 
     def place_static_objs(self, obj, radius):
@@ -834,6 +835,7 @@ class SimForgModel(Model):
         # print(self.obstacles.passable)
         # self.traps = self.render.objects['traps'][0]
         # add site with random distances
+        self.sites = []
         for s in range(self.no_site):
             self.place_site()
         # print(self.traps, self.obstacles)
@@ -847,13 +849,16 @@ class SimForgModel(Model):
 
         try:
             # self.site = self.render.objects['sites'][0]
+            self.total_food_units = 0
             self.foods = []
-            for i in range(self.num_agents * 1):
-                f = Food(
-                    i, location=self.site.location, radius=self.site.radius)
-                f.agent_name = None
-                self.grid.add_object_to_grid(f.location, f)
-                self.foods.append(f)
+            for site in self.sites:
+                for i in range(self.num_agents * 1):
+                    f = Food(
+                        i, location=site.location, radius=site.radius)
+                    f.agent_name = None
+                    self.grid.add_object_to_grid(f.location, f)
+                    self.total_food_units += f.weight
+                    self.foods.append(f)
         except KeyError:
             pass
 
@@ -933,9 +938,9 @@ class SimForgModel(Model):
             if food_grid == hub_grid:
                 food_objects += [food]
         food_objects = set(food_objects)
-        # total_food_weights = sum([food.weight for food in food_objects])
-        # return np.round(((total_food_weights * 1.0) / self.total_food_units) * 100, 1)
-        return len(food_objects)
+        total_food_weights = sum([food.weight for food in food_objects])
+        return int(((total_food_weights * 1.0) / self.total_food_units) * 100)
+        # return len(food_objects)
 
     def food_in_loc(self, loc):
         """Find amount of food in hub."""

@@ -82,7 +82,7 @@ def main(args):
     trapsizes = range(5, 30, 5)
     obssizes = range(5, 30, 5)
     notraps = range(1, 6)
-
+    nosites = range(1, 5)
     trap = trap_size
     obs = obs_size
     windowsizes = [100, 200, 300, 400, 500, 600]
@@ -94,7 +94,7 @@ def main(args):
     no_obs = args.no_obs
     no_site = args.no_site
     grid = args.grid
-    def exp(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, no_size):
+    def exp(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, no_site):
         agent = ExecutingAgent if agent == 0 else ExecutingAgent
         dname = os.path.join(
             '/tmp', 'swarm', 'data', 'experiments', str(n), agent.__name__, str(exp_no),
@@ -151,6 +151,11 @@ def main(args):
                 if not args.dry_run:
                     exp(n, agent, site, trap, obs, width, height, nt, nt, exp_no, grid, no_site)
         elif args.exp_no == 5:
+            for i in range(len(nosites)):
+                pprint(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, nosites[i])
+                if not args.dry_run:
+                    exp(n, agent, site, trap, obs,width, height, no_trap, no_obs, exp_no, grid, nosites[i])
+        elif args.exp_no == 6:
             for grid in gridsizes:
                 pprint(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, no_site)
                 if not args.dry_run:
