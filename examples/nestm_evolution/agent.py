@@ -316,18 +316,18 @@ class LearningAgent(NestAgent):
         debris_objects = []
         debris_grid = []
 
-        grid = self.grid
-        for boundary in self.boundaries:
+        grid = self.model.grid
+        for boundary in self.model.boundaries:
             boundary_loc = boundary.location
             neighbours = grid.get_neighborhood(boundary_loc, boundary.radius)
             debris_objects += grid.get_objects_from_list_of_grid('Debris', neighbours)
-            _, dgrid = grid.find_grid(boundary_loc)
-            debris_grid += dgrid
+            # _, dgrid = grid.find_grid(boundary_loc)
+            # debris_grid += dgrid
 
-        for debry in self.debris:
-            _, debry_grid = grid.find_grid(debry.location)
-            if debry_grid in debris_grid:
-                debris_objects += [debry]
+        # for debry in self.model.debris:
+        #     _, debry_grid = grid.find_grid(debry.location)
+        #     if debry_grid in debris_grid:
+        #         debris_objects += [debry]
         debris_objects = set(debris_objects)
         # return debris_objects
 

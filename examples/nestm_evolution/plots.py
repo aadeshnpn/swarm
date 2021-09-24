@@ -235,6 +235,7 @@ def read_data_fitness(n=100, maindir='/tmp/div/diversity_withdecay'):
         flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
         try:
             _, _, f, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+            f[0] = 0.0
             dataf.append(f)
             datad.append(d)
             # print(flist[0], f.shape)
@@ -243,7 +244,8 @@ def read_data_fitness(n=100, maindir='/tmp/div/diversity_withdecay'):
     # print(data)
     dataf = np.array(dataf)
     datad = np.array(datad)
-    # print(dataf.shape, datad.shape, n)
+    # print(dataf.shape, datad.shape, n, dataf)
+    # data = np.max(dataf, axis=1)
     return dataf
 
 
@@ -1376,7 +1378,7 @@ def boxplot_fitness_paper():
     ]
 
     newdatas = [read_data_fitness(maindir='/tmp/div/BeTrGeese/'+n)[:,-1] for n in newnames]
-    middatas = [read_data_fitness(maindir='/tmp/div/PPAGeese/'+n)[:,-1] for n in newnames]
+    middatas = [read_data_fitness(maindir='/tmp/div/PPAGeese/'+n)[:, -1] for n in newnames]
     olddatas = [read_old_data_txt(fname=n) for n in oldnames]
 
     print(

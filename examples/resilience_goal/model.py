@@ -761,6 +761,7 @@ class SimForgModel(Model):
                         0, location, radius, q_value=q_value)
                 self.grid.add_object_to_grid(location, site)
                 self.sites.append(site)
+                self.site = site
                 break
 
     def place_static_objs(self, obj, radius):
