@@ -70,7 +70,7 @@ class EvolModel(Model):
             3: (True, True, True, True)
         }
         self.fitmode = fitid
-
+        print('fitmode', self.fitmode, self.modes[self.fitmode])
         # Create agents
         for i in range(self.num_agents):
             a = eval(agent)(i, self)
@@ -139,10 +139,12 @@ class EvolModel(Model):
         # Create a place for the agents to drop the derbis
         try:
             self.obstacles = []
+            positions = [(30,30), (-30,30), (30,-30), (-30, -30)]
             for i in range(4):
-                dx, dy = self.random.randint(5, 10, 2)
-                dx = self.hub.location[0] + 25 + dx
-                dy = self.hub.location[1] + 25 + dy
+                # dx, dy = self.random.randint(5, 10, 2)
+                # dx = self.hub.location[0] + 25 + dx
+                # dy = self.hub.location[1] + 25 + dy
+                dx, dy = positions[i][0], positions[i][1]
                 o = Obstacles(id=i, location=(dx, dy), radius=10)
                 self.grid.add_object_to_grid(o.location, o)
                 self.obstacles.append(o)
@@ -271,9 +273,11 @@ class EvolModel(Model):
         for obstacle in self.obstacles:
             neighbours = grid.get_neighborhood(
                 obstacle.location, obstacle.radius)
-            debris_objects += grid.get_objects_from_list_of_grid(
+            debry = grid.get_objects_from_list_of_grid(
                 'Debris', neighbours)
+            debris_objects += debry
 
         total_debry_weights = sum([debry.weight for debry in self.debris])
         total_moved_debry = sum([debry.weight for debry in debris_objects])
+
         return ((total_moved_debry * 1.0) / total_debry_weights) * 100

@@ -84,12 +84,12 @@ class SimModel(Model):
             a = eval(agent)(i, self, xmlstring=self.xmlstrings[j])
             self.schedule.add(a)
             # Add the agent to a random grid cell
-            # x = self.random.randint(
-            #    -self.grid.width / 2, self.grid.width / 2)
-            x = 0
-            # y = self.random.randint(
-            #    -self.grid.height / 2, self.grid.height / 2)
-            y = 0
+            x = self.random.randint(
+               -self.grid.width / 2, self.grid.width / 2)
+            # x = 0
+            y = self.random.randint(
+               -self.grid.height / 2, self.grid.height / 2)
+            # y = 0
 
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)
@@ -134,7 +134,7 @@ class SimModel(Model):
         self.hub = self.render.objects['hub'][0]
         try:
             self.debris = []
-            for i in range(200):
+            for i in range(self.num_agents):
                 dx, dy = self.random.randint(1, 10, 2)
                 dx = self.hub.location[0] + dx
                 dy = self.hub.location[1] + dy
@@ -150,10 +150,12 @@ class SimModel(Model):
         # Create a place for the agents to drop the derbis
         try:
             self.obstacles = []
+            positions = [(30,30), (-30,30), (30,-30), (-30, -30)]
             for i in range(1):
-                dx, dy = self.random.randint(5, 10, 2)
-                dx = self.hub.location[0] + 25 + dx
-                dy = self.hub.location[1] + 25 + dy
+                # dx, dy = self.random.randint(5, 10, 2)
+                # dx = self.hub.location[0] + 25 + dx
+                # dy = self.hub.location[1] + 25 + dy
+                dx, dy = positions[i][0], positions[i][1]
                 o = Obstacles(id=i, location=(dx, dy), radius=10)
                 self.grid.add_object_to_grid(o.location, o)
                 self.obstacles.append(o)

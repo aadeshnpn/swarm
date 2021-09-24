@@ -591,15 +591,16 @@ class Drop(Behaviour):
             objects = list(filter(
                 lambda x: type(x).__name__ == self.item,
                 self.agent.attached_objects))[0]
-
+            # print('from drop', self.agent.name, objects, objects.id)
             self.agent.model.grid.add_object_to_grid(objects.location, objects)
             self.agent.attached_objects.remove(objects)
             objects.agent_name = self.agent.name
-
+            # print('after drop')
             # Temporary fix
             # Store the genome which activated the single carry
             try:
-                objects.phenotype['drop'] = self.agent.individual[0].phenotype
+                objects.phenotype = {
+                    'drop': self.agent.individual[0].phenotype}
                 return Status.SUCCESS
             except AttributeError:
                 pass

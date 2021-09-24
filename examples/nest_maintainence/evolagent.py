@@ -96,14 +96,11 @@ class EvolAgent(Agent):
         agent_debris_objects = []
 
         for debris in debris_objects:
-            try:
                 if (
                     debris.agent_name == self.name and
-                        debris.phenotype == self.individual[0].phenotype):
-                    agent_debris_objects.append(debris)
-            except AttributeError:
-                pass
-        return agent_debris_objects
+                        self.individual[0].phenotype in list(debris.phenotype.values())):
+                    agent_debris_objects.append(debris.weight)
+        return sum(agent_debris_objects)
 
     def detect_debris_carrying(self):
         """Detect if the agent is carrying debris."""
@@ -166,10 +163,10 @@ class EvolAgent(Agent):
         pros = self.model.modes[self.model.fitmode][2]
         forg = self.model.modes[self.model.fitmode][3]
         self.individual[0].fitness = (
-            self.diversity_fitness * div + self.exploration_fitness() * exp +
+            (1 - self.beta) * self.delayed_reward  * div + self.exploration_fitness() * exp +
             self.carrying_fitness() * pros + self.debris_collected * forg
             )
-
+        # print(self.name, div, exp, pros, forg, self.individual[0].fitness)
         # self.individual[0].fitness = (1 - self.beta) * self.delayed_reward \
         #     + self.exploration_fitness() + self.carrying_fitness() \
         #     + self.debris_collected
@@ -180,7 +177,8 @@ class EvolAgent(Agent):
         This fitness supports the carrying behavior of
         the agents.
         """
-        return len(self.attached_objects) * (self.timestamp)
+        # return len(self.attached_objects) * (self.timestamp)
+        return sum([obj.weight for obj in self.attached_objects])
 
     def exploration_fitness(self):
         """Compute the exploration fitness."""
@@ -214,7 +212,7 @@ class EvolAgent(Agent):
         self.bt.behaviour_tree.tick()
 
         # Find the no.of debris collected from the BT execution
-        self.debris_collected = len(self.get_debris_transported())
+        self.debris_collected = self.get_debris_transported()
 
         # Computes overall fitness using Beta function
         self.overall_fitness()

@@ -137,14 +137,16 @@ def evolve(i, iteration, fitid):
     """Learning Algorithm block."""
     # iteration = 12000
 
-    env = EvolModel(100, 100, 100, 10, iter=iteration, expname='EvoNestM_', fitid=fitid)
+    env = EvolModel(50, 100, 100, 10, iter=iteration, expname='EvoNestM_', fitid=fitid)
     env.build_environment_from_json()
 
     # for all agents store the information about hub
     for agent in env.agents:
         agent.shared_content['Hub'] = {env.hub}
-        agent.shared_content['Obstacles'] = set(env.obstacles)
+        # agent.shared_content['Obstacles'] = set(env.obstacles)
 
+    # print('debris', env.debris)
+    # print('obstacles', env.obstacles)
     # Iterate and execute each step in the environment
     for i in range(iteration):
         results = SimulationResults(
@@ -153,7 +155,7 @@ def evolve(i, iteration, fitid):
         )
         results.save_to_file()
         env.step()
-
+    # print([(agent.name, agent.attached_objects, agent.location) for agent in env.agents])
     # env.experiment.update_experiment()
 
     # Collecting phenotypes on the basis of debris collected
@@ -168,15 +170,15 @@ def evolve(i, iteration, fitid):
         env.experiment.update_experiment_simulation(fpercentage, False)
     print('NestM', fpercentage)
 
-    # for debris in debris_objects:
-    #     try:
-    #         print(debris.phenotype)
-    #         env.phenotypes += list(debris.phenotype.values())
-    #     except AttributeError:
-    #         pass
+    for debris in env.debris:
+        try:
+            print(debris.phenotype)
+            env.phenotypes += list(debris.phenotype.values())
+        except AttributeError:
+            pass
 
-    # jfilename = env.pname + '/' + env.runid + '.json'
-    # JsonPhenotypeData.to_json(env.phenotypes, jfilename)
+    jfilename = env.pname + '/' + env.runid + '.json'
+    JsonPhenotypeData.to_json(env.phenotypes, jfilename)
 
     # Not using this method right now
     # env.phenotypes = extract_phenotype(env.agents, jfilename)
@@ -233,5 +235,5 @@ if __name__ == '__main__':
     # Parallel(n_jobs=16)(delayed(evolve)(i, 12000, 0) for i in range(64))
     # Parallel(n_jobs=16)(delayed(evolve)(i, 12000, 1) for i in range(64))
     # Parallel(n_jobs=16)(delayed(evolve)(i, 12000, 2) for i in range(64))
-    Parallel(n_jobs=16)(delayed(evolve)(i, 12000, 3) for i in range(64))
+    Parallel(n_jobs=16)(delayed(evolve)(i, 12000, 3) for i in range(256))
     # main(20000)
