@@ -5,7 +5,7 @@
 <ppa> ::= [Selector]<postconditions><ppasequence>[/Selector]
 <postconditions>::= <SuccessNode> | <ppa> | [Sequence]<postcondition>[/Sequence]
 <postcondition> ::= <postcondition>[PostCnd]<postconditiont>[/PostCnd]|[PostCnd]<postconditiont>[/PostCnd]
-<postconditiont> ::= NeighbourObjects_<objects>|NeighbourObjects_<sobjects>|NeighbourObjects_<dobjects>|DidAvoidedObj_<sobjects>|IsCarrying_<dobjects>|IsVisitedBefore_<sobjects>
+<postconditiont> ::= NeighbourObjects_<objects>|NeighbourObjects_<sobjects>|NeighbourObjects_<dobjects>|IsCarrying_<dobjects>|IsVisitedBefore_<sobjects>
 <ppasequence> ::=  [Sequence]<preconditions>[Act]<action>[/Act][/Sequence]|[Sequence]<constraints>[Act]<action>[/Act][/Sequence]|[Sequence]<preconditions><constraints>[Act]<action>[/Act][/Sequence]
 
 <preconditions> ::= [Sequence]<precondition>[/Sequence]
