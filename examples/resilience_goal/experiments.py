@@ -82,7 +82,7 @@ def main(args):
     trapsizes = range(5, 30, 5)
     obssizes = range(5, 30, 5)
     notraps = range(1, 6)
-    nosites = range(1, 5)
+    nosites = range(1, 6)
     trap = trap_size
     obs = obs_size
     windowsizes = [100, 200, 300, 400, 500, 600]

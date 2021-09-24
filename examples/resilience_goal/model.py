@@ -852,14 +852,14 @@ class SimForgModel(Model):
             # self.site = self.render.objects['sites'][0]
             self.total_food_units = 0
             self.foods = []
-            for site in self.sites:
-                for i in range(self.num_agents * 1):
-                    f = Food(
-                        i, location=site.location, radius=site.radius)
-                    f.agent_name = None
-                    self.grid.add_object_to_grid(f.location, f)
-                    self.total_food_units += f.weight
-                    self.foods.append(f)
+            site_idxs = self.random.choice(range(len(self.sites)), self.num_agents)
+            for i in range(self.num_agents * 1):
+                f = Food(
+                    i, location=self.sites[site_idxs[i]].location, radius=self.sites[0].radius)
+                f.agent_name = None
+                self.grid.add_object_to_grid(f.location, f)
+                self.total_food_units += f.weight
+                self.foods.append(f)
         except KeyError:
             pass
 

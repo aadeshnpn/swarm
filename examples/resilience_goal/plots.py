@@ -1677,7 +1677,7 @@ def boxplot_exp_4():
 
 
 def boxplot_exp_5():
-    size = [1, 2, 3, 4]
+    size = [1, 2, 3, 4, 5]
     data_betr = [read_data_exp_3(100, 100, 5, 5, exp_no=5, site=30, no_trap=1, no_obs=1, agent=100, grid=10, no_site=s)[0][:,-1] for s in size]
     data_bt = [read_data_exp_3_bt(100, 100, 0, 0, exp_no=5, site=30, no_trap=0, no_obs=0, agent=100, grid=10, no_site=s)[:,-1] for s in size]
 
@@ -1691,13 +1691,13 @@ def boxplot_exp_5():
         3: 'tomato',
         4: 'royalblue'}
 
-    labels = [1, 2, 3, 4]
+    labels = [1, 2, 3, 4, 5]
     medianprops = dict(linewidth=2.5, color='firebrick')
     meanprops = dict(linewidth=2.5, color='#ff7f0e')
 
     positions = [
         [1, 2], [4, 5], [7, 8], [10, 11],
-        # [13, 14]
+        [13, 14]
         ]
 
     datas = [
@@ -1705,7 +1705,7 @@ def boxplot_exp_5():
         [data_bt[1], data_betr[1]],
         [data_bt[2], data_betr[2]],
         [data_bt[3], data_betr[3]],
-        # [data_bt[4], data_betr[4]],
+        [data_bt[4], data_betr[4]],
         # [data_bt[5], data_betr[5]],
     ]
 
@@ -1717,11 +1717,11 @@ def boxplot_exp_5():
         for patch, color in zip(bp1['boxes'], colordict.values()):
             patch.set_facecolor(color)
     # plt.xlim(0, len(mean))
-    ax1.legend(zip(bp1['boxes']), ['GEESE-BT', 'BeTr-GEESE'], fontsize="small", loc="upper right", title='GEESE Types')
-    ax1.set_xticks([1.5, 4.5, 7.5, 10.5])
+    ax1.legend(zip(bp1['boxes']), ['GEESE-BT', 'BeTr-GEESE'], fontsize="small", loc="lower right", title='GEESE Types')
+    ax1.set_xticks([1.5, 4.5, 7.5, 10.5, 13.5])
     ax1.set_xticklabels(labels)
     ax1.set_xlabel('No. of Sites', fontsize='large')
-    ax1.set_ylabel('Foraging',  fontsize='large')
+    ax1.set_ylabel('Foraging (%)',  fontsize='large')
     ax1.set_yticks(range(0, 105, 20))
 
     plt.tight_layout()
