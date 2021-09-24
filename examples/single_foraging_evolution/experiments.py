@@ -94,7 +94,7 @@ def main(args):
     no_obs = 0 # args.no_obs
     no_site = args.no_site
     grid = args.grid
-    def exp(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, no_size):
+    def exp(n, agent, site, trap, obs, width, height, no_trap, no_obs, exp_no, grid, no_site):
         agent = ExecutingAgent if agent == 0 else ExecutingAgent
         dname = os.path.join(
             '/tmp', 'oldswarm', 'data', 'experiments', str(n), agent.__name__, str(exp_no),
@@ -182,7 +182,7 @@ if __name__ == '__main__':
     parser.add_argument('--runs', default=50, type=int)
     parser.add_argument('--site', default=25, type=int)
     parser.add_argument('--trap_size', default=0, type=int)
-    parser.add_argument('--steps', default=500, type=int)
+    parser.add_argument('--steps', default=5000, type=int)
     parser.add_argument('--obstacle_size', default=0, type=int)
     parser.add_argument('--no_trap', default=1, type=int)
     parser.add_argument('--no_obs', default=1, type=int)
