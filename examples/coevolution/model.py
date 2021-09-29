@@ -277,7 +277,7 @@ class CoevolutionModel(Model):
         """Find amount of debris cleaned."""
         debris_objects = []
         grid = self.grid
-        for boundary in self.boundaries:
+        for boundary in [self.boundary]:
             boundary_loc = boundary.location
             neighbours = grid.get_neighborhood(boundary_loc, boundary.radius)
             debris_objects += grid.get_objects_from_list_of_grid('Debris', neighbours)
@@ -962,7 +962,7 @@ class SimCoevoModel(Model):
         """Find amount of debris cleaned."""
         debris_objects = []
         grid = self.grid
-        for boundary in self.boundaries:
+        for boundary in [self.boundary]:
             boundary_loc = boundary.location
             neighbours = grid.get_neighborhood(boundary_loc, boundary.radius)
             debris_objects += grid.get_objects_from_list_of_grid('Debris', neighbours)
