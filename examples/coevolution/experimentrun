@@ -1,0 +1,29 @@
+#!/bin/bash
+
+## Standard experiment
+
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000
+# Experiment 4
+# python experiments.py --exp_no 0 --runs 36 --thread 18 --dry_ru
+# python experiments.py --exp_no 1 --runs 36 --thread 18 --dry_ru
+# python experiments.py --exp_no 2 --runs 36 --thread 18 --dry_ru
+# python experiments.py --exp_no 3 --runs 36 --thread 18 --dry_ru
+# python experiments.py --exp_no 4 --runs 36 --thread 18 --dry_ru
+# python experiments.py --exp_no 5 --runs 72 --thread 18 --dry_ru
+
+# python experiments.py --exp_no 5 --runs 18 --thread 18 --obstacle_size=1 --trap_size=15 --dry_run
+# python experiments.py --exp_no 5 --runs 18 --thread 18 --obstacle_size=1 --trap_size=9 --dry_run
+# python experiments.py --exp_no 5 --runs 18 --thread 18 --obstacle_size=1 --trap_size=13 --dry_run
+# python experiments.py --exp_no 5 --runs 18 --thread 18 --obstacle_size=1 --trap_size=3 --dry_run
+# python experiments.py --exp_no 5 --runs 18 --thread 18 --obstacle_size=1 --trap_size=1 --dry_run
