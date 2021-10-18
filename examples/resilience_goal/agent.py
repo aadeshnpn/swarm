@@ -169,6 +169,7 @@ class LearningAgent(ForagingAgent):
         self.selectors_reward = 0
         self.constraints_reward = 0
         self.postcond_reward = 0
+        # self.attached_objects = []
         # self.trace.append({k:self.functions[k]() for k in self.keys})
         # self.trace[self.step_count] = {k:self.functions[k]() for k in self.keys}
 

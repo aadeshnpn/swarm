@@ -137,7 +137,7 @@ class ForagingModel(Model):
         try:
             self.site = self.render.objects['sites'][0]
             for i in range(self.num_agents * 1):
-                f = Food(
+                f = Debris(
                     i, location=self.site.location, radius=self.site.radius)
                 f.agent_name = None
                 self.grid.add_object_to_grid(f.location, f)
@@ -252,16 +252,20 @@ class ForagingModel(Model):
 
     def foraging_percent(self):
         """Compute the percent of the total food in the hub."""
-        grid = self.grid
-        hub_loc = self.hub.location
-        neighbours = grid.get_neighborhood(hub_loc, self.hub.radius)
-        food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
-        _, hub_grid = grid.find_grid(hub_loc)
-        for food in self.foods:
-            _, food_grid = grid.find_grid(food.location)
-            if food_grid == hub_grid:
-                food_objects += [food]
-        food_objects = set(food_objects)
+        # grid = self.grid
+        # hub_loc = self.hub.location
+        # neighbours = grid.get_neighborhood(hub_loc, self.hub.radius)
+        # food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+        # _, hub_grid = grid.find_grid(hub_loc)
+        # attached_food = [a.attached_objects[0] for a in self.agents if len(a.attached_objects)>0]
+        # for food in self.foods:
+        #     _, food_grid = grid.find_grid(food.location)
+        #     if (food_grid == hub_grid and (food not in attached_food)):
+        #         food_objects += [food]
+        # food_objects = set(food_objects)
+
+        food_objects = set(self.hub.dropped_objects)
+        # Attached food in the agent
         total_food_weights = sum([food.weight for food in food_objects])
         return np.round(((total_food_weights * 1.0) / self.total_food_units) * 100, 1)
 
