@@ -144,7 +144,7 @@ class TestGoToSwarmSmallGrid(TestCase):
 
     def test_agent_path(self):
         # Checking if the agents reaches site or not
-        self.assertEqual(self.environment.agent.location, (40, 40))
+        self.assertEqual(self.environment.agent.location, (23, 23))
 
 
 class MoveTowardsModelObs(Model):
@@ -192,7 +192,7 @@ class TestGoToObsSwarmSmallGrid(TestCase):
 
     def test_agent_path(self):
         # Checking if the agents reaches site or not
-        self.assertEqual(self.environment.agent.location, (42, 40))
+        self.assertEqual(self.environment.agent.location, (36, 35))
 
 
 class MoveTowardsModelObsTrap(Model):
@@ -243,7 +243,7 @@ class TestGoToObsTrapSwarmSmallGrid(TestCase):
 
     def test_agent_path(self):
         # Checking if the agents reaches site or not
-        self.assertEqual(self.environment.agent.location, (42, 40))
+        self.assertEqual(self.environment.agent.location, (40, 40))
 
 
 class MoveTowardsModelObsTrapBig(Model):
@@ -291,11 +291,11 @@ class TestGoToObsTrapBigSwarmSmallGrid(TestCase):
 
         for i in range(80):
             self.environment.step()
-            print(i, self.environment.agent.location, self.environment.agent.dead)
+            # print(i, self.environment.agent.location, self.environment.agent.dead)
 
     def test_agent_path(self):
         # Checking if the agents reaches site or not
-        self.assertEqual(self.environment.agent.location, (42, 40))
+        self.assertEqual(self.environment.agent.location, (44, 40))
 
 
 class SwarmMoveAway(Agent):
@@ -377,7 +377,7 @@ class TestGoToAwaySwarmSmallGrid(TestCase):
 
     def test_agent_path(self):
         # Checking if the agents reaches site or not
-        self.assertEqual(self.environment.agent.location, (-42, -42))
+        self.assertEqual(self.environment.agent.location, (-35, -35))
 
 
 class MoveAwayObsModel(Model):
@@ -426,7 +426,7 @@ class TestGoToAwayObsSwarmSmallGrid(TestCase):
 
     def test_agent_path(self):
         # Checking if the agents reaches site or not
-        self.assertEqual(self.environment.agent.location, (-42, -12))
+        self.assertEqual(self.environment.agent.location, (-48, -8))
 
 
 class MoveAwayObsTrapModel(Model):
@@ -478,7 +478,7 @@ class TestGoToAwayObsTrapSwarmSmallGrid(TestCase):
 
     def test_agent_path(self):
         # Checking if the agents reaches site or not
-        self.assertEqual(self.environment.agent.location, (-42, -12))
+        self.assertEqual(self.environment.agent.location, (-48, -8))
 
 
 # # class to define agent explore behavior
@@ -562,7 +562,7 @@ class TestExploreSwarmSmallGrid(TestCase):
 
     def test_agent_path(self):
         self.assertEqual(self.trimmed_results, [
-            (0, 0), (-1, -1), (-43, -26), (-44, -25), (-45, -24)])
+            (0, 0), (-2, -1), (-32, -48), (-30, -48), (-28, -48)])
 
 
 class ExploreObsModel(Model):
@@ -613,7 +613,7 @@ class TestExploreObsSwarmSmallGrid(TestCase):
 
     def test_agent_path(self):
         self.assertEqual(self.trimmed_results, [
-            (0, 0), (-1, -1), (11, 32), (12, 33), (13, 34)])
+            (0, 0), (-2, -1), (0, 46), (-2, 45), (-4, 44)])
 
 
 class SwarmSingleCarry(Agent):
@@ -779,17 +779,17 @@ class TestSingleCarryDrop(TestCase):
         self.environment = SingleCarryDropModel(
             1, 100, 100, 10, 123)
 
-        for i in range(35):
+        for i in range(42):
             print(self.environment.agent.location)
             self.environment.step()
 
     def test_agent_path(self):
         self.assertEqual(
-            self.environment.agent.location, (9, 9))
+            self.environment.agent.location, (-11, -11))
 
     def test_agent_dropped(self):
         self.assertEqual(
-            self.environment.thing.location, (9, 9))
+            self.environment.thing.location, (-11, -11))
 
     def test_agent_attached_obj(self):
         self.assertEqual(
