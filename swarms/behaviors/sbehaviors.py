@@ -491,12 +491,12 @@ class Move(Behaviour):
         # Partially carried object
         if not self.update_partial_attached_objects():
             self.agent.accleration = self.agent.force / self.agent.get_weight()
-            self.agent.velocity = self.agent.accleration * 1
-
-            x = int(self.agent.location[0] + np.cos(
-                self.agent.direction) * self.agent.velocity)
-            y = int(self.agent.location[1] + np.sin(
-                self.agent.direction) * self.agent.velocity)
+            self.agent.velocity = self.agent.accleration * 1.0
+            # print(self.agent.direction, self.agent.velocity, self.agent.location)
+            x = int(np.round(self.agent.location[0] + np.cos(
+                self.agent.direction) * self.agent.velocity))
+            y = int(np.round(self.agent.location[1] + np.sin(
+                self.agent.direction) * self.agent.velocity))
             new_location, direction = self.agent.model.grid.check_limits(
                 (x, y), self.agent.direction)
             # print('from move', self.name, self.agent.location, new_location, direction)

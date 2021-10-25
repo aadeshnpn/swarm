@@ -573,7 +573,8 @@ class TestGoToSwarmSmallGrid(TestCase):
     def setUp(self):
         self.environment = GoToSwarmEnvironmentModel(1, 100, 100, 10, 123)
 
-        for i in range(50):
+        for i in range(72):
+            # print(self.environment.agent.location)
             self.environment.step()
 
     def test_agent_path(self):
@@ -592,7 +593,7 @@ class TestGoToAwaySwarmSmallGrid(TestCase):
 
     def test_agent_path(self):
         self.assertEqual(self.trimmed_results, [
-            (20, 35), (18, 34), (-38, -18), (-39, -19)])
+            (20, 35), (18, 34), (-48, -13), (-50, -14)])
 
 
 class TestGoToTowardsSwarmSmallGrid(TestCase):
@@ -623,7 +624,7 @@ class TestRandomWalkSwarmSmallGrid(TestCase):
 
     def test_agent_path(self):
         self.assertEqual(self.trimmed_results, [
-            (0, 0), (-1, -1), (-43, -26), (-44, -25), (-45, -24)])
+            (0, 0), (-2, -1), (-32, -48), (-30, -48), (-28, -48)])
 
 
 class TestSenseSiteSwarmSmallGrid(TestCase):
@@ -635,7 +636,7 @@ class TestSenseSiteSwarmSmallGrid(TestCase):
             self.environment.step()
 
     def test_agent_path(self):
-        self.assertEqual(self.environment.agent.location, (19, 19))
+        self.assertEqual(self.environment.agent.location, (19, 13))
 
 
 class TestSenseHubSiteSwarmSmallGrid(TestCase):
@@ -648,4 +649,4 @@ class TestSenseHubSiteSwarmSmallGrid(TestCase):
             self.environment.step()
 
     def test_agent_path(self):
-        self.assertEqual(self.environment.agent.location, (5, 5))
+        self.assertEqual(self.environment.agent.location, (25, 25))

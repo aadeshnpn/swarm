@@ -779,7 +779,7 @@ class TestSingleCarryDrop(TestCase):
         self.environment = SingleCarryDropModel(
             1, 100, 100, 10, 123)
 
-        for i in range(50):
+        for i in range(35):
             print(self.environment.agent.location)
             self.environment.step()
 
