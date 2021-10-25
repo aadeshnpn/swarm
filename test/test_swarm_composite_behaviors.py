@@ -192,7 +192,7 @@ class TestGoToObsSwarmSmallGrid(TestCase):
 
     def test_agent_path(self):
         # Checking if the agents reaches site or not
-        self.assertEqual(self.environment.agent.location, (40, 42))
+        self.assertEqual(self.environment.agent.location, (42, 40))
 
 
 class MoveTowardsModelObsTrap(Model):
@@ -243,7 +243,7 @@ class TestGoToObsTrapSwarmSmallGrid(TestCase):
 
     def test_agent_path(self):
         # Checking if the agents reaches site or not
-        self.assertEqual(self.environment.agent.location, (39, 41))
+        self.assertEqual(self.environment.agent.location, (42, 40))
 
 
 class MoveTowardsModelObsTrapBig(Model):
@@ -295,7 +295,7 @@ class TestGoToObsTrapBigSwarmSmallGrid(TestCase):
 
     def test_agent_path(self):
         # Checking if the agents reaches site or not
-        self.assertEqual(self.environment.agent.location, (40, 42))
+        self.assertEqual(self.environment.agent.location, (42, 40))
 
 
 class SwarmMoveAway(Agent):
@@ -397,7 +397,7 @@ class MoveAwayObsModel(Model):
         self.target = Sites(id=1, location=(45, 45), radius=5, q_value=0.5)
         self.grid.add_object_to_grid(self.target.location, self.target)
 
-        self.obstacle = Obstacles(id=2, location=(5, 0), radius=5)
+        self.obstacle = Obstacles(id=2, location=(5, 0), radius=11)
         self.grid.add_object_to_grid(self.obstacle.location, self.obstacle)
 
         for i in range(self.num_agents):
@@ -422,10 +422,11 @@ class TestGoToAwayObsSwarmSmallGrid(TestCase):
 
         for i in range(50):
             self.environment.step()
+            # print(self.environment.agent.location)
 
     def test_agent_path(self):
         # Checking if the agents reaches site or not
-        self.assertEqual(self.environment.agent.location, (-31, -37))
+        self.assertEqual(self.environment.agent.location, (-42, -12))
 
 
 class MoveAwayObsTrapModel(Model):
@@ -445,10 +446,10 @@ class MoveAwayObsTrapModel(Model):
         self.target = Sites(id=1, location=(45, 45), radius=5, q_value=0.5)
         self.grid.add_object_to_grid(self.target.location, self.target)
 
-        self.obstacle = Obstacles(id=2, location=(5, 0), radius=5)
+        self.obstacle = Obstacles(id=2, location=(5, 0), radius=11)
         self.grid.add_object_to_grid(self.obstacle.location, self.obstacle)
 
-        self.trap = Traps(id=2, location=(-20, -15), radius=5)
+        self.trap = Traps(id=2, location=(-20, -15), radius=11)
         self.grid.add_object_to_grid(self.trap.location, self.trap)
 
         for i in range(self.num_agents):
@@ -477,10 +478,10 @@ class TestGoToAwayObsTrapSwarmSmallGrid(TestCase):
 
     def test_agent_path(self):
         # Checking if the agents reaches site or not
-        self.assertEqual(self.environment.agent.location, (-25, -37))
+        self.assertEqual(self.environment.agent.location, (-42, -12))
 
 
-# class to define agent explore behavior
+# # class to define agent explore behavior
 class SwarmExplore(Agent):
     """ An minimalistic behavior tree for swarm agent
     implementing Explore
@@ -576,7 +577,7 @@ class ExploreObsModel(Model):
 
         self.grid = Grid(width, height, grid)
 
-        self.obstacle = Obstacles(id=2, location=(-25, -25), radius=8)
+        self.obstacle = Obstacles(id=2, location=(-25, -25), radius=11)
         self.grid.add_object_to_grid(self.obstacle.location, self.obstacle)
 
         self.schedule = SimultaneousActivation(self)
@@ -612,7 +613,7 @@ class TestExploreObsSwarmSmallGrid(TestCase):
 
     def test_agent_path(self):
         self.assertEqual(self.trimmed_results, [
-            (0, 0), (-1, -1), (2, -43), (1, -44), (0, -45)])
+            (0, 0), (-1, -1), (11, 32), (12, 33), (13, 34)])
 
 
 class SwarmSingleCarry(Agent):
@@ -751,10 +752,10 @@ class SingleCarryDropModel(Model):
         self.thing = Debris(id=1, location=(30, 30), radius=4)
         self.grid.add_object_to_grid(self.thing.location, self.thing)
 
-        self.target = Sites(id=1, location=(5, 5), radius=8, q_value=0.5)
-        self.grid.add_object_to_grid(self.target.location, self.target)
+        # self.target = Sites(id=1, location=(5, 5), radius=8, q_value=0.5)
+        # self.grid.add_object_to_grid(self.target.location, self.target)
 
-        self.hub = Hub(id=1, location=(0, 0), radius=9)
+        self.hub = Hub(id=1, location=(-20, -20), radius=9)
         self.grid.add_object_to_grid(self.hub.location, self.hub)
 
         for i in range(self.num_agents):
@@ -778,17 +779,17 @@ class TestSingleCarryDrop(TestCase):
         self.environment = SingleCarryDropModel(
             1, 100, 100, 10, 123)
 
-        for i in range(15):
+        for i in range(50):
             print(self.environment.agent.location)
             self.environment.step()
 
     def test_agent_path(self):
         self.assertEqual(
-            self.environment.agent.location, (8, 8))
+            self.environment.agent.location, (9, 9))
 
     def test_agent_dropped(self):
         self.assertEqual(
-            self.environment.thing.location, (8, 8))
+            self.environment.thing.location, (9, 9))
 
     def test_agent_attached_obj(self):
         self.assertEqual(

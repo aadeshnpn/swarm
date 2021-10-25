@@ -11,7 +11,7 @@ from swarms.utils.db import Connect
 from swarms.utils.ui import UI
 from agent import LearningAgent, ExecutingAgent  # noqa : F041
 from swarms.lib.objects import (    # noqa : F401
-    Hub, Sites, Food, Debris, Obstacles, Traps)
+    Boundary, Hub, Sites, Food, Debris, Obstacles, Traps)
 import os
 from pathlib import Path
 # import imp
@@ -132,12 +132,17 @@ class ForagingModel(Model):
         self.hub = self.render.objects['hub'][0]
         # self.traps = self.render.objects['traps'][0]
         # self.obstacles = self.render.objects['obstacles'][0]
+        # self.boundary = Boundary(id=4, location=(30,30), radius=11)
+        # self.grid.add_object_to_grid(self.boundary.location, self.boundary)
         self.total_food_units = 0
         self.foods = []
         try:
             self.site = self.render.objects['sites'][0]
+            print(self.hub, self.hub.location, self.site, self.site.location)
+            exit()
+
             for i in range(self.num_agents * 1):
-                f = Debris(
+                f = Food(
                     i, location=self.site.location, radius=self.site.radius)
                 f.agent_name = None
                 self.grid.add_object_to_grid(f.location, f)
@@ -276,6 +281,10 @@ class ForagingModel(Model):
         # agents = grid.get_objects_from_list_of_grid(type(self.agents[0]).__name__, neighbours)
         # return sum([1 if a.dead else 0 for a in agents])
         return 0
+        # food_objects = set(self.boundary.dropped_objects)
+        # Attached food in the agent
+        # total_food_weights = sum([food.weight for food in food_objects])
+        # return np.round(((total_food_weights * 1.0) / self.total_food_units) * 100, 1)
 
 
 class EvolveModel(ForagingModel):
@@ -724,7 +733,7 @@ class SimForgModel(Model):
             self.schedule.add(a)
             # Add the hub to agents memory
             # Add the hub to agents memory
-            # a.shared_content['Hub'] = {self.hub}
+            a.shared_content['Hub'] = {self.hub}
             # Initialize the BT. Since the agents are normal agents just
             # use the phenotype
             a.construct_bt()

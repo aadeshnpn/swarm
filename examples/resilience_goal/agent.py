@@ -91,10 +91,11 @@ class ForagingAgent(Agent):
 
     def get_food_in_hub(self, agent_name=True):
         """Get the food in the hub stored by the agent."""
-        grid = self.model.grid
-        hub_loc = self.model.hub.location
-        neighbours = grid.get_neighborhood(hub_loc, self.model.hub.radius)
-        food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+        # grid = self.model.grid
+        # hub_loc = self.model.hub.location
+        # neighbours = grid.get_neighborhood(hub_loc, self.model.hub.radius)
+        # food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+        food_objects = set(self.hub.dropped_objects)
         agent_food_objects = []
         if not agent_name:
             for food in food_objects:
@@ -308,10 +309,11 @@ class LearningAgent(ForagingAgent):
 
     def get_food_in_hub(self, agent_name=True):
         """Get the food in the hub stored by the agent."""
-        grid = self.model.grid
-        hub_loc = self.model.hub.location
-        neighbours = grid.get_neighborhood(hub_loc, self.model.hub.radius)
-        food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+        # grid = self.model.grid
+        # hub_loc = self.model.hub.location
+        # neighbours = grid.get_neighborhood(hub_loc, self.model.hub.radius)
+        # food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+        food_objects = set(self.hub.dropped_objects)
         agent_food_objects = []
         if not agent_name:
             for food in food_objects:
