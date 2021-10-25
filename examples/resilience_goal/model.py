@@ -138,9 +138,6 @@ class ForagingModel(Model):
         self.foods = []
         try:
             self.site = self.render.objects['sites'][0]
-            print(self.hub, self.hub.location, self.site, self.site.location)
-            exit()
-
             for i in range(self.num_agents * 1):
                 f = Food(
                     i, location=self.site.location, radius=self.site.radius)
