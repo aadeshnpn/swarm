@@ -17,7 +17,7 @@
 <constraintt> ::=CanMove|IsCarryable_<dobjects>|IsDropable_<sobjects>
 
 <action> ::= MoveTowards_<sobjects>|Explore|CompositeSingleCarry_<dobjects>|CompositeDrop_<dobjects>|MoveAway_<sobjects>
-<sobjects>::=Hub|Boundary
-<dobjects>::=Food
+<sobjects>::=Hub|Sites
+<dobjects>::=Debris
 <objects>::=<sobjects>|<dobjects>
 <SuccessNode> ::= [PostCnd]DummyNode[/PostCnd]
