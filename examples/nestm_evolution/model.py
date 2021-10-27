@@ -141,11 +141,12 @@ class NestMModel(Model):
 
         self.hub = self.render.objects['hub'][0]
         # self.sites = self.render.objects['sites'][0]
-        # self.hub.dropable = False
+        self.hub.dropable = False
+        self.hub.dropped_objects = dict()
         # self.traps = self.render.objects['traps'][0]
         self.boundary = self.render.objects['boundary'][0]
-        self.boundary.dropable = False
-        self.boundary.dropped_objects = dict()
+        # self.boundary.dropable = True
+        # self.boundary.dropped_objects = dict()
         self.boundaries = []
         # for i in range(1):
         #     self.place_static_objs(Boundary, 10)
@@ -160,7 +161,7 @@ class NestMModel(Model):
                 # dy = self.hub.location[1] + dy
                 # d = Debris(
                 #     i, location=(int(0), int(0)), radius=10, weight=5)
-                d = Debris(i, location=self.boundary.location, radius=10)
+                d = Debris(i, location=self.hub.location, radius=10)
                 d.agent_name = None
                 self.grid.add_object_to_grid(d.location, d)
                 self.total_debris_units += d.weight
@@ -337,7 +338,7 @@ class NestMModel(Model):
         #     if debry_grid in debris_grid:
         #         debris_objects += [debry]
         # debris_objects = set(debris_objects)
-        debris_objects = list(set(self.hub.dropped_objects))
+        debris_objects = list(set(self.boundary.dropped_objects))
         return debris_objects
 
     def no_agent_dead(self):
@@ -368,7 +369,7 @@ class EvolveModel(NestMModel):
             self.schedule.add(a)
             # Add the hub to agents memory
             a.shared_content['Hub'] = {self.hub}
-            # a.shared_content['Boundary'] = set(self.boundaries)
+            a.shared_content['Boundary'] = {self.boundary}
             # First intitialize the Genetic algorithm. Then BT
             a.init_evolution_algo()
             # Initialize the BT. Since the agents are evolutionary
