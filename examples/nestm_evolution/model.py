@@ -140,10 +140,12 @@ class NestMModel(Model):
                 jsondata, obj)
 
         self.hub = self.render.objects['hub'][0]
-        self.sites = self.render.objects['sites'][0]
+        # self.sites = self.render.objects['sites'][0]
         # self.hub.dropable = False
         # self.traps = self.render.objects['traps'][0]
-        # self.boundary = self.render.objects['boundary'][0]
+        self.boundary = self.render.objects['boundary'][0]
+        self.boundary.dropable = False
+        self.boundary.dropped_objects = dict()
         self.boundaries = []
         # for i in range(1):
         #     self.place_static_objs(Boundary, 10)
@@ -158,7 +160,7 @@ class NestMModel(Model):
                 # dy = self.hub.location[1] + dy
                 # d = Debris(
                 #     i, location=(int(0), int(0)), radius=10, weight=5)
-                d = Debris(i, location=self.sites.location, radius=10)
+                d = Debris(i, location=self.boundary.location, radius=10)
                 d.agent_name = None
                 self.grid.add_object_to_grid(d.location, d)
                 self.total_debris_units += d.weight
