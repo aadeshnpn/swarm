@@ -1360,7 +1360,7 @@ def comp_with_witout_comm():
 
 
 def read_old_data_txt(fname='0'):
-    maindir = '/tmp/div/GeeseBT/'
+    maindir = '/tmp/divGeeseBT/'
     fname = maindir+fname+'/'+fname+'.txt'
     # print(fname)
     data = np.genfromtxt(fname, unpack=True, autostrip=True)
@@ -1377,18 +1377,19 @@ def boxplot_fitness_paper():
         '0', '1', '3'
     ]
 
-    newdatas = [read_data_fitness(maindir='/tmp/div/BeTrGeese/'+n)[:,-1] for n in newnames]
-    middatas = [read_data_fitness(maindir='/tmp/div/PPAGeese/'+n)[:, -1] for n in newnames]
-    olddatas = [read_old_data_txt(fname=n) for n in oldnames]
+    newdatas = [read_data_fitness(maindir='/tmp/swarm/data/experiments/50/12000/'+n)[:,-1] for n in newnames]
+    # middatas = [read_data_fitness(maindir='/tmp/div/PPAGeese/'+n)[:, -1] for n in newnames]
+    # olddatas = [read_old_data_txt(fname=n) for n in oldnames]
 
     print(
         [newdatas[i].shape for i in range(3)],
-        [middatas[i].shape for i in range(3)],
-        [olddatas[i].shape for i in range(3)],
+        # [middatas[i].shape for i in range(3)],
+        # [olddatas[i].shape for i in range(3)],
         )
-    just_diversity = [olddatas[0], middatas[0], newdatas[0]]
-    diversity_exp = [olddatas[1], middatas[1], newdatas[1]]
-    all = [olddatas[2], middatas[2], newdatas[2]]
+    # just_diversity = [olddatas[0], middatas[0], newdatas[0]]
+    # diversity_exp = [olddatas[1], middatas[1], newdatas[1]]
+    # all = [olddatas[2], middatas[2], newdatas[2]]
+    all = [newdatas[0], newdatas[1], newdatas[2]]
     # plt.style.use('fivethirtyeight')
     fig = plt.figure()
 
@@ -1412,35 +1413,35 @@ def boxplot_fitness_paper():
     medianprops = dict(linewidth=2.5, color='firebrick')
     meanprops = dict(linewidth=1.5, color='#ff7f0e')
     # data = [data[:, i] for i in range(4)]
-    bp1 = ax1.boxplot(
-        just_diversity, 0, 'gD', showmeans=True, meanline=True,
-        patch_artist=True, medianprops=medianprops,
-        meanprops=meanprops, positions=[1,2,3], widths=0.8)
+    # bp1 = ax1.boxplot(
+    #     just_diversity, 0, 'gD', showmeans=True, meanline=True,
+    #     patch_artist=True, medianprops=medianprops,
+    #     meanprops=meanprops, positions=[1,2,3], widths=0.8)
 
-    for patch, color in zip(bp1['boxes'], colordict.values()):
-        patch.set_facecolor(color)
+    # for patch, color in zip(bp1['boxes'], colordict.values()):
+    #     patch.set_facecolor(color)
 
-    bp2 = ax1.boxplot(
-        diversity_exp, 0, 'gD', showmeans=True, meanline=True,
-        patch_artist=True, medianprops=medianprops,
-        meanprops=meanprops, positions=[5,6,7], widths=0.8)
+    # bp2 = ax1.boxplot(
+    #     diversity_exp, 0, 'gD', showmeans=True, meanline=True,
+    #     patch_artist=True, medianprops=medianprops,
+    #     meanprops=meanprops, positions=[5,6,7], widths=0.8)
 
-    for patch, color in zip(bp2['boxes'], colordict.values()):
-        patch.set_facecolor(color)
+    # for patch, color in zip(bp2['boxes'], colordict.values()):
+    #     patch.set_facecolor(color)
 
     bp3 = ax1.boxplot(
         all, 0, 'gD', showmeans=True, meanline=True,
         patch_artist=True, medianprops=medianprops,
-        meanprops=meanprops, positions=[9,10,11], widths=0.8)
+        meanprops=meanprops)
 
     for patch, color in zip(bp3['boxes'], colordict.values()):
         patch.set_facecolor(color)
     # plt.xlim(0, len(mean))
     # labels = ['GEESE-BT (BNF-I + NO-PPA-PB) ', 'GEESE-BT (BNF-I + PPA-PB)', 'BrBt-GEESE (BNF-II + PPA-PB)']
     labels = ['GEESE-BT', 'BeTr-PB', 'BeTr-GEESE']
-    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="upper left", title='GEESE Type', fancybox=True, framealpha=0.5)
+    ax1.legend(zip(bp3['boxes']), labels, fontsize="small", loc="upper left", title='GEESE Type', fancybox=True, framealpha=0.5)
     # legend.get_frame().set_alpha(None)
-    ax1.set_xticks([2, 6, 10])
+    # ax1.set_xticks([2, 6, 10])
     ax1.set_xticklabels(xlabels, fontsize="large")
 
     ax1.set_yticks(range(0, 105, 20))
