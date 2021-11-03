@@ -31,7 +31,7 @@ class CoevolutionModel(Model):
     def __init__(
             self, N, width, height, grid=10, iter=100000,
             seed=None, name='CoevolutionPPA', viewer=False,
-            parent=None, ratio=1.0, db=False):
+            parent=None, ratio=1.0, db=False, threshold=10):
         """Initialize the attributes."""
         if seed is None:
             super(CoevolutionModel, self).__init__(seed=None)
@@ -41,7 +41,7 @@ class CoevolutionModel(Model):
         # Create a unique experiment id
         self.runid = datetime.datetime.now().strftime(
             "%s") + str(self.random.randint(1, 10000, 1)[0])
-
+        self.threshold = threshold
         # Create the experiment folder
         # If parent folder exits create inside it
         if parent is not None:
@@ -49,7 +49,7 @@ class CoevolutionModel(Model):
         else:
             self.pname = os.path.join(
                 '/tmp', 'swarm', 'data', 'experiments', name,
-                str(N), str(iter), str(self.runid) + name
+                str(N), str(iter), str(threshold), str(self.runid) + name
                 )
         Path(self.pname).mkdir(parents=True, exist_ok=True)
 
@@ -126,9 +126,9 @@ class CoevolutionModel(Model):
                 jsondata, obj)
 
         self.hub = self.render.objects['hub'][0]
-        self.traps = self.render.objects['traps'][0]
-        self.obstacles = self.render.objects['obstacles'][0]
-        self.boundary = self.render.objects['boundary'][0]
+        # self.traps = self.render.objects['traps'][0]
+        # self.obstacles = self.render.objects['obstacles'][0]
+        # self.boundary = self.render.objects['boundary'][0]
         self.total_food_units = 0
         self.total_debris_units = 0
         self.foods = []
@@ -145,13 +145,13 @@ class CoevolutionModel(Model):
                 f.phenotype = dict()
                 self.foods.append(f)
                 # Add debris around the hub
-                d = Debris(
-                    i, location=self.hub.location, radius=10, weight=2)
-                d.agent_name = None
-                self.grid.add_object_to_grid(d.location, d)
-                self.total_debris_units += d.weight
-                # d.phenotype = dict()
-                self.debris.append(d)
+                # d = Debris(
+                #     i, location=self.hub.location, radius=10, weight=2)
+                # d.agent_name = None
+                # self.grid.add_object_to_grid(d.location, d)
+                # self.total_debris_units += d.weight
+                # # d.phenotype = dict()
+                # self.debris.append(d)
         except KeyError:
             pass
 
@@ -260,31 +260,33 @@ class CoevolutionModel(Model):
 
     def foraging_percent(self):
         """Compute the percent of the total food in the hub."""
-        grid = self.grid
-        hub_loc = self.hub.location
-        neighbours = grid.get_neighborhood(hub_loc, self.hub.radius)
-        food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
-        _, hub_grid = grid.find_grid(hub_loc)
-        for food in self.foods:
-            _, food_grid = grid.find_grid(food.location)
-            if food_grid == hub_grid:
-                food_objects += [food]
-        food_objects = set(food_objects)
+        # grid = self.grid
+        # hub_loc = self.hub.location
+        # neighbours = grid.get_neighborhood(hub_loc, self.hub.radius)
+        # food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+        # _, hub_grid = grid.find_grid(hub_loc)
+        # for food in self.foods:
+        #     _, food_grid = grid.find_grid(food.location)
+        #     if food_grid == hub_grid:
+        #         food_objects += [food]
+        food_objects = list(set(self.hub.dropped_objects))
+        # food_objects = set(food_objects)
         total_food_weights = sum([food.weight for food in food_objects])
         return np.round(((total_food_weights * 1.0) / self.total_food_units) * 100, 2)
 
     def maintenance_percent(self):
         """Find amount of debris cleaned."""
-        debris_objects = []
-        grid = self.grid
-        for boundary in [self.boundary]:
-            boundary_loc = boundary.location
-            neighbours = grid.get_neighborhood(boundary_loc, boundary.radius)
-            debris_objects += grid.get_objects_from_list_of_grid('Debris', neighbours)
-        debris_objects = set(debris_objects)
-        total_debris_weights = sum(
-            [debris.weight for debris in debris_objects])
-        return round(((total_debris_weights * 1.0) / self.total_debris_units) * 100, 2)
+        # debris_objects = []
+        # grid = self.grid
+        # for boundary in [self.boundary]:
+        #     boundary_loc = boundary.location
+        #     neighbours = grid.get_neighborhood(boundary_loc, boundary.radius)
+        #     debris_objects += grid.get_objects_from_list_of_grid('Debris', neighbours)
+        # debris_objects = set(debris_objects)
+        # total_debris_weights = sum(
+        #     [debris.weight for debris in debris_objects])
+        # return round(((total_debris_weights * 1.0) / self.total_debris_units) * 100, 2)
+        return 0
 
     def no_agent_dead(self):
         # grid = self.grid
@@ -300,17 +302,17 @@ class EvolveModel(CoevolutionModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="EvoCoevolutionPPA", viewer=False, db=False):
+            seed=None, name="EvoCoevolutionPPA", viewer=False, db=False,threshold=10):
         """Initialize the attributes."""
         super(EvolveModel, self).__init__(
-            N, width, height, grid, iter, seed, name, viewer, db=db)
+            N, width, height, grid, iter, seed, name, viewer, db=db, threshold=threshold)
         self.parser = LTLfParser()
 
     def create_agents(self, random_init=True, phenotypes=None):
         """Initialize agents in the environment."""
         # Create agents
         for i in range(self.num_agents):
-            a = LearningAgent(i, self)
+            a = LearningAgent(i, self, self.threshold)
             # Add agent to the scheduler
             self.schedule.add(a)
             # Add the hub to agents memory

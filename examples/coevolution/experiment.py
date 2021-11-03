@@ -18,10 +18,10 @@ height = 100
 UI = False
 
 
-def learning_phase(iteration, no_agents=50, db=False, early_stop=False):
+def learning_phase(iteration, no_agents=50, db=False, early_stop=False, threshold=10):
     """Learning Algorithm block."""
     # Evolution environment
-    env = EvolveModel(no_agents, width, height, 10, iter=iteration, db=db)
+    env = EvolveModel(no_agents, width, height, 10, iter=iteration, db=db, threshold=10)
     env.build_environment_from_json()
     env.create_agents()
     # Validation Step parameter
@@ -92,7 +92,7 @@ def standard_evolution(args):
     # phenotypes = learning_phase(iter, n, db)
     Parallel(
             n_jobs=args.threads)(delayed(learning_phase)(
-                args.iter, 100, db=False) for i in range(args.runs))
+                args.iter, 50, db=False,threshold=args.threshold) for i in range(args.runs))
 
 
 def experiments(args):
@@ -137,6 +137,7 @@ if __name__ == '__main__':
     parser.add_argument('--threads', default=18, type=int)
     parser.add_argument('--iter', default=12000, type=int)
     parser.add_argument('--db', default=False, type=bool)
+    parser.add_argument('--threshold', default=10, type=int)
     args = parser.parse_args()
     print(args)
     experiments(args)

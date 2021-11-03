@@ -166,7 +166,7 @@ class CoevoAgent(Agent):
 class LearningAgent(CoevoAgent):
     """Simple agent with GE capabilities."""
 
-    def __init__(self, name, model):
+    def __init__(self, name, model, threshold=10):
         """Initialize the agent."""
         super().__init__(name, model)
         self.delayed_reward = 0
@@ -182,6 +182,7 @@ class LearningAgent(CoevoAgent):
         self.selectors_reward = 0
         self.constraints_reward = 0
         self.postcond_reward = 0
+        self.threshold = threshold
         # self.trace.append({k:self.functions[k]() for k in self.keys})
         # self.trace[self.step_count] = {k:self.functions[k]() for k in self.keys}
 
@@ -365,7 +366,7 @@ class LearningAgent(CoevoAgent):
         # 200 time step has passed and the agent has not done anything useful
         # then also perform genetic step
         storage_threshold = len(
-            self.genome_storage) >= (self.model.num_agents / 10)
+            self.genome_storage) >= (self.model.num_agents / (self.threshold* 1.0))
 
         if storage_threshold: # and self.food_collected <= 0:
             self.genetic_step()
