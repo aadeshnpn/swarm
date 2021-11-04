@@ -43,17 +43,17 @@ def read_data_fitness(n=100, maindir='/tmp/div/diversity_withdecay'):
     return dataf
 
 
-def read_data_n_agent(n=100, filename='/tmp/old.txt'):
-    maindir = '/tmp/swarm/data/experiments/'
-    files = np.genfromtxt(filename, unpack=True, autostrip=True, dtype=np.str)
-    data = []
-    for f in files:
-        # print(f)
-        _, _, d = np.genfromtxt(str(f), autostrip=True, unpack=True, delimiter='|')
-        data.append(d)
-    data = np.array(data)
-    # print(data.shape)
-    return data
+# def read_data_n_agent(n=100, filename='/tmp/old.txt'):
+#     maindir = '/tmp/swarm/data/experiments/'
+#     files = np.genfromtxt(filename, unpack=True, autostrip=True, dtype=np.str)
+#     data = []
+#     for f in files:
+#         # print(f)
+#         _, _, d = np.genfromtxt(str(f), autostrip=True, unpack=True, delimiter='|')
+#         data.append(d)
+#     data = np.array(data)
+#     # print(data.shape)
+#     return data
 
 
 def read_data_n_agent(n=100, iter=12000):
@@ -72,6 +72,22 @@ def read_data_n_agent(n=100, iter=12000):
     mdata = np.array(mdata)
     print(fdata.shape, mdata.shape)
     return fdata, mdata
+
+
+def read_data_n_agent_lt(n=100, iter=12000, lt='lt'):
+    maindir = '/tmp/swarm/data/experiments/'
+    nadir = os.path.join(maindir, str(n), str(iter), lt)
+    # print(nadir)
+    folders = pathlib.Path(nadir).glob("*EvoSForgeNewPPA1")
+    flist = []
+    fdata = []
+    mdata = []
+    for f in folders:
+        flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
+        _, _, f, _ = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+        fdata.append(f)
+    fdata = np.array(fdata)
+    return fdata
 
 
 def read_data_n_agent_site(n=100, agent='ExecutingAgent', site='20'):
@@ -398,10 +414,63 @@ def read_data_exp_3_bt(width=100, height=100, trap=0, obs=0, exp_no=3, site=30, 
 # find $PWD -type f -name "*.json" | xargs cat | awk -F ',' '{for(i=1;i<=NF;i++){print $i;}}'
 # | awk -F'<Act>' 'NF{print NF-1}' | awk '{a[$1]++}END{for(x in a)print a[x]"="x}'
 
+def withWithoutLt():
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    ltdata = read_data_n_agent_lt(n=50, iter=12000, lt='lt')
+    noltdata = read_data_n_agent_lt(n=50, iter=12000, lt='nolt')
+    # print(ltdata)
+    ltdata = ltdata[:, -1]
+    noltdata = noltdata[:, -1]
+    # fdata = np.max(fdata[:,1:], axis=1)
+    # mdata = np.max(mdata[:,1:], axis=1)
+    # print(ltdata, noltdata)
+    ax1 = fig.add_subplot(1, 1, 1)
+    colordict = {
+        5: 'gold',
+        1: 'peru',
+        2: 'orchid',
+        3: 'olivedrab',
+        4: 'linen',
+        0: 'indianred',
+        6: 'tomato'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+
+    # labels = [str(a) for a in agent_sizes]
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+
+    bp1 = ax1.boxplot(
+        [noltdata, ltdata], 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops)
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+        # plt.xlim(0, len(mean))
+    ax1.legend(zip(bp1['boxes']), ['Disabled', 'Enabled'], fontsize="small", loc="upper right", title='Lateral Transfer')
+    # ax1.set_xticks(
+    #     [1.5, 4.5, 7.5, 10.5
+    #      ])
+    ax1.set_xticklabels(['Disabled', 'Enabled'])
+    ax1.set_xlabel('Lateral Transfer')
+    ax1.set_ylabel('Foraing (%)')
+    ax1.set_yticks(range(0, 105, 20))
+
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments/'
+    # fname = 'agentsitecomp' + agent
+    nadir = os.path.join(maindir, str(50))
+
+    fig.savefig(
+        nadir + 'lateraltransferperform' + '.png')
+    plt.close(fig)
+
 
 def main():
-    plot_evolution_algo_performance_boxplot()
+    # plot_evolution_algo_performance_boxplot()
     # plot_evolution_algo_performance()
+    withWithoutLt()
 
 
 if __name__ == '__main__':
