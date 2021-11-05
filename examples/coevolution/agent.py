@@ -366,14 +366,14 @@ class LearningAgent(CoevoAgent):
         # 200 time step has passed and the agent has not done anything useful
         # then also perform genetic step
         storage_threshold = len(
-            self.genome_storage) >= (self.model.num_agents / (self.threshold* 1.0))
+            self.genome_storage) >= self.threshold # (self.model.num_agents / (self.threshold* 1.0))
 
         if storage_threshold: # and self.food_collected <= 0:
             self.genetic_step()
         elif (
                 (
-                    storage_threshold is False and self.timestamp > 200
-                    ) and (self.exploration_fitness() < 2)):
+                    storage_threshold is False and self.timestamp > self.model.gstep
+                    ) and (self.exploration_fitness() < self.model.expp)):
             individual = initialisation(self.parameter, 10)
             individual = evaluate_fitness(individual, self.parameter)
             self.genome_storage = self.genome_storage + individual

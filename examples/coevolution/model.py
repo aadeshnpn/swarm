@@ -31,7 +31,8 @@ class CoevolutionModel(Model):
     def __init__(
             self, N, width, height, grid=10, iter=100000,
             seed=None, name='CoevolutionPPA', viewer=False,
-            parent=None, ratio=1.0, db=False, threshold=10):
+            parent=None, ratio=1.0, db=False,
+            threshold=10, gstep=200, expp=2):
         """Initialize the attributes."""
         if seed is None:
             super(CoevolutionModel, self).__init__(seed=None)
@@ -42,6 +43,8 @@ class CoevolutionModel(Model):
         self.runid = datetime.datetime.now().strftime(
             "%s") + str(self.random.randint(1, 10000, 1)[0])
         self.threshold = threshold
+        self.gstep = gstep
+        self.expp = expp
         # Create the experiment folder
         # If parent folder exits create inside it
         if parent is not None:
@@ -49,7 +52,8 @@ class CoevolutionModel(Model):
         else:
             self.pname = os.path.join(
                 '/tmp', 'swarm', 'data', 'experiments', name,
-                str(N), str(iter), str(threshold), str(self.runid) + name
+                str(N), str(iter), str(threshold), str(gstep), str(expp),
+                str(self.runid) + name
                 )
         Path(self.pname).mkdir(parents=True, exist_ok=True)
 
@@ -302,10 +306,12 @@ class EvolveModel(CoevolutionModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="EvoCoevolutionPPA", viewer=False, db=False,threshold=10):
+            seed=None, name="EvoCoevolutionPPA", viewer=False, db=False,
+            threshold=10, gstep=200, expp=2):
         """Initialize the attributes."""
         super(EvolveModel, self).__init__(
-            N, width, height, grid, iter, seed, name, viewer, db=db, threshold=threshold)
+            N, width, height, grid, iter, seed, name, viewer, db=db,
+            threshold=threshold, gstep=gstep, expp=expp)
         self.parser = LTLfParser()
 
     def create_agents(self, random_init=True, phenotypes=None):
