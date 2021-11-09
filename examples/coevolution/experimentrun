@@ -2,21 +2,56 @@
 
 ## Standard experiment
 
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 2
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 3
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 7
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 11
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 13
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 17
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 25
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 50
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 75
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 100
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 150
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 250
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 300
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 400
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 500
 
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 2
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 3
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 7
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 11
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 13
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 17
+
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 1
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 2
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 3
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 4
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 5
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 7
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 11
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 13
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 17
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 19
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 23
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 29
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 31
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 37
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 41
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 47
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 50
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 60
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 70
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 80
+
+
+
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 2
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 3
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 7
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 11
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 13
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 17
+
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 2
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 3
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 7
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 11
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 13
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 17
 
 # Experiment 4
 # python experiments.py --exp_no 0 --runs 36 --thread 18 --dry_ru
