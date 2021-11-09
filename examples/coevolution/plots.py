@@ -564,6 +564,128 @@ def storage_threshold_new():
     plt.close(fig)
 
 
+def exploration_parameter():
+    exploration = [1, 2, 3, 4, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 47, 50, 60, 70, 80]
+    data50 = [read_data_n_agent_threshold_new(n=50, iter=12000, threshold=5, gstep=200, expp=e)[:,-1] for e in exploration]
+    # data100 = [read_data_n_agent_threshold(n=100, iter=12000, threshold=t)[:,-1] for t in thresholds]
+
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    ax1 = fig.add_subplot(1, 1, 1)
+    colordict = {
+        0: 'gold',
+        1: 'linen',
+        2: 'orchid',
+        3: 'peru',
+        4: 'olivedrab',
+        5: 'indianred',
+        6: 'tomato'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+
+    # labels = [ "> n/"+str(a) for a in thresholds]
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    positions = [
+        [1, 2], [4, 5], [7, 8], [10, 11], [13, 14]
+        ]
+    # datas = [
+    #     [data50[0], data100[0]],
+    #     [data50[1], data100[1]],
+    #     [data50[2], data100[2]],
+    #     [data50[3], data100[3]],
+    #     [data50[4], data100[4]],
+    #     # [np.zeros(np.shape(datas50[4])), data100[5]],
+    # ]
+
+    # for j in range(len(positions)):
+    bp1 = ax1.boxplot(
+        data50, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, widths=0.8)
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+
+    # ax1.legend(zip(bp1['boxes']), ['50', '100'], fontsize="small", loc="upper left", title='Agent Population (n)')
+    ax1.legend(zip(bp1['boxes']), exploration, fontsize="small", loc="upper right", title='Exploration')
+    # ax1.set_xticks([1.5, 4.5, 7.5, 10.5, 13.5])
+    ax1.set_xticklabels(exploration)
+    ax1.set_yticks(range(0, 105, 20))
+    ax1.set_xlabel('Storage Threshold', fontsize="large")
+    ax1.set_ylabel('Foraging (%)', fontsize="large")
+    plt.tight_layout()
+
+    maindir = '/tmp/swarm/data/experiments'
+    fname = 'explorationboxplotnew'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
+def generationstep_parameter():
+    gsteps = [25, 50, 75, 100, 150, 200, 250, 300, 400, 500]
+    data50 = [read_data_n_agent_threshold_new(n=50, iter=12000, threshold=5, gstep=g, expp=2)[:,-1] for g in gsteps]
+    # data100 = [read_data_n_agent_threshold(n=100, iter=12000, threshold=t)[:,-1] for t in thresholds]
+
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    ax1 = fig.add_subplot(1, 1, 1)
+    colordict = {
+        0: 'gold',
+        1: 'linen',
+        2: 'orchid',
+        3: 'peru',
+        4: 'olivedrab',
+        5: 'indianred',
+        6: 'tomato'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+
+    # labels = [ "> n/"+str(a) for a in thresholds]
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    positions = [
+        [1, 2], [4, 5], [7, 8], [10, 11], [13, 14]
+        ]
+    # datas = [
+    #     [data50[0], data100[0]],
+    #     [data50[1], data100[1]],
+    #     [data50[2], data100[2]],
+    #     [data50[3], data100[3]],
+    #     [data50[4], data100[4]],
+    #     # [np.zeros(np.shape(datas50[4])), data100[5]],
+    # ]
+
+    # for j in range(len(positions)):
+    bp1 = ax1.boxplot(
+        data50, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, widths=0.8)
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+
+    # ax1.legend(zip(bp1['boxes']), ['50', '100'], fontsize="small", loc="upper left", title='Agent Population (n)')
+    ax1.legend(zip(bp1['boxes']), gsteps, fontsize="small", loc="upper right", title='GenerationSteps')
+    # ax1.set_xticks([1.5, 4.5, 7.5, 10.5, 13.5])
+    ax1.set_xticklabels(gsteps)
+    ax1.set_yticks(range(0, 105, 20))
+    ax1.set_xlabel('Generation Steps', fontsize="large")
+    ax1.set_ylabel('Foraging (%)', fontsize="large")
+    plt.tight_layout()
+
+    maindir = '/tmp/swarm/data/experiments'
+    fname = 'generationstepboxplotnew'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
 def storage_threshold():
     thresholds = [5, 7, 11, 13, 17]
     data50 = [read_data_n_agent_threshold(n=50, iter=12000, threshold=t)[:,-1] for t in thresholds]
@@ -629,7 +751,9 @@ def main():
     # plot_evolution_algo_performance_boxplot()
     # plot_evolution_algo_performance()
     # withWithoutLt()
-    storage_threshold_new()
+    # storage_threshold_new()
+    # exploration_parameter()
+    generationstep_parameter()
 
 
 if __name__ == '__main__':
