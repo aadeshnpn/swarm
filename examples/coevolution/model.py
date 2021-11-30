@@ -41,6 +41,7 @@ class CoevolutionModel(Model):
         else:
             super(CoevolutionModel, self).__init__(seed)
 
+        self.args = args
         # Create a unique experiment id
         self.runid = datetime.datetime.now().strftime(
             "%s") + str(self.random.randint(1, 10000, 1)[0])
@@ -132,15 +133,21 @@ class CoevolutionModel(Model):
                 jsondata, obj)
 
         self.hub = self.render.objects['hub'][0]
+        self.hubs = []
+        self.hubs += [self.hub]
         # self.traps = self.render.objects['traps'][0]
         # self.obstacles = self.render.objects['obstacles'][0]
         # self.boundary = self.render.objects['boundary'][0]
+        self.traps = []
+        self.obstacles = []
         self.total_food_units = 0
         self.total_debris_units = 0
         self.foods = []
         self.debris = []
         try:
             self.site = self.render.objects['sites'][0]
+            self.sites = []
+            self.sites += [self.site]
             for i in range(self.num_agents * 1):
                 # Add food to the site
                 f = Food(
@@ -165,13 +172,6 @@ class CoevolutionModel(Model):
         """Step through the environment."""
         # Next step
         self.schedule.step()
-
-        if self.stepcnt == self.args.time:
-            # Perform the pertrubations
-            self.add_object()
-            self.remove_object()
-            self.jam_communication()
-
         # Increment the step count
         self.stepcnt += 1
 
@@ -354,19 +354,23 @@ class CoevolutionModel(Model):
                     self.grid.remove_object_from_grid(trap.location, trap)
                 self.traps = []
 
-    def place_site(self, coordinate=(-np.inf, -np.inf), radius=5):
+    def place_site(self, coordinate=(-np.inf, -np.inf), radius=10):
         theta = np.linspace(0, 2*np.pi, 36)
         while True:
-            t = self.random.choice(theta, 1, replace=False)[0]
             if coordinate[0] == -np.inf and coordinate[1] == -np.inf:
-                x = int(self.hub.location[0] + np.cos(t) * self.expsite)
-                y = int(self.hub.location[0] + np.sin(t) * self.expsite)
+                t = self.random.choice(theta, 1, replace=False)[0]
+                x = int(
+                    self.hub.location[0] + np.cos(t) * self.random.choice(
+                        range(0, int(self.grid.width/2.2))))
+                y = int(
+                    self.hub.location[1] + np.sin(t) * self.random.choice(
+                        range(0, int(self.grid.height/2.2))))
                 location = (x, y)
             else:
-                location = coordinate
-            radius = 10
+                location = eval(coordinate)
+            # radius = 10
             q_value = 0.9
-            other_bojects = self.grid.get_objects_from_list_of_grid(None, self.grid.get_neighborhood((x,y), radius))
+            other_bojects = self.grid.get_objects_from_list_of_grid(None, self.grid.get_neighborhood(location, radius))
             if len(other_bojects) == 0:
                 site = Sites(
                         0, location, radius, q_value=q_value)
@@ -379,14 +383,15 @@ class CoevolutionModel(Model):
         theta = np.linspace(0, 2*np.pi, 36)
         while True:
             if coordinate[0] == -np.inf and coordinate[1] == -np.inf:
-                dist = self.random.choice(range(25, self.width//2, 5))
+                dist = self.random.choice(range(25, self.grid.width//2, 5))
                 t = self.random.choice(theta, 1, replace=False)[0]
                 x = int(0 + np.cos(t) * dist)
                 y = int(0 + np.sin(t) * dist)
                 location = (x, y)
             else:
-                location = coordinate
-            other_bojects = self.grid.get_objects_from_list_of_grid(None, self.grid.get_neighborhood((x,y), radius))
+                location = eval(coordinate)
+                dist = 0
+            other_bojects = self.grid.get_objects_from_list_of_grid(None, self.grid.get_neighborhood(location, radius))
             # print(obj, radius, location)
             if len(other_bojects) == 0:
                 envobj = obj(
@@ -547,6 +552,24 @@ class EvolveModel(CoevolutionModel):
 
         # Next step
         self.schedule.step()
+
+        # Disturbances
+        if self.stepcnt == self.args.time:
+            # Perform the pertrubations
+            print('sites', [(site.location, site.radius) for site in self.sites])
+            print('hubs', [(site.location, site.radius) for site in self.hubs])
+            print('obstacles', [(site.location, site.radius) for site in self.obstacles])
+            print('trap', [(site.location, site.radius) for site in self.traps])
+            print('----------------')
+            self.add_object()
+            self.remove_object()
+            self.jam_communication()
+            print('sites', [(site.location, site.radius) for site in self.sites])
+            print('hubs', [(site.location, site.radius) for site in self.hubs])
+            print('obstacles', [(site.location, site.radius) for site in self.obstacles])
+            print('trap', [(site.location, site.radius) for site in self.traps])
+            exit()
+
         # input('Enter to continue' + str(self.stepcnt))
         # Increment the step count
         self.stepcnt += 1
