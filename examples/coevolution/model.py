@@ -651,15 +651,15 @@ class EvolveModel(CoevolutionModel):
     def step(self):
         """Step through the environment."""
         # Gather info to plot the graph
-        try:
-            # self.gather_info()
-            pass
-            # agent = self.agents[idx]
-            # print(
-            #    idx, agent.individual[0].phenotype,
-            #    agent.individual[0].fitness, agent.food_collected)
-        except FloatingPointError:
-            pass
+        # try:
+        #     # self.gather_info()
+        #     pass
+        #     # agent = self.agents[idx]
+        #     # print(
+        #     #    idx, agent.individual[0].phenotype,
+        #     #    agent.individual[0].fitness, agent.food_collected)
+        # except FloatingPointError:
+        #     pass
 
         # Next step
         self.schedule.step()
@@ -667,22 +667,22 @@ class EvolveModel(CoevolutionModel):
         # Disturbances
         if self.stepcnt == self.args.time:
             # Perform the pertrubations
-            print('sites', [(site.location, site.radius) for site in self.sites])
-            print('hubs', [(site.location, site.radius) for site in self.hubs])
-            print('obstacles', [(site.location, site.radius) for site in self.obstacles])
-            print('trap', [(site.location, site.radius) for site in self.traps])
-            print('foods', [(site.location, site.radius) for site in self.foods])
-            print('----------------')
+            # print('sites', [(site.location, site.radius) for site in self.sites])
+            # print('hubs', [(site.location, site.radius) for site in self.hubs])
+            # print('obstacles', [(site.location, site.radius) for site in self.obstacles])
+            # print('trap', [(site.location, site.radius) for site in self.traps])
+            # print('foods', [(site.location, site.radius) for site in self.foods])
+            # print('----------------')
             self.add_object()
-            self.remove_object()
-            self.move_object()
-            self.jam_communication()
-            print('sites', [(site.location, site.radius) for site in self.sites])
-            print('hubs', [(site.location, site.radius) for site in self.hubs])
-            print('obstacles', [(site.location, site.radius) for site in self.obstacles])
-            print('trap', [(site.location, site.radius) for site in self.traps])
-            print('foods', [(site.location, site.radius) for site in self.foods])
-            exit()
+            # self.remove_object()
+            # self.move_object()
+            # self.jam_communication()
+            # print('sites', [(site.location, site.radius) for site in self.sites])
+            # print('hubs', [(site.location, site.radius) for site in self.hubs])
+            # print('obstacles', [(site.location, site.radius) for site in self.obstacles])
+            # print('trap', [(site.location, site.radius) for site in self.traps])
+            # print('foods', [(site.location, site.radius) for site in self.foods])
+            # exit()
 
         # input('Enter to continue' + str(self.stepcnt))
         # Increment the step count
