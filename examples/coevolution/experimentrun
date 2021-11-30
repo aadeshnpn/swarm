@@ -3,42 +3,42 @@
 
 ## Online distrubances addition
 ### Obstacles addition
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 1000 --no_objects 5 --addobject Obstacles --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 2000 --no_objects 5 --addobject Obstacles --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 3000 --no_objects 5 --addobject Obstacles --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 4000 --no_objects 5 --addobject Obstacles --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 5000 --no_objects 5 --addobject Obstacles --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 6000 --no_objects 5 --addobject Obstacles --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 1000 --no_objects 5 --addobject Obstacles --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 2000 --no_objects 5 --addobject Obstacles --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 3000 --no_objects 5 --addobject Obstacles --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 4000 --no_objects 5 --addobject Obstacles --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 5000 --no_objects 5 --addobject Obstacles --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 6000 --no_objects 5 --addobject Obstacles --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 7000 --no_objects 5 --addobject Obstacles --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 8000 --no_objects 5 --addobject Obstacles --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 9000 --no_objects 5 --addobject Obstacles --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 10000 --no_objects 5 --addobject Obstacles --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 11000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 1000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 2000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 3000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 4000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 5000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 6000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 1000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 2000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 3000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 4000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 5000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 6000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 7000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 8000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 9000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 10000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 11000 --no_objects 5 --addobject Obstacles --radius 10
 
 ### Traps addition
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 1000 --no_objects 5 --addobject  Traps --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 2000 --no_objects 5 --addobject  Traps --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 3000 --no_objects 5 --addobject  Traps --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 4000 --no_objects 5 --addobject  Traps --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 5000 --no_objects 5 --addobject  Traps --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 6000 --no_objects 5 --addobject  Traps --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 1000 --no_objects 5 --addobject  Traps --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 2000 --no_objects 5 --addobject  Traps --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 3000 --no_objects 5 --addobject  Traps --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 4000 --no_objects 5 --addobject  Traps --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 5000 --no_objects 5 --addobject  Traps --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 6000 --no_objects 5 --addobject  Traps --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 7000 --no_objects 5 --addobject  Traps --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 8000 --no_objects 5 --addobject  Traps --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 9000 --no_objects 5 --addobject  Traps --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 10000 --no_objects 5 --addobject Traps  --radius 10
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50 --time 11000 --no_objects 5 --addobject Traps  --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 1000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 2000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 3000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 4000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 5000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 6000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 1000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 2000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 3000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 4000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 5000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 6000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 7000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 8000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 9000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 10000 --no_objects 5 --addobject Traps  --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 11000 --no_objects 5 --addobject Traps  --radius 10
 
 
 
