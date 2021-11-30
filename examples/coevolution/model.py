@@ -56,6 +56,9 @@ class CoevolutionModel(Model):
             self.pname = os.path.join(
                 '/tmp', 'swarm', 'data', 'experiments', name,
                 str(N), str(iter), str(threshold), str(gstep), str(expp),
+                str(args.addobject), str(args.removeobject),
+                str(args.no_objects), str(args.radius),
+                str(args.time),
                 str(self.runid) + name
                 )
         Path(self.pname).mkdir(parents=True, exist_ok=True)
@@ -137,10 +140,10 @@ class CoevolutionModel(Model):
         self.hubs += [self.hub]
         self.traps = []
         self.obstacles = []
-        self.trap = self.render.objects['traps'][0]
-        self.traps += [self.trap]
-        self.obstacle = self.render.objects['obstacles'][0]
-        self.obstacles += [self.obstacle]
+        # self.trap = self.render.objects['traps'][0]
+        # self.traps += [self.trap]
+        # self.obstacle = self.render.objects['obstacles'][0]
+        # self.obstacles += [self.obstacle]
         # self.boundary = self.render.objects['boundary'][0]
         self.total_food_units = 0
         self.total_debris_units = 0
@@ -319,6 +322,92 @@ class CoevolutionModel(Model):
             self.blackboard.jamcommun = {
                 'probability': self.args.probability, 'type': self.args.jamcommun}
 
+    def move_object(self):
+        def place_object(obj):
+            while True:
+                theta = np.linspace(0, 2*np.pi, 36)
+                if self.args.location[0] == -np.inf and self.args.location[1] == -np.inf:
+                    t = self.random.choice(theta, 1, replace=False)[0]
+                    x = int(
+                        self.hub.location[0] + np.cos(t) * self.random.choice(
+                            range(0, int(self.grid.width/2.2))))
+                    y = int(
+                        self.hub.location[1] + np.sin(t) * self.random.choice(
+                            range(0, int(self.grid.height/2.2))))
+                    location = (x, y)
+                else:
+                    location = eval(self.args.location)
+                other_bojects = self.grid.get_objects_from_list_of_grid(None, self.grid.get_neighborhood(location, obj.radius))
+                other_bojects = [o for o in other_bojects if not isinstance(o, LearningAgent)]
+                if len(other_bojects) == 0:
+                    self.grid.add_object_to_grid(location, obj)
+                    obj.location = location
+                    if isinstance(obj, Sites):
+                        self.sites.append(obj)
+                    elif isinstance(obj, Hub):
+                        self.hubs.append(obj)
+                    elif isinstance(obj, Obstacles):
+                        self.obstacles.append(obj)
+                    elif isinstance(obj, Traps):
+                        self.traps.append(obj)
+                    # self.site = site
+                    break
+
+        if self.args.moveobject is None:
+            pass
+        else:
+            if self.args.moveobject == 'Sites':
+                for site in self.sites:
+                    self.grid.remove_object_from_grid(site.location, site)
+                self.sites = []
+                try:
+                    [agent.shared_content.pop('Sites') for agent in self.agents]
+                except KeyError:
+                    pass
+                other_bojects = self.grid.get_objects_from_list_of_grid(
+                    None, self.grid.get_neighborhood(self.site.location, self.site.radius))
+                other_bojects = [o for o in other_bojects if not isinstance(o, LearningAgent)]
+                place_object(self.site)
+                for obj in other_bojects:
+                    self.grid.remove_object_from_grid(obj.location, obj)
+                    self.grid.add_object_to_grid(self.site.location, obj)
+                    obj.location = self.site.location
+
+            elif self.args.moveobject == 'Hub':
+                for hub in self.hubs:
+                    self.grid.remove_object_from_grid(hub.location, hub)
+                self.hubs = []
+                try:
+                    [agent.shared_content.pop('Hub') for agent in self.agents]
+                except KeyError:
+                    pass
+                other_bojects = self.grid.get_objects_from_list_of_grid(
+                    None, self.grid.get_neighborhood(self.hub.location, self.hub.radius))
+                other_bojects = [o for o in other_bojects if not isinstance(o, LearningAgent)]
+                place_object(self.hub)
+                for obj in other_bojects:
+                    self.grid.remove_object_from_grid(obj.location, obj)
+                    self.grid.add_object_to_grid(self.hub.location, obj)
+                    obj.location = self.hub.location
+            elif self.args.moveobject == 'Obstacles':
+                for obs in self.obstacles:
+                    self.grid.remove_object_from_grid(obs.location, obs)
+                self.obstacles = []
+                try:
+                    [agent.shared_content.pop('Obstacles') for agent in self.agents]
+                except KeyError:
+                    pass
+                place_object(self.obstacle)
+            elif self.args.moveobject == 'Traps':
+                for trap in self.traps:
+                    self.grid.remove_object_from_grid(trap.location, trap)
+                self.traps = []
+                try:
+                    [agent.shared_content.pop('Traps') for agent in self.agents]
+                except KeyError:
+                    pass
+                place_object(self.trap)
+
     def add_object(self):
         if self.args.addobject is None:
             pass
@@ -389,6 +478,8 @@ class CoevolutionModel(Model):
             # radius = 10
             q_value = 0.9
             other_bojects = self.grid.get_objects_from_list_of_grid(None, self.grid.get_neighborhood(location, radius))
+            # Will need to update the below filter when cue is used
+            other_bojects = [o for o in other_bojects if not isinstance(o, LearningAgent)]
             if len(other_bojects) == 0:
                 site = Sites(
                         0, location, radius, q_value=q_value)
@@ -410,6 +501,8 @@ class CoevolutionModel(Model):
                 location = eval(coordinate)
                 dist = 0
             other_bojects = self.grid.get_objects_from_list_of_grid(None, self.grid.get_neighborhood(location, radius))
+            # Will need to update the below filter when cue is used
+            other_bojects = [o for o in other_bojects if not isinstance(o, LearningAgent)]
             # print(obj, radius, location)
             if len(other_bojects) == 0:
                 envobj = obj(
@@ -578,14 +671,17 @@ class EvolveModel(CoevolutionModel):
             print('hubs', [(site.location, site.radius) for site in self.hubs])
             print('obstacles', [(site.location, site.radius) for site in self.obstacles])
             print('trap', [(site.location, site.radius) for site in self.traps])
+            print('foods', [(site.location, site.radius) for site in self.foods])
             print('----------------')
             self.add_object()
             self.remove_object()
+            self.move_object()
             self.jam_communication()
             print('sites', [(site.location, site.radius) for site in self.sites])
             print('hubs', [(site.location, site.radius) for site in self.hubs])
             print('obstacles', [(site.location, site.radius) for site in self.obstacles])
             print('trap', [(site.location, site.radius) for site in self.traps])
+            print('foods', [(site.location, site.radius) for site in self.foods])
             exit()
 
         # input('Enter to continue' + str(self.stepcnt))

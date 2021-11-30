@@ -156,6 +156,7 @@ if __name__ == '__main__':
     parser.add_argument('--n', default=50, type=int)
     parser.add_argument('--addobject', default=None, choices= [None, 'Obstacles', 'Traps', 'Hub', 'Sites'], type=str)
     parser.add_argument('--removeobject', default=None, choices= [None, 'Obstacles', 'Traps', 'Hub', 'Sites'], type=str)
+    parser.add_argument('--moveobject', default=None, choices= [None, 'Obstacles', 'Traps', 'Hub', 'Sites'], type=str)
     parser.add_argument('--jamcommun', default=None, choices=[None, 'Cue', 'Signal'], type=str)
     parser.add_argument('--probability', default=0.5, type=float)
     parser.add_argument('--no_objects', default=1, type=int)
