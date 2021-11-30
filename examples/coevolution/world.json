@@ -12,5 +12,19 @@
         "radius":10,
         "q_value":0.9
       }
+    ],
+    "obstacles": [
+      {
+        "x":45,
+        "y":45,
+        "radius":5
+      }
+    ],
+    "traps": [
+      {
+        "x":-45,
+        "y":-45,
+        "radius":5
+      }
     ]
 }

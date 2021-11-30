@@ -135,11 +135,13 @@ class CoevolutionModel(Model):
         self.hub = self.render.objects['hub'][0]
         self.hubs = []
         self.hubs += [self.hub]
-        # self.traps = self.render.objects['traps'][0]
-        # self.obstacles = self.render.objects['obstacles'][0]
-        # self.boundary = self.render.objects['boundary'][0]
         self.traps = []
         self.obstacles = []
+        self.trap = self.render.objects['traps'][0]
+        self.traps += [self.trap]
+        self.obstacle = self.render.objects['obstacles'][0]
+        self.obstacles += [self.obstacle]
+        # self.boundary = self.render.objects['boundary'][0]
         self.total_food_units = 0
         self.total_debris_units = 0
         self.foods = []
@@ -331,7 +333,7 @@ class CoevolutionModel(Model):
                         self.args.radius, self.args.location)
 
     def remove_object(self):
-        if self.args.addobject is None:
+        if self.args.removeobject is None:
             pass
         else:
             # Remove the object
@@ -341,18 +343,34 @@ class CoevolutionModel(Model):
                 for site in self.sites:
                     self.grid.remove_object_from_grid(site.location, site)
                 self.sites = []
+                try:
+                    [agent.shared_content.pop('Sites') for agent in self.agents]
+                except KeyError:
+                    pass
             elif self.args.removeobject == 'Hub':
                 for hub in self.hubs:
                     self.grid.remove_object_from_grid(hub.location, hub)
                 self.hubs = []
+                try:
+                    [agent.shared_content.pop('Hub') for agent in self.agents]
+                except KeyError:
+                    pass
             elif self.args.removeobject == 'Obstacles':
                 for obs in self.obstacles:
                     self.grid.remove_object_from_grid(obs.location, obs)
                 self.obstacles = []
+                try:
+                    [agent.shared_content.pop('Obstacles') for agent in self.agents]
+                except KeyError:
+                    pass
             elif self.args.removeobject == 'Traps':
                 for trap in self.traps:
                     self.grid.remove_object_from_grid(trap.location, trap)
                 self.traps = []
+                try:
+                    [agent.shared_content.pop('Traps') for agent in self.agents]
+                except KeyError:
+                    pass
 
     def place_site(self, coordinate=(-np.inf, -np.inf), radius=10):
         theta = np.linspace(0, 2*np.pi, 36)
