@@ -1,5 +1,6 @@
 """Inherited model class."""
 
+from numpy import core
 import psycopg2
 from swarms.lib.model import Model
 from swarms.lib.time import SimultaneousActivation
@@ -17,7 +18,8 @@ from pathlib import Path
 # import imp
 import datetime
 import numpy as np
-from flloat.parser.ltlf import LTLfParser
+# from flloat.parser.ltlf import LTLfParser
+from py_trees import common, blackboard
 
 
 # filename = os.path.join(imp.find_module("swarms")[1] + "/utils/world.json")
@@ -32,7 +34,7 @@ class CoevolutionModel(Model):
             self, N, width, height, grid=10, iter=100000,
             seed=None, name='CoevolutionPPA', viewer=False,
             parent=None, ratio=1.0, db=False,
-            threshold=10, gstep=200, expp=2):
+            threshold=10, gstep=200, expp=2, args=[]):
         """Initialize the attributes."""
         if seed is None:
             super(CoevolutionModel, self).__init__(seed=None)
@@ -164,6 +166,12 @@ class CoevolutionModel(Model):
         # Next step
         self.schedule.step()
 
+        if self.stepcnt == self.args.time:
+            # Perform the pertrubations
+            self.add_object()
+            self.remove_object()
+            self.jam_communication()
+
         # Increment the step count
         self.stepcnt += 1
 
@@ -246,7 +254,7 @@ class CoevolutionModel(Model):
 
     def find_higest_food_collector(self):
         """Find the best agent to collect food."""
-        fitness = self.agents[0].food_collected
+        fitness = self.agents[0].food_collectedtick
         fittest = self.agents[0]
         for agent in self.agents:
             if agent.food_collected > fitness:
@@ -300,6 +308,100 @@ class CoevolutionModel(Model):
         # return sum([1 if a.dead else 0 for a in agents])
         return 0
 
+    def jam_communication(self):
+        if self.args.jamcommun is None:
+            pass
+        else:
+            self.blackboard = blackboard.Client(name=str(self.name))
+            self.blackboard.register_key(key='jamcommun', access=common.Access.WRITE)
+            self.blackboard.jamcommun = {
+                'probability': self.args.probability, 'type': self.args.jamcommun}
+
+    def add_object(self):
+        if self.args.addobject is None:
+            pass
+        else:
+            # Add the object
+            for i in range(self.args.no_objects):
+                if self.args.addobject == 'Sites':
+                    self.place_site(self.args.location, self.args.radius)
+                else:
+                    self.place_static_objs(
+                        eval(self.args.addobject),
+                        self.args.radius, self.args.location)
+
+    def remove_object(self):
+        if self.args.addobject is None:
+            pass
+        else:
+            # Remove the object
+            # First remove it from the grid and model
+            # Remove from agents shared dict
+            if self.args.removeobject == 'Sites':
+                for site in self.sites:
+                    self.grid.remove_object_from_grid(site.location, site)
+                self.sites = []
+            elif self.args.removeobject == 'Hub':
+                for hub in self.hubs:
+                    self.grid.remove_object_from_grid(hub.location, hub)
+                self.hubs = []
+            elif self.args.removeobject == 'Obstacles':
+                for obs in self.obstacles:
+                    self.grid.remove_object_from_grid(obs.location, obs)
+                self.obstacles = []
+            elif self.args.removeobject == 'Traps':
+                for trap in self.traps:
+                    self.grid.remove_object_from_grid(trap.location, trap)
+                self.traps = []
+
+    def place_site(self, coordinate=(-np.inf, -np.inf), radius=5):
+        theta = np.linspace(0, 2*np.pi, 36)
+        while True:
+            t = self.random.choice(theta, 1, replace=False)[0]
+            if coordinate[0] == -np.inf and coordinate[1] == -np.inf:
+                x = int(self.hub.location[0] + np.cos(t) * self.expsite)
+                y = int(self.hub.location[0] + np.sin(t) * self.expsite)
+                location = (x, y)
+            else:
+                location = coordinate
+            radius = 10
+            q_value = 0.9
+            other_bojects = self.grid.get_objects_from_list_of_grid(None, self.grid.get_neighborhood((x,y), radius))
+            if len(other_bojects) == 0:
+                site = Sites(
+                        0, location, radius, q_value=q_value)
+                self.grid.add_object_to_grid(location, site)
+                self.sites.append(site)
+                # self.site = site
+                break
+
+    def place_static_objs(self, obj, radius, coordinate=(-np.inf, -np.inf)):
+        theta = np.linspace(0, 2*np.pi, 36)
+        while True:
+            if coordinate[0] == -np.inf and coordinate[1] == -np.inf:
+                dist = self.random.choice(range(25, self.width//2, 5))
+                t = self.random.choice(theta, 1, replace=False)[0]
+                x = int(0 + np.cos(t) * dist)
+                y = int(0 + np.sin(t) * dist)
+                location = (x, y)
+            else:
+                location = coordinate
+            other_bojects = self.grid.get_objects_from_list_of_grid(None, self.grid.get_neighborhood((x,y), radius))
+            # print(obj, radius, location)
+            if len(other_bojects) == 0:
+                envobj = obj(
+                        dist, location, radius)
+                self.grid.add_object_to_grid(location, envobj)
+                # bojects = self.grid.get_objects_from_list_of_grid('Traps', self.grid.get_neighborhood(location, radius))
+                # print('reverse', bojects)
+                if isinstance(envobj, Traps):
+                    self.traps += [envobj]
+                if isinstance(envobj, Obstacles):
+                    self.obstacles += [envobj]
+                if isinstance(envobj, Hub):
+                    self.hubs += [envobj]
+                break
+
 
 class EvolveModel(CoevolutionModel):
     """A environemnt to model swarms."""
@@ -307,12 +409,12 @@ class EvolveModel(CoevolutionModel):
     def __init__(
             self, N, width, height, grid=10, iter=100000,
             seed=None, name="EvoCoevolutionPPA", viewer=False, db=False,
-            threshold=10, gstep=200, expp=2):
+            threshold=10, gstep=200, expp=2, args=[]):
         """Initialize the attributes."""
         super(EvolveModel, self).__init__(
             N, width, height, grid, iter, seed, name, viewer, db=db,
-            threshold=threshold, gstep=gstep, expp=expp)
-        self.parser = LTLfParser()
+            threshold=threshold, gstep=gstep, expp=expp, args=args)
+        # self.parser = LTLfParser()
 
     def create_agents(self, random_init=True, phenotypes=None):
         """Initialize agents in the environment."""

@@ -18,14 +18,19 @@ height = 100
 UI = False
 
 
-def learning_phase(
-        iteration, no_agents=50, db=False, early_stop=False, threshold=10,
-        gstep=200, expp=2):
+def learning_phase(args):
     """Learning Algorithm block."""
+    iteration = args.iter
+    no_agents = args.n
+    db = args.db
+    early_stop =False
+    threshold = args.threshold
+    gstep = args.gstep
+    expp = args.expp
     # Evolution environment
     env = EvolveModel(
         no_agents, width, height, 10, iter=iteration, db=db,
-        threshold=threshold, gstep=gstep, expp=expp)
+        threshold=threshold, gstep=gstep, expp=expp, args=args)
     env.build_environment_from_json()
     env.create_agents()
     # Validation Step parameter
@@ -95,9 +100,7 @@ def exp_evol(iter, n, db):
 def standard_evolution(args):
     # phenotypes = learning_phase(iter, n, db)
     Parallel(
-            n_jobs=args.threads)(delayed(learning_phase)(
-                args.iter, 50, db=False,
-                threshold=args.threshold, gstep=args.gstep, expp=args.expp
+            n_jobs=args.threads)(delayed(learning_phase)(args
                 ) for i in range(args.runs))
 
 
@@ -146,6 +149,15 @@ if __name__ == '__main__':
     parser.add_argument('--threshold', default=10, type=int)
     parser.add_argument('--gstep', default=200, type=int)
     parser.add_argument('--expp', default=2, type=int)
+    parser.add_argument('--n', default=50, type=int)
+    parser.add_argument('--addobject', default=None, choices= [None, 'Obstacles', 'Trap', 'Hub', 'Sites'], type=str)
+    parser.add_argument('--removeobject', default=None, choices= [None, 'Obstacles', 'Trap', 'Hub', 'Sites'], type=str)
+    parser.add_argument('--jamcommun', default=None, choices=[None, 'Cue', 'Signal'], type=str)
+    parser.add_argument('--probability', default=0.5, type=float)
+    parser.add_argument('--no_objects', default=1, type=int)
+    parser.add_argument('--location', default=(-np.inf, -np.inf), type=tuple)
+    parser.add_argument('--radius', default=5, type=int)
+    parser.add_argument('--time', default=10000, type=int)
     args = parser.parse_args()
     print(args)
     experiments(args)

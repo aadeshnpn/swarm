@@ -611,7 +611,7 @@ def exploration_parameter():
     # ax1.set_xticks([1.5, 4.5, 7.5, 10.5, 13.5])
     ax1.set_xticklabels(exploration)
     ax1.set_yticks(range(0, 105, 20))
-    ax1.set_xlabel('Storage Threshold', fontsize="large")
+    ax1.set_xlabel('Exploration', fontsize="large")
     ax1.set_ylabel('Foraging (%)', fontsize="large")
     plt.tight_layout()
 
@@ -752,8 +752,8 @@ def main():
     # plot_evolution_algo_performance()
     # withWithoutLt()
     # storage_threshold_new()
-    # exploration_parameter()
-    generationstep_parameter()
+    exploration_parameter()
+    # generationstep_parameter()
 
 
 if __name__ == '__main__':
