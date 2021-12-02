@@ -228,7 +228,7 @@ def plot_obstacles_time():
         #            xvalues, q1[i], q3[i],  alpha=0.3)
 
     # ax1.plot(range(12001), traps_mean, labels="Traps")
-    ax1.legend(fontsize="small", loc="upper left", title='Objects')
+    ax1.legend(fontsize="small", loc="upper left", title='Perturbation Timestep')
 
     # ax1.set_xticklabels(['Foraging', 'Maintenance'])
     ax1.set_xlabel('Evolution Steps')
