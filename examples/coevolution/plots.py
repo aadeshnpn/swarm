@@ -126,6 +126,88 @@ def read_data_n_agent_threshold_new(n=100, iter=12000, threshold=10, gstep=200, 
     return fdata
 
 
+def read_data_n_agent_perturbations(
+        n=100, iter=12000, threshold=10, gstep=200, expp=2,
+        addobject=None, removeobject=None, no_objects=1, radius=5,
+        time=13000):
+    maindir = '/tmp/swarm/data/experiments/EvoCoevolutionPPA/'
+    nadir = os.path.join(
+                '/tmp', 'swarm', 'data', 'experiments', 'EvoCoevolutionPPA',
+                str(n), str(iter), str(threshold), str(gstep), str(expp),
+                str(addobject), str(removeobject),
+                str(no_objects), str(radius),
+                str(time)
+                )
+    print(nadir)
+    folders = pathlib.Path(nadir).glob("*EvoCoevolutionPPA")
+    flist = []
+    fdata = []
+    mdata = []
+    for f in folders:
+        flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
+        _, _, f, _ = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+        # print(f.shape, flist[0])
+        fdata.append(f)
+    fdata = np.array(fdata)
+    # print(fdata.shape)
+    return fdata
+
+
+def plot_none_obstacles_trap():
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    none = read_data_n_agent_perturbations()
+    obstacles = read_data_n_agent_perturbations(addobject='Obstacles', radius=10, time=2)
+    # traps = read_data_n_agent_perturbations(addobject='Traps', radius=10, time=2)
+
+    ax1 = fig.add_subplot(1, 1, 1)
+    colordict = {
+        0: 'gold',
+        1: 'peru',
+        2: 'orchid',
+        3: 'olivedrab',
+        4: 'linen',
+        5: 'indianred',
+        6: 'tomato'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+
+    # labels = [str(a) for a in agent_sizes]
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    none_mean = np.median(none, axis=0)
+    none_q1 = np.quantile(none, q =0.25, axis=0)
+    none_q3 = np.quantile(none, q =0.75, axis=0)
+    obstacles_mean = np.median(obstacles, axis=0)
+    obs_q1 = np.quantile(obstacles, q =0.25, axis=0)
+    obs_q3 = np.quantile(obstacles, q =0.75, axis=0)
+    print(none_q3.shape)
+    # traps_mean = np.mean(traps, axis=1)
+    xvalues = range(12002)
+    ax1.plot(xvalues, none_mean, label="None", color='blue')
+    ax1.fill_between(
+                xvalues, none_q1, none_q3, color='DodgerBlue', alpha=0.3)
+    ax1.plot(xvalues, obstacles_mean, label="Obstacles", color='red')
+    ax1.fill_between(
+                xvalues, obs_q1, obs_q3, color='tomato', alpha=0.3)
+    # ax1.plot(range(12001), traps_mean, labels="Traps")
+    ax1.legend(fontsize="small", loc="upper right", title='Objects')
+
+    # ax1.set_xticklabels(['Foraging', 'Maintenance'])
+    ax1.set_xlabel('Evolution Steps')
+    ax1.set_ylabel('Foraing (%)')
+    ax1.set_yticks(range(0, 105, 20))
+
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments/'
+    # fname = 'agentsitecomp' + agent
+    nadir = os.path.join(maindir, str(50))
+
+    fig.savefig(
+        nadir + 'coevolutionobjects' + '.png')
+    plt.close(fig)
+
+
 def read_data_n_agent_site(n=100, agent='ExecutingAgent', site='20'):
     maindir = '/tmp/results_site_distance/experiments/'
     # maindir = '/home/aadeshnpn/Desktop/evolved_ppa/experiments/'
@@ -752,8 +834,9 @@ def main():
     # plot_evolution_algo_performance()
     # withWithoutLt()
     # storage_threshold_new()
-    exploration_parameter()
+    # exploration_parameter()
     # generationstep_parameter()
+    plot_none_obstacles_trap()
 
 
 if __name__ == '__main__':
