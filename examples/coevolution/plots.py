@@ -208,6 +208,43 @@ def plot_none_obstacles_trap():
     plt.close(fig)
 
 
+def plot_obstacles_time():
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    time = [1000, 2000, 3000, 4000, 5000, 6000, 7000]
+    obstaclestime = [read_data_n_agent_perturbations(addobject='Obstacles', no_objects=5, radius=10, time=t) for t in time]
+
+    ax1 = fig.add_subplot(1, 1, 1)
+
+    median = [ np.median(obstaclestime[i], axis=0) for i in range(len(time))]
+    q1 = [ np.quantile(obstaclestime[i], q=0.25, axis=0) for i in range(len(time))]
+    q3 = [ np.quantile(obstaclestime[i], q=0.75, axis=0) for i in range(len(time))]
+
+
+    # traps_mean = np.mean(traps, axis=1)
+    xvalues = range(12002)
+    for i in range(len(time)):
+        ax1.plot(xvalues, median[i], label=str(time[i]))
+        # ax1.fill_between(
+        #            xvalues, q1[i], q3[i],  alpha=0.3)
+
+    # ax1.plot(range(12001), traps_mean, labels="Traps")
+    ax1.legend(fontsize="small", loc="upper left", title='Objects')
+
+    # ax1.set_xticklabels(['Foraging', 'Maintenance'])
+    ax1.set_xlabel('Evolution Steps')
+    ax1.set_ylabel('Foraing (%)')
+    ax1.set_yticks(range(0, 105, 20))
+
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments/'
+    # fname = 'agentsitecomp' + agent
+    nadir = os.path.join(maindir, str(50))
+
+    fig.savefig(
+        nadir + 'coevolutionobstaclestime' + '.png')
+    plt.close(fig)
+
+
 def read_data_n_agent_site(n=100, agent='ExecutingAgent', site='20'):
     maindir = '/tmp/results_site_distance/experiments/'
     # maindir = '/home/aadeshnpn/Desktop/evolved_ppa/experiments/'
@@ -836,7 +873,8 @@ def main():
     # storage_threshold_new()
     # exploration_parameter()
     # generationstep_parameter()
-    plot_none_obstacles_trap()
+    # plot_none_obstacles_trap()
+    plot_obstacles_time()
 
 
 if __name__ == '__main__':
