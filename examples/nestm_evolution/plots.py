@@ -226,7 +226,7 @@ def read_data_fitness(n=100, maindir='/tmp/div/diversity_withdecay'):
     # maindir = '/tmp/results_site_distance/experiments/'
     # maindir = '/home/aadeshnpn/Desktop/evolved_ppa/experiments/'
     # nadir = os.path.join(maindir, str(n), agent, str(site))
-    folders = pathlib.Path(maindir).glob("*EvoNestMNew*")
+    folders = pathlib.Path(maindir).glob("*EvoNestM*")
     flist = []
     dataf = []
     datad = []
@@ -239,11 +239,15 @@ def read_data_fitness(n=100, maindir='/tmp/div/diversity_withdecay'):
             dataf.append(f)
             datad.append(d)
             # print(flist[0], f.shape)
+        except ValueError:
+            _, _, f = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+            f[0] = 0.0
+            dataf.append(f)
         except IndexError:
             pass
     # print(data)
     dataf = np.array(dataf)
-    datad = np.array(datad)
+    # datad = np.array(datad)
     # print(dataf.shape, datad.shape, n, dataf)
     # data = np.max(dataf, axis=1)
     return dataf
@@ -1374,13 +1378,14 @@ def boxplot_fitness_paper():
         '0', '1', '3'
         ]
     oldnames = [
-        '0', '1', '3'
+        '1', '3'
     ]
 
-    newdatas = [read_data_fitness(maindir='/tmp/swarm/data/experiments/50/12000/'+n)[:,-1] for n in newnames]
-    # middatas = [read_data_fitness(maindir='/tmp/div/PPAGeese/'+n)[:, -1] for n in newnames]
-    # olddatas = [read_old_data_txt(fname=n) for n in oldnames]
-
+    newdatas = [read_data_fitness(maindir='/tmp/div/BeTrGeese/'+n)[:,-1] for n in newnames]
+    middatas = [read_data_fitness(maindir='/tmp/div/PPAGeese/'+n)[:, -1] for n in newnames]
+    olddatas0 = read_old_data_txt(fname='0')
+    olddatas = [read_data_fitness(maindir='/tmp/div/GeeseBT/'+n)[:, -1] for n in oldnames]
+    olddatas = [olddatas0] + olddatas
     print(
         [newdatas[i].shape for i in range(3)],
         # [middatas[i].shape for i in range(3)],
@@ -1452,7 +1457,7 @@ def boxplot_fitness_paper():
 
     plt.tight_layout()
 
-    maindir = '/tmp/div/'
+    maindir = '/tmp/swarm/data/experiments/'
     fname = 'nestmfitnesscompall'
 
     fig.savefig(
