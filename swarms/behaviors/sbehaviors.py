@@ -116,26 +116,28 @@ class NeighbourObjects(Behaviour):
         if len(objects) >= 1:
             if self.agent in objects:
                 objects.remove(self.agent)
-
-            for item in objects:
-                name = type(item).__name__
-                # Is the item is not carrable, its location
-                # and property doesnot change. So we can commit its
-                # information to memory
-                # if item.carryable is False and item.deathable is False:
-                if name in ['Sites', 'Hub', 'Boundary']:
-                    try:
-                        self.agent.shared_content[name].add(item)
-                    except KeyError:
-                        self.agent.shared_content[name] = {item}
-                else:
-                    # name = name + str(self.agent.name)
-                    try:
-                        self.blackboard.neighbourobj[name].add(item)
-                    except KeyError:
-                        self.blackboard.neighbourobj = dict()
-                        self.blackboard.neighbourobj[name] = {item}
-            return common.Status.SUCCESS
+            if len(objects) >= 1:
+                for item in objects:
+                    name = type(item).__name__
+                    # Is the item is not carrable, its location
+                    # and property doesnot change. So we can commit its
+                    # information to memory
+                    # if item.carryable is False and item.deathable is False:
+                    if name in ['Sites', 'Hub', 'Boundary']:
+                        try:
+                            self.agent.shared_content[name].add(item)
+                        except KeyError:
+                            self.agent.shared_content[name] = {item}
+                    else:
+                        # name = name + str(self.agent.name)
+                        try:
+                            self.blackboard.neighbourobj[name].add(item)
+                        except KeyError:
+                            self.blackboard.neighbourobj = dict()
+                            self.blackboard.neighbourobj[name] = {item}
+                return common.Status.SUCCESS
+            else:
+                return common.Status.FAILURE
         else:
             return common.Status.FAILURE
 
@@ -489,12 +491,12 @@ class Move(Behaviour):
         # Partially carried object
         if not self.update_partial_attached_objects():
             self.agent.accleration = self.agent.force / self.agent.get_weight()
-            self.agent.velocity = self.agent.accleration * 1
-
-            x = int(self.agent.location[0] + np.cos(
-                self.agent.direction) * self.agent.velocity)
-            y = int(self.agent.location[1] + np.sin(
-                self.agent.direction) * self.agent.velocity)
+            self.agent.velocity = self.agent.accleration * 1.0
+            # print(self.agent.direction, self.agent.velocity, self.agent.location)
+            x = int(np.round(self.agent.location[0] + np.cos(
+                self.agent.direction) * self.agent.velocity))
+            y = int(np.round(self.agent.location[1] + np.sin(
+                self.agent.direction) * self.agent.velocity))
             new_location, direction = self.agent.model.grid.check_limits(
                 (x, y), self.agent.direction)
             # print('from move', self.name, self.agent.location, new_location, direction)
@@ -755,11 +757,23 @@ class Drop(Behaviour):
             objects = list(filter(
                 lambda x: type(x).__name__ == self.item,
                 self.agent.attached_objects))[0]
+            # Grid
+            grid = self.agent.model.grid
+            static_grids = grid.get_neighborhood(self.agent.location, self.agent.radius)
+            envobjects = self.agent.model.grid.get_objects_from_list_of_grid(None, static_grids)
+            dropped = False
+            for obj in envobjects:
+                if type(obj).__name__ in ['Hub', 'Boundary', 'Obstacles']:
+                    dropped = True
+                    obj.dropped_objects.append(objects)
+                    self.agent.attached_objects.remove(objects)
+                    objects.agent_name = self.agent.name
+                    break
 
-            self.agent.model.grid.add_object_to_grid(objects.location, objects)
-            self.agent.attached_objects.remove(objects)
-            objects.agent_name = self.agent.name
-
+            if not dropped:
+                self.agent.model.grid.add_object_to_grid(objects.location, objects)
+                self.agent.attached_objects.remove(objects)
+                objects.agent_name = self.agent.name
             # Temporary fix
             # Store the genome which activated the single carry
             try:

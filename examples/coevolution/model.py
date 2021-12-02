@@ -1,5 +1,6 @@
 """Inherited model class."""
 
+from numpy import core
 import psycopg2
 from swarms.lib.model import Model
 from swarms.lib.time import SimultaneousActivation
@@ -9,7 +10,6 @@ from swarms.utils.jsonhandler import JsonData
 from swarms.utils.results import Best, Experiment
 from swarms.utils.db import Connect
 from swarms.utils.ui import UI
-from swarms.utils.distangle import point_distance
 from agent import LearningAgent, ExecutingAgent  # noqa : F041
 from swarms.lib.objects import (    # noqa : F401
     Hub, Sites, Food, Debris, Obstacles, Traps, Boundary)
@@ -18,43 +18,48 @@ from pathlib import Path
 # import imp
 import datetime
 import numpy as np
-from flloat.parser.ltlf import LTLfParser
+# from flloat.parser.ltlf import LTLfParser
+from py_trees import common, blackboard
 
 
 # filename = os.path.join(imp.find_module("swarms")[1] + "/utils/world.json")
 projectdir = Path(__file__).resolve().parent
-# projectdir = '/home/aadeshnpn/Documents/BYU/HCMI/resilience/swarm/examples/resilience/'
 filename = os.path.join(projectdir, 'world.json')
-# projectdir = "/home/aadeshnpn/Documents/BYU/HCMI/resilience/swarm/examples"
-# filename = os.path.join(projectdir + "/resilience_evolution/world.json")
 
 
-class NestMModel(Model):
-    """A environemnt to model Nest Maintennace environment."""
+class CoevolutionModel(Model):
+    """A environemnt to model coevolution environment."""
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name='NestMPPA1', viewer=False, parent=None, ratio=1.0,
-            db=False, fitid=0):
+            seed=None, name='CoevolutionPPA', viewer=False,
+            parent=None, ratio=1.0, db=False,
+            threshold=10, gstep=200, expp=2, args=[]):
         """Initialize the attributes."""
         if seed is None:
-            super(NestMModel, self).__init__(seed=None)
+            super(CoevolutionModel, self).__init__(seed=None)
         else:
-            super(NestMModel, self).__init__(seed)
+            super(CoevolutionModel, self).__init__(seed)
 
+        self.args = args
         # Create a unique experiment id
         self.runid = datetime.datetime.now().strftime(
             "%s") + str(self.random.randint(1, 10000, 1)[0])
-
+        self.threshold = threshold
+        self.gstep = gstep
+        self.expp = expp
         # Create the experiment folder
         # If parent folder exits create inside it
         if parent is not None:
             self.pname = parent + '/' + str(self.runid) + '_' + str(ratio) +'_' +name
-            # Path(self.pname).mkdir(parents=True, exist_ok=True)
         else:
             self.pname = os.path.join(
-                '/tmp', 'swarm', 'data', 'experiments',
-                str(N), str(iter), str(fitid), str(self.runid) + name
+                '/tmp', 'swarm', 'data', 'experiments', name,
+                str(N), str(iter), str(threshold), str(gstep), str(expp),
+                str(args.addobject), str(args.removeobject),
+                str(args.no_objects), str(args.radius),
+                str(args.time),
+                str(self.runid) + name
                 )
         Path(self.pname).mkdir(parents=True, exist_ok=True)
 
@@ -65,15 +70,6 @@ class NestMModel(Model):
         # UI
         self.viewer = viewer
 
-        # Fitness id
-        self.fmodels = {
-            0: [True, False, False, False],
-            1: [True, True, False, False],
-            2: [True, True, True, False],
-            3: [True, True, True, True],
-        }
-        self.fitid = fitid
-        print(name, fitid)
         # Create db connection
         if db:
             try:
@@ -140,68 +136,47 @@ class NestMModel(Model):
                 jsondata, obj)
 
         self.hub = self.render.objects['hub'][0]
-        # self.sites = self.render.objects['sites'][0]
-        self.hub.dropable = False
-        self.hub.dropped_objects = dict()
-        # self.traps = self.render.objects['traps'][0]
-        self.boundary = self.render.objects['boundary'][0]
-        # self.boundary.dropable = True
-        # self.boundary.dropped_objects = dict()
-        self.boundaries = []
-        # for i in range(1):
-        #     self.place_static_objs(Boundary, 10)
+        self.hubs = []
+        self.hubs += [self.hub]
+        self.traps = []
+        self.obstacles = []
+        # self.trap = self.render.objects['traps'][0]
+        # self.traps += [self.trap]
+        # self.obstacle = self.render.objects['obstacles'][0]
+        # self.obstacles += [self.obstacle]
+        # self.boundary = self.render.objects['boundary'][0]
+        self.total_food_units = 0
         self.total_debris_units = 0
+        self.foods = []
         self.debris = []
         try:
+            self.site = self.render.objects['sites'][0]
+            self.sites = []
+            self.sites += [self.site]
             for i in range(self.num_agents * 1):
-                # dx, dy = self.random.randint(10, 20, 2)
-                # dx, dy = self.random.normal(0, 10, 2)
-                # dx, dy = self.random.choice(range(-9, 9), 2)
-                # dx = self.hub.location[0] + dx
-                # dy = self.hub.location[1] + dy
+                # Add food to the site
+                f = Food(
+                    i, location=self.site.location, radius=self.site.radius)
+                f.agent_name = None
+                self.grid.add_object_to_grid(f.location, f)
+                self.total_food_units += f.weight
+                f.phenotype = dict()
+                self.foods.append(f)
+                # Add debris around the hub
                 # d = Debris(
-                #     i, location=(int(0), int(0)), radius=10, weight=5)
-                d = Debris(i, location=self.hub.location, radius=10)
-                d.agent_name = None
-                self.grid.add_object_to_grid(d.location, d)
-                self.total_debris_units += d.weight
-                # d.phenotype = dict()
-                self.debris.append(d)
+                #     i, location=self.hub.location, radius=10, weight=2)
+                # d.agent_name = None
+                # self.grid.add_object_to_grid(d.location, d)
+                # self.total_debris_units += d.weight
+                # # d.phenotype = dict()
+                # self.debris.append(d)
         except KeyError:
             pass
-        # print(self.debris, [d.location for d in self.debris], [d.weight for d in self.debris], [d.calc_relative_weight() for d in self.debris])
-
-    def place_static_objs(self, obj, radius):
-        theta = np.linspace(0, 2*np.pi, 36)
-        while True:
-            # dist = self.random.choice(range(25, self.width//2, 5))
-            dist = 31
-            t = self.random.choice(theta, 1, replace=False)[0]
-            # x = int(0 + np.cos(t) * dist)
-            # y = int(0 + np.sin(t) * dist)
-            x, y = 30, 30
-            location = (x, y)
-            other_bojects = self.grid.get_objects_from_list_of_grid(None, self.grid.get_neighborhood((x,y), radius))
-            # print(obj, radius, location)
-            if len(other_bojects) == 0:
-                envobj = obj(
-                        dist, location, radius)
-                # envobj.passable = False
-                self.grid.add_object_to_grid(location, envobj)
-                # bojects = self.grid.get_objects_from_list_of_grid('Traps', self.grid.get_neighborhood(location, radius))
-                # print('reverse', bojects)
-                self.boundaries += [envobj]
-                # if isinstance(envobj, Traps):
-                #     self.traps += [envobj]
-                # if isinstance(envobj, Obstacles):
-                #     self.obstacles += [envobj]
-                break
 
     def step(self):
         """Step through the environment."""
         # Next step
         self.schedule.step()
-
         # Increment the step count
         self.stepcnt += 1
 
@@ -282,64 +257,53 @@ class NestMModel(Model):
                 fittest = agent
         return fittest
 
-    def find_higest_debris_collector(self):
-        """Find the best agent to collect debris."""
-        fitness = self.agents[0].debris_collected
+    def find_higest_food_collector(self):
+        """Find the best agent to collect food."""
+        fitness = self.agents[0].food_collectedtick
         fittest = self.agents[0]
         for agent in self.agents:
-            if agent.debris_collected > fitness:
+            if agent.food_collected > fitness:
                 fittest = agent
         return fittest
 
-    def detect_debris_moved(self, distance_threshold=35):
-        """Detect debris moved."""
+    def detect_food_moved(self):
+        """Detect food moved."""
         grid = self.grid
-        debris_loc = self.hub.location
-        neighbours = grid.get_neighborhood(debris_loc, distance_threshold)
-        debris_objects = grid.get_objects_from_list_of_grid(
-            'Debris', neighbours)
-
-        neighbours_hub = grid.get_neighborhood(
-            debris_loc, self.hub.radius)
-        debris_objects_hub = grid.get_objects_from_list_of_grid(
-            'Debris', neighbours_hub)
-
-        return set(debris_objects) - set(debris_objects_hub)
+        food_loc = self.site.location
+        neighbours = grid.get_neighborhood(food_loc, 10)
+        food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+        # print (food_objects)
+        return food_objects
 
     def foraging_percent(self):
-        """Compute the percent of the debris removef from the hub."""
-        debris_objects = self.debris_cleaned()
-        total_debris_weights = sum(
-            [debris.weight for debris in debris_objects])
-        return round(((total_debris_weights * 1.0) / self.total_debris_units) * 100, 2)
-
-    def debris_cleaned(self, distance_threshold=35):
-        """Find amount of debris cleaned."""
-        debris_objects = []
-        debris_grid = []
-        # for debry in self.debris:
-        #     distance = point_distance(debry.location, self.hub.location)
-        #     if distance > distance_threshold:
-        #         debris_objects.append(debry)
-
-        # return list(set(debris_objects))
-
+        """Compute the percent of the total food in the hub."""
         # grid = self.grid
-        # for boundary in self.boundaries:
-        #     boundary_loc = boundary.location
-        #     # neighbours = grid.get_neighborhood(boundary_loc, boundary.radius)
-        #     # debris_objects += grid.get_objects_from_list_of_grid('Debris', neighbours)
-        #     # _, dgrid = grid.find_grid(boundary_loc)
-        #     # debris_grid += [dgrid]
-        #     debris_objects +=  list(set(boundary.dropped_objects))
+        # hub_loc = self.hub.location
+        # neighbours = grid.get_neighborhood(hub_loc, self.hub.radius)
+        # food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+        # _, hub_grid = grid.find_grid(hub_loc)
+        # for food in self.foods:
+        #     _, food_grid = grid.find_grid(food.location)
+        #     if food_grid == hub_grid:
+        #         food_objects += [food]
+        food_objects = list(set(self.hub.dropped_objects))
+        # food_objects = set(food_objects)
+        total_food_weights = sum([food.weight for food in food_objects])
+        return np.round(((total_food_weights * 1.0) / self.total_food_units) * 100, 2)
 
-        # for debry in self.debris:
-        #     _, debry_grid = grid.find_grid(debry.location)
-        #     if debry_grid in debris_grid:
-        #         debris_objects += [debry]
+    def maintenance_percent(self):
+        """Find amount of debris cleaned."""
+        # debris_objects = []
+        # grid = self.grid
+        # for boundary in [self.boundary]:
+        #     boundary_loc = boundary.location
+        #     neighbours = grid.get_neighborhood(boundary_loc, boundary.radius)
+        #     debris_objects += grid.get_objects_from_list_of_grid('Debris', neighbours)
         # debris_objects = set(debris_objects)
-        debris_objects = list(set(self.boundary.dropped_objects))
-        return debris_objects
+        # total_debris_weights = sum(
+        #     [debris.weight for debris in debris_objects])
+        # return round(((total_debris_weights * 1.0) / self.total_debris_units) * 100, 2)
+        return 0
 
     def no_agent_dead(self):
         # grid = self.grid
@@ -349,27 +313,234 @@ class NestMModel(Model):
         # return sum([1 if a.dead else 0 for a in agents])
         return 0
 
+    def jam_communication(self):
+        if self.args.jamcommun is None:
+            pass
+        else:
+            self.blackboard = blackboard.Client(name=str(self.name))
+            self.blackboard.register_key(key='jamcommun', access=common.Access.WRITE)
+            self.blackboard.jamcommun = {
+                'probability': self.args.probability, 'type': self.args.jamcommun}
 
-class EvolveModel(NestMModel):
+    def move_object(self):
+        def place_object(obj):
+            while True:
+                theta = np.linspace(0, 2*np.pi, 36)
+                if self.args.location[0] == -np.inf and self.args.location[1] == -np.inf:
+                    t = self.random.choice(theta, 1, replace=False)[0]
+                    x = int(
+                        self.hub.location[0] + np.cos(t) * self.random.choice(
+                            range(0, int(self.grid.width/2.2))))
+                    y = int(
+                        self.hub.location[1] + np.sin(t) * self.random.choice(
+                            range(0, int(self.grid.height/2.2))))
+                    location = (x, y)
+                else:
+                    location = eval(self.args.location)
+                other_bojects = self.grid.get_objects_from_list_of_grid(None, self.grid.get_neighborhood(location, obj.radius))
+                other_bojects = [o for o in other_bojects if not isinstance(o, LearningAgent)]
+                if len(other_bojects) == 0:
+                    self.grid.add_object_to_grid(location, obj)
+                    obj.location = location
+                    if isinstance(obj, Sites):
+                        self.sites.append(obj)
+                    elif isinstance(obj, Hub):
+                        self.hubs.append(obj)
+                    elif isinstance(obj, Obstacles):
+                        self.obstacles.append(obj)
+                    elif isinstance(obj, Traps):
+                        self.traps.append(obj)
+                    # self.site = site
+                    break
+
+        if self.args.moveobject is None:
+            pass
+        else:
+            if self.args.moveobject == 'Sites':
+                for site in self.sites:
+                    self.grid.remove_object_from_grid(site.location, site)
+                self.sites = []
+                try:
+                    [agent.shared_content.pop('Sites') for agent in self.agents]
+                except KeyError:
+                    pass
+                other_bojects = self.grid.get_objects_from_list_of_grid(
+                    None, self.grid.get_neighborhood(self.site.location, self.site.radius))
+                other_bojects = [o for o in other_bojects if not isinstance(o, LearningAgent)]
+                place_object(self.site)
+                for obj in other_bojects:
+                    self.grid.remove_object_from_grid(obj.location, obj)
+                    self.grid.add_object_to_grid(self.site.location, obj)
+                    obj.location = self.site.location
+
+            elif self.args.moveobject == 'Hub':
+                for hub in self.hubs:
+                    self.grid.remove_object_from_grid(hub.location, hub)
+                self.hubs = []
+                try:
+                    [agent.shared_content.pop('Hub') for agent in self.agents]
+                except KeyError:
+                    pass
+                other_bojects = self.grid.get_objects_from_list_of_grid(
+                    None, self.grid.get_neighborhood(self.hub.location, self.hub.radius))
+                other_bojects = [o for o in other_bojects if not isinstance(o, LearningAgent)]
+                place_object(self.hub)
+                for obj in other_bojects:
+                    self.grid.remove_object_from_grid(obj.location, obj)
+                    self.grid.add_object_to_grid(self.hub.location, obj)
+                    obj.location = self.hub.location
+            elif self.args.moveobject == 'Obstacles':
+                for obs in self.obstacles:
+                    self.grid.remove_object_from_grid(obs.location, obs)
+                self.obstacles = []
+                try:
+                    [agent.shared_content.pop('Obstacles') for agent in self.agents]
+                except KeyError:
+                    pass
+                place_object(self.obstacle)
+            elif self.args.moveobject == 'Traps':
+                for trap in self.traps:
+                    self.grid.remove_object_from_grid(trap.location, trap)
+                self.traps = []
+                try:
+                    [agent.shared_content.pop('Traps') for agent in self.agents]
+                except KeyError:
+                    pass
+                place_object(self.trap)
+
+    def add_object(self):
+        if self.args.addobject is None:
+            pass
+        else:
+            # Add the object
+            for i in range(self.args.no_objects):
+                if self.args.addobject == 'Sites':
+                    self.place_site(self.args.location, self.args.radius)
+                else:
+                    self.place_static_objs(
+                        eval(self.args.addobject),
+                        self.args.radius, self.args.location)
+
+    def remove_object(self):
+        if self.args.removeobject is None:
+            pass
+        else:
+            # Remove the object
+            # First remove it from the grid and model
+            # Remove from agents shared dict
+            if self.args.removeobject == 'Sites':
+                for site in self.sites:
+                    self.grid.remove_object_from_grid(site.location, site)
+                self.sites = []
+                try:
+                    [agent.shared_content.pop('Sites') for agent in self.agents]
+                except KeyError:
+                    pass
+            elif self.args.removeobject == 'Hub':
+                for hub in self.hubs:
+                    self.grid.remove_object_from_grid(hub.location, hub)
+                self.hubs = []
+                try:
+                    [agent.shared_content.pop('Hub') for agent in self.agents]
+                except KeyError:
+                    pass
+            elif self.args.removeobject == 'Obstacles':
+                for obs in self.obstacles:
+                    self.grid.remove_object_from_grid(obs.location, obs)
+                self.obstacles = []
+                try:
+                    [agent.shared_content.pop('Obstacles') for agent in self.agents]
+                except KeyError:
+                    pass
+            elif self.args.removeobject == 'Traps':
+                for trap in self.traps:
+                    self.grid.remove_object_from_grid(trap.location, trap)
+                self.traps = []
+                try:
+                    [agent.shared_content.pop('Traps') for agent in self.agents]
+                except KeyError:
+                    pass
+
+    def place_site(self, coordinate=(-np.inf, -np.inf), radius=10):
+        theta = np.linspace(0, 2*np.pi, 36)
+        while True:
+            if coordinate[0] == -np.inf and coordinate[1] == -np.inf:
+                t = self.random.choice(theta, 1, replace=False)[0]
+                x = int(
+                    self.hub.location[0] + np.cos(t) * self.random.choice(
+                        range(0, int(self.grid.width/2.2))))
+                y = int(
+                    self.hub.location[1] + np.sin(t) * self.random.choice(
+                        range(0, int(self.grid.height/2.2))))
+                location = (x, y)
+            else:
+                location = eval(coordinate)
+            # radius = 10
+            q_value = 0.9
+            other_bojects = self.grid.get_objects_from_list_of_grid(None, self.grid.get_neighborhood(location, radius))
+            # Will need to update the below filter when cue is used
+            other_bojects = [o for o in other_bojects if not isinstance(o, LearningAgent)]
+            if len(other_bojects) == 0:
+                site = Sites(
+                        0, location, radius, q_value=q_value)
+                self.grid.add_object_to_grid(location, site)
+                self.sites.append(site)
+                # self.site = site
+                break
+
+    def place_static_objs(self, obj, radius, coordinate=(-np.inf, -np.inf)):
+        theta = np.linspace(0, 2*np.pi, 36)
+        while True:
+            if coordinate[0] == -np.inf and coordinate[1] == -np.inf:
+                dist = self.random.choice(range(25, self.grid.width//2, 5))
+                t = self.random.choice(theta, 1, replace=False)[0]
+                x = int(0 + np.cos(t) * dist)
+                y = int(0 + np.sin(t) * dist)
+                location = (x, y)
+            else:
+                location = eval(coordinate)
+                dist = 0
+            other_bojects = self.grid.get_objects_from_list_of_grid(None, self.grid.get_neighborhood(location, radius))
+            # Will need to update the below filter when cue is used
+            other_bojects = [o for o in other_bojects if not isinstance(o, LearningAgent)]
+            # print(obj, radius, location)
+            if len(other_bojects) == 0:
+                envobj = obj(
+                        dist, location, radius)
+                self.grid.add_object_to_grid(location, envobj)
+                # bojects = self.grid.get_objects_from_list_of_grid('Traps', self.grid.get_neighborhood(location, radius))
+                # print('reverse', bojects)
+                if isinstance(envobj, Traps):
+                    self.traps += [envobj]
+                if isinstance(envobj, Obstacles):
+                    self.obstacles += [envobj]
+                if isinstance(envobj, Hub):
+                    self.hubs += [envobj]
+                break
+
+
+class EvolveModel(CoevolutionModel):
     """A environemnt to model swarms."""
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="EvoNestMNewPPA1", viewer=False, db=False, fitid=0):
+            seed=None, name="EvoCoevolutionPPA", viewer=False, db=False,
+            threshold=10, gstep=200, expp=2, args=[]):
         """Initialize the attributes."""
         super(EvolveModel, self).__init__(
-            N, width, height, grid, iter, seed, name, viewer, db=db, fitid=fitid)
+            N, width, height, grid, iter, seed, name, viewer, db=db,
+            threshold=threshold, gstep=gstep, expp=expp, args=args)
+        # self.parser = LTLfParser()
 
     def create_agents(self, random_init=True, phenotypes=None):
         """Initialize agents in the environment."""
         # Create agents
         for i in range(self.num_agents):
-            a = LearningAgent(i, self)
+            a = LearningAgent(i, self, self.threshold)
             # Add agent to the scheduler
             self.schedule.add(a)
             # Add the hub to agents memory
             a.shared_content['Hub'] = {self.hub}
-            a.shared_content['Boundary'] = {self.boundary}
             # First intitialize the Genetic algorithm. Then BT
             a.init_evolution_algo()
             # Initialize the BT. Since the agents are evolutionary
@@ -468,10 +639,10 @@ class EvolveModel(NestMModel):
         # neighbours = grid.get_neighborhood(hub_loc, 20)
         # food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
         phenotypes = dict()
-        for debri in self.debris:
+        for food in self.foods:
             # phenotypes += list(food.phenotype.values())
             try:
-                phenotypes = {**debri.phenotype, ** phenotypes}
+                phenotypes = {**food.phenotype, ** phenotypes}
             except (AttributeError, ValueError):
                 pass
         # print ('phenotypes for attached objects', phenotypes)
@@ -480,29 +651,50 @@ class EvolveModel(NestMModel):
     def step(self):
         """Step through the environment."""
         # Gather info to plot the graph
-        try:
-            # self.gather_info()
-            pass
-            # agent = self.agents[idx]
-            # print(
-            #    idx, agent.individual[0].phenotype,
-            #    agent.individual[0].fitness, agent.food_collected)
-        except FloatingPointError:
-            pass
+        # try:
+        #     # self.gather_info()
+        #     pass
+        #     # agent = self.agents[idx]
+        #     # print(
+        #     #    idx, agent.individual[0].phenotype,
+        #     #    agent.individual[0].fitness, agent.food_collected)
+        # except FloatingPointError:
+        #     pass
 
         # Next step
         self.schedule.step()
+
+        # Disturbances
+        if self.stepcnt == self.args.time:
+            # Perform the pertrubations
+            # print('sites', [(site.location, site.radius) for site in self.sites])
+            # print('hubs', [(site.location, site.radius) for site in self.hubs])
+            # print('obstacles', [(site.location, site.radius) for site in self.obstacles])
+            # print('trap', [(site.location, site.radius) for site in self.traps])
+            # print('foods', [(site.location, site.radius) for site in self.foods])
+            # print('----------------')
+            self.add_object()
+            # self.remove_object()
+            # self.move_object()
+            # self.jam_communication()
+            # print('sites', [(site.location, site.radius) for site in self.sites])
+            # print('hubs', [(site.location, site.radius) for site in self.hubs])
+            # print('obstacles', [(site.location, site.radius) for site in self.obstacles])
+            # print('trap', [(site.location, site.radius) for site in self.traps])
+            # print('foods', [(site.location, site.radius) for site in self.foods])
+            # exit()
+
         # input('Enter to continue' + str(self.stepcnt))
         # Increment the step count
         self.stepcnt += 1
 
 
-class ValidationModel(NestMModel):
+class ValidationModel(CoevolutionModel):
     """A environemnt to validate swarm behaviors."""
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="ValidateNestMNewPPA1", viewer=False,
+            seed=None, name="ValidateCoevoPPA", viewer=False,
             parent=None, ratio=1.0, db=False):
         """Initialize the attributes."""
         super(ValidationModel, self).__init__(
@@ -577,12 +769,12 @@ class ValidationModel(NestMModel):
             return [phenotypes[0]]
 
 
-class TestModel(NestMModel):
+class TestModel(CoevolutionModel):
     """A environemnt to test swarm behavior performance."""
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="TestNestMNewPPA1", viewer=False,
+            seed=None, name="TestCoevoPPA", viewer=False,
             parent=None, ratio=1.0, db=False):
         """Initialize the attributes."""
         super(TestModel, self).__init__(
@@ -657,12 +849,12 @@ class TestModel(NestMModel):
             return [phenotypes[0]]
 
 
-class ViewerModel(NestMModel):
+class ViewerModel(CoevolutionModel):
     """A environemnt to test swarm behavior performance."""
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="ViewerNestMPPA1", viewer=True, db=False):
+            seed=None, name="ViewerCoevoPPA", viewer=True, db=False):
         """Initialize the attributes."""
         super(ViewerModel, self).__init__(
             N, width, height, grid, iter, seed, name, viewer, db=db)
@@ -720,18 +912,18 @@ class ViewerModel(NestMModel):
             self.ui.step()
 
 
-class SimNestMModel(Model):
+class SimCoevoModel(Model):
     """A environemnt to model swarms."""
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
             xmlstrings=None, seed=None, viewer=False, pname=None,
-            agent=ExecutingAgent, expsite=None, trap=5, obs=5, notrap=1, noobs=1):
+            agent=ExecutingAgent, expsite=None, trap=5, obs=5, notrap=1, noobs=1, nosite=1):
         """Initialize the attributes."""
         if seed is None:
-            super(SimNestMModel, self).__init__(seed=None)
+            super(SimCoevoModel, self).__init__(seed=None)
         else:
-            super(SimNestMModel, self).__init__(seed)
+            super(SimCoevoModel, self).__init__(seed)
 
         self.width = width
         self.height = height
@@ -746,6 +938,7 @@ class SimNestMModel(Model):
         self.obs_radius = obs
         self.no_trap = notrap
         self.no_obs = noobs
+        self.no_site = nosite
         # print('agent type', agent)
         # # Create db connection
         # try:
@@ -768,9 +961,9 @@ class SimNestMModel(Model):
             self.runid = datetime.datetime.now().strftime(
                     "%s") + str(self.random.randint(1, 10000, 1)[0])
             if pname is None:
-                self.pname = os.getcwd() + '/' + self.runid + "NestMSimulation"
+                self.pname = os.getcwd() + '/' + self.runid + "CoevoSimulation"
             else:
-                self.pname = pname + '/' + self.runid + "NestMSimulation"
+                self.pname = pname + '/' + self.runid + "CoevoSimulation"
             if not Path(self.pname).exists():
                 Path(self.pname).mkdir(parents=True, exist_ok=False)
                 break
@@ -794,6 +987,7 @@ class SimNestMModel(Model):
             a = self.agent(i, self, xmlstring=self.xmlstrings)
             self.schedule.add(a)
             # Add the hub to agents memory
+            # a.shared_content['Hub'] = {self.hub}
             # Initialize the BT. Since the agents are normal agents just
             # use the phenotype
             a.construct_bt()
@@ -830,9 +1024,11 @@ class SimNestMModel(Model):
             q_value = 0.9
             other_bojects = self.grid.get_objects_from_list_of_grid(None, self.grid.get_neighborhood((x,y), radius))
             if len(other_bojects) == 0:
-                self.site = Sites(
+                site = Sites(
                         0, location, radius, q_value=q_value)
-                self.grid.add_object_to_grid(location, self.site)
+                self.grid.add_object_to_grid(location, site)
+                self.sites.append(site)
+                self.site = site
                 break
 
     def place_static_objs(self, obj, radius):
@@ -907,7 +1103,9 @@ class SimNestMModel(Model):
         # print(self.obstacles.passable)
         # self.traps = self.render.objects['traps'][0]
         # add site with random distances
-        self.place_site()
+        self.sites = []
+        for s in range(self.no_site):
+            self.place_site()
         # print(self.traps, self.obstacles)
         # print(self.traps, self.obstacles, self.hub, self.site)
         # location = (self.expsite["x"], self.expsite["y"])
@@ -917,17 +1115,20 @@ class SimNestMModel(Model):
 
         # self.grid.add_object_to_grid(location, self.site)
 
-        # try:
-        #     # self.site = self.render.objects['sites'][0]
-        #     self.foods = []
-        #     for i in range(self.num_agents * 1):
-        #         f = Food(
-        #             i, location=self.site.location, radius=self.site.radius)
-        #         f.agent_name = None
-        #         self.grid.add_object_to_grid(f.location, f)
-        #         self.foods.append(f)
-        # except KeyError:
-        #     pass
+        try:
+            # self.site = self.render.objects['sites'][0]
+            self.total_food_units = 0
+            self.foods = []
+            site_idxs = self.random.choice(range(len(self.sites)), self.num_agents)
+            for i in range(self.num_agents * 1):
+                f = Food(
+                    i, location=self.sites[site_idxs[i]].location, radius=self.sites[0].radius)
+                f.agent_name = None
+                self.grid.add_object_to_grid(f.location, f)
+                self.total_food_units += f.weight
+                self.foods.append(f)
+        except KeyError:
+            pass
 
         # Add trap
         # try:
@@ -991,10 +1192,31 @@ class SimNestMModel(Model):
     def food_in_hub(self):
         """Find amount of food in hub."""
         grid = self.grid
-        food_loc = self.hub.location
-        neighbours = grid.get_neighborhood(food_loc, 10)
+        hub_loc = self.hub.location
+        neighbours = grid.get_neighborhood(hub_loc, self.hub.radius)
         food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
-        return len(food_objects)
+        _, hub_grid = grid.find_grid(hub_loc)
+        for food in self.foods:
+            _, food_grid = grid.find_grid(food.location)
+            if food_grid == hub_grid:
+                food_objects += [food]
+        food_objects = set(food_objects)
+        total_food_weights = sum([food.weight for food in food_objects])
+        return int(((total_food_weights * 1.0) / self.total_food_units) * 100)
+        # return len(food_objects)
+
+    def debris_cleaned(self):
+        """Find amount of debris cleaned."""
+        debris_objects = []
+        grid = self.grid
+        for boundary in [self.boundary]:
+            boundary_loc = boundary.location
+            neighbours = grid.get_neighborhood(boundary_loc, boundary.radius)
+            debris_objects += grid.get_objects_from_list_of_grid('Debris', neighbours)
+        debris_objects = set(debris_objects)
+        total_debris_weights = sum(
+            [debris.weight for debris in debris_objects])
+        return round(((total_debris_weights * 1.0) / self.total_debris_units) * 100, 2)
 
     def food_in_loc(self, loc):
         """Find amount of food in hub."""

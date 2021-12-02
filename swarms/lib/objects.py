@@ -29,6 +29,7 @@ class Hub(EnvironmentObject):
         self.passable = True
         self.deathable = False
         self.moveable = False
+        self.dropped_objects = list()
 
 
 # Class to define site object
@@ -80,6 +81,7 @@ class Obstacles(EnvironmentObject):
         self.passable = False
         self.deathable = False
         self.moveable = False
+        self.dropped_objects = list()
 
 
 # Class to define carryable property
@@ -272,3 +274,4 @@ class Boundary(EnvironmentObject):
         self.passable = True
         self.deathable = False
         self.moveable = False
+        self.dropped_objects = list()

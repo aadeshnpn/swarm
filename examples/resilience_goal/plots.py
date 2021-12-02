@@ -1079,17 +1079,17 @@ def get_info_database(agent_size=50):
     connect = connect.tns_connect()
     exestat = Execute(connect)
     total_exp = exestat.cursor.execute(
-        "select count(*) from experiment where sn>=18169 and agent_size=" + "'" + str(agent_size) +
+        "select count(*) from experiment where sn>=18169 and sn<=18312 and agent_size=" + "'" + str(agent_size) +
         "'")
     total_exp = exestat.cursor.fetchall()[0][0]
     total_sucess = exestat.cursor.execute(
-        "select count(*) from experiment where sn>=18169 and sucess=true and agent_size=" + "'" + str(agent_size) +
+        "select count(*) from experiment where sn>=18169 and sn<=18312 and sucess=true and agent_size=" + "'" + str(agent_size) +
         "'")
     total_sucess = exestat.cursor.fetchall()[0][0]
     hitrate = round((total_sucess / (total_exp * 1.0)) * 100, 2)
 
     time_value_data = exestat.cursor.execute(
-        "select DATEDIFF('second',create_date::timestamp, end_date::timestamp) as runtime, total_value from experiment where sn>=18169 and sucess=true and agent_size=" + "'" + str(agent_size) +
+        "select DATEDIFF('second',create_date::timestamp, end_date::timestamp) as runtime, total_value from experiment where sn>=18169 and sn<=18312 and sucess=true and agent_size=" + "'" + str(agent_size) +
         "'")
     time_value_data = exestat.cursor.fetchall()
     runtime, values = zip(*time_value_data)
@@ -1098,25 +1098,21 @@ def get_info_database(agent_size=50):
 
 
 def plot_evolution_algo_performance():
-    plt.style.use('fivethirtyeight')
+    # plt.style.use('fivethirtyeight')
     agent_sizes = [50, 100, 150, 200]
-    datas = [get_info_database(n) for n in agent_sizes]
-    print('hitrates', agent_sizes, [data[2] for data in datas])
-    runtime_data = [np.array(data[3]) for data in datas]
-    values_data = [np.array(data[4]) for data in datas]
-    fig = plt.figure()
+    dataf = [read_data_n_agent_6000(n=a)[:,-1] for a in agent_sizes]
+    datat = [read_data_time(n=a) for a in agent_sizes]
 
-    ax1 = fig.add_subplot(2, 1, 1)
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    ax1 = fig.add_subplot(1, 1, 1)
     colordict = {
-        0: 'forestgreen',
-        1: 'gold',
-        2: 'royalblue',
-        3: 'orchid',
+        0: 'gold',
+        1: 'linen',
+        2: 'orchid',
+        3: 'peru',
         4: 'olivedrab',
-        5: 'peru',
-        6: 'linen',
-        7: 'indianred',
-        8: 'tomato'}
+        5: 'indianred',
+        6: 'tomato'}
     colorshade = [
         'springgreen', 'lightcoral',
         'khaki', 'lightsalmon', 'deepskyblue']
@@ -1125,29 +1121,120 @@ def plot_evolution_algo_performance():
     medianprops = dict(linewidth=2.5, color='firebrick')
     meanprops = dict(linewidth=2.5, color='#ff7f0e')
     # data = [data[:, i] for i in range(4)]
-    bp1 = ax1.boxplot(
-        runtime_data, 0, 'gD', showmeans=True, meanline=True,
-        patch_artist=True, medianprops=medianprops,
-        meanprops=meanprops)
-    for patch, color in zip(bp1['boxes'], colordict.values()):
-        patch.set_facecolor(color)
-    # plt.xlim(0, len(mean))
-    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="lower right", title='Agent Size')
+    positions = [
+        [1], [4], [7], [10]
+        ]
+    # print(len(values_data), len(runtime_data))
+    datas = [
+        [dataf[0]],
+        [dataf[1]],
+        [dataf[2]],
+        [dataf[3]],
+    ]
+
+    for j in range(len(positions)):
+        bp1 = ax1.boxplot(
+            datas[j], 0, 'gD', showmeans=True, meanline=True,
+            patch_artist=True, medianprops=medianprops,
+            meanprops=meanprops, positions=positions[j], widths=0.8)
+        for patch, color in zip(bp1['boxes'], colordict.values()):
+            patch.set_facecolor('gold')
+        # plt.xlim(0, len(mean))
+    ax2 = ax1.twinx()
+    positions = [
+        [2], [5], [8], [11]
+        ]
+    datas = [
+        [datat[0]],
+        [datat[1]],
+        [datat[2]],
+        [datat[3]],
+    ]
+
+    for j in range(len(positions)):
+        bp2 = ax2.boxplot(
+            datas[j], 0, 'gD', showmeans=True, meanline=True,
+            patch_artist=True, medianprops=medianprops,
+            meanprops=meanprops, positions=positions[j], widths=0.8)
+        for patch, color in zip(bp2['boxes'], colordict.values()):
+            patch.set_facecolor('deepskyblue')
+
+    ax1.legend([bp1['boxes'][0], bp2['boxes'][0]], ['Foraing (%)', 'Runtime (secs)'], fontsize="small", loc="upper left", title='Performance Metric')
+    # ax2.legend(zip(bp2['boxes']), ['Runtime (secs)'], fontsize="small", loc="lower right", title='Performance Measures')
+    ax1.set_xticks(
+        [1.5, 4.5, 7.5, 10.5
+         ])
+    ax1.set_xticklabels(labels)
+    ax1.set_xlabel('Agent size', fontsize="large")
+    ax1.set_ylabel('Foraing (%)', fontsize="large")
+    ax1.set_yticks(range(0, 105, 20))
+
+    ax2.set_ylabel('Runtime (Secs)', fontsize="large")
+    ax2.set_yticks(range(0, 10000, 2000))
+
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments/'
+    # fname = 'agentsitecomp' + agent
+    nadir = os.path.join(maindir, str(50))
+
+    fig.savefig(
+        nadir + 'evolutionperform2axes' + '.png')
+    plt.close(fig)
+
+
+def plot_evolution_algo_performance_boxplot():
+    # plt.style.use('fivethirtyeight')
+    agent_sizes = [50, 100, 150, 200]
+    datas = [get_info_database(n) for n in agent_sizes]
+    print('hitrates', agent_sizes, [data[2] for data in datas])
+    runtime_data = [np.array(data[3])/100 for data in datas]
+    values_data = [np.array(data[4]) for data in datas]
+    fig = plt.figure()
+
+    ax1 = fig.add_subplot(1, 1, 1)
+    colordict = {
+        0: 'gold',
+        1: 'peru',
+        2: 'orchid',
+        3: 'olivedrab',
+        4: 'linen',
+        5: 'indianred',
+        6: 'tomato'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+
+    labels = [str(a) for a in agent_sizes]
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    # data = [data[:, i] for i in range(4)]
+    positions = [
+        [1, 2], [4, 5], [7, 8], [10, 11]
+        ]
+    print(len(values_data), len(runtime_data))
+    datas = [
+        [values_data[0], runtime_data[0]],
+        [values_data[1], runtime_data[1]],
+        [values_data[2], runtime_data[2]],
+        [values_data[3], runtime_data[3]],
+    ]
+
+    for j in range(len(positions)):
+        bp1 = ax1.boxplot(
+            datas[j], 0, 'gD', showmeans=True, meanline=True,
+            patch_artist=True, medianprops=medianprops,
+            meanprops=meanprops, positions=positions[j], widths=0.8)
+        for patch, color in zip(bp1['boxes'], colordict.values()):
+            patch.set_facecolor(color)
+        # plt.xlim(0, len(mean))
+    ax1.legend(zip(bp1['boxes']), ['Foraing (%)', 'Runtime (%)'], fontsize="small", loc="lower right", title='Performance Measures')
+    ax1.set_xticks(
+        [1.5, 4.5, 7.5, 10.5
+         ])
     ax1.set_xticklabels(labels)
     ax1.set_xlabel('Agent size')
-    ax1.set_ylabel('Run Time (Secs)')
-
-    ax2 = fig.add_subplot(2, 1, 2)
-    bp2 = ax2.boxplot(
-        values_data, 0, 'gD', showmeans=True, meanline=True,
-        patch_artist=True, medianprops=medianprops,
-        meanprops=meanprops)
-    for patch, color in zip(bp2['boxes'], colordict.values()):
-        patch.set_facecolor(color)
-    ax1.legend(zip(bp1['boxes']), labels, fontsize="small", loc="lower right", title='Agent Size')
-    ax2.set_xticklabels(labels)
-    ax2.set_xlabel('Agent size')
-    ax2.set_ylabel('Foraging (%)')
+    ax1.set_ylabel('Foraing (%) / Runtime (%)')
+    ax1.set_yticks(range(0, 105, 20))
 
     plt.tight_layout()
     maindir = '/tmp/swarm/data/experiments/'
@@ -1935,6 +2022,7 @@ def main():
     # boxplot_exp_agent_varying()
     # plot_sampling_differences()
     # compare_sampling_differences()
+    plot_evolution_algo_performance()
 
 
 if __name__ == '__main__':

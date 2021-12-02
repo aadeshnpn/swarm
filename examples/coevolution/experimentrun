@@ -1,0 +1,114 @@
+#!/bin/bash
+
+
+## Online distrubances addition
+### Obstacles addition
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 1000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 2000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 3000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 4000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 5000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 6000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 1000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 2000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 3000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 4000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 5000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 6000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 7000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 8000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 9000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 10000 --no_objects 5 --addobject Obstacles --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 11000 --no_objects 5 --addobject Obstacles --radius 10
+
+### Traps addition
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 1000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 2000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 3000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 4000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 5000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 6000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 1000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 2000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 3000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 4000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 5000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 6000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 7000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 8000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 9000 --no_objects 5 --addobject  Traps --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 10000 --no_objects 5 --addobject Traps  --radius 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 11000 --no_objects 5 --addobject Traps  --radius 10
+
+
+
+## Standard experiment
+
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 25
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 50
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 75
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 100
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 150
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 250
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 300
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 400
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 500
+
+
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 1
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 2
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 3
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 4
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 5
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 7
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 11
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 13
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 17
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 19
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 23
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 29
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 31
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 37
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 41
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 47
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 50
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 60
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 70
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --gstep 200 --expp 80
+
+
+
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 2
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 2 --n 100
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 3
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 3 --n 100
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 4
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 4 --n 100
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 5 --n 100
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 6
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 6 --n 100
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 7
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 7 --n 100
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 8
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 8 --n 100
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 9
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 9 --n 100
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 10
+# python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --threshold 10 --n 100
+
+
+# Experiment 4
+# python experiments.py --exp_no 0 --runs 36 --thread 18 --dry_ru
+# python experiments.py --exp_no 1 --runs 36 --thread 18 --dry_ru
+# python experiments.py --exp_no 2 --runs 36 --thread 18 --dry_ru
+# python experiments.py --exp_no 3 --runs 36 --thread 18 --dry_ru
+# python experiments.py --exp_no 4 --runs 36 --thread 18 --dry_ru
+# python experiments.py --exp_no 5 --runs 72 --thread 18 --dry_ru
+
+# python experiments.py --exp_no 5 --runs 18 --thread 18 --obstacle_size=1 --trap_size=15 --dry_run
+# python experiments.py --exp_no 5 --runs 18 --thread 18 --obstacle_size=1 --trap_size=9 --dry_run
+# python experiments.py --exp_no 5 --runs 18 --thread 18 --obstacle_size=1 --trap_size=13 --dry_run
+# python experiments.py --exp_no 5 --runs 18 --thread 18 --obstacle_size=1 --trap_size=3 --dry_run
+# python experiments.py --exp_no 5 --runs 18 --thread 18 --obstacle_size=1 --trap_size=1 --dry_run
