@@ -50,6 +50,7 @@ class CoevoAgent(Agent):
         self.step_count = 0
 
         self.fitness_name = True
+        self.lt = False     # LT flag
 
     def init_evolution_algo(self):
         """Agent's GE algorithm operation defination."""
@@ -300,11 +301,12 @@ class LearningAgent(CoevoAgent):
 
     def get_food_in_hub(self, agent_name=True):
         """Get the food in the hub stored by the agent."""
-        grid = self.model.grid
-        hub_loc = self.model.hub.location
-        neighbours = grid.get_neighborhood(hub_loc, self.model.hub.radius)
-        food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+        # grid = self.model.grid
+        # hub_loc = self.model.hub.location
+        # neighbours = grid.get_neighborhood(hub_loc, self.model.hub.radius)
+        # food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
         agent_food_objects = []
+        food_objects = list(set(self.hub.dropped_objects))
         if not agent_name:
             for food in food_objects:
                 agent_food_objects.append(food.weight)
@@ -368,7 +370,8 @@ class LearningAgent(CoevoAgent):
         storage_threshold = len(
             self.genome_storage) >= self.threshold # (self.model.num_agents / (self.threshold* 1.0))
 
-        if storage_threshold: # and self.food_collected <= 0:
+        if storage_threshold:
+            self.lt = storage_threshold
             self.genetic_step()
         elif (
                 (

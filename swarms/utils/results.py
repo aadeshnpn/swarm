@@ -345,3 +345,73 @@ class SimulationResultsTraps:
         data = list(self.context.values())
         dbexec = Dbexecute(self.connect)
         dbexec.insert_experiment_best(data)
+
+
+class SimulationResultsLt:
+    """Define the simluation results atrributes.
+
+    This class defines the best attributes for each experiments for all
+    agents.
+    """
+
+    def __init__(
+        self, foldername, connect, id, step, fitness,
+        phenotype, deadagent, ltrate, db=False
+            ):
+        """Initialize the attributes."""
+        self.foldername = foldername
+        self.connect = connect
+        self.phenotype = phenotype
+        self.deadagent = deadagent
+        self.db_flag = db
+        self.ltrate = ltrate
+
+        self.context = OrderedDict([
+            ("id", id),
+            ("step", step),
+            ("fitness", float(fitness)),
+            ("deadagent", deadagent),
+            ("ltrate", ltrate),
+        ])
+
+        self.template = """{id}|{step}|{fitness}|{deadagent}|{ltrate}
+        """
+        # Write a header to the file for pandas dataframe
+        self.header = """id|step|fitness|deadagent|ltrate\n
+        """
+
+    def save(self):
+        """Save to both medium."""
+        self.save_to_file()
+        if self.db_flag:
+            try:
+                self.save_to_db()
+            except Exception as Err:
+                pass
+
+    def save_phenotype(self):
+        """Save the phenotype to a separate file."""
+        fname = self.foldername + '/' + 'phenotype.txt'
+        with open(fname, 'w') as pfile:
+            pfile.write(self.phenotype)
+
+    def save_to_file(self):
+        """Save results to a flat file."""
+        filename = self.foldername + '/' + 'simulation.csv'
+        # Create a path to the filename
+        result_file = Path(filename)
+
+        # Check if the file exists
+        if result_file.is_file():
+            with open(filename, 'a') as statsfile:
+                statsfile.write(self.template.format(**self.context))
+        else:
+            with open(filename, 'a') as statsfile:
+                statsfile.write(self.header)
+                statsfile.write(self.template.format(**self.context))
+
+    def save_to_db(self):
+        """Save results to a database."""
+        data = list(self.context.values())
+        dbexec = Dbexecute(self.connect)
+        dbexec.insert_experiment_best(data)

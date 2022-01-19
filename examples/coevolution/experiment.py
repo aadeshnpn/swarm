@@ -9,7 +9,7 @@ from model import EvolveModel
 from swarms.utils.jsonhandler import JsonPhenotypeData
 from swarms.utils.graph import Graph, GraphACC  # noqa : F401
 from joblib import Parallel, delayed    # noqa : F401
-from swarms.utils.results import SimulationResults, SimulationResultsTraps, Results
+from swarms.utils.results import SimulationResultsLt, Results
 # import py_trees
 # Global variables for width and height
 width = 100
@@ -41,9 +41,10 @@ def learning_phase(args):
     # Take a step i number of step in evolution environment
     # Take a 1000 step in validation environment sampling from the evolution
     # Make the validation envronmnet same as the evolution environment
-    results = SimulationResultsTraps(
+    results = SimulationResultsLt(
         env.pname, env.connect, env.sn, env.stepcnt,
-        env.foraging_percent(), None, env.maintenance_percent(), db=False
+        env.foraging_percent(), None, env.maintenance_percent(),
+        env.compute_lt_rate(), db=False
         )
     # Save the data in a result csv file
     results.save_to_file()
@@ -51,9 +52,10 @@ def learning_phase(args):
     for i in range(iteration):
         # Take a step in evolution
         env.step()
-        results = SimulationResultsTraps(
+        results = SimulationResultsLt(
             env.pname, env.connect, env.sn, env.stepcnt,
-            env.foraging_percent(), None, env.maintenance_percent(), db=False
+            env.foraging_percent(), None, env.maintenance_percent(),
+            env.compute_lt_rate(), db=False
             )
         # Save the data in a result csv file
         results.save_to_file()
@@ -69,10 +71,10 @@ def learning_phase(args):
 
     # print('max, min generations', np.max(generations), np.min(generations))
     # pdb.set_trace()
-    allphenotypes = env.behavior_sampling_objects(ratio_value=1.0)
-    # save the phenotype to json file
-    phenotype_to_json(
-        env.pname, env.runid + '-' + 'all', allphenotypes)
+    # allphenotypes = env.behavior_sampling_objects(ratio_value=1.0)
+    # # save the phenotype to json file
+    # phenotype_to_json(
+    #     env.pname, env.runid + '-' + 'all', allphenotypes)
 
     # print('total generation', [agent.generation for agent in env.agents])
     # try:

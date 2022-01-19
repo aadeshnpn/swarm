@@ -518,6 +518,9 @@ class CoevolutionModel(Model):
                     self.hubs += [envobj]
                 break
 
+    def compute_lt_rate(self):
+        return sum([agent.lt for agent in self.agents])
+
 
 class EvolveModel(CoevolutionModel):
     """A environemnt to model swarms."""
