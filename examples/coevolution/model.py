@@ -58,7 +58,7 @@ class CoevolutionModel(Model):
                 str(N), str(iter), str(threshold), str(gstep), str(expp),
                 str(args.addobject), str(args.removeobject),
                 str(args.no_objects), str(args.radius),
-                str(args.time),
+                str(args.time), str(args.iprob),
                 str(self.runid) + name
                 )
         Path(self.pname).mkdir(parents=True, exist_ok=True)
@@ -96,6 +96,8 @@ class CoevolutionModel(Model):
         self.schedule = SimultaneousActivation(self)
         # Empty list of hold the agents
         self.agents = []
+        # Interaction Probability
+        self.iprob = args.iprob
 
     def create_agents(self, random_init=True, phenotypes=None):
         """Initialize agents in the environment."""

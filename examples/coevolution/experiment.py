@@ -165,6 +165,7 @@ if __name__ == '__main__':
     parser.add_argument('--location', default=(-np.inf, -np.inf), type=str)
     parser.add_argument('--radius', default=5, type=int)
     parser.add_argument('--time', default=10000, type=int)
+    parser.add_argument('--iprob', default=0.85, type=float)
     args = parser.parse_args()
     print(args)
     experiments(args)

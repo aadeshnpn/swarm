@@ -330,6 +330,7 @@ class LearningAgent(CoevoAgent):
         self.timestamp += 1
         self.step_count += 1
         self.prev_location = copy.copy(self.location)
+        self.lt = False
         # Increase beta
         # self.beta = self.timestamp / self.model.iter
         # if self.name ==1:
@@ -358,8 +359,14 @@ class LearningAgent(CoevoAgent):
         cellmates = self.model.grid.get_objects_from_grid(
             type(self).__name__, self.location)
 
+        # Interaction Probability with other agents
+        cellmates = [cell for cell in cellmates  if self.model.random.rand() < self.model.iprob]
         # If neighbours found, store the genome
         if len(cellmates) > 1:
+            # cellmates = list(self.model.random.choice(
+            #     cellmates, self.model.random.randint(
+            #         1, len(cellmates)-1), replace=False))
+
             self.store_genome(cellmates)
 
         # Logic for gentic operations.
