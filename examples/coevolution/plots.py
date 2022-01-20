@@ -129,14 +129,14 @@ def read_data_n_agent_threshold_new(n=100, iter=12000, threshold=10, gstep=200, 
 def read_data_n_agent_perturbations(
         n=100, iter=12000, threshold=10, gstep=200, expp=2,
         addobject=None, removeobject=None, no_objects=1, radius=5,
-        time=13000):
+        time=13000, iprob=0.85):
     maindir = '/tmp/swarm/data/experiments/EvoCoevolutionPPA/'
     nadir = os.path.join(
                 '/tmp', 'swarm', 'data', 'experiments', 'EvoCoevolutionPPA',
                 str(n), str(iter), str(threshold), str(gstep), str(expp),
                 str(addobject), str(removeobject),
                 str(no_objects), str(radius),
-                str(time)
+                str(time), str(iprob)
                 )
     print(nadir)
     folders = pathlib.Path(nadir).glob("*EvoCoevolutionPPA")
@@ -242,6 +242,42 @@ def plot_obstacles_time():
 
     fig.savefig(
         nadir + 'coevolutionobstaclestime' + '.png')
+    plt.close(fig)
+
+
+def plot_lt_rate():
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    time = [1000, 2000, 3000, 4000, 5000, 6000, 7000]
+    # obstaclestime = [read_data_n_agent_perturbations(addobject='Obstacles', no_objects=5, radius=10, time=t) for t in time]
+    _,_,lowf,_,low = np.genfromtxt('/tmp/low.csv', autostrip=True, unpack=True, delimiter='|')
+    _,_,highf,_,high = np.genfromtxt('/tmp/high.csv', autostrip=True, unpack=True, delimiter='|')
+    ax1 = fig.add_subplot(1, 1, 1)
+    xvalues = range(12002)
+    ax1.scatter(xvalues, low,label='Worst Collective', alpha=0.2, s=5)
+    ax1.scatter(xvalues, high,label='Best Collective', alpha=0.2, s=5)
+    ax1.legend(fontsize="small", loc="upper left", title='LT Rate')
+    ax1.set_xlabel('Evolution Steps')
+    ax1.set_ylabel('LT Rate')
+    ax1.set_yticks(range(0, 105, 20))
+
+    ax2 = ax1.twinx()
+    ax2.plot(xvalues, lowf, label='Low Foraging (%)', linewidth=2)
+    ax2.plot(xvalues, highf, label='High Foraging (%)', linewidth=2)
+    # traps_mean = np.mean(traps, axis=1)
+    ax2.legend(fontsize="small", loc="upper right", title='Foraging (%)')
+
+    # ax1.set_xticklabels(['Foraging', 'Maintenance'])
+    ax2.set_xlabel('Evolution Steps')
+    ax2.set_ylabel('Foraging %')
+    ax2.set_yticks(range(0, 105, 20))
+
+    plt.tight_layout()
+    maindir = '/tmp/'
+    # fname = 'agentsitecomp' + agent
+    nadir = os.path.join(maindir, str(50))
+
+    fig.savefig(
+        nadir + 'coevolutionltrate' + '.png')
     plt.close(fig)
 
 
@@ -874,7 +910,8 @@ def main():
     # exploration_parameter()
     # generationstep_parameter()
     # plot_none_obstacles_trap()
-    plot_obstacles_time()
+    # plot_obstacles_time()
+    plot_lt_rate()
 
 
 if __name__ == '__main__':
