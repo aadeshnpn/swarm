@@ -356,7 +356,7 @@ class SimulationResultsLt:
 
     def __init__(
         self, foldername, connect, id, step, fitness,
-        phenotype, deadagent, ltrate, db=False
+        phenotype, deadagent, ltrateavg, ltratestd, grate, db=False
             ):
         """Initialize the attributes."""
         self.foldername = foldername
@@ -364,20 +364,24 @@ class SimulationResultsLt:
         self.phenotype = phenotype
         self.deadagent = deadagent
         self.db_flag = db
-        self.ltrate = ltrate
+        self.ltrateavg = ltrateavg
+        self.ltratestd = ltratestd
+        self.grate = grate
 
         self.context = OrderedDict([
             ("id", id),
             ("step", step),
             ("fitness", float(fitness)),
             ("deadagent", deadagent),
-            ("ltrate", ltrate),
+            ("ltrateavg", ltrateavg),
+            ("ltratestd", ltratestd),
+            ("grate", grate),
         ])
 
-        self.template = """{id}|{step}|{fitness}|{deadagent}|{ltrate}
+        self.template = """{id}|{step}|{fitness}|{deadagent}|{ltrateavg}|{ltratestd}|{grate}
         """
         # Write a header to the file for pandas dataframe
-        self.header = """id|step|fitness|deadagent|ltrate\n
+        self.header = """id|step|fitness|deadagent|ltrateavg|ltratestd|grate\n
         """
 
     def save(self):

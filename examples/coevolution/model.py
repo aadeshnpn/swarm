@@ -520,8 +520,17 @@ class CoevolutionModel(Model):
                     self.hubs += [envobj]
                 break
 
+    def compute_genetic_rate(self):
+        return sum([agent.geneticrate for agent in self.agents])
+
+
     def compute_lt_rate(self):
-        return sum([agent.lt for agent in self.agents])
+        ltarray = np.array([agent.ltrate for agent in self.agents])
+        mask = ltarray > 0
+        if ltarray[mask].shape[0] >=1:
+            return round(np.mean(ltarray[mask])), round(np.std(ltarray[mask]))
+        else:
+            return 0, 0
 
 
 class EvolveModel(CoevolutionModel):

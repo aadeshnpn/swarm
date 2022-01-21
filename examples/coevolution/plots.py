@@ -249,8 +249,8 @@ def plot_lt_rate():
     fig = plt.figure(figsize=(8,6), dpi=200)
     time = [1000, 2000, 3000, 4000, 5000, 6000, 7000]
     # obstaclestime = [read_data_n_agent_perturbations(addobject='Obstacles', no_objects=5, radius=10, time=t) for t in time]
-    _,_,lowf,_,low = np.genfromtxt('/tmp/low.csv', autostrip=True, unpack=True, delimiter='|')
-    _,_,highf,_,high = np.genfromtxt('/tmp/high.csv', autostrip=True, unpack=True, delimiter='|')
+    _,_,lowf,_,low = np.genfromtxt('/tmp/low1.csv', autostrip=True, unpack=True, delimiter='|')
+    _,_,highf,_,high = np.genfromtxt('/tmp/high1.csv', autostrip=True, unpack=True, delimiter='|')
     ax1 = fig.add_subplot(1, 1, 1)
     xvalues = range(12002)
     ax1.scatter(xvalues, low,label='Worst Collective', alpha=0.2, s=5)

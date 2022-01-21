@@ -41,10 +41,11 @@ def learning_phase(args):
     # Take a step i number of step in evolution environment
     # Take a 1000 step in validation environment sampling from the evolution
     # Make the validation envronmnet same as the evolution environment
+    ltrateavg, ltratestd = env.compute_lt_rate()
     results = SimulationResultsLt(
         env.pname, env.connect, env.sn, env.stepcnt,
         env.foraging_percent(), None, env.maintenance_percent(),
-        env.compute_lt_rate(), db=False
+        ltrateavg, ltratestd, env.compute_genetic_rate(), db=False
         )
     # Save the data in a result csv file
     results.save_to_file()
@@ -52,10 +53,11 @@ def learning_phase(args):
     for i in range(iteration):
         # Take a step in evolution
         env.step()
+        ltrateavg, ltratestd = env.compute_lt_rate()
         results = SimulationResultsLt(
             env.pname, env.connect, env.sn, env.stepcnt,
             env.foraging_percent(), None, env.maintenance_percent(),
-            env.compute_lt_rate(), db=False
+            ltrateavg, ltratestd, env.compute_genetic_rate(), db=False
             )
         # Save the data in a result csv file
         results.save_to_file()

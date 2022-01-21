@@ -50,7 +50,8 @@ class CoevoAgent(Agent):
         self.step_count = 0
 
         self.fitness_name = True
-        self.lt = False     # LT flag
+        self.ltrate = 0     # LT flag
+        self.geneticrate = False
 
     def init_evolution_algo(self):
         """Agent's GE algorithm operation defination."""
@@ -330,7 +331,7 @@ class LearningAgent(CoevoAgent):
         self.timestamp += 1
         self.step_count += 1
         self.prev_location = copy.copy(self.location)
-        self.lt = False
+        self.geneticrate = False
         # Increase beta
         # self.beta = self.timestamp / self.model.iter
         # if self.name ==1:
@@ -361,13 +362,15 @@ class LearningAgent(CoevoAgent):
 
         # Interaction Probability with other agents
         cellmates = [cell for cell in cellmates  if self.model.random.rand() < self.model.iprob]
+        cellmates = [cell for cell in cellmates if cell.individual[0] not in self.genome_storage]
+        self.ltrate = len(cellmates)
         # If neighbours found, store the genome
         if len(cellmates) > 1:
             # cellmates = list(self.model.random.choice(
             #     cellmates, self.model.random.randint(
             #         1, len(cellmates)-1), replace=False))
-
             self.store_genome(cellmates)
+
 
         # Logic for gentic operations.
         # If the genome storage has enough genomes and agents has done some
@@ -378,7 +381,7 @@ class LearningAgent(CoevoAgent):
             self.genome_storage) >= self.threshold # (self.model.num_agents / (self.threshold* 1.0))
 
         if storage_threshold:
-            self.lt = storage_threshold
+            self.geneticrate = storage_threshold
             self.genetic_step()
         elif (
                 (
