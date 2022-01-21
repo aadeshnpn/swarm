@@ -1,16 +1,91 @@
 #!/bin/bash
 
 ## Interaction Prob
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.1
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.2
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.3
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.4
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.5
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.6
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.7
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.8
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.9
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.99
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.1 --threshold 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.1 --threshold 7
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.1 --threshold 5
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.1 --threshold 15
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.1 --threshold 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.1 --threshold 7
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.1 --threshold 5
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.1 --threshold 15
+
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.2 --threshold 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.2 --threshold 7
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.2 --threshold 5
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.2 --threshold 15
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.2 --threshold 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.2 --threshold 7
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.2 --threshold 5
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.2 --threshold 15
+
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.3 --threshold 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.3 --threshold 7
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.3 --threshold 5
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.3 --threshold 15
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.3 --threshold 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.3 --threshold 7
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.3 --threshold 5
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.3 --threshold 15
+
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.4 --threshold 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.4 --threshold 7
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.4 --threshold 5
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.4 --threshold 15
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.4 --threshold 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.4 --threshold 7
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.4 --threshold 5
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.4 --threshold 15
+
+
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.5 --threshold 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.5 --threshold 7
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.5 --threshold 5
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.5 --threshold 15
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.5 --threshold 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.5 --threshold 7
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.5 --threshold 5
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.5 --threshold 15
+
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.6 --threshold 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.6 --threshold 7
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.6 --threshold 5
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.6 --threshold 15
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.6 --threshold 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.6 --threshold 7
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.6 --threshold 5
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.6 --threshold 15
+
+
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.7 --threshold 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.7 --threshold 7
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.7 --threshold 5
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.7 --threshold 15
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.7 --threshold 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.7 --threshold 7
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.7 --threshold 5
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.7 --threshold 15
+
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.8 --threshold 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.8 --threshold 7
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.8 --threshold 5
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.8 --threshold 15
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.8 --threshold 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.8 --threshold 7
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.8 --threshold 5
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.8 --threshold 15
+
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.9 --threshold 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.9 --threshold 7
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.9 --threshold 5
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --iprob 0.9 --threshold 15
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.9 --threshold 10
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.9 --threshold 7
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.9 --threshold 5
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 50  --iprob 0.9 --threshold 15
+
+
+
 
 ## Online distrubances addition
 ### Obstacles addition

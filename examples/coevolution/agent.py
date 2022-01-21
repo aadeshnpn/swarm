@@ -362,7 +362,7 @@ class LearningAgent(CoevoAgent):
 
         # Interaction Probability with other agents
         cellmates = [cell for cell in cellmates  if self.model.random.rand() < self.model.iprob]
-        cellmates = [cell for cell in cellmates if cell.individual[0] not in self.genome_storage]
+        # cellmates = [cell for cell in cellmates if cell.individual[0] not in self.genome_storage]
         self.ltrate = len(cellmates)
         # If neighbours found, store the genome
         if len(cellmates) > 1:
