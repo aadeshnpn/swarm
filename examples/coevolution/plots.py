@@ -131,7 +131,7 @@ def read_data_n_agent_threshold_new(n=100, iter=12000, threshold=10, gstep=200, 
 def read_data_n_agent_perturbations(
         n=100, iter=12000, threshold=10, gstep=200, expp=2,
         addobject=None, removeobject=None, no_objects=1, radius=5,
-        time=13000, iprob=0.85):
+        time=13000, iprob=0.85, idx=2):
     maindir = '/tmp/swarm/data/experiments/EvoCoevolutionPPA/'
     nadir = os.path.join(
                 '/tmp', 'swarm', 'data', 'experiments', 'EvoCoevolutionPPA',
@@ -147,9 +147,9 @@ def read_data_n_agent_perturbations(
     mdata = []
     for f in folders:
         flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
-        _, _, f, _,ltr,lts,grate = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+        data = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
         # print(f.shape, flist[0])
-        fdata.append(f)
+        fdata.append(data[idx])
     fdata = np.array(fdata)
     # print(fdata.shape)
     return fdata
@@ -967,6 +967,132 @@ def storage_threshold_iprob(ip=0.8):
     plt.close(fig)
 
 
+def storage_threshold_iprob_lt(ip=0.8):
+    thresholds = [5, 7, 10, 15]
+    data50 = [read_data_n_agent_perturbations(
+        n=50, iter=12000, threshold=t, time=10000, iprob=ip, idx=4)[:,-1] for t in thresholds]
+    data100 = [read_data_n_agent_perturbations(
+        n=100, iter=12000, threshold=t, time=10000, iprob=ip,idx=4)[:,-1] for t in thresholds]
+
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    ax1 = fig.add_subplot(1, 1, 1)
+    colordict = {
+        0: 'gold',
+        1: 'linen',
+        2: 'orchid',
+        3: 'peru',
+        4: 'olivedrab',
+        5: 'indianred',
+        6: 'tomato'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+
+    # labels = [ "> n/"+str(a) for a in thresholds]
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    positions = [
+        [1, 2], [4, 5], [7, 8], [10, 11], # [13, 14]
+        ]
+    datas = [
+        [data50[0], data100[0]],
+        [data50[1], data100[1]],
+        [data50[2], data100[2]],
+        [data50[3], data100[3]],
+        # [data50[4], data100[4]],
+        # [np.zeros(np.shape(datas50[4])), data100[5]],
+    ]
+
+    for j in range(len(positions)):
+        bp1 = ax1.boxplot(
+            datas[j], 0, 'gD', showmeans=True, meanline=True,
+            patch_artist=True, medianprops=medianprops,
+            meanprops=meanprops, widths=0.8, positions=positions[j])
+        for patch, color in zip(bp1['boxes'], colordict.values()):
+            patch.set_facecolor(color)
+
+    ax1.legend(zip(bp1['boxes']), ['50', '100'], fontsize="small", loc="upper center", title='Agent Population')
+    # ax1.legend(zip(bp1['boxes']), thresholds, fontsize="small", loc="upper right", title='Storage Threshold')
+    ax1.set_xticks([1.5, 4.5, 7.5, 10.5])
+    ax1.set_xticklabels(thresholds)
+    ax1.set_yticks(range(0, 10, 1))
+    ax1.set_xlabel('Storage Threshold', fontsize="large")
+    ax1.set_ylabel('Average LT Rate', fontsize="large")
+    plt.tight_layout()
+    plt.title('IP('+str(ip)+')')
+    maindir = '/tmp/swarm/data/experiments'
+    fname = 'thresholdboxplotltrate'+str(ip)
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
+def storage_threshold_iprob_gs(ip=0.8):
+    thresholds = [5, 7, 10, 15]
+    data50 = [read_data_n_agent_perturbations(
+        n=50, iter=12000, threshold=t, time=10000, iprob=ip, idx=6)[:,-1] for t in thresholds]
+    data100 = [read_data_n_agent_perturbations(
+        n=100, iter=12000, threshold=t, time=10000, iprob=ip,idx=6)[:,-1] for t in thresholds]
+
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    ax1 = fig.add_subplot(1, 1, 1)
+    colordict = {
+        0: 'gold',
+        1: 'linen',
+        2: 'orchid',
+        3: 'peru',
+        4: 'olivedrab',
+        5: 'indianred',
+        6: 'tomato'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+
+    # labels = [ "> n/"+str(a) for a in thresholds]
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    positions = [
+        [1, 2], [4, 5], [7, 8], [10, 11], # [13, 14]
+        ]
+    datas = [
+        [data50[0], data100[0]],
+        [data50[1], data100[1]],
+        [data50[2], data100[2]],
+        [data50[3], data100[3]],
+        # [data50[4], data100[4]],
+        # [np.zeros(np.shape(datas50[4])), data100[5]],
+    ]
+
+    for j in range(len(positions)):
+        bp1 = ax1.boxplot(
+            datas[j], 0, 'gD', showmeans=True, meanline=True,
+            patch_artist=True, medianprops=medianprops,
+            meanprops=meanprops, widths=0.8, positions=positions[j])
+        for patch, color in zip(bp1['boxes'], colordict.values()):
+            patch.set_facecolor(color)
+
+    ax1.legend(zip(bp1['boxes']), ['50', '100'], fontsize="small", loc="upper center", title='Agent Population')
+    # ax1.legend(zip(bp1['boxes']), thresholds, fontsize="small", loc="upper right", title='Storage Threshold')
+    ax1.set_xticks([1.5, 4.5, 7.5, 10.5])
+    ax1.set_xticklabels(thresholds)
+    ax1.set_yticks(range(0, 80, 10))
+    ax1.set_xlabel('Storage Threshold', fontsize="large")
+    ax1.set_ylabel('Genetic Step Rate', fontsize="large")
+    plt.title('IP('+str(ip)+')')
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments'
+    fname = 'thresholdboxplotgeneticstep'+str(ip)
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
 def main():
     # plot_evolution_algo_performance_boxplot()
     # plot_evolution_algo_performance()
@@ -979,7 +1105,9 @@ def main():
     # plot_lt_rate()
     #
     for ip in [0.1, 0.2, 0.3,0.4,0.5, 0.6,0.7, 0.8]:
-        storage_threshold_iprob(ip=ip)
+        # storage_threshold_iprob(ip=ip)
+        # storage_threshold_iprob_lt(ip=ip)
+        storage_threshold_iprob_gs(ip=ip)
 
 
 if __name__ == '__main__':
