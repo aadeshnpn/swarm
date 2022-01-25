@@ -1211,6 +1211,44 @@ def storage_threshold_all_100(ip=0.8):
     plt.close(fig)
 
 
+def plot_lt_foraging_gentic(ip):
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    data = read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=5, time=10000, iprob=ip,idx=[2,4,6])
+    print(data.shape)
+    data = np.mean(data, axis=1)
+    # print(data[0,:].shape)
+    # exit()
+    # obstaclestime = [read_data_n_agent_perturbations(addobject='Obstacles', no_objects=5, radius=10, time=t) for t in time]
+    ax1 = fig.add_subplot(1, 1, 1)
+    xvalues = range(12002)
+    ax1.scatter(xvalues, data[1,:], label='Lateral Transfer Rate', alpha=0.2, s=5)
+    ax1.scatter(xvalues, data[2,:], label='Genetic Step Rate', alpha=0.2, s=5)
+    ax1.legend(fontsize="small", loc="upper left", title='Metric')
+    ax1.set_xlabel('Evolution Steps')
+    ax1.set_ylabel('Rate per step')
+    ax1.set_yticks(range(0, 50, 10))
+
+    ax2 = ax1.twinx()
+    ax2.scatter(xvalues, data[0,:], label='Foraging', alpha=0.5, s=5, color='green')
+    # traps_mean = np.mean(traps, axis=1)
+    ax2.legend(fontsize="small", loc="upper right")
+
+    # ax1.set_xticklabels(['Foraging', 'Maintenance'])
+    ax2.set_xlabel('Evolution Steps')
+    ax2.set_ylabel('Foraging %')
+    ax2.set_yticks(range(0, 105, 20))
+    plt.title('IP('+str(ip)+')')
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments/'
+    # fname = 'agentsitecomp' + agent
+    nadir = os.path.join(maindir, str(100))
+
+    fig.savefig(
+        nadir + 'thresholdallplot' +str(ip) + '.png')
+    plt.close(fig)
+
+
 def main():
     # plot_evolution_algo_performance_boxplot()
     # plot_evolution_algo_performance()
@@ -1226,7 +1264,8 @@ def main():
         # storage_threshold_iprob(ip=ip)
         # storage_threshold_iprob_lt(ip=ip)
         # storage_threshold_iprob_gs(ip=ip)
-        storage_threshold_all_100(ip=ip)
+        # storage_threshold_all_100(ip=ip)
+        plot_lt_foraging_gentic(ip=ip)
 
 
 if __name__ == '__main__':
