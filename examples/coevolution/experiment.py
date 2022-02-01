@@ -56,7 +56,7 @@ def learning_phase(args):
         ltrateavg, ltratestd = env.compute_lt_rate()
         results = SimulationResultsLt(
             env.pname, env.connect, env.sn, env.stepcnt,
-            env.foraging_percent(), None, env.maintenance_percent(),
+            env.foraging_percent(), None, env.no_agent_dead(),
             ltrateavg, ltratestd, env.compute_genetic_rate(), db=False
             )
         # Save the data in a result csv file
