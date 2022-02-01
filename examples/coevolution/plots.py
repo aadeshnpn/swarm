@@ -180,7 +180,7 @@ def read_data_n_agent_perturbations_all(
     for f in folders:
         flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
         data = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
-        # print(f.shape, flist[0])
+        print(data.shape, flist[0])
         for i in range(len(idx)):
             fdata[i].append(data[idx[i]])
         # print(fdata)
@@ -1127,7 +1127,6 @@ def storage_threshold_iprob_gs(ip=0.8):
     plt.close(fig)
 
 
-
 def storage_threshold_all_100(ip=0.8):
     thresholds = [5, 7, 10, 15]
     # data50 = [read_data_n_agent_perturbations(
@@ -1212,7 +1211,7 @@ def storage_threshold_all_100(ip=0.8):
 
 
 def obstacle_introduced():
-    timings = range(1000, 10001, 1000)
+    timings = range(1000, 11001, 1000)
     # data50 = [read_data_n_agent_perturbations(
     #     n=50, iter=12000, threshold=t, time=10000, iprob=ip, idx=6)[:,-1] for t in thresholds]
     data = [np.squeeze(read_data_n_agent_perturbations_all(
@@ -1260,6 +1259,63 @@ def obstacle_introduced():
     plt.tight_layout()
     maindir = '/tmp/swarm/data/experiments'
     fname = 'obstacle_introduced'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
+def trap_introduced():
+    timings = range(1000, 11001, 1000)
+    # data50 = [read_data_n_agent_perturbations(
+    #     n=50, iter=12000, threshold=t, time=10000, iprob=ip, idx=6)[:,-1] for t in thresholds]
+    data = [np.squeeze(read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=7, time=t, iprob=0.85,
+        addobject='Traps',no_objects=5, radius=10)[:,:,-1]) for t in timings]
+
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    ax1 = fig.add_subplot(1, 1, 1)
+    colordict = {
+        0: 'gold',
+        1: 'linen',
+        2: 'orchid',
+        3: 'peru',
+        4: 'olivedrab',
+        5: 'indianred',
+        6: 'tomato'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+
+    # labels = [ "> n/"+str(a) for a in thresholds]
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    # positions = [
+    #     [1, 2], [5,6], [9,10], [13, 14], # [13, 14]
+    #     ]
+
+    # for j in range(len(positions)):
+    bp1 = ax1.boxplot(
+        data, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, widths=0.8)
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+
+    # ax1.legend(zip(bp1['boxes']), ['Foraging', 'Genetic Step'], fontsize="small", loc="upper right", title='Metrices')
+    ax1.legend(zip(bp1['boxes']), timings, fontsize="small", loc="lower left", title='Perturbation Timings')
+    # ax1.set_xticks(timi)
+    ax1.set_xticklabels(timings)
+    ax1.set_yticks(range(0, 105, 10))
+    ax1.set_xlabel('Perturbation Timings', fontsize="large")
+    ax1.set_ylabel('Foraging (%)', fontsize="large")
+
+    # plt.title('IP('+str(ip)+')')
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments'
+    fname = 'traps_introduced'
 
     fig.savefig(
         maindir + '/' + fname + '.png')
@@ -1323,7 +1379,8 @@ def main():
     #     # storage_threshold_iprob_gs(ip=ip)
     #     # storage_threshold_all_100(ip=ip)
     #     plot_lt_foraging_gentic(ip=ip)
-    obstacle_introduced()
+    # obstacle_introduced()
+    trap_introduced()
 
 
 if __name__ == '__main__':

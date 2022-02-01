@@ -312,8 +312,8 @@ class CoevolutionModel(Model):
         # trap_loc = self.traps.location
         # neighbours = grid.get_neighborhood(trap_loc, 10)
         # agents = grid.get_objects_from_list_of_grid(type(self.agents[0]).__name__, neighbours)
-        # return sum([1 if a.dead else 0 for a in agents])
-        return 0
+        return sum([1 if a.dead else 0 for a in self.agents])
+        # return 0
 
     def jam_communication(self):
         if self.args.jamcommun is None:
