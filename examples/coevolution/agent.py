@@ -332,65 +332,66 @@ class LearningAgent(CoevoAgent):
         self.step_count += 1
         self.prev_location = copy.copy(self.location)
         self.geneticrate = False
+        self.ltrate = 0
         # Increase beta
         # self.beta = self.timestamp / self.model.iter
         # if self.name ==1:
         # print(self.timestamp, self.name, len(self.trace))
+        if self.dead is False:
+            # Compute the behavior tree
+            self.bt.behaviour_tree.tick()
 
-        # Compute the behavior tree
-        self.bt.behaviour_tree.tick()
+            # Maintain location history
+            _, gridval = self.model.grid.find_grid(self.location)
+            self.location_history.add(gridval)
 
-        # Maintain location history
-        _, gridval = self.model.grid.find_grid(self.location)
-        self.location_history.add(gridval)
+            # Hash the phenotype with its fitness
+            # We need to move this from here to genetic step
+            self.ef = self.exploration_fitness()
 
-        # Hash the phenotype with its fitness
-        # We need to move this from here to genetic step
-        self.ef = self.exploration_fitness()
+            # Computes overall fitness using Beta function
+            self.overall_fitness()
+            # print(self.name, self.individual[0].fitness)
 
-        # Computes overall fitness using Beta function
-        self.overall_fitness()
-        # print(self.name, self.individual[0].fitness)
+            self.phenotypes = dict()
+            self.phenotypes[self.individual[0].phenotype] = (
+                self.individual[0].fitness)
 
-        self.phenotypes = dict()
-        self.phenotypes[self.individual[0].phenotype] = (
-            self.individual[0].fitness)
+            # Find the nearby agents
+            cellmates = self.model.grid.get_objects_from_grid(
+                type(self).__name__, self.location)
 
-        # Find the nearby agents
-        cellmates = self.model.grid.get_objects_from_grid(
-            type(self).__name__, self.location)
-
-        # Interaction Probability with other agents
-        cellmates = [cell for cell in cellmates  if self.model.random.rand() < self.model.iprob]
-        # cellmates = [cell for cell in cellmates if cell.individual[0] not in self.genome_storage]
-        self.ltrate = len(cellmates)
-        # If neighbours found, store the genome
-        if len(cellmates) > 1:
-            # cellmates = list(self.model.random.choice(
-            #     cellmates, self.model.random.randint(
-            #         1, len(cellmates)-1), replace=False))
-            self.store_genome(cellmates)
+            # Interaction Probability with other agents
+            cellmates = [cell for cell in cellmates  if self.model.random.rand() < self.model.iprob and cell.dead is False]
+            # cellmates = [cell for cell in cellmates if cell.individual[0] not in self.genome_storage]
+            self.ltrate = len(cellmates)
+            # If neighbours found, store the genome
+            if len(cellmates) > 1:
+                # cellmates = list(self.model.random.choice(
+                #     cellmates, self.model.random.randint(
+                #         1, len(cellmates)-1), replace=False))
+                self.store_genome(cellmates)
 
 
-        # Logic for gentic operations.
-        # If the genome storage has enough genomes and agents has done some
-        # exploration then compute the genetic step OR
-        # 200 time step has passed and the agent has not done anything useful
-        # then also perform genetic step
-        storage_threshold = len(
-            self.genome_storage) >= self.threshold # (self.model.num_agents / (self.threshold* 1.0))
+            # Logic for gentic operations.
+            # If the genome storage has enough genomes and agents has done some
+            # exploration then compute the genetic step OR
+            # 200 time step has passed and the agent has not done anything useful
+            # then also perform genetic step
+            storage_threshold = len(
+                self.genome_storage) >= self.threshold # (self.model.num_agents / (self.threshold* 1.0))
 
-        if storage_threshold:
-            self.geneticrate = storage_threshold
-            self.genetic_step()
-        elif (
-                (
-                    storage_threshold is False and self.timestamp > self.model.gstep
-                    ) and (self.exploration_fitness() < self.model.expp)):
-            individual = initialisation(self.parameter, 10)
-            individual = evaluate_fitness(individual, self.parameter)
-            self.genome_storage = self.genome_storage + individual
-            self.genetic_step()
+            if storage_threshold:
+                self.geneticrate = storage_threshold
+                self.genetic_step()
+            elif (
+                    (
+                        storage_threshold is False and self.timestamp > self.model.gstep
+                        ) and (self.exploration_fitness() < self.model.expp)):
+                individual = initialisation(self.parameter, 10)
+                individual = evaluate_fitness(individual, self.parameter)
+                self.genome_storage = self.genome_storage + individual
+                self.genetic_step()
 
 
 class ExecutingAgent(CoevoAgent):
