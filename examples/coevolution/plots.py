@@ -180,7 +180,7 @@ def read_data_n_agent_perturbations_all(
     for f in folders:
         flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
         data = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
-        print(data.shape, flist[0])
+        # print(data.shape, flist[0])
         for i in range(len(idx)):
             fdata[i].append(data[idx[i]])
         # print(fdata)
@@ -1268,12 +1268,12 @@ def obstacle_introduced():
 
 
 def trap_introduced():
-    timings = range(1000, 11001, 1000)
+    timings = range(1000, 8001, 1000)
     # data50 = [read_data_n_agent_perturbations(
     #     n=50, iter=12000, threshold=t, time=10000, iprob=ip, idx=6)[:,-1] for t in thresholds]
     data = [np.squeeze(read_data_n_agent_perturbations_all(
         n=100, iter=12000, threshold=7, time=t, iprob=0.85,
-        addobject='Traps',no_objects=5, radius=10)[:,:,-1]) for t in timings]
+        addobject='Traps',no_objects=1, radius=11, idx=[2,3])[:,:,-1]) for t in timings]
 
     fig = plt.figure(figsize=(8,6), dpi=200)
     ax1 = fig.add_subplot(1, 1, 1)
@@ -1305,7 +1305,7 @@ def trap_introduced():
         patch.set_facecolor(color)
 
     # ax1.legend(zip(bp1['boxes']), ['Foraging', 'Genetic Step'], fontsize="small", loc="upper right", title='Metrices')
-    ax1.legend(zip(bp1['boxes']), timings, fontsize="small", loc="lower left", title='Perturbation Timings')
+    ax1.legend(zip(bp1['boxes']), timings, fontsize="small", loc="upper left", title='Perturbation Timings')
     # ax1.set_xticks(timi)
     ax1.set_xticklabels(timings)
     ax1.set_yticks(range(0, 105, 10))
