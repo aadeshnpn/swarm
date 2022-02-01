@@ -1274,9 +1274,10 @@ def trap_introduced():
     data = [np.squeeze(read_data_n_agent_perturbations_all(
         n=100, iter=12000, threshold=7, time=t, iprob=0.85,
         addobject='Traps',no_objects=1, radius=11, idx=[2,3])[:,:,-1]) for t in timings]
-
-    fig = plt.figure(figsize=(8,6), dpi=200)
-    ax1 = fig.add_subplot(1, 1, 1)
+    forgedata = [data[i][0,:] for i in range(len(data))]
+    deaddata = [data[i][1,:] for i in range(len(data))]
+    fig = plt.figure(figsize=(12,5), dpi=200)
+    ax1 = fig.add_subplot(1, 2, 1)
     colordict = {
         0: 'gold',
         1: 'linen',
@@ -1298,7 +1299,7 @@ def trap_introduced():
 
     # for j in range(len(positions)):
     bp1 = ax1.boxplot(
-        data, 0, 'gD', showmeans=True, meanline=True,
+        forgedata, 0, 'gD', showmeans=True, meanline=True,
         patch_artist=True, medianprops=medianprops,
         meanprops=meanprops, widths=0.8)
     for patch, color in zip(bp1['boxes'], colordict.values()):
@@ -1312,10 +1313,59 @@ def trap_introduced():
     ax1.set_xlabel('Perturbation Timings', fontsize="large")
     ax1.set_ylabel('Foraging (%)', fontsize="large")
 
+    ax2 = fig.add_subplot(1, 2, 2)
+    bp2 = ax2.boxplot(
+        deaddata, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, widths=0.8)
+    for patch, color in zip(bp2['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+
+    # ax1.legend(zip(bp1['boxes']), ['Foraging', 'Genetic Step'], fontsize="small", loc="upper right", title='Metrices')
+    ax2.legend(zip(bp1['boxes']), timings, fontsize="small", loc="lower left", title='Perturbation Timings')
+    # ax1.set_xticks(timi)
+    ax2.set_xticklabels(timings)
+    ax2.set_yticks(range(0, 105, 10))
+    ax2.set_xlabel('Perturbation Timings', fontsize="large")
+    ax2.set_ylabel('Dead Agents', fontsize="large")
     # plt.title('IP('+str(ip)+')')
     plt.tight_layout()
     maindir = '/tmp/swarm/data/experiments'
     fname = 'traps_introduced'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
+def trap_introduced_deadagent():
+    timings = range(1000, 8001, 1000)
+    # data50 = [read_data_n_agent_perturbations(
+    #     n=50, iter=12000, threshold=t, time=10000, iprob=ip, idx=6)[:,-1] for t in thresholds]
+    data = [np.mean(np.squeeze(read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=7, time=t, iprob=0.85,
+        addobject='Traps',no_objects=1, radius=11, idx=[3])), axis=0) for t in timings]
+    # data = [np.mean(data[i], axis=0) for i in range(len(data))]
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    ax1 = fig.add_subplot(1, 1, 1)
+
+    xvalues = range(12002)
+    for i in range(len(timings)):
+        ax1.scatter(xvalues, data[i], label=str(timings[i]), alpha=0.2, s=5)
+    # ax1.legend(zip(bp1['boxes']), ['Foraging', 'Genetic Step'], fontsize="small", loc="upper right", title='Metrices')
+    ax1.legend(fontsize="small", loc="upper left", title='Perturbation Timings')
+    # ax1.set_xticks(timi)
+    # ax1.set_xticklabels(timings)
+    ax1.set_yticks(range(0, 105, 10))
+    ax1.set_xlabel('Perturbation Timings', fontsize="large")
+    ax1.set_ylabel('No. of Dead Agents', fontsize="large")
+
+    # plt.title('IP('+str(ip)+')')
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments'
+    fname = 'traps_introduced_deadagent_perstep'
 
     fig.savefig(
         maindir + '/' + fname + '.png')
@@ -1380,7 +1430,8 @@ def main():
     #     # storage_threshold_all_100(ip=ip)
     #     plot_lt_foraging_gentic(ip=ip)
     # obstacle_introduced()
-    trap_introduced()
+    # trap_introduced()
+    trap_introduced_deadagent()
 
 
 if __name__ == '__main__':
