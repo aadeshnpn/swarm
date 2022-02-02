@@ -1252,7 +1252,7 @@ def obstacle_introduced():
     # ax1.set_xticks(timi)
     ax1.set_xticklabels(timings)
     ax1.set_yticks(range(0, 105, 10))
-    ax1.set_xlabel('Perturbation Timings', fontsize="large")
+    ax1.set_xlabel('Steps', fontsize="large")
     ax1.set_ylabel('Foraging (%)', fontsize="large")
 
     # plt.title('IP('+str(ip)+')')
@@ -1268,12 +1268,12 @@ def obstacle_introduced():
 
 
 def trap_introduced():
-    timings = range(1000, 8001, 1000)
+    timings = range(1000, 6001, 1000)
     # data50 = [read_data_n_agent_perturbations(
     #     n=50, iter=12000, threshold=t, time=10000, iprob=ip, idx=6)[:,-1] for t in thresholds]
     data = [np.squeeze(read_data_n_agent_perturbations_all(
         n=100, iter=12000, threshold=7, time=t, iprob=0.85,
-        addobject='Traps',no_objects=1, radius=11, idx=[2,3])[:,:,-1]) for t in timings]
+        addobject='Traps',no_objects=5, radius=10, idx=[2,3])[:,:,-1]) for t in timings]
     forgedata = [data[i][0,:] for i in range(len(data))]
     deaddata = [data[i][1,:] for i in range(len(data))]
     fig = plt.figure(figsize=(12,5), dpi=200)
@@ -1341,12 +1341,12 @@ def trap_introduced():
 
 
 def trap_introduced_deadagent():
-    timings = range(1000, 8001, 1000)
+    timings = range(1000, 6001, 1000)
     # data50 = [read_data_n_agent_perturbations(
     #     n=50, iter=12000, threshold=t, time=10000, iprob=ip, idx=6)[:,-1] for t in thresholds]
     data = [np.mean(np.squeeze(read_data_n_agent_perturbations_all(
         n=100, iter=12000, threshold=7, time=t, iprob=0.85,
-        addobject='Traps',no_objects=1, radius=11, idx=[3])), axis=0) for t in timings]
+        addobject='Traps',no_objects=5, radius=10, idx=[3])), axis=0) for t in timings]
     # data = [np.mean(data[i], axis=0) for i in range(len(data))]
     fig = plt.figure(figsize=(8,6), dpi=200)
     ax1 = fig.add_subplot(1, 1, 1)
@@ -1412,6 +1412,41 @@ def plot_lt_foraging_gentic(ip):
     plt.close(fig)
 
 
+def obstacle_introduced_compare():
+    timings = range(7000, 11001, 1000)
+    # data50 = [read_data_n_agent_perturbations(
+    #     n=50, iter=12000, threshold=t, time=10000, iprob=ip, idx=6)[:,-1] for t in thresholds]
+    data = [np.mean(np.squeeze(read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=7, time=t, iprob=0.85,
+        addobject='Obstacles',no_objects=5, radius=10, idx=[2])), axis=0) for t in timings]
+    # data = [np.mean(data[i], axis=0) for i in range(len(data))]
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    ax1 = fig.add_subplot(1, 1, 1)
+
+    xvalues = np.array(list(range(12002)))
+    mask = xvalues % 1000 == 0
+    for i in range(len(timings)):
+        ax1.plot(xvalues[mask], data[i][mask], marker="v", ls='-', label=str(timings[i]))
+    # ax1.legend(zip(bp1['boxes']), ['Foraging', 'Genetic Step'], fontsize="small", loc="upper right", title='Metrices')
+    ax1.legend(fontsize="small", loc="upper left", title='Perturbation Timings')
+    # ax1.set_xticks(timings)
+    # ax1.set_xticklabels(timings)
+    ax1.set_yticks(range(0, 105, 10))
+    ax1.set_xlabel('Steps', fontsize="large")
+    ax1.set_ylabel('Foraging (%)', fontsize="large")
+
+    # plt.title('IP('+str(ip)+')')
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments'
+    fname = 'obstacles_introduced_compare'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
 def main():
     # plot_evolution_algo_performance_boxplot()
     # plot_evolution_algo_performance()
@@ -1431,7 +1466,8 @@ def main():
     #     plot_lt_foraging_gentic(ip=ip)
     # obstacle_introduced()
     # trap_introduced()
-    trap_introduced_deadagent()
+    # trap_introduced_deadagent()
+    obstacle_introduced_compare()
 
 
 if __name__ == '__main__':
