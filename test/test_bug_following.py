@@ -101,12 +101,12 @@ class TestGoToSwarmSmallGrid(TestCase):
     def setUp(self):
         self.environment = GoToSwarmEnvironmentModel(1, 100, 100, 10, 123)
 
-        for i in range(71):
+        for i in range(72):
             self.environment.step()
-            print(i, self.environment.agent.location)
+            # print(i, self.environment.agent.location)
 
     def test_agent_path(self):
-        self.assertEqual(self.environment.agent.location, (40, 42))
+        self.assertEqual(self.environment.agent.location, (40, 40))
 
     def test_agent_grid(self):
         self.assertIsInstance(
