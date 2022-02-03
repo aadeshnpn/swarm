@@ -1374,26 +1374,29 @@ def trap_introduced_deadagent():
     plt.close(fig)
 
 
-def plot_lt_foraging_gentic(ip):
+def plot_lt_foraging_gentic(ip=0.85, time=1000):
     fig = plt.figure(figsize=(8,6), dpi=200)
-    data = read_data_n_agent_perturbations_all(
-        n=100, iter=12000, threshold=5, time=10000, iprob=ip,idx=[2,4,6])
-    print(data.shape)
-    data = np.mean(data, axis=1)
+    data = np.mean(np.squeeze(read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=7, time=time, iprob=0.85,
+        addobject='Obstacles',no_objects=5, radius=10, idx=[2,4,6])), axis=1)
+
+    # data = read_data_n_agent_perturbations_all(
+    #     n=100, iter=12000, threshold=5, time=time, iprob=ip,idx=[2,4,6])
     # print(data[0,:].shape)
     # exit()
     # obstaclestime = [read_data_n_agent_perturbations(addobject='Obstacles', no_objects=5, radius=10, time=t) for t in time]
     ax1 = fig.add_subplot(1, 1, 1)
-    xvalues = range(12002)
-    ax1.scatter(xvalues, data[1,:], label='Lateral Transfer Rate', alpha=0.2, s=5)
-    ax1.scatter(xvalues, data[2,:], label='Genetic Step Rate', alpha=0.2, s=5)
+    xvalues = np.array(list(range(12002)))
+    mask = xvalues % 500 == 0
+    ax1.plot(xvalues[mask], data[1,:][mask], 'o-', label='Lateral Transfer Rate')
+    ax1.plot(xvalues[mask], data[2,:][mask], 'o-', label='Genetic Step Rate')
     ax1.legend(fontsize="small", loc="upper left", title='Metric')
     ax1.set_xlabel('Evolution Steps')
     ax1.set_ylabel('Rate per step')
     ax1.set_yticks(range(0, 50, 10))
 
     ax2 = ax1.twinx()
-    ax2.scatter(xvalues, data[0,:], label='Foraging', alpha=0.5, s=5, color='green')
+    ax2.plot(xvalues[mask], data[0,:][mask], 'o-', label='Foraging', color='green')
     # traps_mean = np.mean(traps, axis=1)
     ax2.legend(fontsize="small", loc="upper right")
 
@@ -1401,14 +1404,14 @@ def plot_lt_foraging_gentic(ip):
     ax2.set_xlabel('Evolution Steps')
     ax2.set_ylabel('Foraging %')
     ax2.set_yticks(range(0, 105, 20))
-    plt.title('IP('+str(ip)+')')
+    plt.title('Timing('+str(time)+')')
     plt.tight_layout()
     maindir = '/tmp/swarm/data/experiments/'
     # fname = 'agentsitecomp' + agent
     nadir = os.path.join(maindir, str(100))
 
     fig.savefig(
-        nadir + 'thresholdallplot' +str(ip) + '.png')
+        nadir + 'thresholdallplot' +str(ip) +'_' +str(time)+ '.png')
     plt.close(fig)
 
 
@@ -1467,7 +1470,10 @@ def main():
     # obstacle_introduced()
     # trap_introduced()
     # trap_introduced_deadagent()
-    obstacle_introduced_compare()
+    # obstacle_introduced_compare()
+    for t in range(1000,11001,1000):
+        plot_lt_foraging_gentic(time=t)
+
 
 
 if __name__ == '__main__':

@@ -107,7 +107,7 @@ class NeighbourObjects(Behaviour):
         #         self.agent.location, self.agent.radius*4)
         # else:
         grids = self.agent.model.grid.get_neighborhood(
-            self.agent.location, self.agent.radius)
+            self.agent.location, 1)
         objects = self.agent.model.grid.get_objects_from_list_of_grid(
             self.item, grids)
         # Need to reset blackboard contents after each sense

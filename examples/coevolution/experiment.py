@@ -29,7 +29,7 @@ def learning_phase(args):
     expp = args.expp
     # Evolution environment
     env = EvolveModel(
-        no_agents, width, height, 5, iter=iteration, db=db,
+        no_agents, width, height, 10, iter=iteration, db=db,
         threshold=threshold, gstep=gstep, expp=expp, args=args)
     env.build_environment_from_json()
     env.create_agents()

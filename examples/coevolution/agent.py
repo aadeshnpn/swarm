@@ -32,7 +32,7 @@ class CoevoAgent(Agent):
         # Agent attributes for motion
         self.direction = model.random.rand() * (2 * np.pi)
         self.speed = 2
-        self.radius = 5
+        self.radius = 11
         self.shared_content = dict()
         self.food_collected = 0
         # Results
