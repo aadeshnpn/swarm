@@ -22,23 +22,23 @@
 # python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 11000 --no_objects 5 --addobject Obstacles --radius 10 --n 100 --iprob 0.85 --threshold 7
 
 ### Traps addition
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 1000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 2000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 3000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 4000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 5000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 6000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 1000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 2000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 3000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 4000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 5000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 6000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 7000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 8000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 9000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 10000 --no_objects 1 --addobject Traps  --radius 10 --n 100 --iprob 0.85 --threshold 7
-python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 11000 --no_objects 1 --addobject Traps  --radius 10 --n 100 --iprob 0.85 --threshold 7
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000 --n 100 --time 1000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000 --n 100 --time 2000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000 --n 100 --time 3000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000 --n 100 --time 4000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000 --n 100 --time 5000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000 --n 100 --time 6000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000 --n 100 --time 1000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000 --n 100 --time 2000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000 --n 100 --time 3000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000 --n 100 --time 4000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000 --n 100 --time 5000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000 --n 100 --time 6000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000 --n 100 --time 7000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000 --n 100 --time 8000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000 --n 100 --time 9000 --no_objects 1 --addobject  Traps --radius 10 --n 100 --iprob 0.85 --threshold 7
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000 --n 100 --time 10000 --no_objects 1 --addobject Traps  --radius 10 --n 100 --iprob 0.85 --threshold 7
+python experiment.py --exp_no 0 --runs 16 --threads 16 --iter 12000 --n 100 --time 11000 --no_objects 1 --addobject Traps  --radius 10 --n 100 --iprob 0.85 --threshold 7
 
 
 
