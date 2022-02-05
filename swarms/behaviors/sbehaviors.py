@@ -198,9 +198,12 @@ class NeighbourObjectsDist(Behaviour):
         # else:
         # grids = self.agent.model.grid.get_neighborhood(
         #     self.agent.location, self.agent.radius)
-        grids = []
+        grids = set()
         # for i in range(1, self.agent.model.grid.grid_size):
         status = common.Status.FAILURE
+        # Need to reset blackboard contents after each sense
+        self.blackboard.neighbourobj = dict()
+
         for i in range(0, self.agent.radius):
             x = int(self.agent.location[0] + np.cos(
                 self.agent.direction) * i)
@@ -210,36 +213,38 @@ class NeighbourObjectsDist(Behaviour):
                 (x, y), self.agent.direction)
             # grids += self.agent.model.grid.get_neighborhood(new_location, 1)
             limits, grid = self.agent.model.grid.find_grid(new_location)
+            grids.add(grid)
             # print(self.agent.name, grid, self.name, round(self.agent.direction, 2), self.id, limits)
 
-            objects = self.agent.model.grid.get_objects(
-                self.item, grid)
-            # print('nighbourdist', grid, objects, self.agent.location, (new_location), limits)
-            # Need to reset blackboard contents after each sense
-            self.blackboard.neighbourobj = dict()
+        # objects = self.agent.model.grid.get_objects(
+        #     self.item, grid)
+        objects = self.agent.model.grid.get_objects_from_list_of_grid(
+            self.item, list(grids)
+        )
+        # print('nighbourdist', grid, objects, self.agent.location, (new_location), limits)
 
-            if len(objects) >= 1:
-                if self.agent in objects:
-                    objects.remove(self.agent)
+        if len(objects) >= 1:
+            if self.agent in objects:
+                objects.remove(self.agent)
 
-                for item in objects:
-                    name = type(item).__name__
-                    # Is the item is not carrable, its location
-                    # and property doesnot change. So we can commit its
-                    # information to memory
-                    # if item.carryable is False and item.deathable is False:
-                    # name = name + str(self.agent.name)
-                    if item.passable is False:
-                        try:
-                            self.blackboard.neighbourobj[name].add(item)
-                        except KeyError:
-                            self.blackboard.neighbourobj[name] = {item}
+            for item in objects:
+                name = type(item).__name__
+                # Is the item is not carrable, its location
+                # and property doesnot change. So we can commit its
+                # information to memory
+                # if item.carryable is False and item.deathable is False:
+                # name = name + str(self.agent.name)
+                if item.passable is False:
+                    try:
+                        self.blackboard.neighbourobj[name].add(item)
+                    except KeyError:
+                        self.blackboard.neighbourobj[name] = {item}
 
-                        # if status == common.Status.SUCCESS:
-                        #     pass
-                        # else:
-                        status = common.Status.SUCCESS
-                        return status
+                    # if status == common.Status.SUCCESS:
+                    #     pass
+                    # else:
+                    status = common.Status.SUCCESS
+                    return status
 
         return status
 
@@ -759,7 +764,7 @@ class Drop(Behaviour):
                 self.agent.attached_objects))[0]
             # Grid
             grid = self.agent.model.grid
-            static_grids = grid.get_neighborhood(self.agent.location, self.agent.radius)
+            static_grids = grid.get_neighborhood(self.agent.location, 1)
             envobjects = self.agent.model.grid.get_objects_from_list_of_grid(None, static_grids)
             dropped = False
             for obj in envobjects:
@@ -1222,7 +1227,7 @@ class SendSignal(Behaviour):
             # Initialize the signal object
             signal = Signal(
                 id=self.agent.name, location=self.agent.location,
-                radius=self.agent.radius, object_to_communicate=objects)
+                radius=1, object_to_communicate=objects)
 
             # Add the signal to the grids so it could be sensed by
             # other agents
@@ -1307,7 +1312,7 @@ class CueDoesNotExists(Behaviour):
         try:
             # Find the object the agent is trying to cue
             grids = self.agent.model.grid.get_neighborhood(
-                self.agent.location, self.agent.radius)
+                self.agent.location, 1)
             cue_objects = self.agent.model.grid.get_objects_from_list_of_grid(
                 'Cue', grids)
 
@@ -1363,7 +1368,7 @@ class DropCue(Behaviour):
             # Initialize the cue object
             cue = Cue(
                 id=self.agent.name, location=self.agent.location,
-                radius=self.agent.radius, object_to_communicate=objects)
+                radius=1, object_to_communicate=objects)
 
             # Add the cue to the grids so it could be sensed by
             # other agents
@@ -1641,7 +1646,7 @@ class DropPheromone(Behaviour):
                 # Initialize the pheromone object
                 pheromone = Pheromones(
                     id=self.agent.name, location=self.agent.location,
-                    radius=self.agent.radius, attractive=self.attractive, direction=self.agent.direction)
+                    radius=1, attractive=self.attractive, direction=self.agent.direction)
                 pheromone.passable = self.attractive
                 # Add the pheromone to the grids so it could be sensed by
                 # other agents
