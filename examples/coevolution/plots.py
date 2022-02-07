@@ -1458,6 +1458,14 @@ def plot_foraging_baseline(ip=0.85, time=10000):
 
 def plot_foraging_baseline_trap(ip=0.85, time=1000):
     fig = plt.figure(figsize=(8,6), dpi=200)
+    axeslimitdict = {
+        1000:[(1000,2000), (0,8)],
+        2000:[(2000,3000), (4,15)],
+        3000:[(3000,4000), (10,30)],
+        4000:[(4000,5000), (20,50)],
+        5000:[(5000,6000), (30,55)],
+        6000:[(6000,7000), (40,60)]
+        }
     basedata = np.squeeze(read_data_n_agent_perturbations_all(
         n=100, iter=12000, threshold=7, time=10000, iprob=0.85,
         no_objects=1, radius=5, idx=[2,4]))
@@ -1467,13 +1475,13 @@ def plot_foraging_baseline_trap(ip=0.85, time=1000):
     baseq3 = np.quantile(basedata, axis=1, q=0.75)
     ax1 = fig.add_subplot(1, 1, 1)
     xvalues = np.array(list(range(12002)))
-    mask = xvalues % 500 == 0
-    # mask = [True] * len(xvalues)
+    # mask = xvalues % 500 == 0
+    mask = [True] * len(xvalues)
     ax1.plot(xvalues[mask], baseq2[0,:][mask], '-', label='Baseline Foraging', color='green')
     ax1.fill_between(
                 xvalues[mask], baseq1[0,:][mask], baseq3[0,:][mask], color='seagreen', alpha=0.3)
 
-    ax_zoom = ax1.inset_axes([0.05,0.5,0.47,0.47])
+    ax_zoom = ax1.inset_axes([0.05,0.5,0.47,0.47], alpha=0.3)
     data = np.squeeze(read_data_n_agent_perturbations_all(
         n=100, iter=12000, threshold=7, time=time, iprob=0.85, addobject='Traps',
         no_objects=1, radius=10, idx=[2,4]))
@@ -1489,9 +1497,9 @@ def plot_foraging_baseline_trap(ip=0.85, time=1000):
 
     ax_zoom.plot(xvalues[mask], q2[0,:][mask], '-', label='Trap', color='red')
     ax_zoom.plot(xvalues[mask], baseq2[0,:][mask], '-', label='Baseline', color='green')
-    ax_zoom.set_xlim(1000,2000)
-    ax_zoom.set_ylim(0,8)
-    ax1.indicate_inset_zoom(ax_zoom, edgecolor="black", label="Zoomed", alpha=0.5)
+    ax_zoom.set_xlim(axeslimitdict[time][0][0],axeslimitdict[time][0][1])
+    ax_zoom.set_ylim(axeslimitdict[time][1][0],axeslimitdict[time][1][1])
+    ax1.indicate_inset_zoom(ax_zoom, edgecolor="black", label="Zoomed", alpha=0.3)
 
     ax1.legend(fontsize="small", loc="lower right", title="Learning Efficiency")
     ax1.set_xlabel('Evolution Steps')
@@ -1500,7 +1508,7 @@ def plot_foraging_baseline_trap(ip=0.85, time=1000):
     ax2 = ax1.twinx()
     ax2.set_yticks(range(0, 105, 20))
 
-    plt.title('Trap Added at 1000 Step')
+    plt.title('Trap Added at ' + str(time) +' Step')
     plt.tight_layout()
     maindir = '/tmp/swarm/data/experiments/'
     # fname = 'agentsitecomp' + agent
@@ -1509,7 +1517,6 @@ def plot_foraging_baseline_trap(ip=0.85, time=1000):
     fig.savefig(
         maindir + 'baseline_trap_zoom_'+ str(time)+ '.png')
     plt.close(fig)
-
 
 
 def obstacle_introduced_compare():
@@ -1572,7 +1579,8 @@ def main():
     #    plot_lt_foraging_gentic(time=t)
     # plot_foraging_baseline()
     # plot_foraging_baseline_obstacle()
-    plot_foraging_baseline_trap()
+    for t in range(1000,6001,1000):
+        plot_foraging_baseline_trap(time=t)
 
 
 if __name__ == '__main__':
