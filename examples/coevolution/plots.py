@@ -179,10 +179,11 @@ def read_data_n_agent_perturbations_all(
 
     for f in folders:
         flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
-        data = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
-        # print(data.shape, flist[0])
-        for i in range(len(idx)):
-            fdata[i].append(data[idx[i]])
+        if len(flist) > 0:
+            data = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+            # print(data.shape, flist[0])
+            for i in range(len(idx)):
+                fdata[i].append(data[idx[i]])
         # print(fdata)
     fdata = np.array(fdata)
     # print(fdata.shape)
@@ -1415,6 +1416,55 @@ def plot_lt_foraging_gentic(ip=0.85, time=1000):
     plt.close(fig)
 
 
+def plot_lt_foraging_gentic_baseline_foraging(ip=0.85, time=10000):
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    # data = np.mean(np.squeeze(read_data_n_agent_perturbations_all(
+    #     n=100, iter=12000, threshold=7, time=time, iprob=0.85,
+    #     no_objects=1, radius=5, idx=[2,4,6])), axis=1)
+
+    data = np.squeeze(read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=7, time=time, iprob=0.85,
+        no_objects=1, radius=5, idx=[2,4]))
+
+    q2 = np.median(data, axis=1)
+    q1 = np.quantile(data, axis=1, q=0.25)
+    q3 = np.quantile(data, axis=1, q=0.75)
+    print(q2.shape, q1.shape, q3.shape)
+    ax1 = fig.add_subplot(1, 1, 1)
+    xvalues = np.array(list(range(12002)))
+    # mask = xvalues % 500 == 0
+    mask = [True] * len(xvalues)
+    # ax1.plot(xvalues[mask], data[1,:][mask], 'o-', label='Lateral Transfer Rate')
+    # ax1.plot(xvalues[mask], data[2,:][mask], 'o-', label='Genetic Step Rate')
+    # ax1.legend(fontsize="small", loc="upper left", title='Metric')
+    # ax1.set_xlabel('Evolution Steps')
+    # ax1.set_ylabel('Rate per step')
+    # ax1.set_yticks(range(0, 50, 10))
+
+    ax1.plot(xvalues[mask], q2[0,:][mask], '-', label='Foraging', color='green')
+    ax1.fill_between(
+                xvalues[mask], q1[0,:][mask], q3[0,:][mask], color='seagreen', alpha=0.3)
+    # traps_mean = np.mean(traps, axis=1)
+    ax1.legend(fontsize="small", loc="upper left", title="Learning Efficiency")
+
+    # ax1.set_xticklabels(['Foraging', 'Maintenance'])
+    ax1.set_xlabel('Evolution Steps')
+    ax1.set_ylabel('Foraging (%)')
+    ax1.set_yticks(range(0, 105, 20))
+    ax2 = ax1.twinx()
+    ax2.set_yticks(range(0, 105, 20))
+
+    plt.title('Baseline')
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments/'
+    # fname = 'agentsitecomp' + agent
+    # nadir = os.path.join(maindir, str(100))
+
+    fig.savefig(
+        maindir + 'baselineallplot'+ '.png')
+    plt.close(fig)
+
+
 def obstacle_introduced_compare():
     timings = range(7000, 11001, 1000)
     # data50 = [read_data_n_agent_perturbations(
@@ -1471,9 +1521,9 @@ def main():
     # trap_introduced()
     # trap_introduced_deadagent()
     # obstacle_introduced_compare()
-    for t in range(1000,11001,1000):
-        plot_lt_foraging_gentic(time=t)
-
+    # for t in range(1000,11001,1000):
+    #    plot_lt_foraging_gentic(time=t)
+    plot_lt_foraging_gentic_baseline_foraging()
 
 
 if __name__ == '__main__':
