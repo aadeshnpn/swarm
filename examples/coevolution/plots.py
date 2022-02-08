@@ -1519,6 +1519,135 @@ def plot_foraging_baseline_trap(ip=0.85, time=1000):
     plt.close(fig)
 
 
+def plot_foraging_baseline_trap_deadagent(ip=0.85, time=1000):
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    axeslimitdict = {
+        1000:[(1000,2000), (0,8)],
+        2000:[(2000,3000), (0,15)],
+        3000:[(3000,4000), (0,20)],
+        4000:[(4000,5000), (0,20)],
+        5000:[(5000,6000), (0,20)],
+        6000:[(6000,7000), (0,20)],
+        7000:[(7000,8000), (0,25)],
+        8000:[(8000,9000), (0,25)]
+        }
+    basedata = np.squeeze(read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=7, time=10000, iprob=0.85,
+        no_objects=1, radius=5, idx=[2,3]))
+
+    baseq2 = np.median(basedata, axis=1)
+    baseq1 = np.quantile(basedata, axis=1, q=0.25)
+    baseq3 = np.quantile(basedata, axis=1, q=0.75)
+    ax1 = fig.add_subplot(1, 1, 1)
+    xvalues = np.array(list(range(12002)))
+    # mask = xvalues % 500 == 0
+    mask = [True] * len(xvalues)
+    ax1.plot(xvalues[mask], baseq2[1,:][mask], '-', label='Baseline Deadagents', color='orange')
+    ax1.fill_between(
+                xvalues[mask], baseq1[1,:][mask], baseq3[1,:][mask], color='peachpuff', alpha=0.3)
+
+    ax_zoom = ax1.inset_axes([0.05,0.5,0.47,0.47], alpha=0.3)
+    data = np.squeeze(read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=7, time=time, iprob=0.85, addobject='Traps',
+        no_objects=1, radius=10, idx=[2,3]))
+
+    q2 = np.median(data, axis=1)
+    q1 = np.quantile(data, axis=1, q=0.25)
+    q3 = np.quantile(data, axis=1, q=0.75)
+    xvalues = np.array(list(range(12002)))
+    mask = [True] * len(xvalues)
+    ax1.plot(xvalues[mask], q2[1,:][mask], '-', label='Dead agents with Trap Addition', color='red')
+    ax1.fill_between(
+                xvalues[mask], q1[1,:][mask], q3[1,:][mask], color='salmon', alpha=0.3)
+
+    ax_zoom.plot(xvalues[mask], q2[1,:][mask], '-', label='Trap', color='red')
+    ax_zoom.plot(xvalues[mask], baseq2[1,:][mask], '-', label='Baseline', color='orange')
+    ax_zoom.set_xlim(axeslimitdict[time][0][0],axeslimitdict[time][0][1])
+    ax_zoom.set_ylim(axeslimitdict[time][1][0],axeslimitdict[time][1][1])
+    ax1.indicate_inset_zoom(ax_zoom, edgecolor="black", label="Zoomed", alpha=0.3)
+    ax1.set_xlabel('Evolution Steps')
+    ax1.set_ylabel('Dead Agents (%)')
+    ax1.set_yticks(range(0, 105, 20))
+    ax2 = ax1.twinx()
+    ax1.plot(xvalues[mask], baseq2[0,:][mask], '-', label='Baseline Foraging', color='green')
+    ax1.plot(xvalues[mask], q2[0,:][mask], '--', label='Pertubed Foraging', color='seagreen')
+    ax2.set_yticks(range(0, 105, 20))
+    ax2.set_ylabel('Foraging (%)')
+    ax1.legend(fontsize="small", loc="center right", title="Metrics")
+    plt.title('Trap Added at ' + str(time) +' Step')
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments/'
+    # fname = 'agentsitecomp' + agent
+    # nadir = os.path.join(maindir, str(100))
+
+    fig.savefig(
+        maindir + 'baseline_trap_deadagents_zoom_'+ str(time)+ '.png')
+    plt.close(fig)
+
+
+def plot_foraging_baseline_obstacles(ip=0.85, time=1000):
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    axeslimitdict = {
+        1000:[(1000,2000), (0,8)],
+        2000:[(2000,3000), (4,15)],
+        3000:[(3000,4000), (10,30)],
+        4000:[(4000,5000), (20,50)],
+        5000:[(5000,6000), (30,55)],
+        6000:[(6000,7000), (40,60)]
+        }
+    basedata = np.squeeze(read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=7, time=10000, iprob=0.85,
+        no_objects=1, radius=5, idx=[2,4]))
+
+    baseq2 = np.median(basedata, axis=1)
+    baseq1 = np.quantile(basedata, axis=1, q=0.25)
+    baseq3 = np.quantile(basedata, axis=1, q=0.75)
+    ax1 = fig.add_subplot(1, 1, 1)
+    xvalues = np.array(list(range(12002)))
+    # mask = xvalues % 500 == 0
+    mask = [True] * len(xvalues)
+    ax1.plot(xvalues[mask], baseq2[0,:][mask], '-', label='Baseline Foraging', color='green')
+    ax1.fill_between(
+                xvalues[mask], baseq1[0,:][mask], baseq3[0,:][mask], color='seagreen', alpha=0.3)
+
+    ax_zoom = ax1.inset_axes([0.05,0.5,0.47,0.47], alpha=0.3)
+    data = np.squeeze(read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=7, time=time, iprob=0.85, addobject='Obstacles',
+        no_objects=1, radius=10, idx=[2,4]))
+
+    q2 = np.median(data, axis=1)
+    q1 = np.quantile(data, axis=1, q=0.25)
+    q3 = np.quantile(data, axis=1, q=0.75)
+    xvalues = np.array(list(range(12002)))
+    mask = [True] * len(xvalues)
+    ax1.plot(xvalues[mask], q2[0,:][mask], '-', label='Foraging with Obstacle', color='red')
+    ax1.fill_between(
+                xvalues[mask], q1[0,:][mask], q3[0,:][mask], color='salmon', alpha=0.3)
+
+    ax_zoom.plot(xvalues[mask], q2[0,:][mask], '-', label='Obstacle', color='red')
+    ax_zoom.plot(xvalues[mask], baseq2[0,:][mask], '-', label='Baseline', color='green')
+    ax_zoom.set_xlim(axeslimitdict[time][0][0],axeslimitdict[time][0][1])
+    ax_zoom.set_ylim(axeslimitdict[time][1][0],axeslimitdict[time][1][1])
+    ax1.indicate_inset_zoom(ax_zoom, edgecolor="black", label="Zoomed", alpha=0.3)
+
+    ax1.legend(fontsize="small", loc="lower right", title="Learning Efficiency")
+    ax1.set_xlabel('Evolution Steps')
+    ax1.set_ylabel('Foraging (%)')
+    ax1.set_yticks(range(0, 105, 20))
+    ax2 = ax1.twinx()
+    ax2.set_yticks(range(0, 105, 20))
+
+    plt.title('Obstacle Added at ' + str(time) +' Step')
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments/'
+    # fname = 'agentsitecomp' + agent
+    # nadir = os.path.join(maindir, str(100))
+
+    fig.savefig(
+        maindir + 'baseline_obstacle_zoom_'+ str(time)+ '.png')
+    plt.close(fig)
+
+
 def obstacle_introduced_compare():
     timings = range(7000, 11001, 1000)
     # data50 = [read_data_n_agent_perturbations(
@@ -1579,8 +1708,10 @@ def main():
     #    plot_lt_foraging_gentic(time=t)
     # plot_foraging_baseline()
     # plot_foraging_baseline_obstacle()
-    for t in range(1000,6001,1000):
-        plot_foraging_baseline_trap(time=t)
+    for t in range(6000,8001,1000):
+        # plot_foraging_baseline_trap(time=t)
+        # plot_foraging_baseline_obstacles(time=t)
+        plot_foraging_baseline_trap_deadagent(time=t)
 
 
 if __name__ == '__main__':
