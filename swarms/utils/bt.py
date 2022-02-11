@@ -61,17 +61,29 @@ class BTConstruct:
                     method, item = nodeval
                     behavior = eval(method)(method + str(
                         self.agent.model.random.randint(
-                            100, 200)) + '_' + item+ '_' + root.tag)
+                            100, 200)) + '_' + item + '_' + root.tag)
                     behavior.setup(0, self.agent, item)
                 else:
-                    method, item, _ = nodeval
-                    behavior = eval(method)(
-                        method + str(
+                    method, item, ntype = nodeval
+                    if ntype == 'invert':
+                        behavior = eval(method)(
+                            method + str(
+                                self.agent.model.random.randint(
+                                    100, 200)) + '_' + item + '_inv' + '_' + root.tag)
+                        behavior.setup(0, self.agent, item)
+                        behavior = Inverter(behavior)
+                    elif ntype == 'Avoid':
+                        behavior = eval(method+ntype)(
+                            method + str(
+                                self.agent.model.random.randint(
+                                    100, 200)) + '_' + item + '_Avoid' + '_' + root.tag)
+                        behavior.setup(0, self.agent, item)
+                        pass
+                    elif ntype == 'Normal':
+                        behavior = eval(method)(method + str(
                             self.agent.model.random.randint(
-                                100, 200)) + '_' + item + '_inv' + '_' + root.tag)
-                    behavior.setup(0, self.agent, item)
-                    behavior = Inverter(behavior)
-
+                                100, 200)) + '_' + item + '_' + root.tag)
+                        behavior.setup(0, self.agent, item)
             else:
                 method = node_text
                 behavior = eval(method)(method + str(

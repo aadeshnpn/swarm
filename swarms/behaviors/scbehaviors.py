@@ -35,6 +35,97 @@ from swarms.behaviors.sbehaviors import (
 # them into a single behaviors with sequence and call it MoveTowards
 
 
+class MoveTowardsAvoid(Behaviour):
+    """MoveTowardsAvoid behavior for the agents.
+
+    Inherits the Behaviors class from py_trees. This
+    behavior combines the privitive behaviors GoTo, Towards and Move. This
+    allows agents actually to move towards the object of interest.
+    """
+
+    def __init__(self, name):
+        """Init method for the MoveTowards behavior."""
+        super(MoveTowardsAvoid, self).__init__(name)
+
+    def setup(self, timeout, agent, item):
+        """Have defined the setup method.
+
+        This method defines the other objects required for the
+        behavior. Agent is the actor in the environment,
+        item is the name of the item we are trying to find in the
+        environment and timeout defines the execution time for the
+        behavior.
+        """
+        self.agent = agent
+        self.item = item
+
+        # Define goto primitive behavior
+        # This is the post condition
+        selector = Selector('MT_Selector')
+        postcond_is_already_at_there = NeighbourObjects('MT_AlreadyThere_PC')
+        postcond_is_already_at_there.setup(0, self.agent, self.item)
+
+        goto = GoTo('MT_GOTO_1')
+        goto.setup(0, self.agent, self.item)
+
+        # Define towards behavior
+        towards = Towards('MT_TOWARDS_2')
+        towards.setup(0, self.agent)
+
+        # This is the constraint/pre-condition
+        const_is_no_blocked_obs = NeighbourObjectsDist('MT_Blocked_Obs_CNT')
+        const_is_no_blocked_obs.setup(0, self.agent, 'Obstacles')
+
+        const_is_no_blocked_trp = NeighbourObjectsDist('MT_Blocked_Trap_CNT')
+        const_is_no_blocked_trp.setup(0, self.agent, 'Traps')
+
+        # sequence_blocked = Sequence('MT_Blocked')
+        sequence_blocked_obs = Sequence('MT_Selector_Blocked_Obs')
+        avoid_obs = AvoidSObjects('MT_Avoid_Obstacles')
+        avoid_obs.setup(0, self.agent)
+
+        sequence_blocked_trp = Sequence('MT_Selector_Blocked_Trap')
+        avoid_trp = AvoidSObjects('MT_Avoid_Traps')
+        avoid_trp.setup(0, self.agent, item='Traps')
+
+        # Define move behavior
+        canmove = CanMove('MT_CANMOVE')
+        canmove.setup(0, self.agent, None)
+
+        move = Move('MT_MOVE_ACT')
+        move.setup(0, self.agent)
+
+        # selector_blocked.
+        sequence_blocked_obs.add_children(
+            [
+                const_is_no_blocked_obs, avoid_obs, copy.copy(canmove), copy.copy(move)])
+        sequence_blocked_trp.add_children(
+            [
+                const_is_no_blocked_trp, avoid_trp, copy.copy(canmove), copy.copy(move)])
+
+        # Define a sequence to combine the primitive behavior
+        mt_sequence = Sequence('MT_SEQUENCE')
+        const_is_no_blocked_obs_inv = Inverter(copy.copy(const_is_no_blocked_obs))
+        const_is_no_blocked_trp_inv = Inverter(copy.copy(const_is_no_blocked_trp))
+        mt_sequence.add_children([goto, towards, const_is_no_blocked_obs_inv, const_is_no_blocked_trp_inv, canmove, move])
+
+        selector.add_children([postcond_is_already_at_there, mt_sequence, sequence_blocked_obs, sequence_blocked_trp])
+
+        self.behaviour_tree = BehaviourTree(selector)
+
+    def initialise(self):
+        """Everytime initialization. Not required for now."""
+        pass
+
+    def update(self):
+        """Just call the tick method for the sequence.
+
+        This will execute the primitive behaviors defined in the sequence
+        """
+        self.behaviour_tree.tick()
+        return self.behaviour_tree.root.status
+
+
 class MoveTowards(Behaviour):
     """MoveTowards behavior for the agents.
 
@@ -72,22 +163,6 @@ class MoveTowards(Behaviour):
         towards = Towards('MT_TOWARDS_2')
         towards.setup(0, self.agent)
 
-        # This is the constraint/pre-condition
-        const_is_no_blocked_obs = NeighbourObjectsDist('MT_Blocked_Obs_CNT')
-        const_is_no_blocked_obs.setup(0, self.agent, 'Obstacles')
-
-        const_is_no_blocked_trp = NeighbourObjectsDist('MT_Blocked_Trap_CNT')
-        const_is_no_blocked_trp.setup(0, self.agent, 'Traps')
-
-        sequence_blocked = Sequence('MT_Blocked')
-        sequence_blocked_obs = Sequence('MT_Selector_Blocked_Obs')
-        avoid_obs = AvoidSObjects('MT_Avoid_Obstacles')
-        avoid_obs.setup(0, self.agent)
-
-        sequence_blocked_trp = Sequence('MT_Selector_Blocked_Trap')
-        avoid_trp = AvoidSObjects('MT_Avoid_Traps')
-        avoid_trp.setup(0, self.agent, item='Traps')
-
         # Define move behavior
         canmove = CanMove('MT_CANMOVE')
         canmove.setup(0, self.agent, None)
@@ -95,19 +170,98 @@ class MoveTowards(Behaviour):
         move = Move('MT_MOVE_ACT')
         move.setup(0, self.agent)
 
-        # selector_blocked.
-        sequence_blocked_obs.add_children(
-            [
-                const_is_no_blocked_obs, avoid_obs, copy.copy(canmove), copy.copy(move)])
-        sequence_blocked_trp.add_children(
-            [
-                const_is_no_blocked_trp, avoid_trp, copy.copy(canmove), copy.copy(move)])
-
         # Define a sequence to combine the primitive behavior
         mt_sequence = Sequence('MT_SEQUENCE')
+
+        mt_sequence.add_children([goto, towards, canmove, move])
+
+        selector.add_children([postcond_is_already_at_there, mt_sequence])
+
+        self.behaviour_tree = BehaviourTree(selector)
+
+    def initialise(self):
+        """Everytime initialization. Not required for now."""
+        pass
+
+    def update(self):
+        """Just call the tick method for the sequence.
+
+        This will execute the primitive behaviors defined in the sequence
+        """
+        self.behaviour_tree.tick()
+        return self.behaviour_tree.root.status
+
+
+class MoveAwayAvoid(Behaviour):
+    """MoveAwayAvoid behavior for the agents.
+
+    Inherits the Behaviors class from py_trees. This
+    behavior combines the privitive behaviors GoTo, Away and Move. This
+    allows agents actually to move away the object of interest.
+    """
+
+    def __init__(self, name):
+        """Init method for the MoveAway behavior."""
+        super(MoveAwayAvoid, self).__init__(name)
+
+    def setup(self, timeout, agent, item):
+        """Have defined the setup method.
+
+        This method defines the other objects required for the
+        behavior. Agent is the actor in the environment,
+        item is the name of the item we are trying to find in the
+        environment and timeout defines the execution time for the
+        behavior.
+        """
+        self.agent = agent
+        self.item = item
+
+        # This is the post condition
+        # Define goto primitive behavior
+        # This is the post condition
+        selector = Selector('MA_Selector')
+        postcond_is_already_at_there = NeighbourObjects('MA_AlreadyThere_PC')
+        postcond_is_already_at_there.setup(0, self.agent, self.item)
+
+        goto = GoTo('MA_GOTO_1')
+        goto.setup(0, self.agent, self.item)
+
+        # Define towards behavior
+        away = Away('MA_AWAY_2')
+        away.setup(0, self.agent)
+
+        # This is the constraint/pre-condition
+        const_is_no_blocked_obs = NeighbourObjectsDist('MA_Blocked_Obs_CNT')
+        const_is_no_blocked_obs.setup(0, self.agent, 'Obstacles')
+
+        const_is_no_blocked_trp = NeighbourObjectsDist('MA_Blocked_Trap_CNT')
+        const_is_no_blocked_trp.setup(0, self.agent, 'Traps')
+
+        # sequence_blocked = Sequence('MA_Blocked')
+        sequence_blocked_obs = Sequence('MA_Selector_Blocked_Obs')
+        avoid_obs = AvoidSObjects('MA_Avoid_Obstacles')
+        avoid_obs.setup(0, self.agent)
+
+        sequence_blocked_trp = Sequence('MA_Selector_Blocked_Trap')
+        avoid_trp = AvoidSObjects('MA_Avoid_Traps')
+        avoid_trp.setup(0, self.agent, item='Traps')
+
+        # Define move behavior
+        canmove = CanMove('MA_CANMOVE')
+        canmove.setup(0, self.agent, None)
+
+        move = Move('MA_MOVE_ACT')
+        move.setup(0, self.agent)
+
+        # selector_blocked.
+        sequence_blocked_obs.add_children([const_is_no_blocked_obs, avoid_obs, copy.copy(canmove), copy.copy(move)])
+        sequence_blocked_trp.add_children([const_is_no_blocked_trp, avoid_trp, copy.copy(canmove), copy.copy(move)])
+
+        # Define a sequence to combine the primitive behavior
+        mt_sequence = Sequence('MA_SEQUENCE')
         const_is_no_blocked_obs_inv = Inverter(copy.copy(const_is_no_blocked_obs))
         const_is_no_blocked_trp_inv = Inverter(copy.copy(const_is_no_blocked_trp))
-        mt_sequence.add_children([goto, towards, const_is_no_blocked_obs_inv, const_is_no_blocked_trp_inv, canmove, move])
+        mt_sequence.add_children([goto, away, const_is_no_blocked_obs_inv, const_is_no_blocked_trp_inv, canmove, move])
 
         selector.add_children([postcond_is_already_at_there, mt_sequence, sequence_blocked_obs, sequence_blocked_trp])
 
@@ -164,22 +318,6 @@ class MoveAway(Behaviour):
         away = Away('MA_AWAY_2')
         away.setup(0, self.agent)
 
-        # This is the constraint/pre-condition
-        const_is_no_blocked_obs = NeighbourObjectsDist('MA_Blocked_Obs_CNT')
-        const_is_no_blocked_obs.setup(0, self.agent, 'Obstacles')
-
-        const_is_no_blocked_trp = NeighbourObjectsDist('MA_Blocked_Trap_CNT')
-        const_is_no_blocked_trp.setup(0, self.agent, 'Traps')
-
-        sequence_blocked = Sequence('MA_Blocked')
-        sequence_blocked_obs = Sequence('MA_Selector_Blocked_Obs')
-        avoid_obs = AvoidSObjects('MA_Avoid_Obstacles')
-        avoid_obs.setup(0, self.agent)
-
-        sequence_blocked_trp = Sequence('MA_Selector_Blocked_Trap')
-        avoid_trp = AvoidSObjects('MA_Avoid_Traps')
-        avoid_trp.setup(0, self.agent, item='Traps')
-
         # Define move behavior
         canmove = CanMove('MA_CANMOVE')
         canmove.setup(0, self.agent, None)
@@ -187,17 +325,11 @@ class MoveAway(Behaviour):
         move = Move('MA_MOVE_ACT')
         move.setup(0, self.agent)
 
-        # selector_blocked.
-        sequence_blocked_obs.add_children([const_is_no_blocked_obs, avoid_obs, copy.copy(canmove), copy.copy(move)])
-        sequence_blocked_trp.add_children([const_is_no_blocked_trp, avoid_trp, copy.copy(canmove), copy.copy(move)])
-
         # Define a sequence to combine the primitive behavior
         mt_sequence = Sequence('MA_SEQUENCE')
-        const_is_no_blocked_obs_inv = Inverter(copy.copy(const_is_no_blocked_obs))
-        const_is_no_blocked_trp_inv = Inverter(copy.copy(const_is_no_blocked_trp))
-        mt_sequence.add_children([goto, away, const_is_no_blocked_obs_inv, const_is_no_blocked_trp_inv, canmove, move])
+        mt_sequence.add_children([goto, away, canmove, move])
 
-        selector.add_children([postcond_is_already_at_there, mt_sequence, sequence_blocked_obs, sequence_blocked_trp])
+        selector.add_children([postcond_is_already_at_there, mt_sequence])
 
         self.behaviour_tree = BehaviourTree(selector)
 
@@ -480,8 +612,8 @@ class CompositeDrop(Behaviour):
 #         return self.behaviour_tree.root.status
 
 
-class Explore(Behaviour):
-    """Explore behavior for the agents.
+class ExploreAvoid(Behaviour):
+    """ExploreAvoid behavior for the agents.
 
     Inherits the Behaviors class from py_trees. This
     behavior combines the privitive behaviors to succesfully explore the
@@ -490,7 +622,7 @@ class Explore(Behaviour):
 
     def __init__(self, name):
         """Init method for the Explore behavior."""
-        super(Explore, self).__init__(name)
+        super(ExploreAvoid, self).__init__(name)
 
     def setup(self, timeout, agent, item=None):
         """Have defined the setup method.
@@ -543,6 +675,58 @@ class Explore(Behaviour):
 
         root.add_children([ex_sequence, sequence_blocked_obs, sequence_blocked_trp])
 
+        self.behaviour_tree = BehaviourTree(root)
+
+    def initialise(self):
+        """Everytime initialization. Not required for now."""
+        pass
+
+    def update(self):
+        """Just call the tick method for the sequence.
+
+        This will execute the primitive behaviors defined in the sequence
+        """
+        self.behaviour_tree.tick()
+        return self.behaviour_tree.root.status
+
+
+class Explore(Behaviour):
+    """Explore behavior for the agents.
+
+    Inherits the Behaviors class from py_trees. This
+    behavior combines the privitive behaviors to succesfully explore the
+    environment. It combines Randomwalk and Move behaviors.
+    """
+
+    def __init__(self, name):
+        """Init method for the Explore behavior."""
+        super(Explore, self).__init__(name)
+
+    def setup(self, timeout, agent, item=None):
+        """Have defined the setup method.
+
+        This method defines the other objects required for the
+        behavior. Agent is the actor in the environment,
+        item is the name of the item we are trying to find in the
+        environment and timeout defines the execution time for the
+        behavior.
+        """
+        self.agent = agent
+        self.item = item
+
+        # Define the root for the BT
+        root = Sequence("Ex_Sequence")
+
+        low = RandomWalk('Ex_RandomWalk')
+        low.setup(0, self.agent)
+
+        canmove = CanMove('Ex_CANMOVE')
+        canmove.setup(0, self.agent, None)
+
+        high = Move('Ex_Move')
+        high.setup(0, self.agent)
+
+        root.add_children([low, canmove, high])
         self.behaviour_tree = BehaviourTree(root)
 
     def initialise(self):
