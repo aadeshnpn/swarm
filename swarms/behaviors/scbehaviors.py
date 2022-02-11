@@ -35,8 +35,8 @@ from swarms.behaviors.sbehaviors import (
 # them into a single behaviors with sequence and call it MoveTowards
 
 
-class MoveTowardsAvoid(Behaviour):
-    """MoveTowardsAvoid behavior for the agents.
+class MoveTowards(Behaviour):
+    """MoveTowards behavior for the agents.
 
     Inherits the Behaviors class from py_trees. This
     behavior combines the privitive behaviors GoTo, Towards and Move. This
@@ -45,7 +45,7 @@ class MoveTowardsAvoid(Behaviour):
 
     def __init__(self, name):
         """Init method for the MoveTowards behavior."""
-        super(MoveTowardsAvoid, self).__init__(name)
+        super(MoveTowards, self).__init__(name)
 
     def setup(self, timeout, agent, item):
         """Have defined the setup method.
@@ -126,8 +126,8 @@ class MoveTowardsAvoid(Behaviour):
         return self.behaviour_tree.root.status
 
 
-class MoveTowards(Behaviour):
-    """MoveTowards behavior for the agents.
+class MoveTowardsNormal(Behaviour):
+    """MoveTowardsNormal behavior for the agents.
 
     Inherits the Behaviors class from py_trees. This
     behavior combines the privitive behaviors GoTo, Towards and Move. This
@@ -136,7 +136,7 @@ class MoveTowards(Behaviour):
 
     def __init__(self, name):
         """Init method for the MoveTowards behavior."""
-        super(MoveTowards, self).__init__(name)
+        super(MoveTowardsNormal, self).__init__(name)
 
     def setup(self, timeout, agent, item):
         """Have defined the setup method.
@@ -192,8 +192,8 @@ class MoveTowards(Behaviour):
         return self.behaviour_tree.root.status
 
 
-class MoveAwayAvoid(Behaviour):
-    """MoveAwayAvoid behavior for the agents.
+class MoveAway(Behaviour):
+    """MoveAway behavior for the agents.
 
     Inherits the Behaviors class from py_trees. This
     behavior combines the privitive behaviors GoTo, Away and Move. This
@@ -202,7 +202,7 @@ class MoveAwayAvoid(Behaviour):
 
     def __init__(self, name):
         """Init method for the MoveAway behavior."""
-        super(MoveAwayAvoid, self).__init__(name)
+        super(MoveAway, self).__init__(name)
 
     def setup(self, timeout, agent, item):
         """Have defined the setup method.
@@ -280,8 +280,8 @@ class MoveAwayAvoid(Behaviour):
         return self.behaviour_tree.root.status
 
 
-class MoveAway(Behaviour):
-    """MoveAway behavior for the agents.
+class MoveAwayNormal(Behaviour):
+    """MoveAwayNormal behavior for the agents.
 
     Inherits the Behaviors class from py_trees. This
     behavior combines the privitive behaviors GoTo, Away and Move. This
@@ -290,7 +290,7 @@ class MoveAway(Behaviour):
 
     def __init__(self, name):
         """Init method for the MoveAway behavior."""
-        super(MoveAway, self).__init__(name)
+        super(MoveAwayNormal, self).__init__(name)
 
     def setup(self, timeout, agent, item):
         """Have defined the setup method.
@@ -612,8 +612,8 @@ class CompositeDrop(Behaviour):
 #         return self.behaviour_tree.root.status
 
 
-class ExploreAvoid(Behaviour):
-    """ExploreAvoid behavior for the agents.
+class Explore(Behaviour):
+    """Explore behavior for the agents.
 
     Inherits the Behaviors class from py_trees. This
     behavior combines the privitive behaviors to succesfully explore the
@@ -622,7 +622,7 @@ class ExploreAvoid(Behaviour):
 
     def __init__(self, name):
         """Init method for the Explore behavior."""
-        super(ExploreAvoid, self).__init__(name)
+        super(Explore, self).__init__(name)
 
     def setup(self, timeout, agent, item=None):
         """Have defined the setup method.
@@ -650,7 +650,7 @@ class ExploreAvoid(Behaviour):
         const_is_no_blocked_trp = NeighbourObjectsDist('EX_Blocked_Trap_CNT')
         const_is_no_blocked_trp.setup(0, self.agent, 'Traps')
 
-        sequence_blocked = Sequence('EX_Blocked')
+        # sequence_blocked = Sequence('EX_Blocked')
         sequence_blocked_obs = Sequence('EX_Selector_Blocked_Obs')
         avoid_obs = AvoidSObjects('EX_Avoid_Obstacles')
         avoid_obs.setup(0, self.agent)
@@ -690,8 +690,8 @@ class ExploreAvoid(Behaviour):
         return self.behaviour_tree.root.status
 
 
-class Explore(Behaviour):
-    """Explore behavior for the agents.
+class ExploreNormal(Behaviour):
+    """ExploreNormal behavior for the agents.
 
     Inherits the Behaviors class from py_trees. This
     behavior combines the privitive behaviors to succesfully explore the
@@ -700,7 +700,7 @@ class Explore(Behaviour):
 
     def __init__(self, name):
         """Init method for the Explore behavior."""
-        super(Explore, self).__init__(name)
+        super(ExploreNormal, self).__init__(name)
 
     def setup(self, timeout, agent, item=None):
         """Have defined the setup method.
