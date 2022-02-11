@@ -1535,8 +1535,8 @@ def plot_foraging_baseline_trap(basedata, ip=0.85, time=1000):
     ax1.set_xlabel('Evolution Steps')
     ax1.set_ylabel('Foraging (%)')
     ax1.set_yticks(range(0, 105, 20))
-    ax2 = ax1.twinx()
-    ax2.set_yticks(range(0, 105, 20))
+    # ax2 = ax1.twinx()
+    # ax2.set_yticks(range(0, 105, 20))
 
     plt.title('Trap Added at ' + str(time) +' Step')
     plt.tight_layout()
@@ -1545,7 +1545,7 @@ def plot_foraging_baseline_trap(basedata, ip=0.85, time=1000):
     # nadir = os.path.join(maindir, str(100))
 
     fig.savefig(
-        maindir + 'baselinetrap_trap_zoom_'+ str(time)+ '.png')
+        maindir + 'baselinetrap_zoom_'+ str(time)+ '.png')
     plt.close(fig)
 
 
@@ -1599,13 +1599,13 @@ def plot_foraging_baseline_trap_deadagent(basedata, ip=0.85, time=1000):
     ax_zoom.set_ylim(axeslimitdict[time][1][0],axeslimitdict[time][1][1])
     ax1.indicate_inset_zoom(ax_zoom, edgecolor="black", label="Zoomed", alpha=0.3)
     ax1.set_xlabel('Evolution Steps')
-    ax1.set_ylabel('Dead Agents (%)')
-    ax1.set_yticks(range(0, 105, 20))
-    ax2 = ax1.twinx()
+    ax1.set_ylabel('Dead Agents (%) / Foraging(%)')
+    # ax2 = ax1.twinx()
     ax1.plot(xvalues[mask], baseq2[0,:][mask], '-', label='Baseline Foraging', color='green')
     ax1.plot(xvalues[mask], q2[0,:][mask], '--', label='Pertubed Foraging', color='seagreen')
-    ax2.set_yticks(range(0, 105, 20))
-    ax2.set_ylabel('Foraging (%)')
+    ax1.set_yticks(range(0, 105, 20))
+    # ax2.set_yticks(range(0, 105, 20))
+    # ax2.set_ylabel('Foraging (%)')
     ax1.legend(fontsize="small", loc="center right", title="Metrics")
     plt.title('Trap Added at ' + str(time) +' Step')
     plt.tight_layout()
@@ -1614,7 +1614,7 @@ def plot_foraging_baseline_trap_deadagent(basedata, ip=0.85, time=1000):
     # nadir = os.path.join(maindir, str(100))
 
     fig.savefig(
-        maindir + 'baselinetrap_trap_deadagents_zoom_'+ str(time)+ '.png')
+        maindir + 'baselinetrap_deadagents_zoom_'+ str(time)+ '.png')
     plt.close(fig)
 
 
@@ -1798,16 +1798,16 @@ def main():
     # obstacle_introduced_compare()
     # for t in range(1000,11001,1000):
     #    plot_lt_foraging_gentic(time=t)
-    plot_foraging_baseline()
-    # basedata = np.squeeze(read_data_n_agent_perturbations_all(
-    #     n=100, iter=12000, threshold=7, time=10000, iprob=0.85,
-    #     no_objects=1, radius=5, idx=[3]))[:,-1]
+    # plot_foraging_baseline()
+    basedata = np.squeeze(read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=7, time=10000, iprob=0.85,
+        no_objects=1, radius=5, idx=[2,3]))
 
     # plot_foraging_deadagent_curve(basedata)
-    # for t in range(1000,11001,1000):
+    for t in range(1000,11001,1000):
         # plot_foraging_baseline_obstacles(basedata, time=t)
         # plot_foraging_baseline_trap(basedata, time=t)
-        # plot_foraging_baseline_trap_deadagent(basedata, time=t)
+        plot_foraging_baseline_trap_deadagent(basedata, time=t)
 
 
 if __name__ == '__main__':
