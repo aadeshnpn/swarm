@@ -16,12 +16,12 @@
 <constraint> ::= <constraint>[Cnstr]<constraintt>[/Cnstr]|[Cnstr]<constraintt>[/Cnstr]
 <constraintt> ::=CanMove|IsCarryable_<dobjects>|IsDropable_<sobjects>
 
-<motiontype> ::= Avoid|Normal
 <action> ::= <motion>|<nonmotion>
 <motion> ::= MoveTowards_<sobjects>_<motiontype>|Explore_0_<motiontype>|MoveAway_<sobjects>_<motiontype>
+<motiontype> ::= Normal|Avoid
 <nonmotion> ::= CompositeSingleCarry_<dobjects>|CompositeDrop_<dobjects>
 
-<sobjects>::=Hub|Sites|Boundary
-<dobjects>::=Food|Debris
+<sobjects>::=Hub|Sites
+<dobjects>::=Food
 <objects>::=<sobjects>|<dobjects>
 <SuccessNode> ::= [PostCnd]DummyNode[/PostCnd]
