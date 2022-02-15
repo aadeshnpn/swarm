@@ -1805,9 +1805,9 @@ def main():
 
     # plot_foraging_deadagent_curve(basedata)
     for t in range(1000,11001,1000):
-        # plot_foraging_baseline_obstacles(basedata, time=t)
+        plot_foraging_baseline_obstacles(basedata, time=t)
         # plot_foraging_baseline_trap(basedata, time=t)
-        plot_foraging_baseline_trap_deadagent(basedata, time=t)
+        # plot_foraging_baseline_trap_deadagent(basedata, time=t)
 
 
 if __name__ == '__main__':

@@ -49,6 +49,13 @@ def learning_phase(args):
         )
     # Save the data in a result csv file
     results.save_to_file()
+    import py_trees
+    for agent in env.agents:
+        # py_trees.display.print_ascii_tree(top)
+        print(
+            agent.name, py_trees.display.ascii_tree(
+                agent.bt.behaviour_tree.root))
+    exit()
 
     for i in range(iteration):
         # Take a step in evolution
@@ -149,9 +156,9 @@ def single_evo(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--exp_no', default=1, type=int)
-    parser.add_argument('--runs', default=36, type=int)
-    parser.add_argument('--threads', default=18, type=int)
+        '--exp_no', default=0, type=int)
+    parser.add_argument('--runs', default=1, type=int)
+    parser.add_argument('--threads', default=1, type=int)
     parser.add_argument('--iter', default=12000, type=int)
     parser.add_argument('--db', default=False, type=bool)
     parser.add_argument('--threshold', default=10, type=int)
