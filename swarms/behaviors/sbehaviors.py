@@ -781,15 +781,15 @@ class Drop(Behaviour):
                 objects.agent_name = self.agent.name
             # Temporary fix
             # Store the genome which activated the single carry
-            try:
-                # objects.phenotype['drop'] =
-                # self.agent.individual[0].phenotype
-                objects.phenotype = {
-                    self.agent.individual[0].phenotype: self.agent.individual[
-                        0].fitness}
-                return common.Status.SUCCESS
-            except AttributeError:
-                pass
+            # try:
+            #     # objects.phenotype['drop'] =
+            #     # self.agent.individual[0].phenotype
+            #     objects.phenotype = {
+            #         self.agent.individual[0].phenotype: self.agent.individual[
+            #             0].fitness}
+            #     return common.Status.SUCCESS
+            # except AttributeError:
+            #     pass
             # objects.agents.remove(self.agent)
             return common.Status.SUCCESS
         except (AttributeError, IndexError):
@@ -878,12 +878,12 @@ class SingleCarry(Behaviour):
 
             # Temporary fix
             # Store the genome which activated the single carry
-            try:
-                objects.phenotype = {
-                    self.agent.individual[0].phenotype: self.agent.individual[
-                        0].fitness}
-            except AttributeError:
-                pass
+            # try:
+            #     objects.phenotype = {
+            #         self.agent.individual[0].phenotype: self.agent.individual[
+            #             0].fitness}
+            # except AttributeError:
+            #     pass
             return common.Status.SUCCESS
         except (AttributeError, IndexError):
             return common.Status.FAILURE
