@@ -149,9 +149,10 @@ def read_data_n_agent_perturbations(
     mdata = []
     for f in folders:
         flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
-        data = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
-        # print(f.shape, flist[0])
-        fdata.append(data[idx])
+        if len(flist) >=1:
+            data = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+            # print(f.shape, flist[0])
+            fdata.append(data[idx])
     fdata = np.array(fdata)
     # print(fdata.shape)
     return fdata
@@ -1820,6 +1821,85 @@ def obstacle_introduced_compare():
     plt.close(fig)
 
 
+def ip_paper_efficiency_power(t=5):
+    ip = [0.7, 0.8, 0.85, 0.9, 0.99]
+
+    data = [np.median(np.squeeze(read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=t, time=10000, iprob=i,
+        addobject='None',no_objects=1, radius=5, idx=[2])), axis=0) for i in ip]
+
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    ax1 = fig.add_subplot(1, 1, 1)
+
+    xvalues = np.array(list(range(12002)))
+    mask = xvalues % 1000 == 0
+    for i in range(len(ip)):
+        ax1.plot(xvalues[mask], data[i][mask], marker="v", ls='-', label=str(ip[i]))
+
+    ax1.legend(fontsize="small", loc="lower right", title='IPs')
+    ax1.set_yticks(range(0, 105, 10))
+    ax1.set_xlabel('Steps', fontsize="large")
+    ax1.set_ylabel('Foraging (%)', fontsize="large")
+
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments'
+    fname = 'ip_paper_efficiency_power_' + str(t)
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
+def ip_paper_efficiency_power_boxplot(t=5):
+    # thresholds = [5, 7, 10, 15]
+    ip = [0.5, 0.7, 0.8, 0.85, 0.9, 0.99]
+    data100 = [read_data_n_agent_perturbations(
+        n=100, iter=12000, threshold=t, time=10000, iprob=i)[:,-1] for i in ip]
+
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    ax1 = fig.add_subplot(1, 1, 1)
+    colordict = {
+        0: 'gold',
+        1: 'linen',
+        2: 'orchid',
+        3: 'peru',
+        4: 'olivedrab',
+        5: 'indianred',
+        6: 'tomato'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+
+    # labels = [ "> n/"+str(a) for a in thresholds]
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    bp1 = ax1.boxplot(
+        data100, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, widths=0.8)
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+
+    ax1.legend(zip(bp1['boxes']), ip, fontsize="small", loc="lower right", title='IP')
+    # ax1.legend(zip(bp1['boxes']), thresholds, fontsize="small", loc="upper right", title='Storage Threshold')
+    # ax1.set_xticks([1.5, 4.5, 7.5, 10.5])
+    ax1.set_xticklabels(ip)
+    ax1.set_yticks(range(0, 105, 20))
+    ax1.set_xlabel('IP', fontsize="large")
+    ax1.set_ylabel('Foraging (%)', fontsize="large")
+    plt.title('IP')
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments'
+    fname = 'ipboxplotiprob'+str(t)
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
 def main():
     # plot_evolution_algo_performance_boxplot()
     # plot_evolution_algo_performance()
@@ -1844,17 +1924,21 @@ def main():
     # for t in range(1000,11001,1000):
     #    plot_lt_foraging_gentic(time=t)
     # plot_foraging_baseline()
-    basedata = np.squeeze(read_data_n_agent_perturbations_all(
-        n=100, iter=12000, threshold=7, time=10000, iprob=0.85,
-        no_objects=1, radius=5, idx=[2,3]))
+    # basedata = np.squeeze(read_data_n_agent_perturbations_all(
+    #     n=100, iter=12000, threshold=7, time=10000, iprob=0.85,
+    #     no_objects=1, radius=5, idx=[2,3]))
 
-    # # plot_foraging_deadagent_curve(basedata)
-    for t in range(1000,4001,1000):
-        plot_foraging_baseline_obstacles(basedata, time=t)
-    #     # plot_foraging_baseline_trap(basedata, time=t)
-    #     # plot_foraging_baseline_trap_deadagent(basedata, time=t)
+    # # # plot_foraging_deadagent_curve(basedata)
+    # for t in range(1000,4001,1000):
+    #     plot_foraging_baseline_obstacles(basedata, time=t)
+    # #     # plot_foraging_baseline_trap(basedata, time=t)
+    # #     # plot_foraging_baseline_trap_deadagent(basedata, time=t)
 
     # # plot_no_obstacles_performance(time=2000)
+    for t in [5]:
+        ip_paper_efficiency_power(t)
+        # ip_paper_efficiency_power_boxplot(t)
+
 
 if __name__ == '__main__':
     main()
