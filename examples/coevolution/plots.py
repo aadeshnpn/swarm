@@ -1952,7 +1952,8 @@ def ip_paper_efficiency_power_lt(t=5):
         p = ax1.plot(xvalues[mask], data[i][mask], marker="v", ls='-', label=str(ip[i]))
         colors += [p[0].get_color()]
 
-    ax_zoom = ax1.inset_axes([0.05,0.5,0.47,0.47])
+    ax_zoom = ax1.inset_axes([0.05,0.6,0.8,0.37])
+    # ax_zoom = ax1.inset_axes([0.05,0.5,0.47,0.47])
     ax_zoom.patch.set_alpha(0.5)
 
     medianprops = dict(linewidth=2.5, color='firebrick')
@@ -1969,7 +1970,7 @@ def ip_paper_efficiency_power_lt(t=5):
 
     ax_zoom.set_yticks(range(0, 11, 2))
     ax_zoom.set_xticklabels(ip)
-    ax1.set_yticks(range(0, 25, 2))
+    ax1.set_yticks(range(0, 21, 2))
     ax1.set_xlabel('Steps', fontsize="large")
     ax1.set_ylabel('LT Rate (%)', fontsize="large")
     ax1.legend(fontsize="small", loc="upper right", title='IPs')
@@ -1984,6 +1985,57 @@ def ip_paper_efficiency_power_lt(t=5):
 
     plt.close(fig)
 
+
+def ip_paper_efficiency_power_gs(t=5):
+    ip = [0.5, 0.7, 0.8, 0.85, 0.9, 0.99]
+    axeslimitdict = {
+        0:[(11500,12002), (75,95)]
+        }
+    data = [np.mean(np.squeeze(read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=t, time=10000, iprob=i,
+        addobject='None',no_objects=1, radius=5, idx=[6])), axis=0) for i in ip]
+
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    ax1 = fig.add_subplot(1, 1, 1)
+
+    xvalues = np.array(list(range(12002)))
+    mask = xvalues % 1000 == 0
+    colors = []
+    for i in range(len(ip)):
+        p = ax1.plot(xvalues[mask], data[i][mask], marker="v", ls='-', label=str(ip[i]))
+        colors += [p[0].get_color()]
+
+    ax_zoom = ax1.inset_axes([0.05,0.6,0.8,0.37])
+    ax_zoom.patch.set_alpha(0.5)
+
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    # print(len(data), data[0].shape)
+    data = [d[2:].astype(np.int8) for d in data]
+    # print(data[0])
+    bp1 = ax_zoom.boxplot(
+        data, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, widths=0.8, showfliers=False)
+    for patch, color in zip(bp1['boxes'], colors):
+        patch.set_facecolor(color)
+
+    ax_zoom.set_yticks(range(0, 60, 10))
+    ax_zoom.set_xticklabels(ip)
+    ax1.set_yticks(range(0, 111, 10))
+    ax1.set_xlabel('Steps', fontsize="large")
+    ax1.set_ylabel('GS Rate (%)', fontsize="large")
+    ax1.legend(fontsize="small", loc="upper right", title='IPs')
+
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments'
+    fname = 'ip_paper_efficiency_power_gs_' + str(t)
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
 
 def main():
     # plot_evolution_algo_performance_boxplot()
@@ -2023,8 +2075,9 @@ def main():
     # #     # plot_foraging_baseline_trap_deadagent(basedata, time=t)
 
     # # plot_no_obstacles_performance(time=2000)
-    for t in [5,7,10,15]:
+    for t in [7]:
         ip_paper_efficiency_power_lt(t)
+        # ip_paper_efficiency_power_gs(t)
         # ip_paper_efficiency_power(t)
     #     # ip_paper_efficiency_power_boxplot(t)
 
