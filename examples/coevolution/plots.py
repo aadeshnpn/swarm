@@ -1,6 +1,7 @@
 from cProfile import label
 from email import header
 import os
+from pdb import post_mortem
 import numpy as np
 import scipy.stats as stats
 import matplotlib
@@ -2037,6 +2038,63 @@ def ip_paper_efficiency_power_gs(t=5):
 
     plt.close(fig)
 
+
+def st_paper_efficiency_power_boxplot_all():
+    ips = [0.8, 0.85, 0.9]
+    thresholds = [5, 7 , 10, 15]
+    datas = {}
+    for t in thresholds:
+        data100 = [read_data_n_agent_perturbations(
+            n=100, iter=12000, threshold=t, time=10000, iprob=ip)[:,-1] for ip in ips]
+        datas[t] = data100
+    positions = [
+        [1, 2, 3], [5, 6, 7], [9, 10, 11], [13, 14, 15]
+        ]
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    ax1 = fig.add_subplot(1, 1, 1)
+    colordict = {
+        0: 'gold',
+        1: 'linen',
+        2: 'orchid',
+        3: 'peru',
+        4: 'olivedrab',
+        5: 'indianred',
+        6: 'tomato'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+
+    # labels = [ "> n/"+str(a) for a in thresholds]
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    for i in range(len(thresholds)):
+        # print([d[0].shape for d in datas[i]])
+        # print(datas[thresholds[i]], len(datas[thresholds[i]]))
+        bp1 = ax1.boxplot(
+            datas[thresholds[i]], 0, 'gD', showmeans=True, meanline=True,
+            patch_artist=True, medianprops=medianprops,
+            meanprops=meanprops, widths=0.8, positions = positions[i])
+        for patch, color in zip(bp1['boxes'], colordict.values()):
+            patch.set_facecolor(color)
+
+    ax1.legend(zip(bp1['boxes']), ips, fontsize="small", loc="upper right", title='IP')
+
+    ax1.set_xticks([2,6,10,14])
+    ax1.set_xticklabels(thresholds)
+    ax1.set_yticks(range(0, 105, 20))
+    ax1.set_xlabel('Storage Threshold (ST)', fontsize="large")
+    ax1.set_ylabel('Foraging (%)', fontsize="large")
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments'
+    fname = 'stboxplotiproball'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
 def main():
     # plot_evolution_algo_performance_boxplot()
     # plot_evolution_algo_performance()
@@ -2047,13 +2105,15 @@ def main():
     # plot_none_obstacles_trap()
     # plot_obstacles_time()
     # plot_lt_rate()
-    #
-    # for ip in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
+    # [0.1, 0.2, 0.3, 0.4,
+    # for ip in [0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
+    # for ip in [0.85]:
     #     # storage_threshold_iprob(ip=ip)
-    #     storage_threshold_iprob_lt(ip=ip)
-    #     storage_threshold_iprob_gs(ip=ip)
+    #     # storage_threshold_iprob_lt(ip=ip)
+    #     # storage_threshold_iprob_gs(ip=ip)
     #     # storage_threshold_all_100(ip=ip)
     #     # plot_lt_foraging_gentic(ip=ip)
+    #     st_paper_efficiency_power_boxplot(ip=ip)
     # obstacle_introduced()
     # trap_introduced()
     # trap_introduced_deadagent()
@@ -2075,11 +2135,12 @@ def main():
     # #     # plot_foraging_baseline_trap_deadagent(basedata, time=t)
 
     # # plot_no_obstacles_performance(time=2000)
-    for t in [7]:
-        ip_paper_efficiency_power_lt(t)
-        # ip_paper_efficiency_power_gs(t)
-        # ip_paper_efficiency_power(t)
-    #     # ip_paper_efficiency_power_boxplot(t)
+    # for t in [5]:
+    #     # ip_paper_efficiency_power_lt(t)
+    #     # ip_paper_efficiency_power_gs(t)
+    #     ip_paper_efficiency_power(t)
+    # #     # ip_paper_efficiency_power_boxplot(t)
+    st_paper_efficiency_power_boxplot_all()
 
 
 if __name__ == '__main__':
