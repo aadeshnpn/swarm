@@ -545,6 +545,7 @@ class EvolveModel(CoevolutionModel):
             N, width, height, grid, iter, seed, name, viewer, db=db,
             threshold=threshold, gstep=gstep, expp=expp, args=args)
         # self.parser = LTLfParser()
+        self.stop_lateral_transfer = False
 
     def create_agents(self, random_init=True, phenotypes=None):
         """Initialize agents in the environment."""
@@ -688,6 +689,7 @@ class EvolveModel(CoevolutionModel):
             # print('foods', [(site.location, site.radius) for site in self.foods])
             # print('----------------')
             self.add_object()
+            self.activate_stop_lateral_transfer()
             # self.remove_object()
             # self.move_object()
             # self.jam_communication()
@@ -701,6 +703,9 @@ class EvolveModel(CoevolutionModel):
         # input('Enter to continue' + str(self.stepcnt))
         # Increment the step count
         self.stepcnt += 1
+
+    def activate_stop_lateral_transfer(self):
+        self.stop_lateral_transfer = True
 
 
 class ValidationModel(CoevolutionModel):

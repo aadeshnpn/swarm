@@ -1705,7 +1705,7 @@ def plot_foraging_baseline_obstacles(basedata, ip=0.85, time=1000):
     ax_zoom = ax1.inset_axes([0.05,0.5,0.47,0.47], alpha=0.3)
     data = np.squeeze(read_data_n_agent_perturbations_all(
         n=100, iter=12000, threshold=7, time=time, iprob=0.85, addobject='Obstacles',
-        no_objects=1, radius=10, idx=[2,3]))
+        no_objects=2, radius=10, idx=[2,3]))
 
     q2 = np.median(data, axis=1)
     q1 = np.quantile(data, axis=1, q=0.25)
@@ -1726,8 +1726,8 @@ def plot_foraging_baseline_obstacles(basedata, ip=0.85, time=1000):
     ax1.set_xlabel('Evolution Steps')
     ax1.set_ylabel('Foraging (%)')
     ax1.set_yticks(range(0, 105, 20))
-    ax2 = ax1.twinx()
-    ax2.set_yticks(range(0, 105, 20))
+    # ax2 = ax1.twinx()
+    # ax2.set_yticks(range(0, 105, 20))
 
     plt.title('Obstacle Added at ' + str(time) +' Step')
     plt.tight_layout()
@@ -1831,12 +1831,12 @@ def main():
     # plot_obstacles_time()
     # plot_lt_rate()
     #
-    for ip in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
-        storage_threshold_iprob(ip=ip)
-        storage_threshold_iprob_lt(ip=ip)
-        storage_threshold_iprob_gs(ip=ip)
-        # storage_threshold_all_100(ip=ip)
-        # plot_lt_foraging_gentic(ip=ip)
+    # for ip in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
+    #     storage_threshold_iprob(ip=ip)
+    #     storage_threshold_iprob_lt(ip=ip)
+    #     storage_threshold_iprob_gs(ip=ip)
+    #     # storage_threshold_all_100(ip=ip)
+    #     # plot_lt_foraging_gentic(ip=ip)
     # obstacle_introduced()
     # trap_introduced()
     # trap_introduced_deadagent()
@@ -1844,15 +1844,15 @@ def main():
     # for t in range(1000,11001,1000):
     #    plot_lt_foraging_gentic(time=t)
     # plot_foraging_baseline()
-    # basedata = np.squeeze(read_data_n_agent_perturbations_all(
-    #     n=100, iter=12000, threshold=7, time=10000, iprob=0.85,
-    #     no_objects=1, radius=5, idx=[2,3]))
+    basedata = np.squeeze(read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=7, time=10000, iprob=0.85,
+        no_objects=1, radius=5, idx=[2,3]))
 
-    # # # plot_foraging_deadagent_curve(basedata)
-    # for t in range(1000,4001,1000):
-    #     plot_foraging_baseline_obstacles(basedata, time=t)
-    # #     # plot_foraging_baseline_trap(basedata, time=t)
-    # #     # plot_foraging_baseline_trap_deadagent(basedata, time=t)
+    # # plot_foraging_deadagent_curve(basedata)
+    for t in range(1000,4001,1000):
+        plot_foraging_baseline_obstacles(basedata, time=t)
+    #     # plot_foraging_baseline_trap(basedata, time=t)
+    #     # plot_foraging_baseline_trap_deadagent(basedata, time=t)
 
     # # plot_no_obstacles_performance(time=2000)
 
