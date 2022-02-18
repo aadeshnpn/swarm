@@ -162,10 +162,10 @@ def read_data_n_agent_perturbations(
 def read_data_n_agent_perturbations_all(
         n=100, iter=12000, threshold=10, gstep=200, expp=2,
         addobject=None, removeobject=None, no_objects=1, radius=5,
-        time=13000, iprob=0.85, idx=[2]):
-    maindir = '/tmp/swarm/data/experiments/EvoCoevolutionPPA/'
+        time=13000, iprob=0.85, idx=[2], fname='EvoCoevolutionPPA'):
+    # maindir = '/tmp/swarm/data/experiments/' + fname
     nadir = os.path.join(
-                '/tmp', 'swarm', 'data', 'experiments', 'EvoCoevolutionPPA',
+                '/tmp', 'swarm', 'data', 'experiments', fname,
                 str(n), str(iter), str(threshold), str(gstep), str(expp),
                 str(addobject), str(removeobject),
                 str(no_objects), str(radius),
@@ -2095,6 +2095,118 @@ def st_paper_efficiency_power_boxplot_all():
     plt.close(fig)
 
 
+def compare_learning_notlearning_obstacles(no=1, time=1000):
+    dataltstop = np.squeeze(read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=7, time=time, iprob=0.85,
+        addobject='Obstacles',no_objects=no, radius=10, idx=[2],
+        fname='EvoCoevolutionPPAStop'))
+
+    data = np.squeeze(read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=7, time=time, iprob=0.85,
+        addobject='Obstacles',no_objects=no, radius=10, idx=[2]))
+
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    ax1 = fig.add_subplot(1, 1, 1)
+    xvalues = range(12002)
+
+    ax1.plot(
+        xvalues, np.median(data, axis=0),
+        label="LT Enabled", color='blue')
+    ax1.fill_between(
+                xvalues,
+                np.quantile(data, q =0.25, axis=0),
+                np.quantile(data, q =0.75, axis=0),
+                color='DodgerBlue', alpha=0.3)
+
+    ax1.plot(
+        xvalues,
+        np.median(dataltstop, axis=0) , label="LT Blocked", color='red')
+    ax1.fill_between(
+                xvalues,
+                np.quantile(dataltstop, q =0.25, axis=0),
+                np.quantile(dataltstop, q =0.75, axis=0),
+                color='salmon', alpha=0.3)
+
+    ax1.legend(fontsize="small", loc="upper left", title='LT Mode')
+
+    ax1.set_xlabel('Evolution Steps')
+    ax1.set_ylabel('Foraging (%)')
+    ax1.set_yticks(range(0, 105, 20))
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments'
+    fname = 'ltenabledstop_' + str(no) +'_' + str(time)
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
+def compare_lt_on_off_no_obst(no=2):
+    # nos = [2, 3, 5]
+    timings = list(range(1000,4001,1000))
+    # dataltstops = dict(zip(timings, [list()] * len(timings)))
+    # datas = dict(zip(timings, [list()] * len(timings)))
+    dataltstops = []
+    datas = []
+    for time in timings:
+        dataltstops += [np.squeeze(read_data_n_agent_perturbations_all(
+            n=100, iter=12000, threshold=7, time=time, iprob=0.85,
+            addobject='Obstacles',no_objects=no, radius=10, idx=[2],
+            fname='EvoCoevolutionPPAStop'))]
+
+        datas += [np.squeeze(read_data_n_agent_perturbations_all(
+            n=100, iter=12000, threshold=7, time=time, iprob=0.85,
+            addobject='Obstacles',no_objects=no, radius=10, idx=[2]))]
+
+    positions = [
+        [1, 2], [4, 5], [7, 8], [10,11]
+        ]
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    ax1 = fig.add_subplot(1, 1, 1)
+    colordict = {
+        0: 'gold',
+        1: 'linen',
+        2: 'orchid',
+        3: 'peru',
+        4: 'olivedrab',
+        5: 'indianred',
+        6: 'tomato'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    # print(dataltstops[0][:,-1])
+    for i in range(len(timings)):
+
+        bp1 = ax1.boxplot(
+            [datas[i][:,-1], dataltstops[i][:,-1]],
+             0, 'gD', showmeans=True, meanline=True,
+            patch_artist=True, medianprops=medianprops,
+            meanprops=meanprops, widths=0.8, positions = positions[i])
+        for patch, color in zip(bp1['boxes'], colordict.values()):
+            patch.set_facecolor(color)
+
+    ax1.legend(zip(bp1['boxes']), ['LT On', 'LT Off'], fontsize="small", loc="center left", title='LT')
+
+    ax1.set_xticks([1.5,4.5,7.5,10.5])
+    ax1.set_xticklabels(timings)
+    ax1.set_yticks(range(0, 105, 20))
+    ax1.set_xlabel('Timings', fontsize="large")
+    ax1.set_ylabel('Foraging (%)', fontsize="large")
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments'
+    fname = 'ltonoffboxplotall_' + str(no)
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
 def main():
     # plot_evolution_algo_performance_boxplot()
     # plot_evolution_algo_performance()
@@ -2140,7 +2252,11 @@ def main():
     #     # ip_paper_efficiency_power_gs(t)
     #     ip_paper_efficiency_power(t)
     # #     # ip_paper_efficiency_power_boxplot(t)
-    st_paper_efficiency_power_boxplot_all()
+    # st_paper_efficiency_power_boxplot_all()
+    # for i in range(1000,6001,1000):
+    #     compare_learning_notlearning_obstacles(no=5, time=i)
+    for i in range(2,6):
+        compare_lt_on_off_no_obst(no=i)
 
 
 if __name__ == '__main__':

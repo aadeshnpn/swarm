@@ -689,7 +689,8 @@ class EvolveModel(CoevolutionModel):
             # print('foods', [(site.location, site.radius) for site in self.foods])
             # print('----------------')
             self.add_object()
-            self.activate_stop_lateral_transfer()
+            if self.args.addobject is not None:
+                self.activate_stop_lateral_transfer()
             # self.remove_object()
             # self.move_object()
             # self.jam_communication()
@@ -699,13 +700,18 @@ class EvolveModel(CoevolutionModel):
             # print('trap', [(site.location, site.radius) for site in self.traps])
             # print('foods', [(site.location, site.radius) for site in self.foods])
             # exit()
-
+        if self.stepcnt == self.args.stoplen:
+            if self.args.addobject is not None:
+                self.deactivate_stop_lateral_transfer()
         # input('Enter to continue' + str(self.stepcnt))
         # Increment the step count
         self.stepcnt += 1
 
     def activate_stop_lateral_transfer(self):
         self.stop_lateral_transfer = True
+
+    def deactivate_stop_lateral_transfer(self):
+        self.stop_lateral_transfer = False
 
 
 class ValidationModel(CoevolutionModel):
