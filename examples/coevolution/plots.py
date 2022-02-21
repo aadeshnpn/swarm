@@ -2099,11 +2099,16 @@ def compare_learning_notlearning_obstacles(no=1, time=1000):
     dataltstop = np.squeeze(read_data_n_agent_perturbations_all(
         n=100, iter=12000, threshold=7, time=time, iprob=0.85,
         addobject='Obstacles',no_objects=no, radius=10, idx=[2],
-        fname='EvoCoevolutionPPAStop'))
+        fname='LTStopEvoCoevolutionPPA'))
 
     data = np.squeeze(read_data_n_agent_perturbations_all(
         n=100, iter=12000, threshold=7, time=time, iprob=0.85,
         addobject='Obstacles',no_objects=no, radius=10, idx=[2]))
+
+    datastoplearn = np.squeeze(read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=7, time=time, iprob=0.85,
+        addobject='Obstacles',no_objects=no, radius=10, idx=[2],
+        fname='LTResumeEvoCoevolutionPPA'))
 
     fig = plt.figure(figsize=(8,6), dpi=200)
     ax1 = fig.add_subplot(1, 1, 1)
@@ -2111,7 +2116,7 @@ def compare_learning_notlearning_obstacles(no=1, time=1000):
 
     ax1.plot(
         xvalues, np.median(data, axis=0),
-        label="LT Enabled", color='blue')
+        label="Baseline", color='blue')
     ax1.fill_between(
                 xvalues,
                 np.quantile(data, q =0.25, axis=0),
@@ -2120,14 +2125,25 @@ def compare_learning_notlearning_obstacles(no=1, time=1000):
 
     ax1.plot(
         xvalues,
-        np.median(dataltstop, axis=0) , label="LT Blocked", color='red')
+        np.median(dataltstop, axis=0) , label="Disabled", color='red')
     ax1.fill_between(
                 xvalues,
                 np.quantile(dataltstop, q =0.25, axis=0),
                 np.quantile(dataltstop, q =0.75, axis=0),
                 color='salmon', alpha=0.3)
 
-    ax1.legend(fontsize="small", loc="upper left", title='LT Mode')
+    ax1.plot(
+        xvalues,
+        np.median(datastoplearn, axis=0) , label="Enabled After", color='seagreen')
+    ax1.fill_between(
+                xvalues,
+                np.quantile(datastoplearn, q =0.25, axis=0),
+                np.quantile(datastoplearn, q =0.75, axis=0),
+                color='lime', alpha=0.3)
+
+    ax1.plot([time]*101, range(0,101), 'r--', label='Disabled Triggered')
+    ax1.plot([time+1000]*101, range(0,101), 'g--', label='Enable Triggered')
+    ax1.legend(fontsize="small", loc="upper left", title='Lateral Transfer')
 
     ax1.set_xlabel('Evolution Steps')
     ax1.set_ylabel('Foraging (%)')
@@ -2144,23 +2160,29 @@ def compare_learning_notlearning_obstacles(no=1, time=1000):
 
 def compare_lt_on_off_no_obst(no=2):
     # nos = [2, 3, 5]
-    timings = list(range(1000,4001,1000))
+    timings = list(range(1000,9001,2000))
     # dataltstops = dict(zip(timings, [list()] * len(timings)))
     # datas = dict(zip(timings, [list()] * len(timings)))
     dataltstops = []
     datas = []
+    datastoplearn = []
     for time in timings:
         dataltstops += [np.squeeze(read_data_n_agent_perturbations_all(
             n=100, iter=12000, threshold=7, time=time, iprob=0.85,
             addobject='Obstacles',no_objects=no, radius=10, idx=[2],
-            fname='EvoCoevolutionPPAStop'))]
+            fname='LTStopEvoCoevolutionPPA'))]
 
         datas += [np.squeeze(read_data_n_agent_perturbations_all(
             n=100, iter=12000, threshold=7, time=time, iprob=0.85,
             addobject='Obstacles',no_objects=no, radius=10, idx=[2]))]
 
+        datastoplearn += [np.squeeze(read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=7, time=time, iprob=0.85,
+        addobject='Obstacles',no_objects=no, radius=10, idx=[2],
+        fname='LTResumeEvoCoevolutionPPA'))]
+
     positions = [
-        [1, 2], [4, 5], [7, 8], [10,11]
+        [1, 2, 3], [5, 6, 7], [9, 10, 11], [13, 14, 15], [17, 18, 19]
         ]
     fig = plt.figure(figsize=(8,6), dpi=200)
     ax1 = fig.add_subplot(1, 1, 1)
@@ -2182,19 +2204,21 @@ def compare_lt_on_off_no_obst(no=2):
     for i in range(len(timings)):
 
         bp1 = ax1.boxplot(
-            [datas[i][:,-1], dataltstops[i][:,-1]],
+            [datas[i][:,-1], dataltstops[i][:,-1], datastoplearn[i][:,-1]],
              0, 'gD', showmeans=True, meanline=True,
             patch_artist=True, medianprops=medianprops,
             meanprops=meanprops, widths=0.8, positions = positions[i])
         for patch, color in zip(bp1['boxes'], colordict.values()):
             patch.set_facecolor(color)
 
-    ax1.legend(zip(bp1['boxes']), ['LT On', 'LT Off'], fontsize="small", loc="center left", title='LT')
+    ax1.legend(
+        zip(bp1['boxes']), ['Baseline', 'Disabled', 'Enabled After'],
+        fontsize="small", loc="center left", title='Lateral Transfer')
 
-    ax1.set_xticks([1.5,4.5,7.5,10.5])
+    ax1.set_xticks([2,6,10,14, 18])
     ax1.set_xticklabels(timings)
     ax1.set_yticks(range(0, 105, 20))
-    ax1.set_xlabel('Timings', fontsize="large")
+    ax1.set_xlabel('Triggered Timings', fontsize="large")
     ax1.set_ylabel('Foraging (%)', fontsize="large")
     plt.tight_layout()
     maindir = '/tmp/swarm/data/experiments'
@@ -2253,9 +2277,9 @@ def main():
     #     ip_paper_efficiency_power(t)
     # #     # ip_paper_efficiency_power_boxplot(t)
     # st_paper_efficiency_power_boxplot_all()
-    # for i in range(1000,6001,1000):
-    #     compare_learning_notlearning_obstacles(no=5, time=i)
-    for i in range(2,6):
+    for i in range(1000,11001,1000):
+        compare_learning_notlearning_obstacles(no=2, time=i)
+    for i in [2, 4]:
         compare_lt_on_off_no_obst(no=i)
 
 
