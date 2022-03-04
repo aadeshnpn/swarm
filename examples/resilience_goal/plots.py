@@ -202,7 +202,7 @@ def boxplot_fitness_paper():
     diversity_exp = [olddatas[1], middatas[1], newdatas[1]]
     all = [olddatas[2], middatas[2], newdatas[2]]
     # plt.style.use('fivethirtyeight')
-    fig = plt.figure()
+    fig = plt.figure(figsize=(8,6), dpi=300)
 
     ax1 = fig.add_subplot(1, 1, 1)
     colordict = {
@@ -1303,8 +1303,8 @@ def compare_sampling_differences():
     sampling_size = [0.1, 0.3, 0.5, 0.7, 0.8, 0.9]
     datasnew = [read_data_sample_ratio(s) for s in sampling_size]
     datasold = [read_data_sample_ratio_ijcai(s) for s in sampling_size]
-
-    fig = plt.figure(dpi=200)
+    # print(datasnew, datasold)
+    fig = plt.figure(figsize=(8,6), dpi=300)
     ax1 = fig.add_subplot(1, 1, 1)
 
     colordict = {
@@ -1345,7 +1345,9 @@ def compare_sampling_differences():
             patch.set_facecolor(color)
 
     # plt.xlim(0, len(mean))
-    ax1.legend(zip(bp1['boxes']), ['Top Agents (GEESE-BT)', 'Parallel (BeTr-GEESE)'], fontsize="small", loc="upper left", title='Sampling Algorithm')
+    ax1.legend(
+        zip(bp1['boxes']), ['Top Agents (GEESE-BT)', 'Parallel (BeTr-GEESE)'],
+        fontsize="small", loc="upper left", title='Sampling Algorithm')
     ax1.set_xticks([1.5, 4.5, 7.5, 10.5, 13.5, 16.5])
     ax1.set_xticklabels(labels)
     ax1.set_yticks(range(0, 105, 20))
@@ -2006,23 +2008,23 @@ def main():
     # plot_evolution_algo_performance()
     # plot_sampling_differences()
     # plotallsitesdist()
-    # comp_with_witout_comm()
-    boxplot_exp_0()
-    boxplot_exp_1()
-    # experiment_1()
-    boxplot_exp_2()
-    boxplot_exp_3()
-    boxplot_exp_4()
-    boxplot_exp_5()
+    # # comp_with_witout_comm()
+    # boxplot_exp_0()
+    # boxplot_exp_1()
+    # # experiment_1()
+    # boxplot_exp_2()
+    # boxplot_exp_3()
+    # boxplot_exp_4()
+    # boxplot_exp_5()
     # for t in  [9, 13, 15, 3]:
     #     boxplot_exp_5(t)
     # boxplot_fitness()
     # boxplot_oldVsPPA_diversity()
-    # boxplot_fitness_paper()
+    boxplot_fitness_paper()
     # boxplot_exp_agent_varying()
     # plot_sampling_differences()
     # compare_sampling_differences()
-    plot_evolution_algo_performance()
+    # plot_evolution_algo_performance()
 
 
 if __name__ == '__main__':

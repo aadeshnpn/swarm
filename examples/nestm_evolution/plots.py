@@ -899,20 +899,49 @@ def plot_evolution_algo_performance():
 
 def read_data_sample_ratio(ratio=0.1):
     # maindir = '/tmp/swarm/data/experiments/behavior_sampling'
-    # maindir = '/tmp/swarms/data/experiment/'
+    maindir = '/tmp/bsamplenest/'
     ## Experiment ID for the plots/results in the paper
     # maindir = '/tmp/16244729911974EvoSForgeNewPPA1/'
     # maindir = '/tmp/experiments/100/12000/16243666378807EvoSForgeNewPPA1'
     # nadir = os.path.join(maindir, str(n), agent)
-    maindir = '/tmp/16244729911974EvoSForgeNewPPA1/'  # New sampling behaviors
-    folders = pathlib.Path(maindir).glob("*_" + str(ratio) + "_ValidateSForgeNewPPA1")
+    # maindir = '/tmp/bsampling/'  # New sampling behaviors
+
+    folders = pathlib.Path(maindir).glob("*_" + str(ratio) + "_ValidateNestMNewPPA1")
     flist = []
     data = []
     for f in folders:
+        # print(f)
         try:
             flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
             _, _, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
-            data.append(d)
+            # print(d.shape)
+            data.append(d[-1])
+        except:
+            pass
+    data = np.array(data)
+    # print(ratio, data.shape)
+    return data
+
+
+def read_data_sample_ratio_ijcai(ratio=0.1):
+    # maindir = '/tmp/swarm/data/experiments/behavior_sampling'
+    maindir = '/tmp/ratioijcainest/_' + str(ratio) + '_'
+    ## Experiment ID for the plots/results in the paper
+    # maindir = '/tmp/16244729911974EvoSForgeNewPPA1/'
+    # maindir = '/tmp/experiments/100/12000/16243666378807EvoSForgeNewPPA1'
+    # nadir = os.path.join(maindir, str(n), agent)
+    # maindir = '/tmp/bsampling/'  # New sampling behaviors
+
+    folders = pathlib.Path(maindir).glob("*[0-9]*NMSimulation")
+    flist = []
+    data = []
+    for f in folders:
+        # print(f)
+        try:
+            flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
+            _, _, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+            # print(d.shape)
+            data.append(d[-1])
         except:
             pass
     data = np.array(data)
@@ -1364,7 +1393,7 @@ def comp_with_witout_comm():
 
 
 def read_old_data_txt(fname='0'):
-    maindir = '/tmp/divGeeseBT/'
+    maindir = '/tmp/div/GeeseBT/'
     fname = maindir+fname+'/'+fname+'.txt'
     # print(fname)
     data = np.genfromtxt(fname, unpack=True, autostrip=True)
@@ -1396,7 +1425,7 @@ def boxplot_fitness_paper():
     # all = [olddatas[2], middatas[2], newdatas[2]]
     all = [newdatas[0], newdatas[1], newdatas[2]]
     # plt.style.use('fivethirtyeight')
-    fig = plt.figure()
+    fig = plt.figure(figsize=(8,6), dpi=300)
 
     ax1 = fig.add_subplot(1, 1, 1)
     colordict = {
@@ -1467,6 +1496,149 @@ def boxplot_fitness_paper():
     plt.close(fig)
 
 
+def compare_sampling_differences():
+    # plt.style.use('fivethirtyeight')
+    sampling_size = [0.1, 0.3, 0.5, 0.7, 0.9]
+    datasnew = [read_data_sample_ratio(s) for s in sampling_size]
+    datasold = [read_data_sample_ratio_ijcai(s) for s in sampling_size]
+    print(datasnew, datasold)
+    fig = plt.figure(figsize=(8,6), dpi=300)
+    ax1 = fig.add_subplot(1, 1, 1)
+
+    colordict = {
+        0: 'forestgreen',
+        1: 'gold',
+        2: 'royalblue',
+        3: 'orchid',
+        4: 'olivedrab',
+        5: 'peru',
+        6: 'linen',
+        7: 'indianred',
+        8: 'tomato'}
+
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+    labels = sampling_size
+    positions = [
+        [1, 2], [4, 5], [7, 8], [10, 11], [13, 14] # , [16, 17]
+        ]
+    datas = [
+        [datasold[0],datasnew[0]],
+        [datasold[1],datasnew[1]],
+        [datasold[2],datasnew[2]],
+        [datasold[3],datasnew[3]],
+        [datasold[4],datasnew[4]],
+        # [datasold[5],datasnew[5]],
+    ]
+
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    for i in range(len(positions)):
+        bp1 = ax1.boxplot(
+            datas[i], 0, 'gD', showmeans=True, meanline=True,
+            patch_artist=True, medianprops=medianprops,
+            meanprops=meanprops, positions=positions[i], widths=0.8)
+        for patch, color in zip(bp1['boxes'], colordict.values()):
+            patch.set_facecolor(color)
+
+    # plt.xlim(0, len(mean))
+    ax1.legend(
+        zip(bp1['boxes']), ['Top Agents (GEESE-BT)', 'Parallel (BeTr-GEESE)'],
+        fontsize="small", loc="upper right", title='Sampling Algorithm')
+    ax1.set_xticks([1.5, 4.5, 7.5, 10.5, 13.5])
+    ax1.set_xticklabels(labels)
+    ax1.set_yticks(range(0, 105, 20))
+    ax1.set_xlabel('Sampling Size', fontsize="large")
+    ax1.set_ylabel('Maintenance (%)',  fontsize="large")
+    # ax1.set_title('Behavior Sampling',  fontsize="large")
+
+    plt.tight_layout()
+
+    maindir = '/tmp/swarm/data/experiments/'
+    fname = 'behavior_samplingnest'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+
+    plt.close(fig)
+
+
+def compare_sampling_differences_plot():
+    # plt.style.use('fivethirtyeight')
+    sampling_size = [0.1, 0.3, 0.5, 0.7, 0.9]
+    datasnew = [read_data_sample_ratio(s) for s in sampling_size]
+    datasold = [read_data_sample_ratio_ijcai(s) for s in sampling_size]
+    print(datasnew, datasold)
+    fig = plt.figure(figsize=(8,6), dpi=300)
+    ax1 = fig.add_subplot(1, 1, 1)
+
+    colordict = {
+        0: 'forestgreen',
+        1: 'gold',
+        2: 'royalblue',
+        3: 'orchid',
+        4: 'olivedrab',
+        5: 'peru',
+        6: 'linen',
+        7: 'indianred',
+        8: 'tomato'}
+
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+    labels = sampling_size
+    # positions = [
+    #     [1, 2], [4, 5], [7, 8], [10, 11], [13, 14] # , [16, 17]
+    #     ]
+    positions = [1.5, 4.5, 7.5, 10.5, 13.5]
+    datas = [
+        [datasold[0],datasnew[0]],
+        [datasold[1],datasnew[1]],
+        [datasold[2],datasnew[2]],
+        [datasold[3],datasnew[3]],
+        [datasold[4],datasnew[4]],
+        # [datasold[5],datasnew[5]],
+    ]
+
+    # medianprops = dict(linewidth=2.5, color='firebrick')
+    # meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    # for i in range(len(positions)):
+    #     bp1 = ax1.boxplot(
+    #         datas[i], 0, 'gD', showmeans=True, meanline=True,
+    #         patch_artist=True, medianprops=medianprops,
+    #         meanprops=meanprops, positions=positions[i], widths=0.8)
+    #     for patch, color in zip(bp1['boxes'], colordict.values()):
+    #         patch.set_facecolor(color)
+    colors = []
+    plabels = ['Top Agents (GEESE-BT)', 'Parallel (BeTr-GEESE)']
+    for i in range(2):
+        p = ax1.plot(
+            [x for x in positions],
+            [np.mean(d[i]) for d in datas], marker="v", ls='-', label=plabels[i])
+        colors += [p[0].get_color()]
+
+    # plt.xlim(0, len(mean))
+    ax1.legend(
+        fontsize="small", loc="upper right", title='Sampling Algorithm')
+    ax1.set_xticks([1.5, 4.5, 7.5, 10.5, 13.5])
+    ax1.set_xticklabels(labels)
+    ax1.set_yticks(range(0, 105, 20))
+    ax1.set_xlabel('Sampling Size', fontsize="large")
+    ax1.set_ylabel('Maintenance (%)',  fontsize="large")
+    # ax1.set_title('Behavior Sampling',  fontsize="large")
+
+    plt.tight_layout()
+
+    maindir = '/tmp/swarm/data/experiments/'
+    fname = 'behavior_samplingnest_agg'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+
+    plt.close(fig)
+
+
 def main():
     # read_data_n_agent()
     # plotgraph()
@@ -1503,8 +1675,9 @@ def main():
     # for t in  [9, 13, 15, 3]:
     #     boxplot_exp_5(t)
     # boxplot_fitness()
-    boxplot_fitness_paper()
+    # boxplot_fitness_paper()
     # boxplot_oldVsPPA_diversity()
+    compare_sampling_differences_plot()
 
 
 if __name__ == '__main__':
