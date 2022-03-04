@@ -897,16 +897,47 @@ def plot_evolution_algo_performance():
     plt.close(fig)
 
 
-def read_data_sample_ratio(ratio=0.1):
-    # maindir = '/tmp/swarm/data/experiments/behavior_sampling'
+def read_data_sample_ratio_nest(ratio=0.1):
     maindir = '/tmp/bsamplenest/'
-    ## Experiment ID for the plots/results in the paper
-    # maindir = '/tmp/16244729911974EvoSForgeNewPPA1/'
-    # maindir = '/tmp/experiments/100/12000/16243666378807EvoSForgeNewPPA1'
-    # nadir = os.path.join(maindir, str(n), agent)
-    # maindir = '/tmp/bsampling/'  # New sampling behaviors
-
     folders = pathlib.Path(maindir).glob("*_" + str(ratio) + "_ValidateNestMNewPPA1")
+    flist = []
+    data = []
+    for f in folders:
+        # print(f)
+        try:
+            flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
+            _, _, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+            # print(d.shape)
+            data.append(d[-1])
+        except:
+            pass
+    data = np.array(data)
+    # print(ratio, data.shape)
+    return data
+
+
+def read_data_sample_ratio_ijcai_nest(ratio=0.1):
+    maindir = '/tmp/ratioijcainest/_' + str(ratio) + '_'
+    folders = pathlib.Path(maindir).glob("*[0-9]*NMSimulation")
+    flist = []
+    data = []
+    for f in folders:
+        # print(f)
+        try:
+            flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
+            _, _, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+            # print(d.shape)
+            data.append(d[-1])
+        except:
+            pass
+    data = np.array(data)
+    # print(ratio, data.shape)
+    return data
+
+
+def read_data_sample_ratio(ratio=0.1):
+    maindir = '/tmp/bsample/'
+    folders = pathlib.Path(maindir).glob("*_" + str(ratio) + "_ValidateSForgeNewPPA1")
     flist = []
     data = []
     for f in folders:
@@ -925,14 +956,8 @@ def read_data_sample_ratio(ratio=0.1):
 
 def read_data_sample_ratio_ijcai(ratio=0.1):
     # maindir = '/tmp/swarm/data/experiments/behavior_sampling'
-    maindir = '/tmp/ratioijcainest/_' + str(ratio) + '_'
-    ## Experiment ID for the plots/results in the paper
-    # maindir = '/tmp/16244729911974EvoSForgeNewPPA1/'
-    # maindir = '/tmp/experiments/100/12000/16243666378807EvoSForgeNewPPA1'
-    # nadir = os.path.join(maindir, str(n), agent)
-    # maindir = '/tmp/bsampling/'  # New sampling behaviors
-
-    folders = pathlib.Path(maindir).glob("*[0-9]*NMSimulation")
+    maindir = '/tmp/ratioijcai/'
+    folders = pathlib.Path(maindir).glob("*[0-9]*-" + str(ratio))
     flist = []
     data = []
     for f in folders:
@@ -1567,9 +1592,12 @@ def compare_sampling_differences():
 def compare_sampling_differences_plot():
     # plt.style.use('fivethirtyeight')
     sampling_size = [0.1, 0.3, 0.5, 0.7, 0.9]
-    datasnew = [read_data_sample_ratio(s) for s in sampling_size]
-    datasold = [read_data_sample_ratio_ijcai(s) for s in sampling_size]
-    print(datasnew, datasold)
+    datasnew = [read_data_sample_ratio_nest(s) for s in sampling_size]
+    datasold = [read_data_sample_ratio_ijcai_nest(s) for s in sampling_size]
+
+    datasnew_forge = [read_data_sample_ratio(s) for s in sampling_size]
+    datasold_forge = [read_data_sample_ratio_ijcai(s) for s in sampling_size]
+    # print(datasnew, datasold)
     fig = plt.figure(figsize=(8,6), dpi=300)
     ax1 = fig.add_subplot(1, 1, 1)
 
@@ -1588,9 +1616,7 @@ def compare_sampling_differences_plot():
         'springgreen', 'lightcoral',
         'khaki', 'lightsalmon', 'deepskyblue']
     labels = sampling_size
-    # positions = [
-    #     [1, 2], [4, 5], [7, 8], [10, 11], [13, 14] # , [16, 17]
-    #     ]
+
     positions = [1.5, 4.5, 7.5, 10.5, 13.5]
     datas = [
         [datasold[0],datasnew[0]],
@@ -1598,34 +1624,51 @@ def compare_sampling_differences_plot():
         [datasold[2],datasnew[2]],
         [datasold[3],datasnew[3]],
         [datasold[4],datasnew[4]],
-        # [datasold[5],datasnew[5]],
     ]
 
-    # medianprops = dict(linewidth=2.5, color='firebrick')
-    # meanprops = dict(linewidth=2.5, color='#ff7f0e')
-    # for i in range(len(positions)):
-    #     bp1 = ax1.boxplot(
-    #         datas[i], 0, 'gD', showmeans=True, meanline=True,
-    #         patch_artist=True, medianprops=medianprops,
-    #         meanprops=meanprops, positions=positions[i], widths=0.8)
-    #     for patch, color in zip(bp1['boxes'], colordict.values()):
-    #         patch.set_facecolor(color)
-    colors = []
+    datasforge = [
+        [datasold_forge[0],datasnew_forge[0]],
+        [datasold_forge[1],datasnew_forge[1]],
+        [datasold_forge[2],datasnew_forge[2]],
+        [datasold_forge[3],datasnew_forge[3]],
+        [datasold_forge[4],datasnew_forge[4]],
+    ]
+
+    colors = ['forestgreen', 'gold']
     plabels = ['Top Agents (GEESE-BT)', 'Parallel (BeTr-GEESE)']
+    # lss = ['--', '-']
+    markers=['o', '^']
     for i in range(2):
         p = ax1.plot(
             [x for x in positions],
-            [np.mean(d[i]) for d in datas], marker="v", ls='-', label=plabels[i])
-        colors += [p[0].get_color()]
+            [np.mean(d[i]) for d in datas], marker=markers[0], ls='-', label=plabels[i], color=colors[i])
+        # colors += [p[0].get_color()]
 
+    for i in range(2):
+        p = ax1.plot(
+            [x for x in positions],
+            [np.mean(d[i]) for d in datasforge], marker=markers[1], ls='-', label=plabels[i], color = colors[i])
+        # colors += [p[0].get_color()]
+
+    f = lambda m,c: plt.plot([],[],marker=m, color=c, ls="none")[0]
+
+    handles1 = [f('_', colors[i]) for i in range(2)]
+    handles2 = [f(markers[i], colors[i]) for i in range(2)]
+
+    # legendlabels = plabels + ["Foraging", "Maintenance"]
     # plt.xlim(0, len(mean))
-    ax1.legend(
+    legend1 = ax1.legend(handles1, plabels,
         fontsize="small", loc="upper right", title='Sampling Algorithm')
+
+    legend2 = ax1.legend(handles2, ["Foraging", "Maintenance"],
+        fontsize="small", loc="upper left", title='Task')
+    ax1.add_artist(legend1)
+    ax1.add_artist(legend2)
     ax1.set_xticks([1.5, 4.5, 7.5, 10.5, 13.5])
     ax1.set_xticklabels(labels)
     ax1.set_yticks(range(0, 105, 20))
     ax1.set_xlabel('Sampling Size', fontsize="large")
-    ax1.set_ylabel('Maintenance (%)',  fontsize="large")
+    ax1.set_ylabel('Performance (%)',  fontsize="large")
     # ax1.set_title('Behavior Sampling',  fontsize="large")
 
     plt.tight_layout()
