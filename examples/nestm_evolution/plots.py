@@ -1634,43 +1634,49 @@ def compare_sampling_differences_plot():
         [datasold_forge[4],datasnew_forge[4]],
     ]
 
-    colors = ['forestgreen', 'gold']
+    colors = ['cyan', 'magenta']
     plabels = ['Top Agents (GEESE-BT)', 'Parallel (BeTr-GEESE)']
     # lss = ['--', '-']
     markers=['o', '^']
     for i in range(2):
         p = ax1.plot(
             [x for x in positions],
-            [np.mean(d[i]) for d in datas], marker=markers[0], ls='-', label=plabels[i], color=colors[i])
+            [np.mean(d[i]) for d in datas], marker=markers[0],
+            ls='-', label=plabels[i], color=colors[i], markersize=10, linewidth=3)
         # colors += [p[0].get_color()]
 
     for i in range(2):
         p = ax1.plot(
             [x for x in positions],
-            [np.mean(d[i]) for d in datasforge], marker=markers[1], ls='-', label=plabels[i], color = colors[i])
+            [np.mean(d[i]) for d in datasforge], marker=markers[1],
+            ls='-', label=plabels[i], color = colors[i], markersize=10, linewidth=3)
         # colors += [p[0].get_color()]
 
     f = lambda m,c: plt.plot([],[],marker=m, color=c, ls="none")[0]
 
     handles1 = [f('_', colors[i]) for i in range(2)]
-    handles2 = [f(markers[i], colors[i]) for i in range(2)]
+    handles2 = [f(markers[i], 'k') for i in range(2)]
 
     # legendlabels = plabels + ["Foraging", "Maintenance"]
     # plt.xlim(0, len(mean))
     legend1 = ax1.legend(handles1, plabels,
-        fontsize="small", loc="upper right", title='Sampling Algorithm')
+        fontsize="large", loc="upper right", title='Sampling Algorithm', markerscale=6)
 
-    legend2 = ax1.legend(handles2, ["Foraging", "Maintenance"],
-        fontsize="small", loc="upper left", title='Task')
+    legend2 = ax1.legend(handles2, ["Nest Maintenance", "Foraging"],
+        fontsize="large", loc="upper left", title='Task')
+
+    plt.setp(legend1.get_title(),fontsize='large')
+    plt.setp(legend2.get_title(),fontsize='large')
     ax1.add_artist(legend1)
     ax1.add_artist(legend2)
     ax1.set_xticks([1.5, 4.5, 7.5, 10.5, 13.5])
-    ax1.set_xticklabels(labels)
+    ax1.set_xticklabels(labels, fontsize='large')
     ax1.set_yticks(range(0, 105, 20))
+    ax1.set_yticklabels(range(0, 105, 20), fontsize='large')
     ax1.set_xlabel('Sampling Size', fontsize="large")
     ax1.set_ylabel('Performance (%)',  fontsize="large")
     # ax1.set_title('Behavior Sampling',  fontsize="large")
-
+    # plt.rcParams['legend.title_fontsize'] = 'large'
     plt.tight_layout()
 
     maindir = '/tmp/swarm/data/experiments/'
