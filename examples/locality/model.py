@@ -1,5 +1,6 @@
 """Inherited model class."""
 
+from tkinter import font
 from numpy import core
 import psycopg2
 from swarms.lib.model import Model
@@ -554,10 +555,12 @@ class EvolveModel(CoevolutionModel):
         list_ycords = np.arange(
             -height / 2, height / 2 + 1).tolist()
         self.comapping = dict()
+        self.reversemapping = dict()
         x1, y1 = 50, 50
         for x in list_xcords:
             for y in list_ycords:
                 self.comapping[(int(x), int(y))] = (int(x+x1), int(y+y1))
+                self.reversemapping[(int(x+x1), int(y+y1))] = (int(x), int(y))
 
     def create_agents(self, random_init=True, phenotypes=None):
         """Initialize agents in the environment."""
@@ -696,19 +699,78 @@ class EvolveModel(CoevolutionModel):
 
     def plot_locality(self, i):
         fig = plt.figure(figsize=(8, 6), dpi=300)
+        ax1 = fig.add_subplot(1, 1, 1)
+        ax1.spines['top'].set_color('none')
+        ax1.spines['left'].set_position('zero')
+        ax1.spines['right'].set_color('none')
+        ax1.spines['bottom'].set_position('zero')
+        # colors = []
         for j in range(1, 6):
-            ax1 = fig.add_subplot(3, 3, j)
             data = np.squeeze(
                     self.locality[i][:, :, j])
             # print(i, np.sum(data))
-            c = ax1.pcolor(data)
-            fig.colorbar(c, ax=ax1)
+            # c = ax1.pcolor(data)
+            # fig.colorbar(c, ax=ax1)
+            x, y = np.where(data >= 1)
+            x1, y1 = zip(
+                *[self.reversemapping[(
+                    x[k], y[k])] for k in range(len(x))])
+            ax1.scatter(
+                x1, y1, s=data[x, y], alpha=0.5,
+                label=list(
+                    self.agents[0].simple_behavior_number.keys())[j-1])
 
+        ax1.set_xticks(range(-50, 51, 10))
+        ax1.set_yticks(range(-50, 51, 10))
+        plt.xlim(-50, 50)
+        plt.ylim(-50, 50)
+        # plt.grid(True)
         # ax1.set_xlabel('Width', fontsize="large")
         # ax1.set_ylabel('Height', fontsize="large")
+        # plt.legend()
         plt.tight_layout()
         maindir = '/tmp/swarm/data/experiments/locality'
         fname = 'locality_' + str(i) + '_' + str(j)
+
+        fig.savefig(
+            maindir + '/' + fname + '.png')
+
+        plt.close(fig)
+
+    def plot_locality_all(self):
+        fig = plt.figure(figsize=(8, 6), dpi=300)
+        ax1 = fig.add_subplot(1, 1, 1)
+        ax1.spines['top'].set_color('none')
+        ax1.spines['left'].set_position('zero')
+        ax1.spines['right'].set_color('none')
+        ax1.spines['bottom'].set_position('zero')
+        # colors = []
+        for j in range(1, 6):
+            data = np.sum(np.squeeze(
+                    self.locality[:, :, :, j]), axis=0)
+            # print(i, np.sum(data))
+            # c = ax1.pcolor(data)
+            # fig.colorbar(c, ax=ax1)
+            x, y = np.where(data >= 1)
+            x1, y1 = zip(
+                *[self.reversemapping[(
+                    x[k], y[k])] for k in range(len(x))])
+            ax1.scatter(
+                x1, y1, s=data[x, y], alpha=0.5,
+                label=list(
+                    self.agents[0].simple_behavior_number.keys())[j-1])
+
+        ax1.set_xticks(range(-50, 51, 10))
+        ax1.set_yticks(range(-50, 51, 10))
+        plt.xlim(-50, 50)
+        plt.ylim(-50, 50)
+        # plt.grid(True)
+        # ax1.set_xlabel('Width', fontsize="large")
+        # ax1.set_ylabel('Height', fontsize="large")
+        plt.legend(fontsize="small", loc="lower right", title='PB')
+        plt.tight_layout()
+        maindir = '/tmp/swarm/data/experiments/locality'
+        fname = 'locality_all_'
 
         fig.savefig(
             maindir + '/' + fname + '.png')

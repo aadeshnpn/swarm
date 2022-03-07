@@ -64,8 +64,9 @@ def learning_phase(args):
             )
         # Save the data in a result csv file
         results.save_to_file()
-        env.plot_locality(i=env.stepcnt-1)
+        # env.plot_locality(i=env.stepcnt-1)
         # env.gather_info()
+    env.plot_locality_all()
     np.save('/tmp/locality.npy', env.locality)
     # Update the experiment table
     foraging_percent = env.foraging_percent()
