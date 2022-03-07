@@ -20,6 +20,13 @@ import datetime
 import numpy as np
 # from flloat.parser.ltlf import LTLfParser
 from py_trees import common, blackboard
+import matplotlib
+
+# If there is $DISPLAY, display the plot
+if os.name == 'posix' and "DISPLAY" not in os.environ:
+    matplotlib.use('Agg')
+
+import matplotlib.pyplot as plt     # noqa: E402
 
 
 # filename = os.path.join(imp.find_module("swarms")[1] + "/utils/world.json")
@@ -520,7 +527,6 @@ class CoevolutionModel(Model):
     def compute_genetic_rate(self):
         return sum([agent.geneticrate for agent in self.agents])
 
-
     def compute_lt_rate(self):
         ltarray = np.array([agent.ltrate for agent in self.agents])
         mask = ltarray > 0
@@ -544,14 +550,14 @@ class EvolveModel(CoevolutionModel):
         self.stop_lateral_transfer = False
         self.locality = np.zeros((iter+1, width+1, height+1, 6), dtype=np.int0)
         list_xcords = np.arange(
-            -width / 2, width / 2 + 1 ).tolist()
+            -width / 2, width / 2 + 1).tolist()
         list_ycords = np.arange(
-            -height / 2, height / 2 + 1 ).tolist()
+            -height / 2, height / 2 + 1).tolist()
         self.comapping = dict()
-        x1,y1=50,50
+        x1, y1 = 50, 50
         for x in list_xcords:
             for y in list_ycords:
-                self.comapping[(int(x),int(y))] = (int(x+x1), int(y+y1))
+                self.comapping[(int(x), int(y))] = (int(x+x1), int(y+y1))
 
     def create_agents(self, random_init=True, phenotypes=None):
         """Initialize agents in the environment."""
@@ -583,22 +589,25 @@ class EvolveModel(CoevolutionModel):
             self.grid.add_object_to_grid((x, y), a)
             # a.operation_threshold = 2  # self.num_agents // 10
             self.agents.append(a)
-            self.place_agent_locality(a)
-        # print(
-        #     np.sum(self.locality[0][:,:,0]),
-        #     np.sum(self.locality[0][:,:,1]),
-        #     np.sum(self.locality[0][:,:,2]),
-        #     np.sum(self.locality[0][:,:,3]),
-        #     np.sum(self.locality[0][:,:,4]),
-        #     np.sum(self.locality[0][:,:,5]),
-        #     np.sum(self.locality[0])
-        #     )
+            self.place_agent_locality(a, i=0)
+        print(
+            np.sum(self.locality[0][:,:,0]),
+            np.sum(self.locality[0][:,:,1]),
+            np.sum(self.locality[0][:,:,2]),
+            np.sum(self.locality[0][:,:,3]),
+            np.sum(self.locality[0][:,:,4]),
+            np.sum(self.locality[0][:,:,5]),
+            np.sum(self.locality[0])
+            )
 
-    def place_agent_locality(self, agent, i=0):
+    def place_agent_locality(self, agent, i):
         no = agent.get_agent_simple_behavior_no()
-        x,y = self.comapping[agent.location]
-        # print(self.stepcnt, agent.name, agent.location, x, y)
+        x, y = self.comapping[agent.location]
         self.locality[i][x][y][no] += 1
+        # print(
+        #     'place ',i, agent.name, agent.location, x, y, no,
+        #     self.locality[i][x][y][no])
+        # print(self.stepcnt, agent.name, i)
 
     def behavior_sampling(self, method='ratio', ratio_value=0.2, phenotype=None):
         """Extract phenotype of the learning agents.
@@ -685,6 +694,27 @@ class EvolveModel(CoevolutionModel):
         # print ('phenotypes for attached objects', phenotypes)
         return phenotypes
 
+    def plot_locality(self, i):
+        fig = plt.figure(figsize=(8, 6), dpi=300)
+        for j in range(1, 6):
+            ax1 = fig.add_subplot(3, 3, j)
+            data = np.squeeze(
+                    self.locality[i][:, :, j])
+            # print(i, np.sum(data))
+            c = ax1.pcolor(data)
+            fig.colorbar(c, ax=ax1)
+
+        # ax1.set_xlabel('Width', fontsize="large")
+        # ax1.set_ylabel('Height', fontsize="large")
+        plt.tight_layout()
+        maindir = '/tmp/swarm/data/experiments/locality'
+        fname = 'locality_' + str(i) + '_' + str(j)
+
+        fig.savefig(
+            maindir + '/' + fname + '.png')
+
+        plt.close(fig)
+
     def step(self):
         """Step through the environment."""
         # Gather info to plot the graph
@@ -697,7 +727,6 @@ class EvolveModel(CoevolutionModel):
         #     #    agent.individual[0].fitness, agent.food_collected)
         # except FloatingPointError:
         #     pass
-
         # Next step
         self.schedule.step()
 
@@ -728,6 +757,7 @@ class EvolveModel(CoevolutionModel):
         # input('Enter to continue' + str(self.stepcnt))
         # Increment the step count
         self.stepcnt += 1
+
 
     def activate_stop_lateral_transfer(self):
         self.stop_lateral_transfer = True

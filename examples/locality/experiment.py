@@ -52,7 +52,7 @@ def learning_phase(args):
     #     print(
     #         agent.name, py_trees.display.ascii_tree(
     #             agent.bt.behaviour_tree.root))
-
+    env.plot_locality(i=env.stepcnt-1)
     for i in range(iteration):
         # Take a step in evolution
         env.step()
@@ -64,6 +64,7 @@ def learning_phase(args):
             )
         # Save the data in a result csv file
         results.save_to_file()
+        env.plot_locality(i=env.stepcnt-1)
         # env.gather_info()
     np.save('/tmp/locality.npy', env.locality)
     # Update the experiment table

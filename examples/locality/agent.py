@@ -178,7 +178,8 @@ class LearningAgent(CoevoAgent):
         self.avoid_trap = False
         self.avoid_obs = False
         self.blackboard = blackboard.Client(name=str(self.name))
-        self.blackboard.register_key(key='neighbourobj', access=common.Access.WRITE)
+        self.blackboard.register_key(
+            key='neighbourobj', access=common.Access.WRITE)
         self.blackboard.neighbourobj = dict()
 
         self.selectors_reward = 0
@@ -186,8 +187,8 @@ class LearningAgent(CoevoAgent):
         self.postcond_reward = 0
         self.threshold = threshold
         self.simple_behavior_number = {
-            'Explore':1, 'CompositeSingleCarry':2, 'CompositeDrop':3,
-            'MoveTowards':4, 'MoveAway':5
+            'Explore': 1, 'CompositeSingleCarry': 2, 'CompositeDrop': 3,
+            'MoveTowards': 4, 'MoveAway': 5
         }
 
     def evaluate_constraints_conditions(self):
@@ -251,7 +252,7 @@ class LearningAgent(CoevoAgent):
     def get_agent_simple_behavior_no(self):
         allnodes = list(self.bt.behaviour_tree.root.iterate())
         nodenames = set([type(node).__name__ for node in allnodes])
-        for k,v in self.simple_behavior_number.items():
+        for k, v in self.simple_behavior_number.items():
             if k in nodenames:
                 return v
         return 0
@@ -403,8 +404,9 @@ class LearningAgent(CoevoAgent):
                 individual = evaluate_fitness(individual, self.parameter)
                 self.genome_storage = self.genome_storage + individual
                 self.genetic_step()
-
+            # print('agent',self.step_count, self.name)
             self.model.place_agent_locality(self, i=self.step_count)
+
 
 class ExecutingAgent(CoevoAgent):
     """A coevolution swarm agent.
