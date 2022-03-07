@@ -52,7 +52,7 @@ def learning_phase(args):
     #     print(
     #         agent.name, py_trees.display.ascii_tree(
     #             agent.bt.behaviour_tree.root))
-    env.plot_locality(i=env.stepcnt-1)
+    # env.plot_locality(i=env.stepcnt-1)
     for i in range(iteration):
         # Take a step in evolution
         env.step()
@@ -66,8 +66,10 @@ def learning_phase(args):
         results.save_to_file()
         # env.plot_locality(i=env.stepcnt-1)
         # env.gather_info()
-    env.plot_locality_all()
-    np.save('/tmp/locality.npy', env.locality)
+    env.plot_locality_all(env.reversemapping)
+    np.save(
+        '/tmp/locality.npy',
+        np.array([env.locality, env.reversemapping], dtype=object))
     # Update the experiment table
     foraging_percent = env.foraging_percent()
     if foraging_percent > 5:

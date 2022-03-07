@@ -593,15 +593,15 @@ class EvolveModel(CoevolutionModel):
             # a.operation_threshold = 2  # self.num_agents // 10
             self.agents.append(a)
             self.place_agent_locality(a, i=0)
-        print(
-            np.sum(self.locality[0][:,:,0]),
-            np.sum(self.locality[0][:,:,1]),
-            np.sum(self.locality[0][:,:,2]),
-            np.sum(self.locality[0][:,:,3]),
-            np.sum(self.locality[0][:,:,4]),
-            np.sum(self.locality[0][:,:,5]),
-            np.sum(self.locality[0])
-            )
+        # print(
+        #     np.sum(self.locality[0][:,:,0]),
+        #     np.sum(self.locality[0][:,:,1]),
+        #     np.sum(self.locality[0][:,:,2]),
+        #     np.sum(self.locality[0][:,:,3]),
+        #     np.sum(self.locality[0][:,:,4]),
+        #     np.sum(self.locality[0][:,:,5]),
+        #     np.sum(self.locality[0])
+        #     )
 
     def place_agent_locality(self, agent, i):
         no = agent.get_agent_simple_behavior_no()
@@ -737,8 +737,8 @@ class EvolveModel(CoevolutionModel):
 
         plt.close(fig)
 
-    def plot_locality_all(self):
-        fig = plt.figure(figsize=(8, 6), dpi=300)
+    def plot_locality_all(self, reversemap):
+        fig = plt.figure(figsize=(10, 6), dpi=300)
         ax1 = fig.add_subplot(1, 1, 1)
         ax1.spines['top'].set_color('none')
         ax1.spines['left'].set_position('zero')
@@ -753,7 +753,7 @@ class EvolveModel(CoevolutionModel):
             # fig.colorbar(c, ax=ax1)
             x, y = np.where(data >= 1)
             x1, y1 = zip(
-                *[self.reversemapping[(
+                *[reversemap[(
                     x[k], y[k])] for k in range(len(x))])
             ax1.scatter(
                 x1, y1, s=data[x, y], alpha=0.5,
@@ -767,7 +767,9 @@ class EvolveModel(CoevolutionModel):
         # plt.grid(True)
         # ax1.set_xlabel('Width', fontsize="large")
         # ax1.set_ylabel('Height', fontsize="large")
-        plt.legend(fontsize="small", loc="lower right", title='PB')
+        plt.legend(
+            fontsize="small", bbox_to_anchor=(1.04,1),
+            borderaxespad=0, title='PB')
         plt.tight_layout()
         maindir = '/tmp/swarm/data/experiments/locality'
         fname = 'locality_all_'
@@ -819,7 +821,6 @@ class EvolveModel(CoevolutionModel):
         # input('Enter to continue' + str(self.stepcnt))
         # Increment the step count
         self.stepcnt += 1
-
 
     def activate_stop_lateral_transfer(self):
         self.stop_lateral_transfer = True
