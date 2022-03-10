@@ -32,7 +32,7 @@ class CoevolutionModel(Model):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name='CoevolutionPPA', viewer=False,
+            seed=None, name='CoevolutionPPAAll', viewer=False,
             parent=None, ratio=1.0, db=False,
             threshold=10, gstep=200, expp=2, args=[]):
         """Initialize the attributes."""
@@ -146,7 +146,7 @@ class CoevolutionModel(Model):
         # self.traps += [self.trap]
         # self.obstacle = self.render.objects['obstacles'][0]
         # self.obstacles += [self.obstacle]
-        # self.boundary = self.render.objects['boundary'][0]
+        self.boundary = self.render.objects['boundary'][0]
         self.total_food_units = 0
         self.total_debris_units = 0
         self.foods = []
@@ -165,13 +165,13 @@ class CoevolutionModel(Model):
                 f.phenotype = dict()
                 self.foods.append(f)
                 # Add debris around the hub
-                # d = Debris(
-                #     i, location=self.hub.location, radius=10, weight=2)
-                # d.agent_name = None
-                # self.grid.add_object_to_grid(d.location, d)
-                # self.total_debris_units += d.weight
-                # # d.phenotype = dict()
-                # self.debris.append(d)
+                d = Debris(
+                    i, location=self.hub.location, radius=10, weight=2)
+                d.agent_name = None
+                self.grid.add_object_to_grid(d.location, d)
+                self.total_debris_units += d.weight
+                # d.phenotype = dict()
+                self.debris.append(d)
         except KeyError:
             pass
 
@@ -305,7 +305,8 @@ class CoevolutionModel(Model):
         # total_debris_weights = sum(
         #     [debris.weight for debris in debris_objects])
         # return round(((total_debris_weights * 1.0) / self.total_debris_units) * 100, 2)
-        return 0
+        debris_objects = list(set(self.boundary.dropped_objects))
+        return debris_objects
 
     def no_agent_dead(self):
         # grid = self.grid
