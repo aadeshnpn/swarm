@@ -63,7 +63,7 @@ def compute_HAL(fname, T, N):
     return round(hal, 2)
 
 
-def load_grammar(gname='/tmp/coevo.bnf'):
+def size_metrics(gname='/tmp/coevo.bnf'):
     # Grammatical Evolution part
     from ponyge.algorithm.parameters import Parameters
     parameter = Parameters()
@@ -88,8 +88,77 @@ def load_grammar(gname='/tmp/coevo.bnf'):
     # print(average_RHS(gname, len(bnf.non_terminals)))
 
 
+def structure_metrics(gname='/tmp/coevo.bnf'):
+    from ponyge.algorithm.parameters import Parameters
+    parameter = Parameters()
+    parameter_list = ['--parameters', '../..,modular.txt']
+    parameter.params['POPULATION_SIZE'] = 10
+    parameter.set_params(parameter_list)
+    bnf = Grammar(parameter, gname)
+    all_non_terminals = bnf.non_terminals.keys()
+    immsuccessors = dict()
+    for non_term_key in all_non_terminals:
+        # print(non_term_key + '::= ', end=" ")
+        immsuccessors[non_term_key] = []
+        if len(bnf.non_terminals[non_term_key]['recursive']) > 0:
+            for j in range(len(bnf.non_terminals[non_term_key]['recursive'])):
+                for choice in bnf.non_terminals[non_term_key]['recursive'][j]['choice']:
+                    if choice['type'] == 'NT':
+                        # print(choice['symbol'], end=' ')
+                        immsuccessors[non_term_key].append(choice['symbol'])
+        # print()
+
+    succesor = dict()
+    for non_term_key in all_non_terminals:
+        succesor[non_term_key] = []
+        immsucc = immsuccessors[non_term_key]
+        for i in immsucc:
+            succesor[non_term_key] += immsuccessors[i]
+
+    equivalence = dict()
+    for k, val in succesor.items():
+        for v in val:
+            if k in succesor[v]:
+                equivalence[k] = v
+
+    timp = compute_TIMP(immsuccessors)
+    clev = compute_CLEV(len(immsuccessors.keys()), len(equivalence.keys()))
+    nslev = compute_NSLEV(equivalence, succesor)
+    dep = compute_DEP(equivalence, succesor)
+    print(
+        gname + ', TIMP: %0.2f, CLEV: %0.2f, NSLEV: %0.2f, DEP: %0.2f' % (
+            timp, clev, nslev, dep))
+
+
+def compute_TIMP(immsucc):
+    n = len(immsucc.keys())
+    e = sum([len(v) for _, v in immsucc.items()])
+    return (2 * (e - n + 1) * 100) / ((n-1) * (n-2))
+
+
+def compute_CLEV(Neq, N):
+    return (Neq * 100) / N
+
+
+def compute_NSLEV(equivalance, succesor):
+    count = 0
+    for k in equivalance.keys():
+        if len(set(succesor[k])) > 1:
+            count += 1
+    return count
+
+
+def compute_DEP(equivalance, succesor):
+    count = 0
+    for k in equivalance.keys():
+        if len(set(succesor[k])) > count:
+            count = len(set(succesor[k]))
+    return count
+
+
 def main():
-    load_grammar()
+    # size_metrics()
+    structure_metrics()
 
 
 if __name__ == '__main__':
