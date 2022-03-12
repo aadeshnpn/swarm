@@ -79,7 +79,7 @@ def size_metrics(gname='/tmp/coevo.bnf'):
     T = len(set(list(bnf.terminals.keys())))
     N = len(set(list(bnf.non_terminals.keys())))
     print(
-        'terminals: %i, non-terminals: %i, mcc: %i, arhs: %0.2f, hal: %0.2f ' %
+        gname + ', terminals: %i, non-terminals: %i, mcc: %i, arhs: %0.2f, hal: %0.2f ' %
         (T, N, compute_MCC(gname), average_RHS(gname, N), compute_HAL(gname, T, N)))
 
     # print(compute_HAL(gname, T, N))
@@ -157,8 +157,11 @@ def compute_DEP(equivalance, succesor):
 
 
 def main():
-    # size_metrics()
-    structure_metrics()
+    gnames = [
+        '/tmp/coevo.bnf', '/tmp/bt.bnf', '/tmp/swarm.bnf']
+    for gname in gnames:
+        size_metrics(gname)
+        structure_metrics(gname)
 
 
 if __name__ == '__main__':
