@@ -43,12 +43,14 @@ def plot_locality(locality, reversemap, begin=0, end=3000):
 
     ax1.set_xticks(range(-50, 51, 10))
     ax1.set_yticks(range(-50, 51, 10))
+    # ax1.set_xlabel(list(range(-50, 51, 10)), fontsize="large")
+    # ax1.set_ylabel(list(range(-50, 51, 10)), fontsize="large")
     plt.xlim(-50, 50)
     plt.ylim(-50, 50)
 
     plt.legend(
-        fontsize="small", bbox_to_anchor=(1.04, 1),
-        borderaxespad=0, title='Primitive Behaviors')
+        fontsize="large", bbox_to_anchor=(1.04, 1),
+        borderaxespad=0)
     plt.tight_layout()
     maindir = '/tmp/swarm/data/experiments/locality'
     fname = 'locality_all_' + str(begin) + '_' + str(end) + '_'
@@ -66,7 +68,7 @@ def main():
     # plot_locality(
     #     locality, reversemap, begin=0, end=3000)
     plot_locality(
-        locality, reversemap, begin=0, end=12000)
+        locality, reversemap, begin=0, end=2000)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 from cProfile import label
 from email import header
+from email.mime import base
 import os
 from pdb import post_mortem
 import numpy as np
@@ -2231,6 +2232,108 @@ def compare_lt_on_off_no_obst(no=2):
     plt.close(fig)
 
 
+def ants22_paper_efficiency_power_obstacles(t=7):
+    no_obstacles = [1, 3, 5]
+    axeslimitdict = {
+        0:[(11500,12002), (75,95)]
+        }
+    # data = [np.mean(np.squeeze(read_data_n_agent_perturbations_all(
+    #     n=100, iter=12000, threshold=t, time=1000, iprob=0.85,
+    #     addobject='Obstacles',no_objects=i, radius=10, idx=[2])), axis=0) for i in no_obstacles]
+    # baseline = np.mean(np.squeeze(read_data_n_agent_perturbations_all(
+    #     n=100, iter=12000, threshold=t, time=10000, iprob=0.85,
+    #     addobject='None', radius=5, idx=[2])), axis=0)
+
+    data = [read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=t, time=1000, iprob=0.85,
+        addobject='Obstacles',no_objects=i, radius=10, idx=[2]) for i in no_obstacles]
+    baseline = read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=t, time=10000, iprob=0.85,
+        addobject='None', radius=5, idx=[2])
+
+    meandata = [np.mean(np.squeeze(data[i]), axis=0) for i in range(len(no_obstacles)) ]
+    meanbaseline = np.mean(np.squeeze(baseline), axis=0)
+    fig = plt.figure(figsize=(8,6), dpi=300)
+    ax1 = fig.add_subplot(1, 1, 1)
+    # plt.rcParams['text.usetex'] = True
+    xvalues = np.array(list(range(12002)))
+    mask = xvalues % 1000 == 0
+    colors = []
+    ax1.plot(
+        xvalues[mask], [80]* len(xvalues[mask]), '--',
+        label="Threshold ($\Theta$)", alpha=0.5)
+    p = ax1.plot(
+        xvalues[mask], meanbaseline[mask], marker="v", ls='-', label='0 (Baseline)')
+    colors += [p[0].get_color()]
+    for i in range(len(no_obstacles)):
+        p = ax1.plot(xvalues[mask], meandata[i][mask], marker="v", ls='-', label=str(no_obstacles[i]))
+        colors += [p[0].get_color()]
+
+    # Power axis
+    ax_power = ax1.inset_axes([0.05,0.68,0.3,0.3])
+    ax_power.patch.set_alpha(0.5)
+
+    powerdata100 = [np.squeeze(data[i])[:,-1] for i in range(len(no_obstacles)) ]
+    powerbaseline100 = np.squeeze(baseline)[:,-1]
+    powerdata100 = [powerbaseline100] + powerdata100
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    bp1 = ax_power.boxplot(
+        powerdata100, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, widths=0.6)
+    for patch, color in zip(bp1['boxes'], colors):
+        patch.set_facecolor(color)
+
+    ax_power.set_yticks(range(70, 105, 5))
+    ax_power.set_xticklabels([0] + no_obstacles)
+    ax_power.set_title('Power', y=1.0, pad=-140)
+    # Efficiency Axis
+    ax_eff = ax1.inset_axes([0.68,0.05,0.3,0.3])
+    ax_eff.patch.set_alpha(0.5)
+
+    # data100 = [np.squeeze(data[i])[:,-1] for i in range(len(no_obstacles)) ]
+    effbaseline100 = np.squeeze(baseline)
+    effbaseline100 = [np.squeeze(np.argwhere(effbaseline100[i, :]>=80)) for i in range(effbaseline100.shape[0])]
+    effbaseline100 = [np.array([effbaseline100[i][0] if effbaseline100[i].shape[0]>1 else 12000 for i in range(len(effbaseline100)) ])]
+    # print(effbaseline100)
+
+    effdata100 = []
+    for i in range(len(no_obstacles)):
+        effdata = np.squeeze(data[i])
+        effdata = [np.squeeze(np.argwhere(effdata[i, :]>=80)) for i in range(effdata.shape[0])]
+        effdata = [np.array([effdata[i][0] if effdata[i].shape[0]>1 else 12000 for i in range(len(effdata)) ])]
+        effdata100 += effdata
+
+    effdata100 = effbaseline100 + effdata100
+
+    bp1 = ax_eff.boxplot(
+        effdata100, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, widths=0.6, vert=False)
+    for patch, color in zip(bp1['boxes'], colors):
+        patch.set_facecolor(color)
+
+    ax_eff.set_xticks(range(5000, 12000, 2000))
+    ax_eff.set_yticklabels([0] + no_obstacles)
+    ax_eff.set_title('Efficiency')
+
+    ax1.set_yticks(range(0, 105, 20))
+    ax1.set_xlabel('Steps', fontsize="large")
+    ax1.set_ylabel('Foraging (%)', fontsize="large")
+    ax1.legend(fontsize="small", loc="lower left", title='No. of Obstacles')
+
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments'
+    fname = 'efficiency_power_ablation_obstacles'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
 def main():
     # plot_evolution_algo_performance_boxplot()
     # plot_evolution_algo_performance()
@@ -2277,10 +2380,12 @@ def main():
     #     ip_paper_efficiency_power(t)
     # #     # ip_paper_efficiency_power_boxplot(t)
     # st_paper_efficiency_power_boxplot_all()
-    for i in range(1000,11001,1000):
-        compare_learning_notlearning_obstacles(no=2, time=i)
-    for i in [2, 4]:
-        compare_lt_on_off_no_obst(no=i)
+    # for i in range(1000,11001,1000):
+    #     compare_learning_notlearning_obstacles(no=2, time=i)
+    # for i in [2, 4]:
+    #     compare_lt_on_off_no_obst(no=i)
+
+    ants22_paper_efficiency_power_obstacles(t=7)
 
 
 if __name__ == '__main__':
