@@ -367,7 +367,7 @@ if __name__ == '__main__':
     # test_top_phenotype(jsonlist[1:])
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--exp_no', default=1, type=int)
+        '--exp_no', default=0, type=int)
     parser.add_argument('--runs', default=36, type=int)
     parser.add_argument('--threads', default=18, type=int)
     parser.add_argument('--iter', default=12000, type=int)

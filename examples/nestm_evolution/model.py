@@ -533,7 +533,7 @@ class NestMModel(Model):
         debris_objects = []
         # debris_grid = []
         for i in range(len(self.boundaries)):
-            debris_objects += list(set(self.boundary[i].dropped_objects))
+            debris_objects += list(set(self.boundaries[i].dropped_objects))
         return debris_objects
 
     def no_agent_dead(self):
