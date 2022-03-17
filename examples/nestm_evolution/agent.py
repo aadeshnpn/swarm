@@ -51,6 +51,8 @@ class NestAgent(Agent):
         self.step_count = 0
 
         self.fitness_name = True
+        self.ltrate = 0
+        self.geneticrate = False
 
     def init_evolution_algo(self):
         """Agent's GE algorithm operation defination."""
@@ -149,7 +151,7 @@ class NestAgent(Agent):
 class LearningAgent(NestAgent):
     """Simple agent with GE capabilities."""
 
-    def __init__(self, name, model):
+    def __init__(self, name, model, threshold=5):
         """Initialize the agent."""
         super().__init__(name, model)
         self.delayed_reward = 0
@@ -165,6 +167,7 @@ class LearningAgent(NestAgent):
         self.selectors_reward = 0
         self.constraints_reward = 0
         self.postcond_reward = 0
+        self.threshold = threshold
 
     def evaluate_constraints_conditions(self):
         allnodes = list(self.bt.behaviour_tree.root.iterate())
@@ -304,7 +307,6 @@ class LearningAgent(NestAgent):
             )
         # self.individual[0].fitness = (1 - self.beta) * self.delayed_reward + self.ef + self.evaluate_constraints_conditions()
 
-
     def get_debris_transported(self, distance_threshold=35):
         """Return debris that have been cleared from hub."""
         # Not computational efficient method
@@ -314,7 +316,7 @@ class LearningAgent(NestAgent):
         #     if distance > distance_threshold:
         #         debris_objects.append(debry)
         debris_objects = []
-        debris_grid = []
+        # debris_grid = []
 
         # grid = self.model.grid
         # for boundary in self.model.boundaries:
@@ -331,7 +333,7 @@ class LearningAgent(NestAgent):
         #         debris_objects += [debry]
         # debris_objects = set(debris_objects)
         # return debris_objects
-        debris_objects = list(set(self.model.sites.dropped_objects))
+        debris_objects = list(set(self.model.boundary.dropped_objects))
         agent_debris_objects = []
         for debris in debris_objects:
             try:
@@ -352,90 +354,64 @@ class LearningAgent(NestAgent):
         self.timestamp += 1
         self.step_count += 1
         self.prev_location = copy.copy(self.location)
+        self.geneticrate = False
+        self.ltrate = 0
         # Increase beta
         # self.beta = self.timestamp / self.model.iter
         # if self.name ==1:
         # print(self.timestamp, self.name, len(self.trace))
+        if self.dead is False:
+            # Compute the behavior tree
+            self.bt.behaviour_tree.tick()
 
-        # Compute the behavior tree
-        self.bt.behaviour_tree.tick()
+            # Maintain location history
+            _, gridval = self.model.grid.find_grid(self.location)
+            self.location_history.add(gridval)
 
-        # Maintain location history
-        _, gridval = self.model.grid.find_grid(self.location)
-        self.location_history.add(gridval)
+            # Hash the phenotype with its fitness
+            # We need to move this from here to genetic step
+            # self.cf = self.carrying_fitness()
+            self.ef = self.exploration_fitness()
+            # self.scf = self.communication_fitness()
 
-        # Add to trace
-        # self.trace.append({k:self.functions[k]() for k in self.keys})
-        # print(len(self.trace))
-        # self.trace[self.step_count] = {k:self.functions[k]() for k in self.keys}
+            # Computes overall fitness using Beta function
+            self.overall_fitness()
 
-        # Find the no.of food collected from the BT execution
-        # self.debris_collected = self.get_debris_transported()
+            self.phenotypes = dict()
+            self.phenotypes[self.individual[0].phenotype] = (
+                self.individual[0].fitness)
 
-        # Hash the phenotype with its fitness
-        # We need to move this from here to genetic step
-        # self.cf = self.carrying_fitness()
-        self.ef = self.exploration_fitness()
-        # self.scf = self.communication_fitness()
+            # Find the nearby agents
+            cellmates = self.model.grid.get_objects_from_grid(
+                type(self).__name__, self.location)
 
-        # Computes overall fitness using Beta function
-        self.overall_fitness()
-        # print(self.name, self.individual[0].fitness)
-        # Debugging
-        # decodedata = "b\'" + self.individual[0].phenotype + "\'"
-        # encode = self.individual[0].phenotype.encode('utf-8')
-        # print(
-        #    self.name, hashlib.sha224(encode).hexdigest(
-        #    ), self.food_collected, cf, ef)
+            # Interaction Probability with other agents
+            cellmates = [cell for cell in cellmates if self.model.random.rand() < self.model.iprob and cell.dead is False]
+            # cellmates = [cell for cell in cellmates if cell.individual[0] not in self.genome_storage]
+            self.ltrate = len(cellmates)
+            # If neighbours found, store the genome
+            if len(cellmates) > 1:
+                self.store_genome(cellmates)
 
-        self.phenotypes = dict()
-        self.phenotypes[self.individual[0].phenotype] = (
-            self.individual[0].fitness)
+            # Logic for gentic operations.
+            # If the genome storage has enough genomes and agents has done some
+            # exploration then compute the genetic step OR
+            # 600 time step has passed and the agent has not done anything useful
+            # then also perform genetic step
+            storage_threshold = len(
+                self.genome_storage) >= self.threshold
 
-        # Find the nearby agents
-        cellmates = self.model.grid.get_objects_from_grid(
-            type(self).__name__, self.location)
-
-        # If neighbours found, store the genome
-        if len(cellmates) > 1:
-            self.store_genome(cellmates)
-
-        # Logic for gentic operations.
-        # If the genome storage has enough genomes and agents has done some
-        # exploration then compute the genetic step OR
-        # 600 time step has passed and the agent has not done anything useful
-        # then also perform genetic step
-        storage_threshold = len(
-            self.genome_storage) >= (self.model.num_agents / 10)
-
-        # New logic to invoke genetic step
-        # if self.individual[0].fitness <= 0 and self.timestamp > 100:
-        #     individual = initialisation(self.parameter, 10)
-        #     individual = evaluate_fitness(individual, self.parameter)
-        #     self.genome_storage = self.genome_storage + individual
-        #     self.genetic_step()
-        # elif (
-        #         (
-        #             self.individual[0].fitness >= 0 and storage_threshold
-        #             ) and (self.timestamp > 200 and self.food_collected <= 0)):
-        #     self.genetic_step()
-        # elif (
-        #     self.food_collected > 0 and storage_threshold
-        #         ):
-        #         self.genetic_step()
-
-        #"""
-        if storage_threshold: #and self.debris_collected <=0:
-            self.genetic_step()
-        elif (
-                (
-                    storage_threshold is False and self.timestamp > 200
-                    ) and (self.exploration_fitness() < 2)):
-            individual = initialisation(self.parameter, 10)
-            individual = evaluate_fitness(individual, self.parameter)
-            self.genome_storage = self.genome_storage + individual
-            self.genetic_step()
-        #"""
+            if storage_threshold:
+                self.geneticrate = storage_threshold
+                self.genetic_step()
+            elif (
+                    (
+                        storage_threshold is False and self.timestamp > self.model.gstep
+                        ) and (self.exploration_fitness() < self.model.expp)):
+                individual = initialisation(self.parameter, 10)
+                individual = evaluate_fitness(individual, self.parameter)
+                self.genome_storage = self.genome_storage + individual
+                self.genetic_step()
 
 
 class ExecutingAgent(NestAgent):

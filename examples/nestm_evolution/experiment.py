@@ -9,7 +9,8 @@ from model import EvolveModel, ValidationModel, TestModel, ViewerModel
 from swarms.utils.jsonhandler import JsonPhenotypeData
 from swarms.utils.graph import Graph, GraphACC  # noqa : F401
 from joblib import Parallel, delayed    # noqa : F401
-from swarms.utils.results import SimulationResults, SimulationResultsTraps, Results
+from swarms.utils.results import (
+    SimulationResults, SimulationResultsTraps, SimulationResultsLt)
 # import py_trees
 # Global variables for width and height
 width = 100
@@ -144,10 +145,20 @@ def ui_loop(phenotypes, iteration, parentname=None, ratio=1):
     # Plot the result in the graph
 
 
-def learning_phase(iteration, no_agents=50, db=False, early_stop=False, fitid=0):
+def learning_phase(args):
     """Learning Algorithm block."""
     # Evolution environment
-    env = EvolveModel(no_agents, width, height, 10, iter=iteration, db=db, fitid=fitid)
+    iteration = args.iter
+    no_agents = args.n
+    db = args.db
+    threshold = args.threshold
+    gstep = args.gstep
+    expp = args.expp
+    fitid = args.fitid
+    env = EvolveModel(
+        no_agents, width, height, 10, iter=iteration, db=db,
+        fitid=fitid, threshold=threshold, gstep=gstep, expp=expp,
+        args=args)
     env.build_environment_from_json()
     env.create_agents(random_init=True)
     # print([a.get_capacity() for a in env.agents])
@@ -159,9 +170,11 @@ def learning_phase(iteration, no_agents=50, db=False, early_stop=False, fitid=0)
     # Take a step i number of step in evolution environment
     # Take a 1000 step in validation environment sampling from the evolution
     # Make the validation envronmnet same as the evolution environment
-    results = SimulationResultsTraps(
+    ltrateavg, ltratestd = env.compute_lt_rate()
+    results = SimulationResultsLt(
         env.pname, env.connect, env.sn, env.stepcnt,
-        env.foraging_percent(), None, env.no_agent_dead(), db=False
+        env.maintenance_percent(), None, env.no_agent_dead(),
+        ltrateavg, ltratestd, env.compute_genetic_rate(), db=False
         )
     # Save the data in a result csv file
     results.save_to_file()
@@ -169,88 +182,23 @@ def learning_phase(iteration, no_agents=50, db=False, early_stop=False, fitid=0)
     for i in range(iteration):
         # Take a step in evolution
         env.step()
-        results = SimulationResultsTraps(
+        ltrateavg, ltratestd = env.compute_lt_rate()
+        results = SimulationResultsLt(
             env.pname, env.connect, env.sn, env.stepcnt,
-            env.foraging_percent(), None, env.no_agent_dead(), db=False
+            env.maintenance_percent(), None, env.no_agent_dead(),
+            ltrateavg, ltratestd, env.compute_genetic_rate(), db=False
             )
         # Save the data in a result csv file
         results.save_to_file()
         # env.gather_info()
-    # for i in range(iteration):
-    #     # Take a step in evolution
-    #     env.step()
-    #     if (i + 1) % validation_step == 0:
-    #         try:
-    #             # print([agent.individual[0].fitness for agent in env.agents])
-    #             # msg = []
-    #             # for agent in env.agents:
-    #             #    encode = agent.individual[0].phenotype.encode('utf-8')
-    #             #    msg += [(
-    #             #        agent.name, hashlib.sha224(encode).hexdigest(
-    #             #        ), agent.individual[0].fitness)]
-    #             # n,p,f = zip(*msg)
-    #             # print (i, p[:10])
-    #             # ratio = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]
-    #             # for r in ratio:
-    #             phenotypes = env.behavior_sampling_objects(ratio_value=0.1)
-    #             # phenotypes = env.behavior_sampling_objects(method='noratio')
-    #             # save the phenotype to json file
-    #             phenotype_to_json(
-    #                 env.pname, env.runid + '-' + str(i), phenotypes)
-    #             # early_stop = validation_loop(phenotypes, 5000)
-    #             validation_loop(
-    #                 phenotypes, 5000, parentname=env.pname, ratio=0.1)
-    #         except ValueError:
-    #             pass
-    #         # Plot the fitness in the graph
-    #         # graph = Graph(
-    #         #     env.pname, 'best.csv', [
-    #         #         'explore', 'foraging', 'prospective', 'fitness'],
-    #         #     pname='best' + str(i))
-    #         # graph.gen_best_plots()
-    #         """
-    #         if early_stop:
-    #             # Update the experiment table
-    #             env.experiment.update_experiment()
 
-    #             # Return phenotypes
-    #             return phenotypes
-    #         """
     # Update the experiment table
-    foraging_percent = env.foraging_percent()
-    if foraging_percent > 5:
+    mpercent = env.maintenance_percent()
+    if mpercent > 5:
         success = True
     else:
         success = False
-    env.experiment.update_experiment_simulation(foraging_percent, success)
-    """
-    hashlist = dict()
-    phenotypes = dict()
-    # generations = [agent.individual for agent in env.agents]
-    for agent in env.agents:
-        encode = agent.individual[0].phenotype.encode('utf-8')
-        hashval = hashlib.sha224(encode).hexdigest()
-        print(
-            agent.name, hashval,
-            agent.individual[0].fitness, agent.food_collected)
-        phenotypes[agent.individual[0].phenotype] = agent.individual[0].fitness
-        try:
-            hashlist[hashval] += 1
-        except KeyError:
-            hashlist[hashval] = 1
-    print(hashlist)
-    """
-    # print('max, min generations', np.max(generations), np.min(generations))
-    # pdb.set_trace()
-    allphenotypes = env.behavior_sampling_objects(ratio_value=1.0)
-    # save the phenotype to json file
-    phenotype_to_json(
-        env.pname, env.runid + '-' + 'all', allphenotypes)
-    try:
-        # return list(phenotypes.keys())
-        return allphenotypes, foraging_percent, env.pname
-    except UnboundLocalError:
-        return None, None, None
+    env.experiment.update_experiment_simulation(mpercent, success)
 
 
 def phenotype_to_json(pname, runid, phenotypes):
@@ -349,9 +297,13 @@ def test_all_phenotype(idfile='/tmp/experiments/idvalid.txt'):
 
 def standard_evolution(args):
     # phenotypes = learning_phase(iter, n, db)
-    Parallel(
-            n_jobs=args.threads)(delayed(learning_phase)(
-                args.iter, 50, db=False, fitid=args.fitid) for i in range(args.runs))
+    if args.threads <= 1:
+        for i in range(args.runs):
+            learning_phase(args)
+    else:
+        Parallel(
+                n_jobs=args.threads)(delayed(learning_phase)(
+                    args) for i in range(args.runs))
 
 
 def experiments(args):
@@ -420,7 +372,21 @@ if __name__ == '__main__':
     parser.add_argument('--threads', default=18, type=int)
     parser.add_argument('--iter', default=12000, type=int)
     parser.add_argument('--db', default=False, type=bool)
-    parser.add_argument('--fitid', default=0, type=int)
+    parser.add_argument('--fitid', default=3, type=int)
+    parser.add_argument('--threshold', default=10, type=int)
+    parser.add_argument('--gstep', default=200, type=int)
+    parser.add_argument('--expp', default=2, type=int)
+    parser.add_argument('--n', default=50, type=int)
+    parser.add_argument('--addobject', default=None, choices= [None, 'Obstacles', 'Traps', 'Hub', 'Sites'], type=str)
+    parser.add_argument('--removeobject', default=None, choices= [None, 'Obstacles', 'Traps', 'Hub', 'Sites'], type=str)
+    parser.add_argument('--moveobject', default=None, choices= [None, 'Obstacles', 'Traps', 'Hub', 'Sites'], type=str)
+    parser.add_argument('--jamcommun', default=None, choices=[None, 'Cue', 'Signal'], type=str)
+    parser.add_argument('--probability', default=0.5, type=float)
+    parser.add_argument('--no_objects', default=1, type=int)
+    parser.add_argument('--location', default=(-np.inf, -np.inf), type=str)
+    parser.add_argument('--radius', default=5, type=int)
+    parser.add_argument('--time', default=10000, type=int)
+    parser.add_argument('--iprob', default=0.85, type=float)
     args = parser.parse_args()
     print(args)
     experiments(args)
