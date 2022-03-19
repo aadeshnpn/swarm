@@ -1,5 +1,6 @@
 """Script to compute resilience metric"""
 """for all four types of perturbations for both swarm tasks."""
+from distutils import dist
 import os
 import numpy as np
 import pathlib
@@ -114,7 +115,7 @@ def ablation_efficiency_power_foraging(t=7, time=1000):
     par = np.polyfit(X, Y, 1, full=True)
     m = par[0][0]
     b = par[0][1]
-    print(m, b)
+    print(np.round(m,2), np.round(b,2))
     fig, ax = plt.subplots()
     ax.scatter(X, Y)
     ax.plot(X, m*X + b)
@@ -125,7 +126,7 @@ def ablation_efficiency_power_foraging(t=7, time=1000):
     par = np.polyfit(X, Y, 1, full=True)
     m = par[0][0]
     b = par[0][1]
-    print(m, b)
+    print('Efficiency',np.round(m,2), np.round(b,2))
     fig, ax = plt.subplots()
     ax.scatter(X, Y)
     ax.plot(X, m*X + b)
@@ -133,8 +134,52 @@ def ablation_efficiency_power_foraging(t=7, time=1000):
     np.save('/tmp/foraging_power_efficiency_ablation.npy', np.array([allpower, allefficiency], dtype=object))
 
 
+def distortion_efficiency_power_foraging():
+    ips = [0.8, 0.85, 0.9, 0.99]
+    allpower = {}
+    allefficiency = {}
+    for ip in ips:
+        data = np.squeeze(read_data_n_agent_perturbations_all(
+            n=100, iter=12000, threshold=7, time=10000, iprob=ip,
+            addobject=None, no_objects=1,
+            radius=5, idx=[2]))
+
+        powerdata100 = data[:, -1]
+        allpower[ip] = powerdata100
+
+        effdata = [np.squeeze(np.argwhere(data[i, :]>=80)) for i in range(data.shape[0])]
+        effdata = [np.array([effdata[i][0] if effdata[i].shape[0]>1 else 12000 for i in range(len(effdata))])]
+        effdata = [(((12000-effdata[i])/12000)*100) for i in range(len(effdata))]
+        allefficiency[ip] = np.round(effdata[0], 2)
+
+    X = np.concatenate(np.array([[i] * len(v[1]) for (i, v) in enumerate(allpower.items())]))
+    Y = np.concatenate(np.array([v for _, v in allpower.items()]))
+
+    par = np.polyfit(X, Y, 1, full=True)
+    m = par[0][0]
+    b = par[0][1]
+    print(np.round(m, 2), np.round(b, 2))
+    fig, ax = plt.subplots()
+    ax.scatter(X, Y)
+    ax.plot(X, m*X + b)
+    plt.show()
+
+    X = np.concatenate(np.array([[i]* len(v[1]) for (i, v)  in enumerate(allefficiency.items())]))
+    Y = np.concatenate(np.array([v for _, v in allefficiency.items()]))
+    par = np.polyfit(X, Y, 1, full=True)
+    m = par[0][0]
+    b = par[0][1]
+    print('Efficiency',np.round(m,2), np.round(b,2))
+    fig, ax = plt.subplots()
+    ax.scatter(X, Y)
+    ax.plot(X, m*X + b)
+    plt.show()
+    np.save('/tmp/foraging_power_efficiency_distortion.npy', np.array([allpower, allefficiency], dtype=object))
+
+
 def main():
-    ablation_efficiency_power_foraging()
+    # ablation_efficiency_power_foraging()
+    distortion_efficiency_power_foraging()
 
 
 if __name__ == "__main__":
