@@ -254,6 +254,33 @@ def shift_efficiency_power_foraging():
         np.array([allpower, allefficiency], dtype=object))
 
 
+def subplot_perturbations(
+        data, paxis, xtick, xlabels,
+        color, xlabel, pname='Ablation', metric='Power', j=0):
+    X = np.concatenate(
+        np.array(
+            [[i+j] * len(v[1]) for (i, v) in enumerate(
+                data.items())]))
+    Y = np.concatenate(np.array([v for _, v in data.items()]))
+    par = np.polyfit(X, Y, 1, full=True)
+    m = par[0][0]
+    b = par[0][1]
+    print(pname + ' ' + metric + ' :', np.round(m, 2), np.round(b, 2))
+    paxis.scatter(X, Y, color=color, alpha=0.5, s=0.8, marker="8")
+    paxis.plot(X, m*X + b, color=color, linewidth=0.8)
+    paxis.set_xticks(xtick)
+    paxis.set_xticklabels(xlabels)
+    paxis.set_yticks(range(0, 101, 20))
+    paxis.set_yticklabels(range(0, 101, 20))
+    # paxisx1.set_xlabel('No. of Obstacles', fontsize="small")
+    if pname == 'Ablation':
+        paxis.set_ylabel(metric)
+    if metric == 'Power':
+        paxis.set_title(pname)
+    if metric == 'Efficiency':
+        paxis.set_xlabel(xlabel)
+
+
 def plot_power_efficiency_subplots():
     TINY_SIZE = 7
     SMALL_SIZE = 8
@@ -288,128 +315,34 @@ def plot_power_efficiency_subplots():
     ax8 = fig.add_subplot(2, 4, 8)
 
     colors = ['cyan', 'magenta']
-    # Ablation
-    X = np.concatenate(
-        np.array(
-            [[i+1] * len(v[1]) for (i, v) in enumerate(
-                ablation[0].items())]))
-    Y = np.concatenate(np.array([v for _, v in ablation[0].items()]))
-    # print(X)
-    par = np.polyfit(X, Y, 1, full=True)
-    m = par[0][0]
-    b = par[0][1]
-    print('Ablation power:', np.round(m, 2), np.round(b, 2))
-    ax1.scatter(X, Y, color=colors[0], alpha=0.5, s=0.8, marker="8")
-    ax1.plot(X, m*X + b, color=colors[0], linewidth=0.8)
-    ax1.set_xticks(range(1, 6, 1))
-    ax1.set_xticklabels(range(1, 6, 1))
-    ax1.set_yticks(range(0, 101, 20))
-    ax1.set_yticklabels(range(0, 101, 20))
-    # ax1.set_xlabel('No. of Obstacles', fontsize="small")
-    ax1.set_ylabel('Power')
-    ax1.set_title('Ablation')
-
-    X = np.concatenate(
-        np.array(
-            [[i+1] * len(v[1]) for (i, v) in enumerate(
-                ablation[1].items())]))
-    Y = np.concatenate(np.array([v for _, v in ablation[1].items()]))
-
-    par = np.polyfit(X, Y, 1, full=True)
-    m = par[0][0]
-    b = par[0][1]
-    print('Ablation efficiency:', np.round(m, 2), np.round(b, 2))
-    ax2.scatter(X, Y, color=colors[0], alpha=0.5, s=0.8, marker="8")
-    ax2.plot(X, m*X + b, color=colors[0], linewidth=0.8)
-
-    ax2.set_xticks(range(1, 6, 1))
-    ax2.set_xticklabels(range(1, 6, 1))
-    ax2.set_yticks(range(0, 101, 20))
-    ax2.set_yticklabels(range(0, 101, 20))
-    ax2.set_xlabel('No. of Obstacles')
-    ax2.set_ylabel('Efficiency')
+    # Foraging Ablation
+    subplot_perturbations(
+        ablation[0], ax1, range(1, 6, 1), range(1, 6, 1),
+        color=colors[0], xlabel='', pname='Ablation', metric='Power', j=1)
+    subplot_perturbations(
+        ablation[1], ax2, range(1, 6, 1), range(1, 6, 1),
+        color=colors[0], xlabel='No. of Obstacles',
+        pname='Ablation', metric='Efficiency', j=1)
 
     # Skip addition for now.
-
     # Distortion
-    X = np.concatenate(
-        np.array(
-            [[i] * len(v[1]) for (i, v) in enumerate(
-                distortion[0].items())]))
-    Y = np.concatenate(np.array([v for _, v in distortion[0].items()]))
-
-    par = np.polyfit(X, Y, 1, full=True)
-    m = par[0][0]
-    b = par[0][1]
-    print('Distortion power:', np.round(m, 2), np.round(b, 2))
-    ax5.scatter(X, Y, color=colors[0], alpha=0.5, s=0.8, marker="8")
-    ax5.plot(X, m*X + b, color=colors[0], linewidth=0.8)
-    ax5.set_xticks(range(0, 4, 1))
-    ax5.set_xticklabels([0.8, 0.85, 0.9, 0.99])
-    ax5.set_yticks(range(0, 101, 20))
-    ax5.set_yticklabels(range(0, 101, 20))
-    # 5x1.set_xlabel('No. of Obstacles', fontsize="small")
-    # ax5.set_ylabel('Power')
-    ax5.set_title('Distortion')
-
-    X = np.concatenate(
-        np.array(
-            [[i] * len(v[1]) for (i, v) in enumerate(
-                distortion[1].items())]))
-    Y = np.concatenate(np.array([v for _, v in distortion[1].items()]))
-
-    par = np.polyfit(X, Y, 1, full=True)
-    m = par[0][0]
-    b = par[0][1]
-    print('Distortion efficiency:', np.round(m, 2), np.round(b, 2))
-    ax6.scatter(X, Y, color=colors[0], alpha=0.5, s=0.8, marker="8")
-    ax6.plot(X, m*X + b, color=colors[0], linewidth=0.8)
-    ax6.set_xticks(range(0, 4, 1))
-    ax6.set_xticklabels([0.8, 0.85, 0.9, 0.99])
-    ax6.set_yticks(range(0, 101, 20))
-    ax6.set_yticklabels(range(0, 101, 20))
-    ax6.set_xlabel('IP')
-    # ax6.set_ylabel('Efficiency')
+    subplot_perturbations(
+        distortion[0], ax5, range(0, 4, 1), [0.8, 0.85, 0.9, 0.99],
+        color=colors[0], xlabel='', pname='Distortion', metric='Power')
+    subplot_perturbations(
+        distortion[1], ax6, range(0, 4, 1), [0.8, 0.85, 0.9, 0.99],
+        color=colors[0], xlabel='IP',
+        pname='Distortion', metric='Efficiency')
 
     # Shift
-    X = np.concatenate(
-        np.array(
-            [[i] * len(v[1]) for (i, v) in enumerate(
-                shift[0].items())]))
-    Y = np.concatenate(np.array([v for _, v in shift[0].items()]))
-
-    par = np.polyfit(X, Y, 1, full=True)
-    m = par[0][0]
-    b = par[0][1]
-    print('Shift power:', np.round(m, 2), np.round(b, 2))
-    ax7.scatter(X, Y, color=colors[0], alpha=0.5, s=0.8, marker="8")
-    ax7.plot(X, m*X + b, color=colors[0], linewidth=0.8)
-    ax7.set_xticks(range(0, 11, 2))
-    ax7.set_xticklabels([i if i==0 else str(i)+'k' for i in range(0, 11, 2)])
-    ax7.set_yticks(range(0, 101, 20))
-    ax7.set_yticklabels(range(0, 101, 20))
-    # 7x1.set_xlabel('No. of Obstacles', fontsize="small")
-    # ax7.set_ylabel('Power')
-    ax7.set_title('Shift')
-
-    X = np.concatenate(
-        np.array(
-            [[i] * len(v[1]) for (i, v) in enumerate(
-                shift[1].items())]))
-    Y = np.concatenate(np.array([v for _, v in shift[1].items()]))
-
-    par = np.polyfit(X, Y, 1, full=True)
-    m = par[0][0]
-    b = par[0][1]
-    print('Shift efficiency:', np.round(m, 2), np.round(b, 2))
-    ax8.scatter(X, Y, color=colors[0], alpha=0.5, s=0.8, marker="8")
-    ax8.plot(X, m*X + b, color=colors[0], linewidth=0.8)
-    ax8.set_xticks(range(0, 11, 2))
-    ax8.set_xticklabels([i if i==0 else str(i)+'k' for i in range(0, 11, 2)])
-    ax8.set_yticks(range(0, 101, 20))
-    ax8.set_yticklabels(range(0, 101, 20))
-    ax8.set_xlabel('Timings')
-    # ax8.set_ylabel('Efficiency')
+    xticks = [i if i==0 else str(i)+'k' for i in range(0, 11, 2)]
+    subplot_perturbations(
+        shift[0], ax7, range(0, 11, 2), xticks,
+        color=colors[0], xlabel='', pname='Shift', metric='Power')
+    subplot_perturbations(
+        shift[1], ax8, range(0, 11, 2), xticks,
+        color=colors[0], xlabel='Timings',
+        pname='Shift', metric='Efficiency')
 
     plt.tight_layout()
     maindir = '/tmp/swarm/data/experiments'
