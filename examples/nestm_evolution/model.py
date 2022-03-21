@@ -566,7 +566,9 @@ class EvolveModel(NestMModel):
         """Initialize the attributes."""
         super(EvolveModel, self).__init__(
             N, width, height, grid, iter, seed, name, viewer, db=db,
-            fitid=fitid, threshold=threshold, gstep=gstep, expp=expp, args=args)
+            fitid=fitid, threshold=threshold, gstep=gstep, expp=expp,
+            args=args)
+        self.stop_lateral_transfer = False
 
     def create_agents(self, random_init=True, phenotypes=None):
         """Initialize agents in the environment."""
@@ -692,8 +694,21 @@ class EvolveModel(NestMModel):
 
         if self.stepcnt == self.args.time:
             self.add_object()
+            if self.args.addobject is not None:
+                self.activate_stop_lateral_transfer()
+
+        if self.stepcnt == self.args.stoplen:
+            if self.args.addobject is not None:
+                self.deactivate_stop_lateral_transfer()
+
         # Increment the step count
         self.stepcnt += 1
+
+    def activate_stop_lateral_transfer(self):
+        self.stop_lateral_transfer = True
+
+    def deactivate_stop_lateral_transfer(self):
+        self.stop_lateral_transfer = False
 
 
 class ValidationModel(NestMModel):

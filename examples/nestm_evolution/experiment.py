@@ -377,16 +377,25 @@ if __name__ == '__main__':
     parser.add_argument('--gstep', default=200, type=int)
     parser.add_argument('--expp', default=2, type=int)
     parser.add_argument('--n', default=50, type=int)
-    parser.add_argument('--addobject', default=None, choices= [None, 'Obstacles', 'Traps', 'Hub', 'Sites'], type=str)
-    parser.add_argument('--removeobject', default=None, choices= [None, 'Obstacles', 'Traps', 'Hub', 'Sites'], type=str)
-    parser.add_argument('--moveobject', default=None, choices= [None, 'Obstacles', 'Traps', 'Hub', 'Sites'], type=str)
-    parser.add_argument('--jamcommun', default=None, choices=[None, 'Cue', 'Signal'], type=str)
+    parser.add_argument(
+        '--addobject', default=None, choices=[
+            None, 'Obstacles', 'Traps', 'Hub', 'Sites'], type=str)
+    parser.add_argument(
+        '--removeobject', default=None, choices=[
+            None, 'Obstacles', 'Traps', 'Hub', 'Sites'], type=str)
+    parser.add_argument(
+        '--moveobject', default=None, choices=[
+            None, 'Obstacles', 'Traps', 'Hub', 'Sites'], type=str)
+    parser.add_argument(
+        '--jamcommun', default=None, choices=[None, 'Cue', 'Signal'], type=str)
     parser.add_argument('--probability', default=0.5, type=float)
     parser.add_argument('--no_objects', default=1, type=int)
     parser.add_argument('--location', default=(-np.inf, -np.inf), type=str)
     parser.add_argument('--radius', default=5, type=int)
     parser.add_argument('--time', default=10000, type=int)
+    parser.add_argument('--stoplen', default=0, type=int)
     parser.add_argument('--iprob', default=0.85, type=float)
     args = parser.parse_args()
+    args.stoplen = args.time + 1000
     print(args)
     experiments(args)
