@@ -254,6 +254,58 @@ def shift_efficiency_power_foraging():
         np.array([allpower, allefficiency], dtype=object))
 
 
+def addition_efficiency_power_foraging():
+    timings = range(1000, 11001, 1000)
+    allpower = {}
+    allefficiency = {}
+    for t in timings:
+        data = np.squeeze(read_data_n_agent_perturbations_all(
+            n=100, iter=12000, threshold=7, time=t, iprob=0.85,
+            addobject='Obstacles', no_objects=2,
+            radius=10, idx=[2]))
+
+        powerdata100 = data[:, -1]
+        allpower[t] = powerdata100
+
+        effdata = [np.squeeze(
+            np.argwhere(data[i, :] >= 80)) for i in range(data.shape[0])]
+        effdata = [np.array(
+            [effdata[i][0] if effdata[i].shape[
+                0] > 1 else 12000 for i in range(len(effdata))])]
+        effdata = [(
+            ((12000-effdata[i])/12000)*100) for i in range(len(effdata))]
+        allefficiency[t] = np.round(effdata[0], 2)
+
+    X = np.concatenate(
+        np.array([[i] * len(v[1]) for (i, v) in enumerate(allpower.items())]))
+    Y = np.concatenate(np.array([v for _, v in allpower.items()]))
+
+    par = np.polyfit(X, Y, 1, full=True)
+    m = par[0][0]
+    b = par[0][1]
+    print(np.round(m, 2), np.round(b, 2))
+    fig, ax = plt.subplots()
+    ax.scatter(X, Y)
+    ax.plot(X, m*X + b)
+    plt.show()
+
+    X = np.concatenate(
+        np.array([[i] * len(
+            v[1]) for (i, v) in enumerate(allefficiency.items())]))
+    Y = np.concatenate(np.array([v for _, v in allefficiency.items()]))
+    par = np.polyfit(X, Y, 1, full=True)
+    m = par[0][0]
+    b = par[0][1]
+    print('Efficiency', np.round(m, 2), np.round(b, 2))
+    fig, ax = plt.subplots()
+    ax.scatter(X, Y)
+    ax.plot(X, m*X + b)
+    plt.show()
+    np.save(
+        '/tmp/foraging_power_efficiency_addition.npy',
+        np.array([allpower, allefficiency], dtype=object))
+
+
 def subplot_perturbations(
         data, paxis, xtick, xlabels,
         color, xlabel, pname='Ablation', metric='Power', j=0):
@@ -298,7 +350,8 @@ def plot_power_efficiency_subplots():
     # Foraging data
     ablation = np.load(
         '/tmp/foraging_power_efficiency_ablation.npy', allow_pickle=True)
-    addition = None
+    addition = np.load(
+        '/tmp/foraging_power_efficiency_addition.npy', allow_pickle=True)
     distortion = np.load(
         '/tmp/foraging_power_efficiency_distortion.npy', allow_pickle=True)
     shift = np.load(
@@ -324,7 +377,16 @@ def plot_power_efficiency_subplots():
         color=colors[0], xlabel='No. of Obstacles',
         pname='Ablation', metric='Efficiency', j=1)
 
-    # Skip addition for now.
+    # Addition.
+    xticks = [i if i==0 else str(i)+'k' for i in range(0, 11, 2)]
+    subplot_perturbations(
+        addition[0], ax3, range(0, 11, 2), xticks,
+        color=colors[0], xlabel='', pname='Addition', metric='Power')
+    subplot_perturbations(
+        addition[1], ax4, range(0, 11, 2), xticks,
+        color=colors[0], xlabel='Timings',
+        pname='Addition', metric='Efficiency')
+
     # Distortion
     subplot_perturbations(
         distortion[0], ax5, range(0, 4, 1), [0.8, 0.85, 0.9, 0.99],
@@ -361,6 +423,7 @@ def main():
     # distortion_efficiency_power_foraging()
     # shift_efficiency_power_foraging()
     plot_power_efficiency_subplots()
+    # addition_efficiency_power_foraging()
 
 
 if __name__ == "__main__":
