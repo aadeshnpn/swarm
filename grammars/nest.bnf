@@ -18,7 +18,7 @@
 
 <action> ::= <motion>|<nonmotion>
 <motion> ::= MoveTowards_<sobjects>_<motiontype>|Explore_0_<motiontype>|MoveAway_<sobjects>_<motiontype>
-<motiontype> :: = Normal|Avoid
+<motiontype> ::= Normal|Avoid
 <nonmotion> ::= CompositeSingleCarry_<dobjects>|CompositeDrop_<dobjects>
 
 <sobjects>::=Hub|Boundary
