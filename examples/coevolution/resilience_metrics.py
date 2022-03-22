@@ -53,12 +53,14 @@ def read_data_n_agent_perturbations_all(
         return None
 
 
-def ablation_efficiency_power_foraging(t=7, time=1000):
+def ablation_efficiency_power_foraging(fname="EvoCoevolutionPPA"):
+    t = 7
+    # time = 1000
     no_obstacles = [1, 2, 3, 4, 5]
-    times = list(range(1000, 12001, 1000))
+    times = list(range(1000, 11001, 1000))
     baseline = read_data_n_agent_perturbations_all(
         n=100, iter=12000, threshold=t, time=10000, iprob=0.85,
-        addobject='None', radius=5, idx=[2])
+        addobject='None', radius=5, idx=[2], fname=fname)
     # powerbaseline100 = np.squeeze(baseline)[:, -1]
     effbaseline100 = np.squeeze(baseline)
     effbaseline100 = [np.squeeze(
@@ -82,8 +84,8 @@ def ablation_efficiency_power_foraging(t=7, time=1000):
         data = [read_data_n_agent_perturbations_all(
             n=100, iter=12000, threshold=t, time=times[j], iprob=0.85,
             addobject='Obstacles', no_objects=o,
-            radius=10, idx=[2]) for j in range(len(times))]
-        # print(len(data))
+            radius=10, idx=[2], fname=fname) for j in range(len(times))]
+        # print(o, len(data), data[8:])
         powerdata100 = [np.squeeze(
             data[i])[:, -1] for i in range(
                 len(times)) if data[i] is not None]
@@ -146,7 +148,7 @@ def ablation_efficiency_power_foraging(t=7, time=1000):
     ax.plot(X, m*X + b)
     plt.show()
     np.save(
-        '/tmp/foraging_power_efficiency_ablation.npy',
+        '/tmp/' + fname + '_foraging_power_efficiency_ablation.npy',
         np.array([allpower, allefficiency], dtype=object))
 
 
@@ -254,7 +256,7 @@ def shift_efficiency_power_foraging():
         np.array([allpower, allefficiency], dtype=object))
 
 
-def addition_efficiency_power_foraging():
+def addition_efficiency_power_foraging(fname="EvoCoevolutionPPA"):
     timings = range(1000, 11001, 1000)
     allpower = {}
     allefficiency = {}
@@ -262,7 +264,7 @@ def addition_efficiency_power_foraging():
         data = np.squeeze(read_data_n_agent_perturbations_all(
             n=100, iter=12000, threshold=7, time=t, iprob=0.85,
             addobject='Obstacles', no_objects=2,
-            radius=10, idx=[2]))
+            radius=10, idx=[2], fname=fname))
 
         powerdata100 = data[:, -1]
         allpower[t] = powerdata100
@@ -302,7 +304,7 @@ def addition_efficiency_power_foraging():
     ax.plot(X, m*X + b)
     plt.show()
     np.save(
-        '/tmp/foraging_power_efficiency_addition.npy',
+        '/tmp/' + fname + 'foraging_power_efficiency_addition.npy',
         np.array([allpower, allefficiency], dtype=object))
 
 
@@ -360,6 +362,11 @@ def plot_power_efficiency_subplots():
     distortion_nest = np.load(
         '/tmp/EvoNestMNewPPA1_power_efficiency_distortion.npy',
         allow_pickle=True)
+
+    ablation_nest = np.load(
+        '/tmp/EvoNestMNewPPA1_power_efficiency_ablation.npy',
+        allow_pickle=True)
+
     fig = plt.figure(figsize=(6, 4), dpi=300)
     ax1 = fig.add_subplot(2, 4, 1)
     ax2 = fig.add_subplot(2, 4, 5)
@@ -378,6 +385,14 @@ def plot_power_efficiency_subplots():
     subplot_perturbations(
         ablation[1], ax2, range(1, 6, 1), range(1, 6, 1),
         color=colors[0], xlabel='No. of Obstacles',
+        pname='Ablation', metric='Efficiency', j=1)
+    # Nest Ablation
+    subplot_perturbations(
+        ablation_nest[0], ax1, range(1, 6, 1), range(1, 6, 1),
+        color=colors[1], xlabel='', pname='Ablation', metric='Power', j=1)
+    subplot_perturbations(
+        ablation_nest[1], ax2, range(1, 6, 1), range(1, 6, 1),
+        color=colors[1], xlabel='No. of Obstacles',
         pname='Ablation', metric='Efficiency', j=1)
 
     # Addition.
@@ -432,7 +447,7 @@ def plot_power_efficiency_subplots():
 
 
 def main():
-    # ablation_efficiency_power_foraging()
+    # ablation_efficiency_power_foraging(fname="EvoNestMNewPPA1")
     # distortion_efficiency_power_foraging(fname="EvoNestMNewPPA1")
     # shift_efficiency_power_foraging()
     plot_power_efficiency_subplots()
