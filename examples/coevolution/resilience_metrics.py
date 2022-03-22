@@ -26,7 +26,7 @@ def read_data_n_agent_perturbations_all(
                 str(time), str(iprob)
                 )
     print(nadir)
-    folders = pathlib.Path(nadir).glob("*EvoCoevolutionPPA")
+    folders = pathlib.Path(nadir).glob("*"+fname)
     flist = []
     fdata = []
     # mdata = []
@@ -150,7 +150,7 @@ def ablation_efficiency_power_foraging(t=7, time=1000):
         np.array([allpower, allefficiency], dtype=object))
 
 
-def distortion_efficiency_power_foraging():
+def distortion_efficiency_power_foraging(fname="EvoCoevolutionPPA"):
     ips = [0.8, 0.85, 0.9, 0.99]
     allpower = {}
     allefficiency = {}
@@ -158,7 +158,7 @@ def distortion_efficiency_power_foraging():
         data = np.squeeze(read_data_n_agent_perturbations_all(
             n=100, iter=12000, threshold=7, time=10000, iprob=ip,
             addobject=None, no_objects=1,
-            radius=5, idx=[2]))
+            radius=5, idx=[2], fname=fname))
 
         powerdata100 = data[:, -1]
         allpower[ip] = powerdata100
@@ -198,7 +198,7 @@ def distortion_efficiency_power_foraging():
     ax.plot(X, m*X + b)
     plt.show()
     np.save(
-        '/tmp/foraging_power_efficiency_distortion.npy',
+        '/tmp/' + fname + '_power_efficiency_distortion.npy',
         np.array([allpower, allefficiency], dtype=object))
 
 
@@ -357,6 +357,9 @@ def plot_power_efficiency_subplots():
     shift = np.load(
         '/tmp/foraging_power_efficiency_shift.npy', allow_pickle=True)
 
+    distortion_nest = np.load(
+        '/tmp/EvoNestMNewPPA1_power_efficiency_distortion.npy',
+        allow_pickle=True)
     fig = plt.figure(figsize=(6, 4), dpi=300)
     ax1 = fig.add_subplot(2, 4, 1)
     ax2 = fig.add_subplot(2, 4, 5)
@@ -388,6 +391,7 @@ def plot_power_efficiency_subplots():
         pname='Addition', metric='Efficiency')
 
     # Distortion
+    # Foraging
     subplot_perturbations(
         distortion[0], ax5, range(0, 4, 1), [0.8, 0.85, 0.9, 0.99],
         color=colors[0], xlabel='', pname='Distortion', metric='Power')
@@ -395,6 +399,15 @@ def plot_power_efficiency_subplots():
         distortion[1], ax6, range(0, 4, 1), [0.8, 0.85, 0.9, 0.99],
         color=colors[0], xlabel='IP',
         pname='Distortion', metric='Efficiency')
+    # Nest
+    subplot_perturbations(
+        distortion_nest[0], ax5, range(0, 4, 1), [0.8, 0.85, 0.9, 0.99],
+        color=colors[1], xlabel='', pname='Distortion', metric='Power')
+    subplot_perturbations(
+        distortion_nest[1], ax6, range(0, 4, 1), [0.8, 0.85, 0.9, 0.99],
+        color=colors[1], xlabel='IP',
+        pname='Distortion', metric='Efficiency')
+
 
     # Shift
     xticks = [i if i==0 else str(i)+'k' for i in range(0, 11, 2)]
@@ -420,7 +433,7 @@ def plot_power_efficiency_subplots():
 
 def main():
     # ablation_efficiency_power_foraging()
-    # distortion_efficiency_power_foraging()
+    # distortion_efficiency_power_foraging(fname="EvoNestMNewPPA1")
     # shift_efficiency_power_foraging()
     plot_power_efficiency_subplots()
     # addition_efficiency_power_foraging()
