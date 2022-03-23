@@ -9,7 +9,8 @@ from py_trees.composites import Sequence, Selector  # noqa: F401
 from swarms.behaviors.scbehaviors import (      # noqa: F401
     MoveTowards, MoveAway, Explore, CompositeSingleCarry,
     CompositeDrop, CompositeDropPheromone, CompositeSensePheromone,
-    CompositeSendSignal, CompositeReceiveSignal
+    CompositeSendSignal, CompositeReceiveSignal,
+    MoveAwayNormal, MoveTowardsNormal, ExploreNormal
     )
 from swarms.behaviors.sbehaviors import (       # noqa: F401
     IsCarrying, NeighbourObjects, Move, IsDropable,
@@ -61,17 +62,28 @@ class BTConstruct:
                     method, item = nodeval
                     behavior = eval(method)(method + str(
                         self.agent.model.random.randint(
-                            100, 200)) + '_' + item+ '_' + root.tag)
+                            100, 200)) + '_' + item + '_' + root.tag)
                     behavior.setup(0, self.agent, item)
                 else:
-                    method, item, _ = nodeval
-                    behavior = eval(method)(
-                        method + str(
+                    method, item, ntype = nodeval
+                    if ntype == 'invert':
+                        behavior = eval(method)(
+                            method + str(
+                                self.agent.model.random.randint(
+                                    100, 200)) + '_' + item + '_inv' + '_' + root.tag)
+                        behavior.setup(0, self.agent, item)
+                        behavior = Inverter(behavior)
+                    elif ntype == 'Normal':
+                        behavior = eval(method+ntype)(
+                            method + str(
+                                self.agent.model.random.randint(
+                                    100, 200)) + '_' + item + '_Normal' + '_' + root.tag)
+                        behavior.setup(0, self.agent, item)
+                    elif ntype == 'Avoid':
+                        behavior = eval(method)(method + str(
                             self.agent.model.random.randint(
-                                100, 200)) + '_' + item + '_inv' + '_' + root.tag)
-                    behavior.setup(0, self.agent, item)
-                    behavior = Inverter(behavior)
-
+                                100, 200)) + '_' + item + '_' + root.tag)
+                        behavior.setup(0, self.agent, item)
             else:
                 method = node_text
                 behavior = eval(method)(method + str(

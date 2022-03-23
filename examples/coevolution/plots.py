@@ -1,6 +1,8 @@
 from cProfile import label
 from email import header
+from email.mime import base
 import os
+from pdb import post_mortem
 import numpy as np
 import scipy.stats as stats
 import matplotlib
@@ -149,9 +151,10 @@ def read_data_n_agent_perturbations(
     mdata = []
     for f in folders:
         flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
-        data = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
-        # print(f.shape, flist[0])
-        fdata.append(data[idx])
+        if len(flist) >=1:
+            data = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+            # print(f.shape, flist[0])
+            fdata.append(data[idx])
     fdata = np.array(fdata)
     # print(fdata.shape)
     return fdata
@@ -160,10 +163,10 @@ def read_data_n_agent_perturbations(
 def read_data_n_agent_perturbations_all(
         n=100, iter=12000, threshold=10, gstep=200, expp=2,
         addobject=None, removeobject=None, no_objects=1, radius=5,
-        time=13000, iprob=0.85, idx=[2]):
-    maindir = '/tmp/swarm/data/experiments/EvoCoevolutionPPA/'
+        time=13000, iprob=0.85, idx=[2], fname='EvoCoevolutionPPA'):
+    # maindir = '/tmp/swarm/data/experiments/' + fname
     nadir = os.path.join(
-                '/tmp', 'swarm', 'data', 'experiments', 'EvoCoevolutionPPA',
+                '/tmp', 'swarm', 'data', 'experiments', fname,
                 str(n), str(iter), str(threshold), str(gstep), str(expp),
                 str(addobject), str(removeobject),
                 str(no_objects), str(radius),
@@ -942,8 +945,8 @@ def storage_threshold():
 
 def storage_threshold_iprob(ip=0.8):
     thresholds = [5, 7, 10, 15]
-    data50 = [read_data_n_agent_perturbations(
-        n=50, iter=12000, threshold=t, time=10000, iprob=ip)[:,-1] for t in thresholds]
+    # data50 = [read_data_n_agent_perturbations(
+    #     n=50, iter=12000, threshold=t, time=10000, iprob=ip)[:,-1] for t in thresholds]
     data100 = [read_data_n_agent_perturbations(
         n=100, iter=12000, threshold=t, time=10000, iprob=ip)[:,-1] for t in thresholds]
 
@@ -967,26 +970,26 @@ def storage_threshold_iprob(ip=0.8):
     positions = [
         [1, 2], [4, 5], [7, 8], [10, 11], # [13, 14]
         ]
-    datas = [
-        [data50[0], data100[0]],
-        [data50[1], data100[1]],
-        [data50[2], data100[2]],
-        [data50[3], data100[3]],
-        # [data50[4], data100[4]],
-        # [np.zeros(np.shape(datas50[4])), data100[5]],
-    ]
+    # datas = [
+    #     [data50[0], data100[0]],
+    #     [data50[1], data100[1]],
+    #     [data50[2], data100[2]],
+    #     [data50[3], data100[3]],
+    #     # [data50[4], data100[4]],
+    #     # [np.zeros(np.shape(datas50[4])), data100[5]],
+    # ]
 
-    for j in range(len(positions)):
-        bp1 = ax1.boxplot(
-            datas[j], 0, 'gD', showmeans=True, meanline=True,
-            patch_artist=True, medianprops=medianprops,
-            meanprops=meanprops, widths=0.8, positions=positions[j])
-        for patch, color in zip(bp1['boxes'], colordict.values()):
-            patch.set_facecolor(color)
+    # for j in range(len(positions)):
+    bp1 = ax1.boxplot(
+        data100, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, widths=0.8)
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
 
-    ax1.legend(zip(bp1['boxes']), ['50', '100'], fontsize="small", loc="upper center", title='Agent Population')
+    ax1.legend(zip(bp1['boxes']), thresholds, fontsize="small", loc="upper center", title='Agent Population')
     # ax1.legend(zip(bp1['boxes']), thresholds, fontsize="small", loc="upper right", title='Storage Threshold')
-    ax1.set_xticks([1.5, 4.5, 7.5, 10.5])
+    # ax1.set_xticks([1.5, 4.5, 7.5, 10.5])
     ax1.set_xticklabels(thresholds)
     ax1.set_yticks(range(0, 105, 20))
     ax1.set_xlabel('Storage Threshold', fontsize="large")
@@ -1005,8 +1008,8 @@ def storage_threshold_iprob(ip=0.8):
 
 def storage_threshold_iprob_lt(ip=0.8):
     thresholds = [5, 7, 10, 15]
-    data50 = [read_data_n_agent_perturbations(
-        n=50, iter=12000, threshold=t, time=10000, iprob=ip, idx=4)[:,-1] for t in thresholds]
+    # data50 = [read_data_n_agent_perturbations(
+    #     n=50, iter=12000, threshold=t, time=10000, iprob=ip, idx=4)[:,-1] for t in thresholds]
     data100 = [read_data_n_agent_perturbations(
         n=100, iter=12000, threshold=t, time=10000, iprob=ip,idx=4)[:,-1] for t in thresholds]
 
@@ -1030,26 +1033,26 @@ def storage_threshold_iprob_lt(ip=0.8):
     positions = [
         [1, 2], [4, 5], [7, 8], [10, 11], # [13, 14]
         ]
-    datas = [
-        [data50[0], data100[0]],
-        [data50[1], data100[1]],
-        [data50[2], data100[2]],
-        [data50[3], data100[3]],
-        # [data50[4], data100[4]],
-        # [np.zeros(np.shape(datas50[4])), data100[5]],
-    ]
+    # datas = [
+    #     [data50[0], data100[0]],
+    #     [data50[1], data100[1]],
+    #     [data50[2], data100[2]],
+    #     [data50[3], data100[3]],
+    #     # [data50[4], data100[4]],
+    #     # [np.zeros(np.shape(datas50[4])), data100[5]],
+    # ]
 
-    for j in range(len(positions)):
-        bp1 = ax1.boxplot(
-            datas[j], 0, 'gD', showmeans=True, meanline=True,
-            patch_artist=True, medianprops=medianprops,
-            meanprops=meanprops, widths=0.8, positions=positions[j])
-        for patch, color in zip(bp1['boxes'], colordict.values()):
-            patch.set_facecolor(color)
+    # for j in range(len(positions)):
+    bp1 = ax1.boxplot(
+        data100, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, widths=0.8)
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
 
-    ax1.legend(zip(bp1['boxes']), ['50', '100'], fontsize="small", loc="upper center", title='Agent Population')
+    ax1.legend(zip(bp1['boxes']), thresholds, fontsize="small", loc="upper center", title='Agent Population')
     # ax1.legend(zip(bp1['boxes']), thresholds, fontsize="small", loc="upper right", title='Storage Threshold')
-    ax1.set_xticks([1.5, 4.5, 7.5, 10.5])
+    # ax1.set_xticks([1.5, 4.5, 7.5, 10.5])
     ax1.set_xticklabels(thresholds)
     ax1.set_yticks(range(0, 20, 2))
     ax1.set_xlabel('Storage Threshold', fontsize="large")
@@ -1068,8 +1071,8 @@ def storage_threshold_iprob_lt(ip=0.8):
 
 def storage_threshold_iprob_gs(ip=0.8):
     thresholds = [5, 7, 10, 15]
-    data50 = [read_data_n_agent_perturbations(
-        n=50, iter=12000, threshold=t, time=10000, iprob=ip, idx=6)[:,-1] for t in thresholds]
+    # data50 = [read_data_n_agent_perturbations(
+    #     n=50, iter=12000, threshold=t, time=10000, iprob=ip, idx=6)[:,-1] for t in thresholds]
     data100 = [read_data_n_agent_perturbations(
         n=100, iter=12000, threshold=t, time=10000, iprob=ip,idx=6)[:,-1] for t in thresholds]
 
@@ -1093,26 +1096,26 @@ def storage_threshold_iprob_gs(ip=0.8):
     positions = [
         [1, 2], [4, 5], [7, 8], [10, 11], # [13, 14]
         ]
-    datas = [
-        [data50[0], data100[0]],
-        [data50[1], data100[1]],
-        [data50[2], data100[2]],
-        [data50[3], data100[3]],
-        # [data50[4], data100[4]],
-        # [np.zeros(np.shape(datas50[4])), data100[5]],
-    ]
+    # datas = [
+    #     [data50[0], data100[0]],
+    #     [data50[1], data100[1]],
+    #     [data50[2], data100[2]],
+    #     [data50[3], data100[3]],
+    #     # [data50[4], data100[4]],
+    #     # [np.zeros(np.shape(datas50[4])), data100[5]],
+    # ]
 
-    for j in range(len(positions)):
-        bp1 = ax1.boxplot(
-            datas[j], 0, 'gD', showmeans=True, meanline=True,
-            patch_artist=True, medianprops=medianprops,
-            meanprops=meanprops, widths=0.8, positions=positions[j])
-        for patch, color in zip(bp1['boxes'], colordict.values()):
-            patch.set_facecolor(color)
+    # for j in range(len(positions)):
+    bp1 = ax1.boxplot(
+        data100, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, widths=0.8)
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
 
-    ax1.legend(zip(bp1['boxes']), ['50', '100'], fontsize="small", loc="upper center", title='Agent Population')
+    ax1.legend(zip(bp1['boxes']), thresholds, fontsize="small", loc="upper center", title='Agent Population')
     # ax1.legend(zip(bp1['boxes']), thresholds, fontsize="small", loc="upper right", title='Storage Threshold')
-    ax1.set_xticks([1.5, 4.5, 7.5, 10.5])
+    # ax1.set_xticks([1.5, 4.5, 7.5, 10.5])
     ax1.set_xticklabels(thresholds)
     ax1.set_yticks(range(0, 80, 10))
     ax1.set_xlabel('Storage Threshold', fontsize="large")
@@ -1705,7 +1708,7 @@ def plot_foraging_baseline_obstacles(basedata, ip=0.85, time=1000):
     ax_zoom = ax1.inset_axes([0.05,0.5,0.47,0.47], alpha=0.3)
     data = np.squeeze(read_data_n_agent_perturbations_all(
         n=100, iter=12000, threshold=7, time=time, iprob=0.85, addobject='Obstacles',
-        no_objects=1, radius=10, idx=[2,3]))
+        no_objects=2, radius=10, idx=[2,3]))
 
     q2 = np.median(data, axis=1)
     q1 = np.quantile(data, axis=1, q=0.25)
@@ -1726,8 +1729,8 @@ def plot_foraging_baseline_obstacles(basedata, ip=0.85, time=1000):
     ax1.set_xlabel('Evolution Steps')
     ax1.set_ylabel('Foraging (%)')
     ax1.set_yticks(range(0, 105, 20))
-    ax2 = ax1.twinx()
-    ax2.set_yticks(range(0, 105, 20))
+    # ax2 = ax1.twinx()
+    # ax2.set_yticks(range(0, 105, 20))
 
     plt.title('Obstacle Added at ' + str(time) +' Step')
     plt.tight_layout()
@@ -1737,6 +1740,51 @@ def plot_foraging_baseline_obstacles(basedata, ip=0.85, time=1000):
 
     fig.savefig(
         maindir + 'baseline_obstacle_zoom_'+ str(time)+ '.png')
+    plt.close(fig)
+
+
+def plot_no_obstacles_performance(ip=0.85, time=1000):
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    ax1 = fig.add_subplot(1, 1, 1)
+
+    data = [np.squeeze(read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=7, time=time, iprob=ip, addobject='Obstacles',
+        no_objects=n, radius=10, idx=[2]))[:,-1] for n in range(1,6)]
+
+    colordict = {
+        0: 'gold',
+        1: 'linen',
+        2: 'orchid',
+        3: 'peru',
+        4: 'olivedrab',
+        5: 'indianred',
+        6: 'tomato'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+
+    bp1 = ax1.boxplot(
+        data, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, widths=0.8)
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+
+    ax1.set_xlabel('No. of Obstacles')
+    ax1.set_ylabel('Foraging (%)')
+    ax1.set_yticks(range(0, 105, 10))
+    # ax1.set_xticks( range(0,11001,1000))
+    # ax1.set_xticklabels(range(1000,11001,1000))
+    ax1.legend(zip(bp1['boxes']), range(1,6), fontsize="small", loc="lower left", title='No. of Obstacles')
+    plt.title('No. of Obstacle Added at ' + str(time) +' Step')
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments/'
+
+    fig.savefig(
+        maindir + 'no_obstacle_'+ str(time)+ '.png')
     plt.close(fig)
 
 
@@ -1775,6 +1823,517 @@ def obstacle_introduced_compare():
     plt.close(fig)
 
 
+def ip_paper_efficiency_power(t=5):
+    ip = [0.5, 0.7, 0.8, 0.85, 0.9, 0.99]
+    axeslimitdict = {
+        0:[(11500,12002), (75,95)]
+        }
+    data = [np.median(np.squeeze(read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=t, time=10000, iprob=i,
+        addobject='None',no_objects=1, radius=5, idx=[2])), axis=0) for i in ip]
+
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    ax1 = fig.add_subplot(1, 1, 1)
+
+    xvalues = np.array(list(range(12002)))
+    mask = xvalues % 1000 == 0
+    colors = []
+    for i in range(len(ip)):
+        p = ax1.plot(xvalues[mask], data[i][mask], marker="v", ls='-', label=str(ip[i]))
+        colors += [p[0].get_color()]
+
+    ax_zoom = ax1.inset_axes([0.05,0.5,0.47,0.47])
+    ax_zoom.patch.set_alpha(0.5)
+
+    data100 = [read_data_n_agent_perturbations(
+        n=100, iter=12000, threshold=t, time=10000, iprob=i)[:,-1] for i in ip]
+    colordict = {
+        0: 'gold',
+        1: 'linen',
+        2: 'orchid',
+        3: 'peru',
+        4: 'olivedrab',
+        5: 'indianred',
+        6: 'tomato'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    bp1 = ax_zoom.boxplot(
+        data100, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, widths=0.8)
+    for patch, color in zip(bp1['boxes'], colors):
+        patch.set_facecolor(color)
+
+    ax_zoom.set_yticks(range(40, 105, 10))
+    ax_zoom.set_xticklabels(ip)
+    ax1.set_yticks(range(0, 105, 20))
+    ax1.set_xlabel('Steps', fontsize="large")
+    ax1.set_ylabel('Foraging (%)', fontsize="large")
+    ax1.legend(fontsize="small", loc="center right", title='IPs')
+
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments'
+    fname = 'ip_paper_efficiency_power_' + str(t)
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
+def ip_paper_efficiency_power_boxplot(t=5):
+    # thresholds = [5, 7, 10, 15]
+    ip = [0.5, 0.7, 0.8, 0.85, 0.9, 0.99]
+    data100 = [read_data_n_agent_perturbations(
+        n=100, iter=12000, threshold=t, time=10000, iprob=i)[:,-1] for i in ip]
+
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    ax1 = fig.add_subplot(1, 1, 1)
+    colordict = {
+        0: 'gold',
+        1: 'linen',
+        2: 'orchid',
+        3: 'peru',
+        4: 'olivedrab',
+        5: 'indianred',
+        6: 'tomato'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+
+    # labels = [ "> n/"+str(a) for a in thresholds]
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    bp1 = ax1.boxplot(
+        data100, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, widths=0.8)
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+
+    ax1.legend(zip(bp1['boxes']), ip, fontsize="small", loc="lower right", title='IP')
+    # ax1.legend(zip(bp1['boxes']), thresholds, fontsize="small", loc="upper right", title='Storage Threshold')
+    # ax1.set_xticks([1.5, 4.5, 7.5, 10.5])
+    ax1.set_xticklabels(ip)
+    ax1.set_yticks(range(0, 105, 20))
+    ax1.set_xlabel('IP', fontsize="large")
+    ax1.set_ylabel('Foraging (%)', fontsize="large")
+    plt.title('IP')
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments'
+    fname = 'ipboxplotiprob'+str(t)
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
+def ip_paper_efficiency_power_lt(t=5):
+    ip = [0.5, 0.7, 0.8, 0.85, 0.9, 0.99]
+    axeslimitdict = {
+        0:[(11500,12002), (75,95)]
+        }
+    data = [np.mean(np.squeeze(read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=t, time=10000, iprob=i,
+        addobject='None',no_objects=1, radius=5, idx=[4])), axis=0) for i in ip]
+
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    ax1 = fig.add_subplot(1, 1, 1)
+
+    xvalues = np.array(list(range(12002)))
+    mask = xvalues % 1000 == 0
+    colors = []
+    for i in range(len(ip)):
+        p = ax1.plot(xvalues[mask], data[i][mask], marker="v", ls='-', label=str(ip[i]))
+        colors += [p[0].get_color()]
+
+    ax_zoom = ax1.inset_axes([0.05,0.6,0.8,0.37])
+    # ax_zoom = ax1.inset_axes([0.05,0.5,0.47,0.47])
+    ax_zoom.patch.set_alpha(0.5)
+
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    # print(len(data), data[0].shape)
+    data = [d[2:].astype(np.int8) for d in data]
+    # print(data[0])
+    bp1 = ax_zoom.boxplot(
+        data, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, widths=0.8)
+    for patch, color in zip(bp1['boxes'], colors):
+        patch.set_facecolor(color)
+
+    ax_zoom.set_yticks(range(0, 11, 2))
+    ax_zoom.set_xticklabels(ip)
+    ax1.set_yticks(range(0, 21, 2))
+    ax1.set_xlabel('Steps', fontsize="large")
+    ax1.set_ylabel('LT Rate (%)', fontsize="large")
+    ax1.legend(fontsize="small", loc="upper right", title='IPs')
+
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments'
+    fname = 'ip_paper_efficiency_power_lt_' + str(t)
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
+def ip_paper_efficiency_power_gs(t=5):
+    ip = [0.5, 0.7, 0.8, 0.85, 0.9, 0.99]
+    axeslimitdict = {
+        0:[(11500,12002), (75,95)]
+        }
+    data = [np.mean(np.squeeze(read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=t, time=10000, iprob=i,
+        addobject='None',no_objects=1, radius=5, idx=[6])), axis=0) for i in ip]
+
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    ax1 = fig.add_subplot(1, 1, 1)
+
+    xvalues = np.array(list(range(12002)))
+    mask = xvalues % 1000 == 0
+    colors = []
+    for i in range(len(ip)):
+        p = ax1.plot(xvalues[mask], data[i][mask], marker="v", ls='-', label=str(ip[i]))
+        colors += [p[0].get_color()]
+
+    ax_zoom = ax1.inset_axes([0.05,0.6,0.8,0.37])
+    ax_zoom.patch.set_alpha(0.5)
+
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    # print(len(data), data[0].shape)
+    data = [d[2:].astype(np.int8) for d in data]
+    # print(data[0])
+    bp1 = ax_zoom.boxplot(
+        data, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, widths=0.8, showfliers=False)
+    for patch, color in zip(bp1['boxes'], colors):
+        patch.set_facecolor(color)
+
+    ax_zoom.set_yticks(range(0, 60, 10))
+    ax_zoom.set_xticklabels(ip)
+    ax1.set_yticks(range(0, 111, 10))
+    ax1.set_xlabel('Steps', fontsize="large")
+    ax1.set_ylabel('GS Rate (%)', fontsize="large")
+    ax1.legend(fontsize="small", loc="upper right", title='IPs')
+
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments'
+    fname = 'ip_paper_efficiency_power_gs_' + str(t)
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
+def st_paper_efficiency_power_boxplot_all():
+    ips = [0.8, 0.85, 0.9]
+    thresholds = [5, 7 , 10, 15]
+    datas = {}
+    for t in thresholds:
+        data100 = [read_data_n_agent_perturbations(
+            n=100, iter=12000, threshold=t, time=10000, iprob=ip)[:,-1] for ip in ips]
+        datas[t] = data100
+    positions = [
+        [1, 2, 3], [5, 6, 7], [9, 10, 11], [13, 14, 15]
+        ]
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    ax1 = fig.add_subplot(1, 1, 1)
+    colordict = {
+        0: 'gold',
+        1: 'linen',
+        2: 'orchid',
+        3: 'peru',
+        4: 'olivedrab',
+        5: 'indianred',
+        6: 'tomato'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+
+    # labels = [ "> n/"+str(a) for a in thresholds]
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    for i in range(len(thresholds)):
+        # print([d[0].shape for d in datas[i]])
+        # print(datas[thresholds[i]], len(datas[thresholds[i]]))
+        bp1 = ax1.boxplot(
+            datas[thresholds[i]], 0, 'gD', showmeans=True, meanline=True,
+            patch_artist=True, medianprops=medianprops,
+            meanprops=meanprops, widths=0.8, positions = positions[i])
+        for patch, color in zip(bp1['boxes'], colordict.values()):
+            patch.set_facecolor(color)
+
+    ax1.legend(zip(bp1['boxes']), ips, fontsize="small", loc="upper right", title='IP')
+
+    ax1.set_xticks([2,6,10,14])
+    ax1.set_xticklabels(thresholds)
+    ax1.set_yticks(range(0, 105, 20))
+    ax1.set_xlabel('Storage Threshold (ST)', fontsize="large")
+    ax1.set_ylabel('Foraging (%)', fontsize="large")
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments'
+    fname = 'stboxplotiproball'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
+def compare_learning_notlearning_obstacles(no=1, time=1000):
+    dataltstop = np.squeeze(read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=7, time=time, iprob=0.85,
+        addobject='Obstacles',no_objects=no, radius=10, idx=[2],
+        fname='LTStopEvoCoevolutionPPA'))
+
+    data = np.squeeze(read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=7, time=time, iprob=0.85,
+        addobject='Obstacles',no_objects=no, radius=10, idx=[2]))
+
+    datastoplearn = np.squeeze(read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=7, time=time, iprob=0.85,
+        addobject='Obstacles',no_objects=no, radius=10, idx=[2],
+        fname='LTResumeEvoCoevolutionPPA'))
+
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    ax1 = fig.add_subplot(1, 1, 1)
+    xvalues = range(12002)
+
+    ax1.plot(
+        xvalues, np.median(data, axis=0),
+        label="Baseline", color='blue')
+    ax1.fill_between(
+                xvalues,
+                np.quantile(data, q =0.25, axis=0),
+                np.quantile(data, q =0.75, axis=0),
+                color='DodgerBlue', alpha=0.3)
+
+    ax1.plot(
+        xvalues,
+        np.median(dataltstop, axis=0) , label="Disabled", color='red')
+    ax1.fill_between(
+                xvalues,
+                np.quantile(dataltstop, q =0.25, axis=0),
+                np.quantile(dataltstop, q =0.75, axis=0),
+                color='salmon', alpha=0.3)
+
+    ax1.plot(
+        xvalues,
+        np.median(datastoplearn, axis=0) , label="Enabled After", color='seagreen')
+    ax1.fill_between(
+                xvalues,
+                np.quantile(datastoplearn, q =0.25, axis=0),
+                np.quantile(datastoplearn, q =0.75, axis=0),
+                color='lime', alpha=0.3)
+
+    ax1.plot([time]*101, range(0,101), 'r--', label='Disabled Triggered')
+    ax1.plot([time+1000]*101, range(0,101), 'g--', label='Enable Triggered')
+    ax1.legend(fontsize="small", loc="upper left", title='Lateral Transfer')
+
+    ax1.set_xlabel('Evolution Steps')
+    ax1.set_ylabel('Foraging (%)')
+    ax1.set_yticks(range(0, 105, 20))
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments'
+    fname = 'ltenabledstop_' + str(no) +'_' + str(time)
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
+def compare_lt_on_off_no_obst(no=2):
+    # nos = [2, 3, 5]
+    timings = list(range(1000,9001,2000))
+    # dataltstops = dict(zip(timings, [list()] * len(timings)))
+    # datas = dict(zip(timings, [list()] * len(timings)))
+    dataltstops = []
+    datas = []
+    datastoplearn = []
+    for time in timings:
+        dataltstops += [np.squeeze(read_data_n_agent_perturbations_all(
+            n=100, iter=12000, threshold=7, time=time, iprob=0.85,
+            addobject='Obstacles',no_objects=no, radius=10, idx=[2],
+            fname='LTStopEvoCoevolutionPPA'))]
+
+        datas += [np.squeeze(read_data_n_agent_perturbations_all(
+            n=100, iter=12000, threshold=7, time=time, iprob=0.85,
+            addobject='Obstacles',no_objects=no, radius=10, idx=[2]))]
+
+        datastoplearn += [np.squeeze(read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=7, time=time, iprob=0.85,
+        addobject='Obstacles',no_objects=no, radius=10, idx=[2],
+        fname='LTResumeEvoCoevolutionPPA'))]
+
+    positions = [
+        [1, 2, 3], [5, 6, 7], [9, 10, 11], [13, 14, 15], [17, 18, 19]
+        ]
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    ax1 = fig.add_subplot(1, 1, 1)
+    colordict = {
+        0: 'gold',
+        1: 'linen',
+        2: 'orchid',
+        3: 'peru',
+        4: 'olivedrab',
+        5: 'indianred',
+        6: 'tomato'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    # print(dataltstops[0][:,-1])
+    for i in range(len(timings)):
+
+        bp1 = ax1.boxplot(
+            [datas[i][:,-1], dataltstops[i][:,-1], datastoplearn[i][:,-1]],
+             0, 'gD', showmeans=True, meanline=True,
+            patch_artist=True, medianprops=medianprops,
+            meanprops=meanprops, widths=0.8, positions = positions[i])
+        for patch, color in zip(bp1['boxes'], colordict.values()):
+            patch.set_facecolor(color)
+
+    ax1.legend(
+        zip(bp1['boxes']), ['Baseline', 'Disabled', 'Enabled After'],
+        fontsize="small", loc="center left", title='Lateral Transfer')
+
+    ax1.set_xticks([2,6,10,14, 18])
+    ax1.set_xticklabels(timings)
+    ax1.set_yticks(range(0, 105, 20))
+    ax1.set_xlabel('Triggered Timings', fontsize="large")
+    ax1.set_ylabel('Foraging (%)', fontsize="large")
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments'
+    fname = 'ltonoffboxplotall_' + str(no)
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
+def ants22_paper_efficiency_power_obstacles(t=7):
+    no_obstacles = [1, 3, 5]
+    axeslimitdict = {
+        0:[(11500,12002), (75,95)]
+        }
+    # data = [np.mean(np.squeeze(read_data_n_agent_perturbations_all(
+    #     n=100, iter=12000, threshold=t, time=1000, iprob=0.85,
+    #     addobject='Obstacles',no_objects=i, radius=10, idx=[2])), axis=0) for i in no_obstacles]
+    # baseline = np.mean(np.squeeze(read_data_n_agent_perturbations_all(
+    #     n=100, iter=12000, threshold=t, time=10000, iprob=0.85,
+    #     addobject='None', radius=5, idx=[2])), axis=0)
+
+    data = [read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=t, time=1000, iprob=0.85,
+        addobject='Obstacles',no_objects=i, radius=10, idx=[2]) for i in no_obstacles]
+    baseline = read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=t, time=10000, iprob=0.85,
+        addobject='None', radius=5, idx=[2])
+
+    meandata = [np.mean(np.squeeze(data[i]), axis=0) for i in range(len(no_obstacles)) ]
+    meanbaseline = np.mean(np.squeeze(baseline), axis=0)
+    fig = plt.figure(figsize=(8,6), dpi=300)
+    ax1 = fig.add_subplot(1, 1, 1)
+    # plt.rcParams['text.usetex'] = True
+    xvalues = np.array(list(range(12002)))
+    mask = xvalues % 1000 == 0
+    colors = []
+    ax1.plot(
+        xvalues[mask], [80]* len(xvalues[mask]), '--',
+        label="Threshold ($\Theta$)", alpha=0.5)
+    p = ax1.plot(
+        xvalues[mask], meanbaseline[mask], marker="v", ls='-', label='0 (Baseline)')
+    colors += [p[0].get_color()]
+    for i in range(len(no_obstacles)):
+        p = ax1.plot(xvalues[mask], meandata[i][mask], marker="v", ls='-', label=str(no_obstacles[i]))
+        colors += [p[0].get_color()]
+
+    # Power axis
+    ax_power = ax1.inset_axes([0.05,0.68,0.3,0.3])
+    ax_power.patch.set_alpha(0.5)
+
+    powerdata100 = [np.squeeze(data[i])[:,-1] for i in range(len(no_obstacles)) ]
+    powerbaseline100 = np.squeeze(baseline)[:,-1]
+    powerdata100 = [powerbaseline100] + powerdata100
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    bp1 = ax_power.boxplot(
+        powerdata100, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, widths=0.6)
+    for patch, color in zip(bp1['boxes'], colors):
+        patch.set_facecolor(color)
+
+    ax_power.set_yticks(range(70, 105, 5))
+    ax_power.set_xticklabels([0] + no_obstacles)
+    ax_power.set_title('Power', y=1.0, pad=-140)
+    # Efficiency Axis
+    ax_eff = ax1.inset_axes([0.68,0.05,0.3,0.3])
+    ax_eff.patch.set_alpha(0.5)
+
+    # data100 = [np.squeeze(data[i])[:,-1] for i in range(len(no_obstacles)) ]
+    effbaseline100 = np.squeeze(baseline)
+    effbaseline100 = [np.squeeze(np.argwhere(effbaseline100[i, :]>=80)) for i in range(effbaseline100.shape[0])]
+    effbaseline100 = [np.array([effbaseline100[i][0] if effbaseline100[i].shape[0]>1 else 12000 for i in range(len(effbaseline100)) ])]
+    # print(effbaseline100)
+
+    effdata100 = []
+    for i in range(len(no_obstacles)):
+        effdata = np.squeeze(data[i])
+        effdata = [np.squeeze(np.argwhere(effdata[i, :]>=80)) for i in range(effdata.shape[0])]
+        effdata = [np.array([effdata[i][0] if effdata[i].shape[0]>1 else 12000 for i in range(len(effdata)) ])]
+        effdata100 += effdata
+
+    effdata100 = effbaseline100 + effdata100
+
+    bp1 = ax_eff.boxplot(
+        effdata100, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, widths=0.6, vert=False)
+    for patch, color in zip(bp1['boxes'], colors):
+        patch.set_facecolor(color)
+
+    ax_eff.set_xticks(range(5000, 12000, 2000))
+    ax_eff.set_yticklabels([0] + no_obstacles)
+    ax_eff.set_title('Efficiency')
+
+    ax1.set_yticks(range(0, 105, 20))
+    ax1.set_xlabel('Steps', fontsize="large")
+    ax1.set_ylabel('Foraging (%)', fontsize="large")
+    ax1.legend(fontsize="small", loc="lower left", title='No. of Obstacles')
+
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments'
+    fname = 'efficiency_power_ablation_obstacles'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
 def main():
     # plot_evolution_algo_performance_boxplot()
     # plot_evolution_algo_performance()
@@ -1785,29 +2344,48 @@ def main():
     # plot_none_obstacles_trap()
     # plot_obstacles_time()
     # plot_lt_rate()
-    #
-    # for ip in [0.1, 0.2, 0.3,0.4,0.5, 0.6,0.7, 0.8]:
+    # [0.1, 0.2, 0.3, 0.4,
+    # for ip in [0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
+    # for ip in [0.85]:
     #     # storage_threshold_iprob(ip=ip)
     #     # storage_threshold_iprob_lt(ip=ip)
     #     # storage_threshold_iprob_gs(ip=ip)
     #     # storage_threshold_all_100(ip=ip)
-    #     plot_lt_foraging_gentic(ip=ip)
+    #     # plot_lt_foraging_gentic(ip=ip)
+    #     st_paper_efficiency_power_boxplot(ip=ip)
     # obstacle_introduced()
     # trap_introduced()
     # trap_introduced_deadagent()
     # obstacle_introduced_compare()
     # for t in range(1000,11001,1000):
     #    plot_lt_foraging_gentic(time=t)
-    # plot_foraging_baseline()
-    basedata = np.squeeze(read_data_n_agent_perturbations_all(
-        n=100, iter=12000, threshold=7, time=10000, iprob=0.85,
-        no_objects=1, radius=5, idx=[2,3]))
 
-    # plot_foraging_deadagent_curve(basedata)
-    for t in range(1000,11001,1000):
-        # plot_foraging_baseline_obstacles(basedata, time=t)
-        # plot_foraging_baseline_trap(basedata, time=t)
-        plot_foraging_baseline_trap_deadagent(basedata, time=t)
+    # plot_foraging_baseline()
+    # ip_paper_efficiency_power_boxplot_unified()
+
+    # basedata = np.squeeze(read_data_n_agent_perturbations_all(
+    #     n=100, iter=12000, threshold=7, time=10000, iprob=0.85,
+    #     no_objects=1, radius=5, idx=[2,3]))
+
+    # # # plot_foraging_deadagent_curve(basedata)
+    # for t in range(1000,4001,1000):
+    #     plot_foraging_baseline_obstacles(basedata, time=t)
+    # #     # plot_foraging_baseline_trap(basedata, time=t)
+    # #     # plot_foraging_baseline_trap_deadagent(basedata, time=t)
+
+    # # plot_no_obstacles_performance(time=2000)
+    # for t in [5]:
+    #     # ip_paper_efficiency_power_lt(t)
+    #     # ip_paper_efficiency_power_gs(t)
+    #     ip_paper_efficiency_power(t)
+    # #     # ip_paper_efficiency_power_boxplot(t)
+    # st_paper_efficiency_power_boxplot_all()
+    # for i in range(1000,11001,1000):
+    #     compare_learning_notlearning_obstacles(no=2, time=i)
+    # for i in [2, 4]:
+    #     compare_lt_on_off_no_obst(no=i)
+
+    ants22_paper_efficiency_power_obstacles(t=7)
 
 
 if __name__ == '__main__':

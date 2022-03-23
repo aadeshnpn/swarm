@@ -3,13 +3,13 @@
 import numpy as np
 # import pdb
 # import hashlib
-import sys
+# import sys
 import argparse
 from model import EvolveModel
 from swarms.utils.jsonhandler import JsonPhenotypeData
 from swarms.utils.graph import Graph, GraphACC  # noqa : F401
 from joblib import Parallel, delayed    # noqa : F401
-from swarms.utils.results import SimulationResultsLt, Results
+from swarms.utils.results import SimulationResultsLt
 # import py_trees
 # Global variables for width and height
 width = 100
@@ -23,7 +23,7 @@ def learning_phase(args):
     iteration = args.iter
     no_agents = args.n
     db = args.db
-    early_stop =False
+    # early_stop =False
     threshold = args.threshold
     gstep = args.gstep
     expp = args.expp
@@ -35,7 +35,7 @@ def learning_phase(args):
     env.create_agents()
     # Validation Step parameter
     # Run the validation test every these many steps
-    validation_step = 11000
+    # validation_step = 11000
 
     # Iterate and execute each step in the environment
     # Take a step i number of step in evolution environment
@@ -44,11 +44,16 @@ def learning_phase(args):
     ltrateavg, ltratestd = env.compute_lt_rate()
     results = SimulationResultsLt(
         env.pname, env.connect, env.sn, env.stepcnt,
-        env.foraging_percent(), None, env.no_agent_dead(),
+        env.foraging_percent(), None, env.maintenance_percent(),
         ltrateavg, ltratestd, env.compute_genetic_rate(), db=False
         )
     # Save the data in a result csv file
     results.save_to_file()
+    # import py_trees
+    # for agent in env.agents:
+    #     print(
+    #         agent.name, py_trees.display.ascii_tree(
+    #             agent.bt.behaviour_tree.root))
 
     for i in range(iteration):
         # Take a step in evolution
@@ -56,7 +61,7 @@ def learning_phase(args):
         ltrateavg, ltratestd = env.compute_lt_rate()
         results = SimulationResultsLt(
             env.pname, env.connect, env.sn, env.stepcnt,
-            env.foraging_percent(), None, env.no_agent_dead(),
+            env.foraging_percent(), None, env.maintenance_percent(),
             ltrateavg, ltratestd, env.compute_genetic_rate(), db=False
             )
         # Save the data in a result csv file
@@ -95,11 +100,12 @@ def phenotype_to_json(pname, runid, phenotypes):
 def exp_evol(iter, n, db):
     """Block for the main function."""
     # Run the evolutionary learning algorithm
-    phenotypes = learning_phase(iter, n, db)
+    phenotypes = learning_phase(iter, n, db)    # noqa : F841
     # learning_phase(iter)
     # Run the evolved behaviors on a test environment
     # if phenotypes is not None:
     #     test_loop(phenotypes, 5000)
+
 
 def standard_evolution(args):
     # phenotypes = learning_phase(iter, n, db)
@@ -108,15 +114,16 @@ def standard_evolution(args):
             learning_phase(args)
     else:
         Parallel(
-                n_jobs=args.threads)(delayed(learning_phase)(args
-                    ) for i in range(args.runs))
+                n_jobs=args.threads)(
+                    delayed(learning_phase)(args) for i in range(
+                        args.runs))
 
 
 def experiments(args):
-    ## New experiments
-    ## Remove the communication behavior nodes
-    ## Increase the size of the traps and obstacles
-    ## Increase the size of the world
+    ## New experiments      # noqa : E266
+    ## Remove the communication behavior nodes  # noqa : E266
+    ## Increase the size of the traps and obstacles     # noqa : E266
+    ## Increase the size of the world   # noqa : E266
     exp_no = {
         0: standard_evolution,
         1: exp_varying_n_evolution,
@@ -150,18 +157,25 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--exp_no', default=0, type=int)
-    parser.add_argument('--runs', default=36, type=int)
-    parser.add_argument('--threads', default=18, type=int)
+    parser.add_argument('--runs', default=1, type=int)
+    parser.add_argument('--threads', default=1, type=int)
     parser.add_argument('--iter', default=12000, type=int)
     parser.add_argument('--db', default=False, type=bool)
     parser.add_argument('--threshold', default=10, type=int)
     parser.add_argument('--gstep', default=200, type=int)
     parser.add_argument('--expp', default=2, type=int)
     parser.add_argument('--n', default=50, type=int)
-    parser.add_argument('--addobject', default=None, choices= [None, 'Obstacles', 'Traps', 'Hub', 'Sites'], type=str)
-    parser.add_argument('--removeobject', default=None, choices= [None, 'Obstacles', 'Traps', 'Hub', 'Sites'], type=str)
-    parser.add_argument('--moveobject', default=None, choices= [None, 'Obstacles', 'Traps', 'Hub', 'Sites'], type=str)
-    parser.add_argument('--jamcommun', default=None, choices=[None, 'Cue', 'Signal'], type=str)
+    parser.add_argument(
+        '--addobject', default=None, choices=[
+            None, 'Obstacles', 'Traps', 'Hub', 'Sites'], type=str)
+    parser.add_argument(
+        '--removeobject', default=None, choices=[
+            None, 'Obstacles', 'Traps', 'Hub', 'Sites'], type=str)
+    parser.add_argument(
+        '--moveobject', default=None, choices=[
+            None, 'Obstacles', 'Traps', 'Hub', 'Sites'], type=str)
+    parser.add_argument(
+        '--jamcommun', default=None, choices=[None, 'Cue', 'Signal'], type=str)
     parser.add_argument('--probability', default=0.5, type=float)
     parser.add_argument('--no_objects', default=1, type=int)
     parser.add_argument('--location', default=(-np.inf, -np.inf), type=str)

@@ -1,5 +1,6 @@
 """Inherited model class."""
 
+from tkinter import font
 from numpy import core
 import psycopg2
 from swarms.lib.model import Model
@@ -20,6 +21,13 @@ import datetime
 import numpy as np
 # from flloat.parser.ltlf import LTLfParser
 from py_trees import common, blackboard
+import matplotlib
+
+# If there is $DISPLAY, display the plot
+if os.name == 'posix' and "DISPLAY" not in os.environ:
+    matplotlib.use('Agg')
+
+import matplotlib.pyplot as plt     # noqa: E402
 
 
 # filename = os.path.join(imp.find_module("swarms")[1] + "/utils/world.json")
@@ -32,7 +40,7 @@ class CoevolutionModel(Model):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name='CoevolutionPPAAll', viewer=False,
+            seed=None, name='CoevolutionPPA', viewer=False,
             parent=None, ratio=1.0, db=False,
             threshold=10, gstep=200, expp=2, args=[]):
         """Initialize the attributes."""
@@ -56,9 +64,6 @@ class CoevolutionModel(Model):
             self.pname = os.path.join(
                 '/tmp', 'swarm', 'data', 'experiments', name,
                 str(N), str(iter), str(threshold), str(gstep), str(expp),
-                str(args.addobject), str(args.removeobject),
-                str(args.no_objects), str(args.radius),
-                str(args.time), str(args.iprob),
                 str(self.runid) + name
                 )
         Path(self.pname).mkdir(parents=True, exist_ok=True)
@@ -97,7 +102,7 @@ class CoevolutionModel(Model):
         # Empty list of hold the agents
         self.agents = []
         # Interaction Probability
-        self.iprob = args.iprob
+        self.iprob = 0.85
 
     def create_agents(self, random_init=True, phenotypes=None):
         """Initialize agents in the environment."""
@@ -146,7 +151,7 @@ class CoevolutionModel(Model):
         # self.traps += [self.trap]
         # self.obstacle = self.render.objects['obstacles'][0]
         # self.obstacles += [self.obstacle]
-        self.boundary = self.render.objects['boundary'][0]
+        # self.boundary = self.render.objects['boundary'][0]
         self.total_food_units = 0
         self.total_debris_units = 0
         self.foods = []
@@ -165,13 +170,13 @@ class CoevolutionModel(Model):
                 f.phenotype = dict()
                 self.foods.append(f)
                 # Add debris around the hub
-                d = Debris(
-                    i, location=self.hub.location, radius=10, weight=2)
-                d.agent_name = None
-                self.grid.add_object_to_grid(d.location, d)
-                self.total_debris_units += d.weight
-                # d.phenotype = dict()
-                self.debris.append(d)
+                # d = Debris(
+                #     i, location=self.hub.location, radius=10, weight=2)
+                # d.agent_name = None
+                # self.grid.add_object_to_grid(d.location, d)
+                # self.total_debris_units += d.weight
+                # # d.phenotype = dict()
+                # self.debris.append(d)
         except KeyError:
             pass
 
@@ -305,8 +310,7 @@ class CoevolutionModel(Model):
         # total_debris_weights = sum(
         #     [debris.weight for debris in debris_objects])
         # return round(((total_debris_weights * 1.0) / self.total_debris_units) * 100, 2)
-        debris_objects = list(set(self.boundary.dropped_objects))
-        return debris_objects
+        return 0
 
     def no_agent_dead(self):
         # grid = self.grid
@@ -527,7 +531,7 @@ class CoevolutionModel(Model):
     def compute_lt_rate(self):
         ltarray = np.array([agent.ltrate for agent in self.agents])
         mask = ltarray > 0
-        if ltarray[mask].shape[0] >= 1:
+        if ltarray[mask].shape[0] >=1:
             return round(np.mean(ltarray[mask])), round(np.std(ltarray[mask]))
         else:
             return 0, 0
@@ -545,6 +549,18 @@ class EvolveModel(CoevolutionModel):
             N, width, height, grid, iter, seed, name, viewer, db=db,
             threshold=threshold, gstep=gstep, expp=expp, args=args)
         self.stop_lateral_transfer = False
+        self.locality = np.zeros((iter+1, width+1, height+1, 6), dtype=np.int0)
+        list_xcords = np.arange(
+            -width / 2, width / 2 + 1).tolist()
+        list_ycords = np.arange(
+            -height / 2, height / 2 + 1).tolist()
+        self.comapping = dict()
+        self.reversemapping = dict()
+        x1, y1 = 50, 50
+        for x in list_xcords:
+            for y in list_ycords:
+                self.comapping[(int(x), int(y))] = (int(x+x1), int(y+y1))
+                self.reversemapping[(int(x+x1), int(y+y1))] = (int(x), int(y))
 
     def create_agents(self, random_init=True, phenotypes=None):
         """Initialize agents in the environment."""
@@ -576,6 +592,25 @@ class EvolveModel(CoevolutionModel):
             self.grid.add_object_to_grid((x, y), a)
             # a.operation_threshold = 2  # self.num_agents // 10
             self.agents.append(a)
+            self.place_agent_locality(a, i=0)
+        # print(
+        #     np.sum(self.locality[0][:,:,0]),
+        #     np.sum(self.locality[0][:,:,1]),
+        #     np.sum(self.locality[0][:,:,2]),
+        #     np.sum(self.locality[0][:,:,3]),
+        #     np.sum(self.locality[0][:,:,4]),
+        #     np.sum(self.locality[0][:,:,5]),
+        #     np.sum(self.locality[0])
+        #     )
+
+    def place_agent_locality(self, agent, i):
+        no = agent.get_agent_simple_behavior_no()
+        x, y = self.comapping[agent.location]
+        self.locality[i][x][y][no] += 1
+        # print(
+        #     'place ',i, agent.name, agent.location, x, y, no,
+        #     self.locality[i][x][y][no])
+        # print(self.stepcnt, agent.name, i)
 
     def behavior_sampling(self, method='ratio', ratio_value=0.2, phenotype=None):
         """Extract phenotype of the learning agents.
@@ -662,18 +697,127 @@ class EvolveModel(CoevolutionModel):
         # print ('phenotypes for attached objects', phenotypes)
         return phenotypes
 
+    def plot_locality(self, i):
+        fig = plt.figure(figsize=(8, 6), dpi=300)
+        ax1 = fig.add_subplot(1, 1, 1)
+        ax1.spines['top'].set_color('none')
+        ax1.spines['left'].set_position('zero')
+        ax1.spines['right'].set_color('none')
+        ax1.spines['bottom'].set_position('zero')
+        # colors = []
+        for j in range(1, 6):
+            data = np.squeeze(
+                    self.locality[i][:, :, j])
+            # print(i, np.sum(data))
+            # c = ax1.pcolor(data)
+            # fig.colorbar(c, ax=ax1)
+            x, y = np.where(data >= 1)
+            x1, y1 = zip(
+                *[self.reversemapping[(
+                    x[k], y[k])] for k in range(len(x))])
+            ax1.scatter(
+                x1, y1, s=data[x, y], alpha=0.5,
+                label=list(
+                    self.agents[0].simple_behavior_number.keys())[j-1])
+
+        ax1.set_xticks(range(-50, 51, 10))
+        ax1.set_yticks(range(-50, 51, 10))
+        plt.xlim(-50, 50)
+        plt.ylim(-50, 50)
+        # plt.grid(True)
+        # ax1.set_xlabel('Width', fontsize="large")
+        # ax1.set_ylabel('Height', fontsize="large")
+        # plt.legend()
+        plt.tight_layout()
+        maindir = '/tmp/swarm/data/experiments/locality'
+        fname = 'locality_' + str(i) + '_' + str(j)
+
+        fig.savefig(
+            maindir + '/' + fname + '.png')
+
+        plt.close(fig)
+
+    def plot_locality_all(self, reversemap):
+        fig = plt.figure(figsize=(10, 6), dpi=300)
+        ax1 = fig.add_subplot(1, 1, 1)
+        ax1.spines['top'].set_color('none')
+        ax1.spines['left'].set_position('zero')
+        ax1.spines['right'].set_color('none')
+        ax1.spines['bottom'].set_position('zero')
+        # colors = []
+        for j in range(1, 6):
+            data = np.sum(np.squeeze(
+                    self.locality[:, :, :, j]), axis=0)
+            # print(i, np.sum(data))
+            # c = ax1.pcolor(data)
+            # fig.colorbar(c, ax=ax1)
+            x, y = np.where(data >= 1)
+            x1, y1 = zip(
+                *[reversemap[(
+                    x[k], y[k])] for k in range(len(x))])
+            ax1.scatter(
+                x1, y1, s=data[x, y], alpha=0.5,
+                label=list(
+                    self.agents[0].simple_behavior_number.keys())[j-1])
+
+        ax1.set_xticks(range(-50, 51, 10))
+        ax1.set_yticks(range(-50, 51, 10))
+        plt.xlim(-50, 50)
+        plt.ylim(-50, 50)
+        # plt.grid(True)
+        # ax1.set_xlabel('Width', fontsize="large")
+        # ax1.set_ylabel('Height', fontsize="large")
+        plt.legend(
+            fontsize="small", bbox_to_anchor=(1.04,1),
+            borderaxespad=0, title='PB')
+        plt.tight_layout()
+        maindir = '/tmp/swarm/data/experiments/locality'
+        fname = 'locality_all_'
+
+        fig.savefig(
+            maindir + '/' + fname + '.png')
+
+        plt.close(fig)
+
     def step(self):
         """Step through the environment."""
+        # Gather info to plot the graph
+        # try:
+        #     # self.gather_info()
+        #     pass
+        #     # agent = self.agents[idx]
+        #     # print(
+        #     #    idx, agent.individual[0].phenotype,
+        #     #    agent.individual[0].fitness, agent.food_collected)
+        # except FloatingPointError:
+        #     pass
+        # Next step
         self.schedule.step()
 
-        if self.stepcnt == self.args.time:
-            self.add_object()
-            if self.args.addobject is not None:
-                self.activate_stop_lateral_transfer()
-
-        if self.stepcnt == self.args.stoplen:
-            if self.args.addobject is not None:
-                self.deactivate_stop_lateral_transfer()
+        # Disturbances
+        # if self.stepcnt == self.args.time:
+        #     # Perform the pertrubations
+        #     # print('sites', [(site.location, site.radius) for site in self.sites])
+        #     # print('hubs', [(site.location, site.radius) for site in self.hubs])
+        #     # print('obstacles', [(site.location, site.radius) for site in self.obstacles])
+        #     # print('trap', [(site.location, site.radius) for site in self.traps])
+        #     # print('foods', [(site.location, site.radius) for site in self.foods])
+        #     # print('----------------')
+        #     self.add_object()
+        #     if self.args.addobject is not None:
+        #         self.activate_stop_lateral_transfer()
+        #     # self.remove_object()
+        #     # self.move_object()
+        #     # self.jam_communication()
+        #     # print('sites', [(site.location, site.radius) for site in self.sites])
+        #     # print('hubs', [(site.location, site.radius) for site in self.hubs])
+        #     # print('obstacles', [(site.location, site.radius) for site in self.obstacles])
+        #     # print('trap', [(site.location, site.radius) for site in self.traps])
+        #     # print('foods', [(site.location, site.radius) for site in self.foods])
+        #     # exit()
+        # if self.stepcnt == self.args.stoplen:
+        #     if self.args.addobject is not None:
+        #         self.deactivate_stop_lateral_transfer()
         # input('Enter to continue' + str(self.stepcnt))
         # Increment the step count
         self.stepcnt += 1

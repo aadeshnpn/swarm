@@ -381,17 +381,18 @@ class LearningAgent(NestAgent):
             self.phenotypes[self.individual[0].phenotype] = (
                 self.individual[0].fitness)
 
-            # Find the nearby agents
-            cellmates = self.model.grid.get_objects_from_grid(
-                type(self).__name__, self.location)
+            if not self.model.stop_lateral_transfer:
+                # Find the nearby agents
+                cellmates = self.model.grid.get_objects_from_grid(
+                    type(self).__name__, self.location)
 
-            # Interaction Probability with other agents
-            cellmates = [cell for cell in cellmates if self.model.random.rand() < self.model.iprob and cell.dead is False]
-            # cellmates = [cell for cell in cellmates if cell.individual[0] not in self.genome_storage]
-            self.ltrate = len(cellmates)
-            # If neighbours found, store the genome
-            if len(cellmates) > 1:
-                self.store_genome(cellmates)
+                # Interaction Probability with other agents
+                cellmates = [cell for cell in cellmates if self.model.random.rand() < self.model.iprob and cell.dead is False]
+                # cellmates = [cell for cell in cellmates if cell.individual[0] not in self.genome_storage]
+                self.ltrate = len(cellmates)
+                # If neighbours found, store the genome
+                if len(cellmates) > 1:
+                    self.store_genome(cellmates)
 
             # Logic for gentic operations.
             # If the genome storage has enough genomes and agents has done some
