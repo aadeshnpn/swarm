@@ -148,7 +148,7 @@ def ablation_efficiency_power_foraging(fname="EvoCoevolutionPPA"):
     ax.plot(X, m*X + b)
     plt.show()
     np.save(
-        '/tmp/' + fname + '_foraging_power_efficiency_ablation.npy',
+        '/tmp/' + fname + '_power_efficiency_ablation.npy',
         np.array([allpower, allefficiency], dtype=object))
 
 
@@ -204,7 +204,7 @@ def distortion_efficiency_power_foraging(fname="EvoCoevolutionPPA"):
         np.array([allpower, allefficiency], dtype=object))
 
 
-def shift_efficiency_power_foraging():
+def shift_efficiency_power_foraging(fname="EvoCoevolutionPPA"):
     timings = range(1000, 11001, 1000)
     allpower = {}
     allefficiency = {}
@@ -212,7 +212,7 @@ def shift_efficiency_power_foraging():
         data = np.squeeze(read_data_n_agent_perturbations_all(
             n=100, iter=12000, threshold=7, time=t, iprob=0.85,
             addobject='Obstacles', no_objects=2,
-            radius=10, idx=[2]))
+            radius=10, idx=[2], fname=fname))
 
         powerdata100 = data[:, -1]
         allpower[t] = powerdata100
@@ -252,7 +252,7 @@ def shift_efficiency_power_foraging():
     ax.plot(X, m*X + b)
     plt.show()
     np.save(
-        '/tmp/foraging_power_efficiency_shift.npy',
+        '/tmp/' + fname + '_power_efficiency_shift.npy',
         np.array([allpower, allefficiency], dtype=object))
 
 
@@ -367,6 +367,10 @@ def plot_power_efficiency_subplots():
         '/tmp/EvoNestMNewPPA1_power_efficiency_ablation.npy',
         allow_pickle=True)
 
+    shift_nest = np.load(
+        '/tmp/EvoNestMNewPPA1_power_efficiency_shift.npy',
+        allow_pickle=True)
+
     fig = plt.figure(figsize=(6, 4), dpi=300)
     ax1 = fig.add_subplot(2, 4, 1)
     ax2 = fig.add_subplot(2, 4, 5)
@@ -434,6 +438,14 @@ def plot_power_efficiency_subplots():
         color=colors[0], xlabel='Timings',
         pname='Shift', metric='Efficiency')
 
+    subplot_perturbations(
+        shift_nest[0], ax7, range(0, 11, 2), xticks,
+        color=colors[1], xlabel='', pname='Shift', metric='Power')
+    subplot_perturbations(
+        shift_nest[1], ax8, range(0, 11, 2), xticks,
+        color=colors[1], xlabel='Timings',
+        pname='Shift', metric='Efficiency')
+
     plt.tight_layout()
     maindir = '/tmp/swarm/data/experiments'
     fname = 'efficiency_power_all'
@@ -449,7 +461,7 @@ def plot_power_efficiency_subplots():
 def main():
     # ablation_efficiency_power_foraging(fname="EvoNestMNewPPA1")
     # distortion_efficiency_power_foraging(fname="EvoNestMNewPPA1")
-    # shift_efficiency_power_foraging()
+    # shift_efficiency_power_foraging(fname="EvoNestMNewPPA1")
     plot_power_efficiency_subplots()
     # addition_efficiency_power_foraging()
 
