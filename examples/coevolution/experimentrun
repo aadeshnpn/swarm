@@ -1,6 +1,12 @@
 #!/bin/bash
 
-
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 1000 --no_objects 1 --addobject Obstacles --radius 10 --iprob 0.85 --threshold 7 --stop_interval 1000
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 1000 --no_objects 1 --addobject Obstacles --radius 10 --iprob 0.85 --threshold 7 --stop_interval 1500
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 1000 --no_objects 1 --addobject Obstacles --radius 10 --iprob 0.85 --threshold 7 --stop_interval 2000
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 1000 --no_objects 1 --addobject Obstacles --radius 10 --iprob 0.85 --threshold 7 --stop_interval 2500
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 1000 --no_objects 1 --addobject Obstacles --radius 10 --iprob 0.85 --threshold 7 --stop_interval 3000
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 1000 --no_objects 1 --addobject Obstacles --radius 10 --iprob 0.85 --threshold 7 --stop_interval 3500
+python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 1000 --no_objects 1 --addobject Obstacles --radius 10 --iprob 0.85 --threshold 7 --stop_interval 4000
 ## Online distrubances addition
 ### Obstacles addition
 # python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --n 100 --time 1000 --no_objects 5 --addobject Obstacles --radius 10 --n 100 --iprob 0.85 --threshold 7

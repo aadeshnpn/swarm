@@ -543,7 +543,7 @@ class EvolveModel(CoevolutionModel):
         super(EvolveModel, self).__init__(
             N, width, height, grid, iter, seed, name, viewer, db=db,
             threshold=threshold, gstep=gstep, expp=expp, args=args)
-        # self.parser = LTLfParser()
+        self.stop_lateral_transfer = False
 
     def create_agents(self, random_init=True, phenotypes=None):
         """Initialize agents in the environment."""
@@ -663,43 +663,25 @@ class EvolveModel(CoevolutionModel):
 
     def step(self):
         """Step through the environment."""
-        # Gather info to plot the graph
-        # try:
-        #     # self.gather_info()
-        #     pass
-        #     # agent = self.agents[idx]
-        #     # print(
-        #     #    idx, agent.individual[0].phenotype,
-        #     #    agent.individual[0].fitness, agent.food_collected)
-        # except FloatingPointError:
-        #     pass
-
-        # Next step
         self.schedule.step()
 
-        # Disturbances
         if self.stepcnt == self.args.time:
-            # Perform the pertrubations
-            # print('sites', [(site.location, site.radius) for site in self.sites])
-            # print('hubs', [(site.location, site.radius) for site in self.hubs])
-            # print('obstacles', [(site.location, site.radius) for site in self.obstacles])
-            # print('trap', [(site.location, site.radius) for site in self.traps])
-            # print('foods', [(site.location, site.radius) for site in self.foods])
-            # print('----------------')
             self.add_object()
-            # self.remove_object()
-            # self.move_object()
-            # self.jam_communication()
-            # print('sites', [(site.location, site.radius) for site in self.sites])
-            # print('hubs', [(site.location, site.radius) for site in self.hubs])
-            # print('obstacles', [(site.location, site.radius) for site in self.obstacles])
-            # print('trap', [(site.location, site.radius) for site in self.traps])
-            # print('foods', [(site.location, site.radius) for site in self.foods])
-            # exit()
+            if self.args.addobject is not None:
+                self.activate_stop_lateral_transfer()
 
-        # input('Enter to continue' + str(self.stepcnt))
+        if self.stepcnt == self.args.stoplen:
+            if self.args.addobject is not None:
+                self.deactivate_stop_lateral_transfer()
+
         # Increment the step count
         self.stepcnt += 1
+
+    def activate_stop_lateral_transfer(self):
+        self.stop_lateral_transfer = True
+
+    def deactivate_stop_lateral_transfer(self):
+        self.stop_lateral_transfer = False
 
 
 class ValidationModel(CoevolutionModel):
