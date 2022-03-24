@@ -21,7 +21,7 @@
 <motiontype> ::= Normal|Avoid
 <nonmotion> ::= CompositeSingleCarry_<dobjects>|CompositeDrop_<dobjects>
 
-<sobjects>::=Hub|Sites
-<dobjects>::=Food
+<sobjects>::=Hub|Boundary|Sites
+<dobjects>::=Debris|Food
 <objects>::=<sobjects>|<dobjects>
 <SuccessNode> ::= [PostCnd]DummyNode[/PostCnd]

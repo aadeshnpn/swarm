@@ -245,7 +245,7 @@ class LearningAgent(CoevoAgent):
         self.bt.xmlstring = self.individual[0].phenotype
         # Construct actual BT from xmlstring
         self.bt.construct()
-        print(self.bt.xmlstring)
+        # print(self.bt.xmlstring)
 
     def store_genome(self, cellmates):
         """Store the genome from neighbours."""

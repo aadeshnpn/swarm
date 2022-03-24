@@ -739,6 +739,63 @@ class IsCarrying(Behaviour):
 
 
 # Behavior defined to drop the items currently carrying
+# class Drop(Behaviour):
+#     """Drop behavior to drop items which is being carried."""
+
+#     def __init__(self, name):
+#         """Initialize."""
+#         super(Drop, self).__init__(name)
+
+#     def setup(self, timeout, agent, item):
+#         """Setup."""
+#         self.agent = agent
+#         self.item = item
+
+#     def initialise(self):
+#         """Pass."""
+#         pass
+
+#     def update(self):
+#         """Logic to drop the item."""
+#         try:
+#             # Get the objects from the actuators
+#             objects = list(filter(
+#                 lambda x: type(x).__name__ == self.item,
+#                 self.agent.attached_objects))[0]
+#             # Grid
+#             grid = self.agent.model.grid
+#             static_grids = grid.get_neighborhood(self.agent.location, 1)
+#             envobjects = self.agent.model.grid.get_objects_from_list_of_grid(None, static_grids)
+#             dropped = False
+#             for obj in envobjects:
+#                 if type(obj).__name__ in ['Hub', 'Boundary', 'Obstacles']:
+#                     dropped = True
+#                     obj.dropped_objects.append(objects)
+#                     self.agent.attached_objects.remove(objects)
+#                     objects.agent_name = self.agent.name
+#                     break
+
+#             if not dropped:
+#                 self.agent.model.grid.add_object_to_grid(objects.location, objects)
+#                 self.agent.attached_objects.remove(objects)
+#                 objects.agent_name = self.agent.name
+#             # Temporary fix
+#             # Store the genome which activated the single carry
+#             # try:
+#             #     # objects.phenotype['drop'] =
+#             #     # self.agent.individual[0].phenotype
+#             #     objects.phenotype = {
+#             #         self.agent.individual[0].phenotype: self.agent.individual[
+#             #             0].fitness}
+#             #     return common.Status.SUCCESS
+#             # except AttributeError:
+#             #     pass
+#             # objects.agents.remove(self.agent)
+#             return common.Status.SUCCESS
+#         except (AttributeError, IndexError):
+#             return common.Status.FAILURE
+
+
 class Drop(Behaviour):
     """Drop behavior to drop items which is being carried."""
 
@@ -765,10 +822,22 @@ class Drop(Behaviour):
             # Grid
             grid = self.agent.model.grid
             static_grids = grid.get_neighborhood(self.agent.location, 1)
-            envobjects = self.agent.model.grid.get_objects_from_list_of_grid(None, static_grids)
+            envobjects = self.agent.model.grid.get_objects_from_list_of_grid(
+                None, static_grids)
+            unique_envobjs_name = set(
+                [type(
+                    envobj).__name__ for envobj in envobjects])
             dropped = False
             for obj in envobjects:
-                if type(obj).__name__ in ['Hub', 'Boundary', 'Obstacles']:
+                if (
+                    type(obj).__name__ in ['Hub'] and (
+                        'Debris' in unique_envobjs_name)):
+                    return common.Status.FAILURE
+                elif (
+                    type(obj).__name__ in ['Hub'] and (
+                        'Debris' not in unique_envobjs_name)) or (
+                                type(obj).__name__ in [
+                                    'Boundary', 'Obstacles']):
                     dropped = True
                     obj.dropped_objects.append(objects)
                     self.agent.attached_objects.remove(objects)
@@ -779,18 +848,6 @@ class Drop(Behaviour):
                 self.agent.model.grid.add_object_to_grid(objects.location, objects)
                 self.agent.attached_objects.remove(objects)
                 objects.agent_name = self.agent.name
-            # Temporary fix
-            # Store the genome which activated the single carry
-            # try:
-            #     # objects.phenotype['drop'] =
-            #     # self.agent.individual[0].phenotype
-            #     objects.phenotype = {
-            #         self.agent.individual[0].phenotype: self.agent.individual[
-            #             0].fitness}
-            #     return common.Status.SUCCESS
-            # except AttributeError:
-            #     pass
-            # objects.agents.remove(self.agent)
             return common.Status.SUCCESS
         except (AttributeError, IndexError):
             return common.Status.FAILURE
