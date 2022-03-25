@@ -828,24 +828,27 @@ class Drop(Behaviour):
                 [type(
                     envobj).__name__ for envobj in envobjects])
             dropped = False
-            for obj in envobjects:
-                if (
-                    type(obj).__name__ in ['Hub'] and (
-                        'Debris' in unique_envobjs_name)):
-                    return common.Status.FAILURE
-                elif (
-                    type(obj).__name__ in ['Hub'] and (
-                        'Debris' not in unique_envobjs_name)) or (
-                                type(obj).__name__ in [
-                                    'Boundary', 'Obstacles']):
-                    dropped = True
-                    obj.dropped_objects.append(objects)
-                    self.agent.attached_objects.remove(objects)
-                    objects.agent_name = self.agent.name
-                    break
+
+            if (
+                ('Hub' in unique_envobjs_name) and (
+                    'Debris' in unique_envobjs_name)):
+                return common.Status.FAILURE
+            else:
+                for obj in envobjects:
+                    if (
+                        type(obj).__name__ in ['Hub'] and (
+                            'Debris' not in unique_envobjs_name)) or (
+                                    type(obj).__name__ in [
+                                        'Boundary', 'Obstacles']):
+                        dropped = True
+                        obj.dropped_objects.append(objects)
+                        self.agent.attached_objects.remove(objects)
+                        objects.agent_name = self.agent.name
+                        break
 
             if not dropped:
-                self.agent.model.grid.add_object_to_grid(objects.location, objects)
+                self.agent.model.grid.add_object_to_grid(
+                    objects.location, objects)
                 self.agent.attached_objects.remove(objects)
                 objects.agent_name = self.agent.name
             return common.Status.SUCCESS
