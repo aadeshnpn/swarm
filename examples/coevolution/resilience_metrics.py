@@ -330,7 +330,7 @@ def subplot_perturbations(
     m = par[0][0]
     b = par[0][1]
     print(pname + ' ' + metric + ' :', np.round(m, 2), np.round(b, 2))
-    paxis.scatter(X, Y, color=color, alpha=0.5, s=0.8, marker="8")
+    paxis.scatter(X, Y, color=color, alpha=0.7, s=0.8, marker="8")
     paxis.plot(X, m*X + b, color=color, linewidth=0.8)
     paxis.set_xticks(xtick)
     paxis.set_xticklabels(xlabels)
@@ -396,7 +396,7 @@ def plot_power_efficiency_subplots():
     ax7 = fig.add_subplot(2, 4, 4)
     ax8 = fig.add_subplot(2, 4, 8)
 
-    colors = ['cyan', 'magenta']
+    colors = ['#6699CC', '#AA4499']
     # Foraging Ablation
     subplot_perturbations(
         ablation[0], ax1, range(1, 6, 1), range(1, 6, 1),

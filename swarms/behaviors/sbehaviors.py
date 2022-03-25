@@ -824,11 +824,15 @@ class Drop(Behaviour):
             static_grids = grid.get_neighborhood(self.agent.location, 1)
             envobjects = self.agent.model.grid.get_objects_from_list_of_grid(
                 None, static_grids)
+
+            envobjects = [
+                e for e in envobjects if type(e).__name__.find('Agent')== -1]
+
             unique_envobjs_name = set(
                 [type(
                     envobj).__name__ for envobj in envobjects])
             dropped = False
-
+            # print('drop mod', objects, unique_envobjs_name, envobjects)
             if (
                 ('Hub' in unique_envobjs_name) and (
                     'Debris' in unique_envobjs_name)):
