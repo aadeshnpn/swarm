@@ -146,7 +146,8 @@ class CoevolutionModel(Model):
         # self.traps += [self.trap]
         # self.obstacle = self.render.objects['obstacles'][0]
         # self.obstacles += [self.obstacle]
-        self.boundary = self.render.objects['boundary'][0]
+        self.boundaries = self.render.objects['boundary']
+        self.boundary = self.boundaries[0]
         self.total_food_units = 0
         self.total_debris_units = 0
         self.foods = []
@@ -291,10 +292,12 @@ class CoevolutionModel(Model):
         #     if food_grid == hub_grid:
         #         food_objects += [food]
         food_objects = list(set(self.hub.dropped_objects))
-        food_objects = [food for food in food_objects if type(food).__name__ == 'Food']
+        food_objects = [
+            food for food in food_objects if type(food).__name__ == 'Food']
         # food_objects = set(food_objects)
         total_food_weights = sum([food.weight for food in food_objects])
-        return np.round(((total_food_weights * 1.0) / self.total_food_units) * 100, 2)
+        return np.round(
+            ((total_food_weights * 1.0) / self.total_food_units) * 100, 2)
 
     def maintenance_percent(self):
         """Find amount of debris cleaned."""
@@ -305,11 +308,17 @@ class CoevolutionModel(Model):
         #     neighbours = grid.get_neighborhood(boundary_loc, boundary.radius)
         #     debris_objects += grid.get_objects_from_list_of_grid('Debris', neighbours)
         # debris_objects = set(debris_objects)
-        debris_objects = list(set(self.boundary.dropped_objects))
-        debris_objects = [debry for debry in debris_objects if type(debry).__name__ == 'Debris']
+        self.debris_objects = []
+        for boundary in self.boundaries:
+            debris_objects = list(set(boundary.dropped_objects))
+            debris_objects = [
+                debry for debry in debris_objects if type(
+                    debry).__name__ == 'Debris']
+
         total_debris_weights = sum(
             [debris.weight for debris in debris_objects])
-        return round(((total_debris_weights * 1.0) / self.total_debris_units) * 100, 2)
+        return round(
+            ((total_debris_weights * 1.0) / self.total_debris_units) * 100, 2)
         # return debris_objects
 
     def no_agent_dead(self):
