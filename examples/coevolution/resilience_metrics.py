@@ -270,12 +270,13 @@ def addition_efficiency_power(fname="EvoCoevolutionPPA"):
     timings = range(1000, 11001, 1000)
     allpower = {}
     allefficiency = {}
+    hitrate = []
     for t in timings:
         data = np.squeeze(read_data_n_agent_perturbations_all(
             n=100, iter=12000, threshold=7, time=t, iprob=0.85,
             addobject='Obstacles', no_objects=2,
             radius=10, idx=[2], fname=fname))
-
+        # print(data.shape)
         powerdata100 = data[:, -1]
         allpower[t] = powerdata100
 
@@ -284,10 +285,11 @@ def addition_efficiency_power(fname="EvoCoevolutionPPA"):
         effdata = [np.array(
             [effdata[i][0] if effdata[i].shape[
                 0] > 1 else 12000 for i in range(len(effdata))])]
+        hitrate.append(np.sum(effdata[0]!=12000)/effdata[0].shape[0])
         effdata = [(
             ((12000-effdata[i])/12000)*100) for i in range(len(effdata))]
         allefficiency[t] = np.round(effdata[0], 2)
-
+    print('Success Rate', np.round(np.median(np.array(hitrate)), 2))
     X = np.concatenate(
         np.array([[i] * len(v[1]) for (i, v) in enumerate(allpower.items())]))
     Y = np.concatenate(np.array([v for _, v in allpower.items()]))
@@ -497,8 +499,10 @@ def main():
     # distortion_efficiency_power(fname="EvoNestMNewPPA1")
     # shift_efficiency_power(fname="EvoNestMNewPPA1")
     # shift_efficiency_power()
-    plot_power_efficiency_subplots()
+    # plot_power_efficiency_subplots()
     # addition_efficiency_power(fname="EvoNestMNewPPA1")
+    addition_efficiency_power(fname="EvoCoevolutionPPA")
+    # addition_efficiency_power(fname="EvoCoevolutionPPAAd")
 
 
 if __name__ == "__main__":

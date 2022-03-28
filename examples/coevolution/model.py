@@ -58,7 +58,7 @@ class CoevolutionModel(Model):
                 str(N), str(iter), str(threshold), str(gstep), str(expp),
                 str(args.addobject), str(args.removeobject),
                 str(args.no_objects), str(args.radius),
-                str(args.time), str(args.iprob),
+                str(args.time), str(args.iprob), str(args.no_debris),
                 str(self.runid) + name
                 )
         Path(self.pname).mkdir(parents=True, exist_ok=True)
@@ -156,20 +156,20 @@ class CoevolutionModel(Model):
             self.site = self.render.objects['sites'][0]
             self.sites = []
             self.sites += [self.site]
-            for i in range(self.num_agents * 1):
-                # Add food to the site
-                f = Food(
-                    i, location=self.site.location, radius=self.site.radius)
-                f.agent_name = None
-                self.grid.add_object_to_grid(f.location, f)
-                self.total_food_units += f.weight
-                f.phenotype = dict()
-                self.foods.append(f)
+            # for i in range(self.num_agents //99):
+            #     # Add food to the site
+            #     f = Food(
+            #         i, location=self.site.location, radius=self.site.radius)
+            #     f.agent_name = None
+            #     self.grid.add_object_to_grid(f.location, f)
+            #     self.total_food_units += f.weight
+            #     f.phenotype = dict()
+            #     self.foods.append(f)
 
-            for j in range(self.num_agents//4):
+            for j in range(self.args.no_debris):
                 # Add debris around the hub
                 d = Debris(
-                    j, location=self.hub.location, radius=10, weight=2)
+                    j, location=self.hub.location, radius=10, weight=5)
                 d.agent_name = None
                 self.grid.add_object_to_grid(d.location, d)
                 self.total_debris_units += d.weight
@@ -291,13 +291,14 @@ class CoevolutionModel(Model):
         #     _, food_grid = grid.find_grid(food.location)
         #     if food_grid == hub_grid:
         #         food_objects += [food]
-        food_objects = list(set(self.hub.dropped_objects))
-        food_objects = [
-            food for food in food_objects if type(food).__name__ == 'Food']
-        # food_objects = set(food_objects)
-        total_food_weights = sum([food.weight for food in food_objects])
-        return np.round(
-            ((total_food_weights * 1.0) / self.total_food_units) * 100, 2)
+        # food_objects = list(set(self.hub.dropped_objects))
+        # food_objects = [
+        #     food for food in food_objects if type(food).__name__ == 'Food']
+        # # food_objects = set(food_objects)
+        # total_food_weights = sum([food.weight for food in food_objects])
+        # return np.round(
+        #     ((total_food_weights * 1.0) / self.total_food_units) * 100, 2)
+        return 0
 
     def maintenance_percent(self):
         """Find amount of debris cleaned."""

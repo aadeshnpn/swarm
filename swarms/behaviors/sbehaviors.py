@@ -814,50 +814,75 @@ class Drop(Behaviour):
 
     def update(self):
         """Logic to drop the item."""
-        try:
-            # Get the objects from the actuators
-            objects = list(filter(
-                lambda x: type(x).__name__ == self.item,
-                self.agent.attached_objects))[0]
-            # Grid
-            grid = self.agent.model.grid
-            static_grids = grid.get_neighborhood(self.agent.location, 1)
-            envobjects = self.agent.model.grid.get_objects_from_list_of_grid(
-                None, static_grids)
+        # try:
+        # Get the objects from the actuators
+        objects = list(filter(
+            lambda x: type(x).__name__ == self.item,
+            self.agent.attached_objects))[0]
+        # Grid
+        grid = self.agent.model.grid
+        static_grids = grid.get_neighborhood(self.agent.location, 1)
+        envobjects = self.agent.model.grid.get_objects_from_list_of_grid(
+            None, static_grids)
 
-            envobjects = [
-                e for e in envobjects if type(e).__name__.find('Agent')== -1]
+        envobjects = [
+            e for e in envobjects if type(e).__name__.find('Agent')== -1]
 
-            unique_envobjs_name = set(
-                [type(
-                    envobj).__name__ for envobj in envobjects])
-            dropped = False
-            # print('drop mod', objects, unique_envobjs_name, envobjects)
+        unique_envobjs_name = set(
+            [type(
+                envobj).__name__ for envobj in envobjects])
+        # dropped = False
+        # print('drop mod', objects, unique_envobjs_name, envobjects)
+
+        ## If attached object food, can't drop on boundary or obstacles
+        ## If attached object debri, can't drop on hub
+        def drop(sobject, aobject):
+            sobject.dropped_objects.append(aobject)
+            self.agent.attached_objects.remove(aobject)
+            sobject.agent_name = self.agent.name
+            return True
+
+        if type(objects).__name__ == 'Food':
             if (
-                ('Hub' in unique_envobjs_name) and (
+                ('Boundary' in unique_envobjs_name) or (
+                    'Obstacles' in unique_envobjs_name)):
+                return common.Status.FAILURE
+            elif (
+                    ('Hub' in unique_envobjs_name) and (
                     'Debris' in unique_envobjs_name)):
                 return common.Status.FAILURE
+            elif (
+                    ('Hub' in unique_envobjs_name) and (
+                    'Debris' not in unique_envobjs_name)):
+                for envobj in envobjects:
+                    if type(envobj).__name__ == 'Hub':
+                        drop(envobj, objects)
+                        return common.Status.SUCCESS
             else:
-                for obj in envobjects:
-                    if (
-                        type(obj).__name__ in ['Hub'] and (
-                            'Debris' not in unique_envobjs_name)) or (
-                                    type(obj).__name__ in [
-                                        'Boundary', 'Obstacles']):
-                        dropped = True
-                        obj.dropped_objects.append(objects)
-                        self.agent.attached_objects.remove(objects)
-                        objects.agent_name = self.agent.name
-                        break
-
-            if not dropped:
                 self.agent.model.grid.add_object_to_grid(
                     objects.location, objects)
                 self.agent.attached_objects.remove(objects)
                 objects.agent_name = self.agent.name
-            return common.Status.SUCCESS
-        except (AttributeError, IndexError):
-            return common.Status.FAILURE
+                return common.Status.SUCCESS
+        else:
+            if (
+                ('Hub' in unique_envobjs_name) or (
+                    'Obstacles' in unique_envobjs_name)):
+                return common.Status.FAILURE
+            elif (
+                    ('Boundary' in unique_envobjs_name)):
+                for envobj in envobjects:
+                    if type(envobj).__name__ == 'Boundary':
+                        drop(envobj, objects)
+                        return common.Status.SUCCESS
+            else:
+                self.agent.model.grid.add_object_to_grid(
+                    objects.location, objects)
+                self.agent.attached_objects.remove(objects)
+                objects.agent_name = self.agent.name
+                return common.Status.SUCCESS
+        # except (AttributeError, IndexError):
+        #     return common.Status.FAILURE
 
 
 class DropPartial(Behaviour):

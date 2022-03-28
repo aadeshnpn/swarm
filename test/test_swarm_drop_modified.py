@@ -63,7 +63,7 @@ class DropSwarmEnvironmentModel(Model):
         self.food = Food()
         self.grid.add_object_to_grid(self.food.location, self.food)
 
-        self.debris = Debris()
+        self.debris = Debris(location=(40, 40), radius=10, weight=5)
         self.grid.add_object_to_grid(self.debris.location, self.debris)
 
         self.boundary = Boundary(location=(30, 30), radius=10)
@@ -72,16 +72,22 @@ class DropSwarmEnvironmentModel(Model):
         for i in range(1):
             a = SwarmAgentDrop(i, self)
             self.schedule.add(a)
-            x = 30
-            y = 30
+            x = 0
+            y = 0
             a.location = (x, y)
             a.direction = -2.3561944901923448
             self.grid.add_object_to_grid((x, y), a)
         self.agent = a
+
         self.agent.attached_objects.append(self.food)
         self.agent.model.grid.remove_object_from_grid(
             self.food.location, self.food)
         self.food.agent_name = self.agent.name
+
+        # self.agent.attached_objects.append(self.debris)
+        # self.agent.model.grid.remove_object_from_grid(
+        #     self.debris.location, self.debris)
+        # self.debris.agent_name = self.agent.name
 
     def step(self):
         self.schedule.step()
@@ -93,7 +99,8 @@ class TestDropSwarmSmallGrid(TestCase):
         self.environment = DropSwarmEnvironmentModel(1, 100, 100, 10, 123)
 
         for i in range(2):
-            print(self.environment.agent.location)
+            print(
+                self.environment.agent.location, self.environment.agent.attached_objects)
             self.environment.step()
 
     def test_agent_path(self):
