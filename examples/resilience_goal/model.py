@@ -654,6 +654,72 @@ class ViewerModel(ForagingModel):
             self.ui.step()
 
 
+class ViewerEvoModel(ForagingModel):
+    """A environemnt to visualize swarm behavior while evolving."""
+
+    def __init__(
+            self, N, width, height, grid=10, iter=100000,
+            seed=None, name="ViewerEvoSForgeNew", viewer=True, db=False):
+        """Initialize the attributes."""
+        super(ViewerEvoModel, self).__init__(
+            N, width, height, grid, iter, seed, name, viewer, db=db)
+
+    def create_agents(self, random_init=False, phenotypes=None):
+        """Initialize agents in the environment."""
+        # Variable to tell how many agents will have the same phenotype
+        # bound = np.ceil((self.num_agents * 1.0) / len(phenotypes))
+        # j = 0
+        # Create agents
+        for i in range(self.num_agents):
+            # print (i, j, self.xmlstrings[j])
+            a = LearningAgent(i, self)
+            self.schedule.add(a)
+            # Add the hub to agents memory
+            a.shared_content['Hub'] = {self.hub}
+            # Initialize the BT. Since the agents are normal agents just
+            # use the phenotype
+            a.init_evolution_algo()
+            a.construct_bt()
+
+            if random_init:
+                # Add the agent to a random grid cell
+                x = self.random.randint(
+                    -self.grid.width / 2, self.grid.width / 2)
+                y = self.random.randint(
+                    -self.grid.height / 2, self.grid.height / 2)
+            else:
+                try:
+                    x, y = self.hub.location
+                except AttributeError:
+                    x, y = 0, 0
+
+            a.location = (x, y)
+            self.grid.add_object_to_grid((x, y), a)
+            a.operation_threshold = 7  # self.num_agents // 10
+            self.agents.append(a)
+
+            # if (i + 1) % bound == 0:
+            #     j += 1
+
+        if self.viewer:
+            self.ui = UI(
+                (self.grid.width, self.grid.height), [self.hub], self.agents,
+                sites=[self.site], food=self.foods,
+                obstacles=[], traps=[])
+
+    def step(self):
+        """Step through the environment."""
+        # Next step
+        self.schedule.step()
+
+        # Increment the step count
+        self.stepcnt += 1
+
+        # If viewer required do take a step in UI
+        if self.viewer:
+            self.ui.step()
+
+
 class SimForgModel(Model):
     """A environemnt to model swarms."""
 
