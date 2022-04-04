@@ -131,7 +131,7 @@ class ForagingModel(Model):
 
         self.hub = self.render.objects['hub'][0]
         # self.traps = self.render.objects['traps'][0]
-        # self.obstacles = self.render.objects['obstacles'][0]
+        self.obstacles = self.render.objects['obstacles']
         # self.boundary = Boundary(id=4, location=(30,30), radius=11)
         # self.grid.add_object_to_grid(self.boundary.location, self.boundary)
         self.total_food_units = 0
@@ -705,7 +705,7 @@ class ViewerEvoModel(ForagingModel):
             self.ui = UI(
                 (self.grid.width, self.grid.height), [self.hub], self.agents,
                 sites=[self.site], food=self.foods,
-                obstacles=[], traps=[])
+                obstacles=self.obstacles, traps=[])
 
     def step(self):
         """Step through the environment."""
