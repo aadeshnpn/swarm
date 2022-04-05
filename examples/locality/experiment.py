@@ -31,6 +31,7 @@ def learning_phase(args):
         threshold=10, gstep=200, expp=0, args=args)
     env.build_environment_from_json()
     env.create_agents()
+    env.update_static_objects(i=0)
     # Validation Step parameter
     # Run the validation test every these many steps
     # validation_step = 11000
@@ -66,10 +67,18 @@ def learning_phase(args):
         results.save_to_file()
         # env.plot_locality(i=env.stepcnt-1)
         # env.gather_info()
-    env.plot_locality_all(env.reversemapping)
+    # env.plot_locality_all(env.reversemapping)
+    # np.save(
+    #     '/tmp/locality.npy',
+    #     np.array([env.locality, env.reversemapping], dtype=object))
     np.save(
-        '/tmp/locality.npy',
-        np.array([env.locality, env.reversemapping], dtype=object))
+        '/tmp/visualt.npy',
+        np.array([env.visual, env.reversemapping], dtype=object))
+
+    # np.save(
+    #     '/tmp/staticobjs.npy',
+    #     np.array(env.static_objects, dtype=object))
+
     # Update the experiment table
     foraging_percent = env.foraging_percent()
     if foraging_percent > 5:

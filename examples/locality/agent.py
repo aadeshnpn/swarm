@@ -123,9 +123,12 @@ class CoevoAgent(Agent):
     def detect_food_carrying(self):
         """Check if the agent is carrying food."""
         if len(self.attached_objects) > 0:
-            print('Food carying', self.name, self.attached_objects)
-            output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
-            print(output)
+            # print('Food carying', self.name, self.attached_objects)
+            # output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
+            # print(output)
+            return True
+        else:
+            return False
 
     def carrying_fitness(self):
         """Compute carrying fitness.
@@ -219,7 +222,7 @@ class LearningAgent(CoevoAgent):
         # Grammatical Evolution part
         from ponyge.algorithm.parameters import Parameters
         parameter = Parameters()
-        parameter_list = ['--parameters', '../..,coevo.txt']
+        parameter_list = ['--parameters', '../..,forge.txt']
         # Comment when different results is desired.
         # Else set this for testing purpose
         # parameter.params['RANDOM_SEED'] = name

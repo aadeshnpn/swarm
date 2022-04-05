@@ -112,16 +112,85 @@ def plot_locality_gif(locality, reversemap, frames=100):
         # ffmpeg -framerate 1 -i locality-%00d.png -c:v libx264 -profile:v high -crf 20 -pix_fmt yuv420p /tmp/output.mp4
 
 
+def plot_foraging_gif(agents, reversemap, static_objs, frames=100):
+    simple_behavior_number = {
+        'Explore': 1, 'CompositeSingleCarry': 2, 'CompositeDrop': 3,
+        'MoveTowards': 4, 'MoveAway': 5
+    }
+    imgno = 1
+    for i in range(1, 100-frames, frames):
+        fig = plt.figure(figsize=(10, 6), dpi=300)
+        ax1 = fig.add_subplot(1, 1, 1)
+        plt.rcParams["legend.markerscale"] = 0.5
+        # ax1.spines['top'].set_color('none')
+        # ax1.spines['left'].set_position('zero')
+        # ax1.spines['right'].set_color('none')
+        # ax1.spines['bottom'].set_position('zero')
+        # colors = []
+        colors = [
+            '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+            '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
+        a, x, y, _ = np.where(agents[i] > 0)
+        agent_state = np.squeeze(agents[i])[a, x, y]
+        print(agent_state)
+        x1, y1 = zip(
+            *[reversemap[(
+                x[k], y[k])] for k in range(len(x))])
+
+        state6 = agent_state >= 100
+        agent_state[state6] = agent_state[state6]-100
+        state1 = agent_state == 1
+        state2 = agent_state == 2
+        state3 = agent_state == 3
+        state4 = agent_state == 4
+        state5 = agent_state == 5
+        states = [state1, state2, state3, state4, state5, state6]
+        print(states[0], x1)
+        markers = ['*'] * 5 + ['D']
+        for j in range(6):
+            ax1.scatter(
+                np.array(x1)[states[j]], np.array(y1)[states[j]], c=colors[j],
+                alpha=0.5, marker=markers[j])
+
+        ax1.set_xticks(range(-50, 51, 10))
+        ax1.set_yticks(range(-50, 51, 10))
+        # ax1.set_xlabel(list(range(-50, 51, 10)), fontsize="large")
+        # ax1.set_ylabel(list(range(-50, 51, 10)), fontsize="large")
+        plt.xlim(-50, 50)
+        plt.ylim(-50, 50)
+
+        # plt.legend(
+        #     fontsize="large", bbox_to_anchor=(1.04, 1),
+        #     borderaxespad=0)
+        plt.tight_layout()
+        maindir = '/tmp/swarm/data/experiments/locality'
+        fname = 'foraging-' + str(imgno)
+
+        fig.savefig(
+            maindir + '/' + fname + '.png')
+        imgno += 1
+        plt.close(fig)
+        # ffmpeg -framerate 1 -i locality-%00d.png -c:v libx264 -profile:v high -crf 20 -pix_fmt yuv420p /tmp/output.mp4
+
+
 def main():
-    locality, reversemap = np.load(
-        '/home/aadeshnpn/Desktop/coevolution/ANTS/locality.npy',
+    # locality, reversemap = np.load(
+    #     '/home/aadeshnpn/Desktop/coevolution/ANTS/locality.npy',
+    #     allow_pickle=True)
+
+    agents, reversemap = np.load(
+        '/tmp/visual1.npy',
+        allow_pickle=True)
+    static_objs = np.load(
+        '/tmp/staticobjs1.npy',
         allow_pickle=True)
     # plot_locality(
     #     locality, reversemap, begin=0, end=3000)
     # plot_locality(
     #     locality, reversemap, begin=0, end=2000)
 
-    plot_locality_gif(locality, reversemap, frames=50)
+    # plot_locality_gif(locality, reversemap, frames=50)
+    plot_foraging_gif(agents, reversemap, static_objs, frames=1)
 
 
 if __name__ == "__main__":

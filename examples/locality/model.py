@@ -296,7 +296,17 @@ class CoevolutionModel(Model):
         food_objects = list(set(self.hub.dropped_objects))
         # food_objects = set(food_objects)
         total_food_weights = sum([food.weight for food in food_objects])
-        return np.round(((total_food_weights * 1.0) / self.total_food_units) * 100, 2)
+        return np.round(
+            ((total_food_weights * 1.0) / self.total_food_units) * 100, 2)
+
+    def food_at_site(self):
+        grid = self.grid
+        site_loc = self.site.location
+        neighbours = grid.get_neighborhood(site_loc, self.hub.radius)
+        food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+        total_food_weights = sum([food.weight for food in food_objects])
+        return np.round(
+            ((total_food_weights * 1.0) / self.total_food_units) * 100, 2)
 
     def maintenance_percent(self):
         """Find amount of debris cleaned."""
@@ -549,7 +559,12 @@ class EvolveModel(CoevolutionModel):
             N, width, height, grid, iter, seed, name, viewer, db=db,
             threshold=threshold, gstep=gstep, expp=expp, args=args)
         self.stop_lateral_transfer = False
-        self.locality = np.zeros((iter+1, width+1, height+1, 6), dtype=np.int0)
+        self.locality = np.zeros(
+            (iter+1, width+1, height+1, 6), dtype=np.int8)
+        self.visual = np.zeros(
+            (iter+1, N, width+1, height+1, 1), dtype=np.int8)
+        self.static_objects = np.zeros((iter+1, 2), dtype=np.int8)
+        self.object_indx = {'site': 0, 'hub': 1}
         list_xcords = np.arange(
             -width / 2, width / 2 + 1).tolist()
         list_ycords = np.arange(
@@ -605,12 +620,22 @@ class EvolveModel(CoevolutionModel):
 
     def place_agent_locality(self, agent, i):
         no = agent.get_agent_simple_behavior_no()
+        # attached_object = 1 if agent.detect_food_carrying() else 0
         x, y = self.comapping[agent.location]
         self.locality[i][x][y][no] += 1
+        self.visual[i][int(agent.name)][x][y][0] = no
+        if agent.detect_food_carrying():
+            self.visual[i][agent.name][x][y][0] += 100
         # print(
         #     'place ',i, agent.name, agent.location, x, y, no,
         #     self.locality[i][x][y][no])
         # print(self.stepcnt, agent.name, i)
+
+    def update_static_objects(self, i):
+        self.static_objects[i][self.object_indx['site']] = np.int8(
+            self.food_at_site())
+        self.static_objects[i][self.object_indx['hub']] = np.int8(
+            self.foraging_percent())
 
     def behavior_sampling(self, method='ratio', ratio_value=0.2, phenotype=None):
         """Extract phenotype of the learning agents.
@@ -820,6 +845,7 @@ class EvolveModel(CoevolutionModel):
         #         self.deactivate_stop_lateral_transfer()
         # input('Enter to continue' + str(self.stepcnt))
         # Increment the step count
+        self.update_static_objects(i=self.stepcnt)
         self.stepcnt += 1
 
     def activate_stop_lateral_transfer(self):
