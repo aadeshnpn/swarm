@@ -115,7 +115,7 @@ def plot_locality_gif(locality, reversemap, frames=100):
 def plot_foraging_gif(agents, reversemap, static_objs, frames=100):
     simple_behavior_number = {
         'Explore': 1, 'CompositeSingleCarry': 2, 'CompositeDrop': 3,
-        'MoveTowards': 4, 'MoveAway': 5
+        'MoveTowards': 4, 'MoveAway': 5, 'WithFood': 6
     }
     imgno = 1
     for i in range(1, 100-frames, frames):
@@ -132,7 +132,7 @@ def plot_foraging_gif(agents, reversemap, static_objs, frames=100):
             '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
         a, x, y, _ = np.where(agents[i] > 0)
         agent_state = np.squeeze(agents[i])[a, x, y]
-        print(agent_state)
+
         x1, y1 = zip(
             *[reversemap[(
                 x[k], y[k])] for k in range(len(x))])
@@ -145,23 +145,37 @@ def plot_foraging_gif(agents, reversemap, static_objs, frames=100):
         state4 = agent_state == 4
         state5 = agent_state == 5
         states = [state1, state2, state3, state4, state5, state6]
-        print(states[0], x1)
         markers = ['*'] * 5 + ['D']
         for j in range(6):
             ax1.scatter(
                 np.array(x1)[states[j]], np.array(y1)[states[j]], c=colors[j],
-                alpha=0.5, marker=markers[j])
+                alpha=0.5, marker=markers[j], label=list(
+                    simple_behavior_number.keys())[j])
 
-        ax1.set_xticks(range(-50, 51, 10))
-        ax1.set_yticks(range(-50, 51, 10))
+        # Plot hub, site, and obstacles
+        sites = static_objs[i][0]
+        hubs = static_objs[i][1]
+        # print(sites, hubs)
+        ax1.scatter(
+            [-30], [30], c=colors[6], s=sites*10,
+            alpha=0.5, marker='8', label='Site')
+        ax1.scatter(
+            [0], [0], c=colors[7], s=100+hubs*2,
+            alpha=0.5, marker='s', label='Hub')
+
+        ax1.set_xticks([])
+        ax1.set_yticks([])
+
+        # ax1.set_xticks(range(-50, 51, 10))
+        # ax1.set_yticks(range(-50, 51, 10))
         # ax1.set_xlabel(list(range(-50, 51, 10)), fontsize="large")
         # ax1.set_ylabel(list(range(-50, 51, 10)), fontsize="large")
         plt.xlim(-50, 50)
         plt.ylim(-50, 50)
 
-        # plt.legend(
-        #     fontsize="large", bbox_to_anchor=(1.04, 1),
-        #     borderaxespad=0)
+        plt.legend(
+            fontsize="large", bbox_to_anchor=(1.04, 1),
+            borderaxespad=0)
         plt.tight_layout()
         maindir = '/tmp/swarm/data/experiments/locality'
         fname = 'foraging-' + str(imgno)
