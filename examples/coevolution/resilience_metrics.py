@@ -11,6 +11,7 @@ if os.name == 'posix' and "DISPLAY" not in os.environ:
     matplotlib.use('Agg')
 
 import matplotlib.pyplot as plt     # noqa: E402
+from numpy.polynomial import Chebyshev
 
 
 def read_data_n_agent_perturbations_all(
@@ -325,19 +326,16 @@ def subplot_perturbations(
         color, xlabel, pname='Ablation', metric='Power', j=0):
     X = np.concatenate(
         np.array(
-            [[i+j] * len(v[1]) for (i, v) in enumerate(
+            [[i+j] * len(v[1][:40]) for (i, v) in enumerate(
                 data.items())]))
-    Y = np.concatenate(np.array([v for _, v in data.items()]))
+    Y = np.concatenate(np.array([v[:40] for _, v in data.items()]))
+
     par = np.polyfit(X, Y, 1, full=True)
     m = par[0][0]
     b = par[0][1]
-    print(pname + ' ' + metric + ' :', np.round(m, 2), np.round(b, 2))
-    paxis.scatter(X, Y, color=color, alpha=0.7, s=0.8, marker="8")
+    print(pname + ' ' + metric + ' :', np.round(m, 2), np.round(b, 2), Y.shape)
+    paxis.scatter(X, Y, color=color, alpha=0.5, s=0.8, marker="x")
     paxis.plot(X, m*X + b, color=color, linewidth=0.8)
-    paxis.set_xticks(xtick)
-    paxis.set_xticklabels(xlabels)
-    paxis.set_yticks(range(0, 101, 20))
-    paxis.set_yticklabels(range(0, 101, 20))
     # paxisx1.set_xlabel('No. of Obstacles', fontsize="small")
     if pname == 'Ablation':
         paxis.set_ylabel(metric)
@@ -345,6 +343,11 @@ def subplot_perturbations(
         paxis.set_title(pname)
     if metric == 'Efficiency':
         paxis.set_xlabel(xlabel)
+
+    paxis.set_xticks(xtick)
+    paxis.set_xticklabels(xlabels)
+    paxis.set_yticks(list(range(0, 101, 20)))
+    paxis.set_yticklabels(list(range(0, 101, 20)))
 
 
 def plot_power_efficiency_subplots():
@@ -398,7 +401,29 @@ def plot_power_efficiency_subplots():
     ax7 = fig.add_subplot(2, 4, 4)
     ax8 = fig.add_subplot(2, 4, 8)
 
-    colors = ['#6699CC', '#AA4499']
+    colors = ['hotpink', 'mediumblue']
+
+    # Shift
+    xticks = [i if i==0 else str(i)+'k' for i in [1, 2, 3, 4]]
+    # Fixing the ytick issue with shit data
+    ax8.scatter([1], [96], color="white", alpha=0.1, s=0.8, marker="x")
+
+    subplot_perturbations(
+        shift[0], ax7, range(1, 5), xticks,
+        color=colors[0], xlabel='', pname='Shift', metric='Power', j=1)
+    subplot_perturbations(
+        shift[1], ax8, range(1, 5), xticks,
+        color=colors[0], xlabel='LT Stop Interval',
+        pname='Shift', metric='Efficiency', j=1)
+
+    subplot_perturbations(
+        shift_nest[0], ax7, range(1, 5), xticks,
+        color=colors[1], xlabel='', pname='Shift', metric='Power', j=1)
+    subplot_perturbations(
+        shift_nest[1], ax8, range(1, 5), xticks,
+        color=colors[1], xlabel='LT Stop Interval',
+        pname='Shift', metric='Efficiency', j=1)
+
     # Foraging Ablation
     subplot_perturbations(
         ablation[0], ax1, range(1, 6, 1), range(1, 6, 1),
@@ -452,24 +477,6 @@ def plot_power_efficiency_subplots():
         color=colors[1], xlabel='IP',
         pname='Distortion', metric='Efficiency')
 
-    # Shift
-    xticks = [i if i==0 else str(i)+'k' for i in [1, 2, 3, 4]]
-    subplot_perturbations(
-        shift[0], ax7, range(1, 5), xticks,
-        color=colors[0], xlabel='', pname='Shift', metric='Power', j=1)
-    subplot_perturbations(
-        shift[1], ax8, range(1, 5), xticks,
-        color=colors[0], xlabel='LT Stop Interval',
-        pname='Shift', metric='Efficiency', j=1)
-
-    subplot_perturbations(
-        shift_nest[0], ax7, range(1, 5), xticks,
-        color=colors[1], xlabel='', pname='Shift', metric='Power', j=1)
-    subplot_perturbations(
-        shift_nest[1], ax8, range(1, 5), xticks,
-        color=colors[1], xlabel='LT Stop Interval',
-        pname='Shift', metric='Efficiency', j=1)
-
     f = lambda m,c: plt.plot([],[],marker=m, color=c, ls="none")[0]
 
     handles1 = [f('_', colors[i]) for i in range(2)]
@@ -499,9 +506,9 @@ def main():
     # distortion_efficiency_power(fname="EvoNestMNewPPA1")
     # shift_efficiency_power(fname="EvoNestMNewPPA1")
     # shift_efficiency_power()
-    # plot_power_efficiency_subplots()
+    plot_power_efficiency_subplots()
     # addition_efficiency_power(fname="EvoNestMNewPPA1")
-    addition_efficiency_power(fname="EvoCoevolutionPPA")
+    # addition_efficiency_power(fname="EvoCoevolutionPPA")
     # addition_efficiency_power(fname="EvoCoevolutionPPAAd")
 
 
