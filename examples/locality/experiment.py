@@ -68,15 +68,14 @@ def learning_phase(args):
         # env.plot_locality(i=env.stepcnt-1)
         # env.gather_info()
     # env.plot_locality_all(env.reversemapping)
-    np.save(
-        '/tmp/' + str(env.runid) + '_locality.npy',
+    np.save(env.pname +
+        '/' + str(env.runid) + '_locality.npy',
         np.array([env.locality, env.reversemapping], dtype=object))
-    np.save(
-        '/tmp/' + str(env.runid) + '_visual.npy',
+    np.save(env.pname +
+        '/' + str(env.runid) + '_visual.npy',
         np.array([env.visual, env.reversemapping], dtype=object))
-
-    np.save(
-        '/tmp/' + str(env.runid) + '_staticobjs.npy',
+    np.save(env.pname +
+        '/' + str(env.runid) + '_staticobjs.npy',
         np.array(env.static_objects, dtype=object))
 
     # Update the experiment table
@@ -104,8 +103,14 @@ def learning_phase(args):
 
 def experiments(args):
     ## New experiments      # noqa : E266
-    for i in range(args.runs):
-        learning_phase(args)
+    if args.threads == 1:
+        for i in range(args.runs):
+            learning_phase(args)
+    else:
+        Parallel(
+            n_jobs=args.threads)(
+                delayed(
+                    learning_phase)(args) for i in range(args.runs))
 
 
 if __name__ == '__main__':
