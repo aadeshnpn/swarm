@@ -162,6 +162,12 @@ def plot_foraging_gif(agents, reversemap, static_objs, frames=100):
         ax1.scatter(
             [0], [0], c=colors[7], s=100+hubs*2,
             alpha=0.5, marker='s', label='Hub')
+        # Obstacles
+        obs_locs = [(-30, -30), (30, 30), (30, -30), (-15, 0)]
+        for oloc in obs_locs:
+            ax1.scatter(
+                [oloc[0]], [oloc[1]], c=colors[8], s=300,
+                alpha=0.5, marker='X', label='Obstacle')
 
         ax1.set_xticks([])
         ax1.set_yticks([])
@@ -193,10 +199,10 @@ def main():
     #     allow_pickle=True)
 
     agents, reversemap = np.load(
-        '/tmp/visual1.npy',
+        '/tmp/visual.npy',
         allow_pickle=True)
     static_objs = np.load(
-        '/tmp/staticobjs1.npy',
+        '/tmp/staticobjs.npy',
         allow_pickle=True)
     # plot_locality(
     #     locality, reversemap, begin=0, end=3000)
