@@ -194,6 +194,56 @@ def read_data_n_agent_perturbations_all(
     return fdata
 
 
+def read_data_n_agent_perturbations_all_shift(
+        n=100, iter=12000, threshold=10, gstep=200, expp=2,
+        addobject=None, removeobject=None, no_objects=1, radius=5,
+        time=13000, iprob=0.85, idx=[2], fname='EvoCoevolutionPPA',
+        ltstopint=None):
+    # maindir = '/tmp/swarm/data/experiments/' + fname
+    if ltstopint is None:
+        nadir = os.path.join(
+                    '/tmp', 'swarm', 'data', 'experiments', fname,
+                    str(n), str(iter), str(threshold), str(gstep), str(expp),
+                    str(addobject), str(removeobject),
+                    str(no_objects), str(radius),
+                    str(time), str(iprob)
+                    )
+    else:
+        nadir = os.path.join(
+                    '/tmp', 'swarm', 'data', 'experiments', fname,
+                    str(n), str(iter), str(threshold), str(gstep), str(expp),
+                    str(addobject), str(removeobject),
+                    str(no_objects), str(radius),
+                    str(time), str(iprob), str(ltstopint)
+                    )
+    print(nadir)
+    folders = pathlib.Path(nadir).glob("*"+fname)
+    flist = []
+    fdata = []
+    # mdata = []
+    for i in range(len(idx)):
+        # print(i)
+        fdata.append(list())
+    # print(list(folders))
+    folders = list(folders)
+    if len(folders) > 0:
+        for f in folders:
+            flist = [p for p in pathlib.Path(
+                f).iterdir() if p.is_file() and p.match('simulation.csv')]
+            if len(flist) > 0:
+                data = np.genfromtxt(
+                    flist[0], autostrip=True, unpack=True, delimiter='|')
+                # print(data.shape, flist[0])
+                if data.shape[1] == 12002:
+                    for i in range(len(idx)):
+                        fdata[i].append(data[idx[i]])
+                    # print(fdata)
+        fdata = np.array(fdata)
+        return fdata
+    else:
+        return None
+
+
 def plot_none_obstacles_trap():
     fig = plt.figure(figsize=(8,6), dpi=200)
     none = read_data_n_agent_perturbations()
@@ -1788,39 +1838,68 @@ def plot_no_obstacles_performance(ip=0.85, time=1000):
     plt.close(fig)
 
 
+def plot_shift_foraging_lt_on_off():
+    fig = plt.figure(figsize=(8,6), dpi=200)
+    ax1 = fig.add_subplot(1, 1, 1)
+    timings = range(1000, 4001, 1000)
+    data = [np.squeeze(read_data_n_agent_perturbations_all_shift(
+        n=100, iter=12000, threshold=7, time=1000, iprob=0.85,
+        addobject='Obstacles', no_objects=1,
+        radius=10, idx=[2], ltstopint=t))[:,-1] for t in timings]
+    baseline = [np.squeeze(read_data_n_agent_perturbations_all_shift(
+        n=100, iter=12000, threshold=7, time=10000, iprob=0.85,
+        addobject='None', no_objects=1,
+        radius=5, idx=[2]))[:,-1]]
+    data = baseline + data
+    colordict = {
+        0: 'gold',
+        1: 'linen',
+        2: 'orchid',
+        3: 'peru',
+        4: 'olivedrab',
+        5: 'indianred',
+        6: 'tomato'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+
+    bp1 = ax1.boxplot(
+        data, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, widths=0.8)
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+
+    ax1.set_xlabel('LT Off Duration')
+    ax1.set_ylabel('Foraging (%)')
+    ax1.set_yticks(range(0, 105, 10))
+    label = ['Baseline'] + list(range(1000, 4001, 1000))
+    # ax1.set_xticks( )
+    ax1.set_xticklabels(label)
+    ax1.legend(zip(bp1['boxes']), label, fontsize="small", loc="lower left", title='LT Off Duration')
+    # plt.title('No. of Obstacle Added at ' + str(time) +' Step')
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments/'
+
+    fig.savefig(
+        maindir + 'lt_off_duration.png')
+    plt.close(fig)
+
+
 def obstacle_introduced_compare():
     timings = range(7000, 11001, 1000)
-    # data50 = [read_data_n_agent_perturbations(
-    #     n=50, iter=12000, threshold=t, time=10000, iprob=ip, idx=6)[:,-1] for t in thresholds]
-    data = [np.mean(np.squeeze(read_data_n_agent_perturbations_all(
-        n=100, iter=12000, threshold=7, time=t, iprob=0.85,
-        addobject='Obstacles',no_objects=5, radius=10, idx=[2])), axis=0) for t in timings]
-    # data = [np.mean(data[i], axis=0) for i in range(len(data))]
+    data = [np.squeeze(read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=7, time=1000, iprob=0.85,
+        addobject='Obstacles', no_objects=1,
+        radius=10, idx=[2], fname=fname, ltstopint=t)) for t in timings]
+
     fig = plt.figure(figsize=(8,6), dpi=200)
     ax1 = fig.add_subplot(1, 1, 1)
 
-    xvalues = np.array(list(range(12002)))
-    mask = xvalues % 1000 == 0
-    for i in range(len(timings)):
-        ax1.plot(xvalues[mask], data[i][mask], marker="v", ls='-', label=str(timings[i]))
-    # ax1.legend(zip(bp1['boxes']), ['Foraging', 'Genetic Step'], fontsize="small", loc="upper right", title='Metrices')
-    ax1.legend(fontsize="small", loc="upper left", title='Perturbation Timings')
-    # ax1.set_xticks(timings)
-    # ax1.set_xticklabels(timings)
-    ax1.set_yticks(range(0, 105, 10))
-    ax1.set_xlabel('Steps', fontsize="large")
-    ax1.set_ylabel('Foraging (%)', fontsize="large")
 
-    # plt.title('IP('+str(ip)+')')
-    plt.tight_layout()
-    maindir = '/tmp/swarm/data/experiments'
-    fname = 'obstacles_introduced_compare'
-
-    fig.savefig(
-        maindir + '/' + fname + '.png')
-    # pylint: disable = E1101
-
-    plt.close(fig)
 
 
 def ip_paper_efficiency_power(t=5):
@@ -1868,7 +1947,7 @@ def ip_paper_efficiency_power(t=5):
     for patch, color in zip(bp1['boxes'], colors):
         patch.set_facecolor(color)
 
-    ax_zoom.set_yticks(range(40, 105, 10))
+    ax_zoom.set_yticks(range(0, 105, 10))
     ax_zoom.set_xticklabels(ip)
     ax1.set_yticks(range(0, 105, 20))
     ax1.set_xlabel('Steps', fontsize="large")
@@ -2385,7 +2464,9 @@ def main():
     # for i in [2, 4]:
     #     compare_lt_on_off_no_obst(no=i)
 
-    ants22_paper_efficiency_power_obstacles(t=7)
+    # ants22_paper_efficiency_power_obstacles(t=7)
+    # ip_paper_efficiency_power(t=7)
+    plot_shift_foraging_lt_on_off()
 
 
 if __name__ == '__main__':
