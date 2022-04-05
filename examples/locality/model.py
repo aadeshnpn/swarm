@@ -146,11 +146,11 @@ class CoevolutionModel(Model):
         self.hubs = []
         self.hubs += [self.hub]
         self.traps = []
-        self.obstacles = []
+        # self.obstacles = []
         # self.trap = self.render.objects['traps'][0]
         # self.traps += [self.trap]
-        # self.obstacle = self.render.objects['obstacles'][0]
-        # self.obstacles += [self.obstacle]
+        self.obstacles = self.render.objects['obstacles']
+        self.obstacle = self.obstacles[0]
         # self.boundary = self.render.objects['boundary'][0]
         self.total_food_units = 0
         self.total_debris_units = 0
