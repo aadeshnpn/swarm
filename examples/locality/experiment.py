@@ -30,7 +30,7 @@ def learning_phase(args):
         no_agents, width, height, 10, iter=iteration, db=db,
         threshold=10, gstep=200, expp=0, args=args)
     env.build_environment_from_json()
-    env.create_agents()
+    env.create_agents(random_init=False)
     env.update_static_objects(i=0)
     # Validation Step parameter
     # Run the validation test every these many steps

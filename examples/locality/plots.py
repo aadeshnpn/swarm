@@ -115,7 +115,7 @@ def plot_locality_gif(locality, reversemap, frames=100):
 def plot_foraging_gif(agents, reversemap, static_objs, frames=100):
     simple_behavior_number = {
         'Explore': 1, 'CompositeSingleCarry': 2, 'CompositeDrop': 3,
-        'MoveTowards': 4, 'MoveAway': 5, 'WithFood': 6
+        'MoveTowards': 4, 'MoveAway': 5, 'AgentHasFood': 6
     }
     imgno = 1
     for i in range(1, 100-frames, frames):
@@ -157,17 +157,20 @@ def plot_foraging_gif(agents, reversemap, static_objs, frames=100):
         hubs = static_objs[i][1]
         # print(sites, hubs)
         ax1.scatter(
-            [-30], [30], c=colors[6], s=sites*10,
+            [-25], [25], c=colors[6], s=sites*10,
             alpha=0.5, marker='8', label='Site')
         ax1.scatter(
-            [0], [0], c=colors[7], s=100+hubs*2,
+            [3], [3], c=colors[7], s=600+hubs*2,
             alpha=0.5, marker='s', label='Hub')
         # Obstacles
-        obs_locs = [(-30, -30), (30, 30), (30, -30), (-15, 0)]
-        for oloc in obs_locs:
+        obs_locs = [(-25, -25), (25, 25), (25, -25), (-15, 5)]
+        ax1.scatter(
+                [obs_locs[0][0]], [obs_locs[0][1]], c=colors[8], s=400,
+                alpha=0.5, marker='X', label='Obstacle')
+        for oloc in obs_locs[1:]:
             ax1.scatter(
                 [oloc[0]], [oloc[1]], c=colors[8], s=300,
-                alpha=0.5, marker='X', label='Obstacle')
+                alpha=0.5, marker='X')
 
         ax1.set_xticks([])
         ax1.set_yticks([])
@@ -178,10 +181,15 @@ def plot_foraging_gif(agents, reversemap, static_objs, frames=100):
         # ax1.set_ylabel(list(range(-50, 51, 10)), fontsize="large")
         plt.xlim(-50, 50)
         plt.ylim(-50, 50)
-
-        plt.legend(
+        # ax1.set_axisbelow(True)
+        # ax1.yaxis.grid(color='gray', linestyle='dashed')
+        # ax1.xaxis.grid(color='gray', linestyle='dashed')
+        lgnd = plt.legend(
             fontsize="large", bbox_to_anchor=(1.04, 1),
-            borderaxespad=0)
+            borderaxespad=0, markerscale=2.)
+        for i in range(9):
+            lgnd.legendHandles[i]._sizes = [80]
+
         plt.tight_layout()
         maindir = '/tmp/swarm/data/experiments/locality'
         fname = 'foraging-' + str(imgno)
