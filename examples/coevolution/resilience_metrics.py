@@ -1,5 +1,6 @@
 """Script to compute resilience metric"""
 """for all four types of perturbations for both swarm tasks."""
+from audioop import add
 from distutils import dist
 import os
 import numpy as np
@@ -323,11 +324,18 @@ def addition_efficiency_power(fname="EvoCoevolutionPPA"):
 
 def subplot_perturbations(
         data, paxis, xtick, xlabels,
-        color, xlabel, pname='Ablation', metric='Power', j=0):
-    X = np.concatenate(
-        np.array(
-            [[i+j] * len(v[1][:40]) for (i, v) in enumerate(
-                data.items())]))
+        color, xlabel, pname='Ablation', metric='Power',
+        forge=True, j=0):
+    if forge:
+        X = np.concatenate(
+            np.array(
+                [[i+j] * len(v[1][:40]) for (i, v) in enumerate(
+                    data.items())]))
+    else:
+        X = np.concatenate(
+            np.array(
+                [[i+j+0.2] * len(v[1][:40]) for (i, v) in enumerate(
+                    data.items())]))
     Y = np.concatenate(np.array([v[:40] for _, v in data.items()]))
 
     par = np.polyfit(X, Y, 1, full=True)
@@ -374,7 +382,6 @@ def plot_power_efficiency_subplots():
         '/tmp/foraging_power_efficiency_distortion.npy', allow_pickle=True)
     shift = np.load(
         '/tmp/EvoCoevolutionPPA_power_efficiency_shift.npy', allow_pickle=True)
-
     distortion_nest = np.load(
         '/tmp/EvoNestMNewPPA1_power_efficiency_distortion.npy',
         allow_pickle=True)
@@ -418,13 +425,14 @@ def plot_power_efficiency_subplots():
 
     subplot_perturbations(
         shift_nest[0], ax7, range(1, 5), xticks,
-        color=colors[1], xlabel='', pname='Shift', metric='Power', j=1)
+        color=colors[1], xlabel='', pname='Shift',
+        metric='Power', forge=False, j=1)
     subplot_perturbations(
         shift_nest[1], ax8, range(1, 5), xticks,
         color=colors[1], xlabel='LT Stop Interval',
-        pname='Shift', metric='Efficiency', j=1)
+        pname='Shift', metric='Efficiency', forge=False, j=1)
 
-    # Foraging Ablation
+    # # Foraging Ablation
     subplot_perturbations(
         ablation[0], ax1, range(1, 6, 1), range(1, 6, 1),
         color=colors[0], xlabel='', pname='Ablation', metric='Power', j=1)
@@ -435,32 +443,37 @@ def plot_power_efficiency_subplots():
     # Nest Ablation
     subplot_perturbations(
         ablation_nest[0], ax1, range(1, 6, 1), range(1, 6, 1),
-        color=colors[1], xlabel='', pname='Ablation', metric='Power', j=1)
+        color=colors[1], xlabel='', pname='Ablation',
+        metric='Power', forge=False, j=1)
     subplot_perturbations(
         ablation_nest[1], ax2, range(1, 6, 1), range(1, 6, 1),
         color=colors[1], xlabel='No. of Obstacles',
-        pname='Ablation', metric='Efficiency', j=1)
+        pname='Ablation', metric='Efficiency', forge=False, j=1)
 
-    # Addition.
-    xticks = [i if i==0 else str(i)+'k' for i in range(0, 11, 2)]
+    # # Addition.
+    xticks = [i if i==0 else str(i)+'k' for i in range(2, 11, 2)]
+    addition[0] = {k:v for k,v in addition[0].items() if k in range(2000, 11000, 2000)}
+    addition[1] = {k:v for k,v in addition[1].items() if k in range(2000, 11000, 2000)}
     subplot_perturbations(
-        addition[0], ax3, range(0, 11, 2), xticks,
-        color=colors[0], xlabel='', pname='Addition', metric='Power')
+        addition[0], ax3, range(1, 6, 1), xticks,
+        color=colors[0], xlabel='', pname='Addition', metric='Power', j=1)
     subplot_perturbations(
-        addition[1], ax4, range(0, 11, 2), xticks,
+        addition[1], ax4, range(1, 6, 1), xticks,
         color=colors[0], xlabel='Timings',
-        pname='Addition', metric='Efficiency')
-
+        pname='Addition', metric='Efficiency', j=1)
+    addition_nest[0] = {k:v for k,v in addition_nest[0].items() if k in range(2000, 11000, 2000)}
+    addition_nest[1] = {k:v for k,v in addition_nest[1].items() if k in range(2000, 11000, 2000)}
     subplot_perturbations(
-        addition_nest[0], ax3, range(0, 11, 2), xticks,
-        color=colors[1], xlabel='', pname='Addition', metric='Power')
+        addition_nest[0], ax3, range(1, 6, 1), xticks,
+        color=colors[1], xlabel='', pname='Addition',
+        metric='Power', forge=False, j=1)
     subplot_perturbations(
-        addition_nest[1], ax4, range(0, 11, 2), xticks,
+        addition_nest[1], ax4, range(1, 6, 1), xticks,
         color=colors[1], xlabel='Timings',
-        pname='Addition', metric='Efficiency')
+        pname='Addition', metric='Efficiency', forge=False, j=1)
 
-    # Distortion
-    # Foraging
+    # # Distortion
+    # # Foraging
     subplot_perturbations(
         distortion[0], ax5, range(0, 4, 1), [0.8, 0.85, 0.9, 0.99],
         color=colors[0], xlabel='', pname='Distortion', metric='Power')
@@ -471,11 +484,12 @@ def plot_power_efficiency_subplots():
     # Nest
     subplot_perturbations(
         distortion_nest[0], ax5, range(0, 4, 1), [0.8, 0.85, 0.9, 0.99],
-        color=colors[1], xlabel='', pname='Distortion', metric='Power')
+        color=colors[1], xlabel='',
+        pname='Distortion', metric='Power', forge=False)
     subplot_perturbations(
         distortion_nest[1], ax6, range(0, 4, 1), [0.8, 0.85, 0.9, 0.99],
         color=colors[1], xlabel='IP',
-        pname='Distortion', metric='Efficiency')
+        pname='Distortion', metric='Efficiency', forge=False)
 
     f = lambda m,c: plt.plot([],[],marker=m, color=c, ls="none")[0]
 
