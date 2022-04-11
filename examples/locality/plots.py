@@ -1,5 +1,6 @@
 """Plot file for locality experiments."""
 
+from cProfile import label
 import os
 import numpy as np
 import matplotlib
@@ -118,7 +119,7 @@ def plot_foraging_gif(agents, reversemap, static_objs, frames=100):
         'MoveTowards': 4, 'MoveAway': 5, 'AgentHasFood': 6
     }
     imgno = 1
-    for i in range(1, 100-frames, frames):
+    for i in range(1, 12000-frames, frames):
         fig = plt.figure(figsize=(10, 6), dpi=300)
         ax1 = fig.add_subplot(1, 1, 1)
         plt.rcParams["legend.markerscale"] = 0.5
@@ -201,6 +202,64 @@ def plot_foraging_gif(agents, reversemap, static_objs, frames=100):
         # ffmpeg -framerate 1 -i locality-%00d.png -c:v libx264 -profile:v high -crf 20 -pix_fmt yuv420p /tmp/output.mp4
 
 
+def compute_state_transition(agents, reversemap, static_objs):
+    simple_behavior_number = {
+        'Explore': 1, 'CompositeSingleCarry': 2, 'CompositeDrop': 3,
+        'MoveTowards': 4, 'MoveAway': 5, 'AgentHasFood': 6
+    }
+    iter = 5000
+    prev_a, x, y, _ = np.where(agents[0] > 0)
+    prev_astate = np.squeeze(agents[0])[prev_a, x, y]
+    mask = prev_astate >=100
+    prev_astate[mask] = prev_astate[mask] - 100
+    statetrans = [np.zeros((6, 6), np.int32) for i in range(100)]
+    statetranschg = [np.zeros((6, 6), np.int32) for i in range(100)]
+    statessum = np.zeros((iter, 6), np.int32)
+    print(prev_astate)
+    for i in range(0, iter, 1):
+        a, x, y, _ = np.where(agents[i] > 0)
+        agent_state = np.squeeze(agents[i])[a, x, y]
+        mask = agent_state >=100
+        agent_state[mask] = agent_state[mask] - 100
+        # print(i, agent_state, mask)
+        # print(i, statetrans[0], np.sum(statetrans[0], axis=1))
+        for k in range(1,6):
+            statessum[i][k] = np.sum(agent_state == k)
+        for j in range(100):
+            # print(j)
+            statetrans[j][prev_astate[j]][agent_state[j]] += 1
+            if prev_astate[j] != agent_state[j]:
+                statetranschg[j][prev_astate[j]][agent_state[j]] += 1
+        prev_astate = agent_state
+
+    agent_0 = (statetrans[0][1:,1:].T / np.sum(statetrans[0], axis=1)[1:]).T
+    print(np.round(agent_0, 2))
+    avg_agent = np.sum(np.array(statetrans), axis=0)
+    # print(avg_agent)
+    np.fill_diagonal(avg_agent, 0)
+    allagent = (avg_agent[1:,1:].T / np.sum(avg_agent, axis=1)[1:]).T
+    print(np.round(allagent, 2))
+
+    # print(avg_agent / (iter * 100))
+    # print(np.mean(np.array(statetranschg), axis=0))
+    # print('state sum:', np.mean(statessum, axis=0))
+
+    fig = plt.figure(figsize=(10, 6), dpi=300)
+    ax1 = fig.add_subplot(1, 1, 1)
+    plt.rcParams["legend.markerscale"] = 0.5
+    for k in range(1,6):
+        ax1.plot(range(iter), statessum[:, k], label=k)
+
+    ax1.legend()
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments/'
+    fname = 'temporal-'
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # imgno += 1
+    plt.close(fig)
+
+
 def main():
     # locality, reversemap = np.load(
     #     '/home/aadeshnpn/Desktop/coevolution/ANTS/locality.npy',
@@ -218,7 +277,8 @@ def main():
     #     locality, reversemap, begin=0, end=2000)
 
     # plot_locality_gif(locality, reversemap, frames=50)
-    plot_foraging_gif(agents, reversemap, static_objs, frames=1)
+    # plot_foraging_gif(agents, reversemap, static_objs, frames=1)
+    compute_state_transition(agents, reversemap, static_objs)
 
 
 if __name__ == "__main__":
