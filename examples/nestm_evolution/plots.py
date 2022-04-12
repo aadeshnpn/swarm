@@ -1592,15 +1592,17 @@ def compare_sampling_differences():
 def compare_sampling_differences_plot():
     # plt.style.use('fivethirtyeight')
     sampling_size = [0.1, 0.3, 0.5, 0.7, 0.9]
+
     datasnew = [read_data_sample_ratio_nest(s) for s in sampling_size]
     datasold = [read_data_sample_ratio_ijcai_nest(s) for s in sampling_size]
 
     datasnew_forge = [read_data_sample_ratio(s) for s in sampling_size]
     datasold_forge = [read_data_sample_ratio_ijcai(s) for s in sampling_size]
-    # print(datasnew, datasold)
+    print(datasnew, datasold)
     fig = plt.figure(figsize=(8,6), dpi=300)
     ax1 = fig.add_subplot(1, 1, 1)
 
+    sampling_size = [10, 30, 50, 70, 90]
     colordict = {
         0: 'forestgreen',
         1: 'gold',
@@ -1634,7 +1636,7 @@ def compare_sampling_differences_plot():
         [datasold_forge[4],datasnew_forge[4]],
     ]
 
-    colors = ['cyan', 'magenta']
+    colors = ['hotpink', 'mediumblue']
     plabels = ['Top Agents (GEESE-BT)', 'Parallel (BeTr-GEESE)']
     # lss = ['--', '-']
     markers=['o', '^']
@@ -1673,13 +1675,13 @@ def compare_sampling_differences_plot():
     ax1.set_xticklabels(labels, fontsize='large')
     ax1.set_yticks(range(0, 105, 20))
     ax1.set_yticklabels(range(0, 105, 20), fontsize='large')
-    ax1.set_xlabel('Sampling Size', fontsize="large")
+    ax1.set_xlabel('Sampling Size (%)', fontsize="large")
     ax1.set_ylabel('Performance (%)',  fontsize="large")
     # ax1.set_title('Behavior Sampling',  fontsize="large")
     # plt.rcParams['legend.title_fontsize'] = 'large'
     plt.tight_layout()
 
-    maindir = '/tmp/swarm/data/experiments/'
+    maindir = '/tmp/swarm/data/experiments'
     fname = 'behavior_samplingnest_agg'
 
     fig.savefig(
