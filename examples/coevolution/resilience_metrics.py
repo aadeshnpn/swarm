@@ -515,15 +515,121 @@ def plot_power_efficiency_subplots():
     # Addition
 
 
+def ip_ltr_gsr_relationship(fname="EvoCoevolutionPPA"):
+    ips = [0.5, 0.7, 0.8, 0.85, 0.9, 0.99]
+    allipsltr = {}
+    allipgsr = {}
+    for ip in ips:
+        data = np.squeeze(read_data_n_agent_perturbations_all(
+            n=100, iter=12000, threshold=7, time=10000, iprob=ip,
+            addobject=None, no_objects=1,
+            radius=5, idx=[4, 6], fname=fname))
+        allipsltr[ip] = np.round(np.mean(data[0], axis=0), 0)[1:]
+        allipgsr[ip] = np.round(np.mean(data[1], axis=0), 0)[1:]
+        # print(ip, allipsltr[ip][0], allipsltr[ip][-1])
+
+    X = np.concatenate(np.array([[i]*12001 for i in ips]))
+    Y = np.concatenate(np.array([v for _, v in allipsltr.items()]))
+    par = np.polyfit(X, Y, 1, full=True)
+    m = par[0][0]
+    b = par[0][1]
+    print('IP VS LTR, slope, intercept', np.round(m, 2), np.round(b, 2))
+    fig = plt.figure(figsize=(6, 4), dpi=300)
+    ax1 = fig.add_subplot(1, 2, 1)
+    ax1.scatter(X, Y)
+    ax1.plot(X, m*X + b)
+    ax1.set_xticks(ips)
+    ax1.set_xticklabels(ips)
+    # plt.show()
+
+    X = np.concatenate(np.array([[i]*12001 for i in ips]))
+    Y = np.concatenate(np.array([v for _, v in allipgsr.items()]))
+    par = np.polyfit(X, Y, 1, full=True)
+    m = par[0][0]
+    b = par[0][1]
+    print('IP vs GSR, slope, intercept', np.round(m, 2), np.round(b, 2))
+    ax2 = fig.add_subplot(1, 2, 2)
+    ax2.scatter(X, Y)
+    ax2.plot(X, m*X + b)
+    ax2.set_xticks(ips)
+    ax2.set_xticklabels(ips)
+    plt.show()
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments'
+    fname = 'ip_ltr_gsr'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    np.save(
+        '/tmp/' + fname + '_ip_ltr_gsr.npy',
+        np.array([X, allipsltr, allipgsr], dtype=object))
+
+
+def st_ltr_gsr_relationship(fname="EvoCoevolutionPPA"):
+    sts = [5, 7, 10, 15]
+    allipsltr = {}
+    allipgsr = {}
+    for st in sts:
+        data = np.squeeze(read_data_n_agent_perturbations_all(
+            n=100, iter=12000, threshold=st, time=10000, iprob=0.85,
+            addobject=None, no_objects=1,
+            radius=5, idx=[4, 6], fname=fname))
+        allipsltr[st] = np.round(np.mean(data[0], axis=0), 0)[1:]
+        allipgsr[st] = np.round(np.mean(data[1], axis=0), 0)[1:]
+        # print(ip, allipsltr[ip][0], allipsltr[ip][-1])
+
+    X = np.concatenate(np.array([[i]*12001 for i in sts]))
+    Y = np.concatenate(np.array([v for _, v in allipsltr.items()]))
+    par = np.polyfit(X, Y, 1, full=True)
+    m = par[0][0]
+    b = par[0][1]
+    print('ST VS LTR, slope, intercept', np.round(m, 2), np.round(b, 2))
+    fig = plt.figure(figsize=(6, 4), dpi=300)
+    ax1 = fig.add_subplot(1, 2, 1)
+    ax1.scatter(X, Y)
+    ax1.plot(X, m*X + b)
+    ax1.set_xticks(sts)
+    ax1.set_xticklabels(sts)
+    # plt.show()
+
+    X = np.concatenate(np.array([[i]*12001 for i in sts]))
+    Y = np.concatenate(np.array([v for _, v in allipgsr.items()]))
+    par = np.polyfit(X, Y, 1, full=True)
+    m = par[0][0]
+    b = par[0][1]
+    print('ST vs GSR, slope, intercept', np.round(m, 2), np.round(b, 2))
+    ax2 = fig.add_subplot(1, 2, 2)
+    ax2.scatter(X, Y)
+    ax2.plot(X, m*X + b)
+    ax2.set_xticks(sts)
+    ax2.set_xticklabels(sts)
+    plt.show()
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments'
+    fname = 'st_ltr_gsr'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    np.save(
+        '/tmp/' + fname + '_st_ltr_gsr.npy',
+        np.array([X, allipsltr, allipgsr], dtype=object))
+
+
+def power_efficiency_curve_lt_st_ltr_gs():
+    pass
+
+
 def main():
     # ablation_efficiency_power(fname="EvoNestMNewPPA1")
     # distortion_efficiency_power(fname="EvoNestMNewPPA1")
     # shift_efficiency_power(fname="EvoNestMNewPPA1")
     # shift_efficiency_power()
-    plot_power_efficiency_subplots()
+    # plot_power_efficiency_subplots()
     # addition_efficiency_power(fname="EvoNestMNewPPA1")
     # addition_efficiency_power(fname="EvoCoevolutionPPA")
     # addition_efficiency_power(fname="EvoCoevolutionPPAAd")
+    # ip_ltr_gsr_relationship()
+    st_ltr_gsr_relationship()
 
 
 if __name__ == "__main__":
