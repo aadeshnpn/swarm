@@ -70,22 +70,24 @@ def ablation_efficiency_power(fname="EvoCoevolutionPPA"):
     # time = 1000
     no_obstacles = [1, 2, 3, 4, 5]
     times = list(range(1000, 11001, 1000))
-    baseline = read_data_n_agent_perturbations_all(
-        n=100, iter=12000, threshold=t, time=10000, iprob=0.85,
-        addobject='None', radius=5, idx=[2], fname=fname)
+    # baseline = read_data_n_agent_perturbations_all(
+    #     n=100, iter=12000, threshold=t, time=10000, iprob=0.85,
+    #     addobject='None', radius=5, idx=[2], fname=fname)
     # powerbaseline100 = np.squeeze(baseline)[:, -1]
-    effbaseline100 = np.squeeze(baseline)
-    effbaseline100 = [np.squeeze(
-        np.argwhere(
-            effbaseline100[i, :] >= 80)) for i in range(
-                effbaseline100.shape[0])]
-    effbaseline100 = [np.array(
-        [effbaseline100[i][0] if effbaseline100[
-            i].shape[0] > 1 else 12000 for i in range(
-                len(effbaseline100))])]
-    effbaseline100 = [(
-        ((12000-effbaseline100[i])/12000)*100) for i in range(
-            len(effbaseline100))]
+    # effbaseline100 = np.squeeze(baseline)
+    # effbaseline100 = [np.squeeze(
+    #     np.argwhere(
+    #         effbaseline100[i, :] >= 80)) for i in range(
+    #             effbaseline100.shape[0])]
+    # effbaseline100 = [np.array(
+    #     [effbaseline100[i][0] if effbaseline100[
+    #         i].shape[0] > 1 else 12000 for i in range(
+    #             len(effbaseline100))])]
+    # print('min', np.min(effbaseline100))
+    # # 5034,
+    # effbaseline100 = [(
+    #     ((12000-effbaseline100[i])/12000)*100) for i in range(
+    #         len(effbaseline100))]
     # print(powerbaseline100, effbaseline100)
     # allpower = {0: [np.median(powerbaseline100)]}
     # allefficiency = {0: [np.median(effbaseline100)]}
@@ -119,10 +121,14 @@ def ablation_efficiency_power(fname="EvoCoevolutionPPA"):
                     [effdata[i][
                         0] if effdata[i].shape[
                             0] > 1 else 12000 for i in range(len(effdata))])]
+                # print('min', np.min(effdata))
+                # Perturbations: 5279, 2756
+                tmax = 12000
+                tmin = 5200  # 2756
                 effdata = [(
                     (
-                        (12000-effdata[i])/12000)*100) for i in range(
-                            len(effdata))]
+                        1 - ((effdata[i] - tmin)/(
+                            tmax-tmin)))*100) for i in range(len(effdata))]
                 # effdata = [np.median(effdata[i]
                 # ) for i in range(len(effdata))]
                 effdata100 += effdata
@@ -182,8 +188,16 @@ def distortion_efficiency_power(fname="EvoCoevolutionPPA"):
         effdata = [np.array(
             [effdata[i][0] if effdata[i].shape[
                 0] > 1 else 12000 for i in range(len(effdata))])]
+        print('min', np.min(effdata))
+        # Min: 5200
+        tmax = 12000
+        tmin = 2756     # 5200
         effdata = [(
-            ((12000-effdata[i])/12000)*100) for i in range(len(effdata))]
+            (
+                1 - (abs(effdata[i] - tmin)/(
+                    tmax-tmin)))*100) for i in range(len(effdata))]
+        # effdata = [(
+        #     ((12000-effdata[i])/12000)*100) for i in range(len(effdata))]
         allefficiency[ip] = np.round(effdata[0], 2)
 
     X = np.concatenate(
@@ -234,8 +248,16 @@ def shift_efficiency_power(fname="EvoCoevolutionPPA"):
         effdata = [np.array(
             [effdata[i][0] if effdata[i].shape[
                 0] > 1 else 12000 for i in range(len(effdata))])]
+        print('min', np.min(effdata))
+        # Min: 6778
+        tmax = 12000
+        tmin = 2756     # 5200
         effdata = [(
-            ((12000-effdata[i])/12000)*100) for i in range(len(effdata))]
+            (
+                1 - (abs(effdata[i] - tmin)/(
+                    tmax-tmin)))*100) for i in range(len(effdata))]
+        # effdata = [(
+        #     ((12000-effdata[i])/12000)*100) for i in range(len(effdata))]
         allefficiency[t] = np.round(effdata[0], 2)
 
     X = np.concatenate(
@@ -288,8 +310,16 @@ def addition_efficiency_power(fname="EvoCoevolutionPPA"):
             [effdata[i][0] if effdata[i].shape[
                 0] > 1 else 12000 for i in range(len(effdata))])]
         hitrate.append(np.sum(effdata[0]!=12000)/effdata[0].shape[0])
+        print('min', np.min(effdata))
+        # 5310
+        tmax = 12000
+        tmin = 2756     # 5200
         effdata = [(
-            ((12000-effdata[i])/12000)*100) for i in range(len(effdata))]
+            (
+                1 - (abs(effdata[i] - tmin)/(
+                    tmax-tmin)))*100) for i in range(len(effdata))]
+        # effdata = [(
+        #     ((12000-effdata[i])/12000)*100) for i in range(len(effdata))]
         allefficiency[t] = np.round(effdata[0], 2)
     print('Success Rate', np.round(np.median(np.array(hitrate)), 2))
     X = np.concatenate(
@@ -375,13 +405,17 @@ def plot_power_efficiency_subplots():
 
     # Foraging data
     ablation = np.load(
-        '/tmp/foraging_power_efficiency_ablation.npy', allow_pickle=True)
+        '/tmp/EvoCoevolutionPPA_power_efficiency_ablation.npy',
+        allow_pickle=True)
     addition = np.load(
-        '/tmp/foraging_power_efficiency_addition.npy', allow_pickle=True)
+        '/tmp/EvoCoevolutionPPA_power_efficiency_addition.npy',
+        allow_pickle=True)
     distortion = np.load(
-        '/tmp/foraging_power_efficiency_distortion.npy', allow_pickle=True)
+        '/tmp/EvoCoevolutionPPA_power_efficiency_distortion.npy',
+        allow_pickle=True)
     shift = np.load(
-        '/tmp/EvoCoevolutionPPA_power_efficiency_shift.npy', allow_pickle=True)
+        '/tmp/EvoCoevolutionPPA_power_efficiency_shift.npy',
+        allow_pickle=True)
     distortion_nest = np.load(
         '/tmp/EvoNestMNewPPA1_power_efficiency_distortion.npy',
         allow_pickle=True)
@@ -620,16 +654,22 @@ def power_efficiency_curve_lt_st_ltr_gs():
 
 
 def main():
+    ablation_efficiency_power()
+    # distortion_efficiency_power()
+    # addition_efficiency_power(fname="EvoCoevolutionPPA")
+    # shift_efficiency_power()
+
     # ablation_efficiency_power(fname="EvoNestMNewPPA1")
     # distortion_efficiency_power(fname="EvoNestMNewPPA1")
-    # shift_efficiency_power(fname="EvoNestMNewPPA1")
-    # shift_efficiency_power()
-    # plot_power_efficiency_subplots()
     # addition_efficiency_power(fname="EvoNestMNewPPA1")
-    # addition_efficiency_power(fname="EvoCoevolutionPPA")
+    # shift_efficiency_power(fname="EvoNestMNewPPA1")
+
+    # plot_power_efficiency_subplots()
+
     # addition_efficiency_power(fname="EvoCoevolutionPPAAd")
     # ip_ltr_gsr_relationship()
-    st_ltr_gsr_relationship()
+    # st_ltr_gsr_relationship()
+    # Baseline : 5200
 
 
 if __name__ == "__main__":

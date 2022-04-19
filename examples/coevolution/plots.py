@@ -2375,7 +2375,8 @@ def ants22_paper_efficiency_power_obstacles(t=7):
     effbaseline100 = np.squeeze(baseline)
     effbaseline100 = [np.squeeze(np.argwhere(effbaseline100[i, :]>=80)) for i in range(effbaseline100.shape[0])]
     effbaseline100 = [np.array([effbaseline100[i][0] if effbaseline100[i].shape[0]>1 else 12000 for i in range(len(effbaseline100)) ])]
-    # print(effbaseline100)
+    print(effbaseline100, np.min(np.squeeze(np.array(effbaseline100))))
+    # min time 5200
 
     effdata100 = []
     for i in range(len(no_obstacles)):
@@ -2464,9 +2465,9 @@ def main():
     # for i in [2, 4]:
     #     compare_lt_on_off_no_obst(no=i)
 
-    # ants22_paper_efficiency_power_obstacles(t=7)
+    ants22_paper_efficiency_power_obstacles(t=7)
     # ip_paper_efficiency_power(t=7)
-    plot_shift_foraging_lt_on_off()
+    # plot_shift_foraging_lt_on_off()
 
 
 if __name__ == '__main__':
