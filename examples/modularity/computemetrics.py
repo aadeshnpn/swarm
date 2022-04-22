@@ -122,7 +122,7 @@ def structure_metrics(gname='/tmp/coevo.bnf'):
                 equivalence[k] = v
 
     timp = compute_TIMP(immsuccessors)
-    clev = compute_CLEV(len(immsuccessors.keys()), len(equivalence.keys()))
+    clev = compute_CLEV(len(equivalence.keys()), len(immsuccessors.keys()))
     nslev = compute_NSLEV(equivalence, succesor)
     dep = compute_DEP(equivalence, succesor)
     print(
@@ -137,6 +137,7 @@ def compute_TIMP(immsucc):
 
 
 def compute_CLEV(Neq, N):
+    print('CLEV:', Neq, N)
     return (Neq * 100) / N
 
 
