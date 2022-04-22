@@ -296,17 +296,11 @@ class LearningAgent(CoevoAgent):
         # food has been found, the next block will focus on dropping
         # the food on hub
 
-        # self.delayed_reward = round(self.beta * self.delayed_reward, 4)
-
         # # Goal Specification Fitness
         self.individual[0].fitness = (1-self.beta) * self.delayed_reward + self.ef + self.evaluate_constraints_conditions()
 
     def get_food_in_hub(self, agent_name=True):
         """Get the food in the hub stored by the agent."""
-        # grid = self.model.grid
-        # hub_loc = self.model.hub.location
-        # neighbours = grid.get_neighborhood(hub_loc, self.model.hub.radius)
-        # food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
         agent_food_objects = []
         food_objects = list(set(self.hub.dropped_objects))
         if not agent_name:

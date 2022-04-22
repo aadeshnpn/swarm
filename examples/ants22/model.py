@@ -282,15 +282,6 @@ class CoevolutionModel(Model):
 
     def foraging_percent(self):
         """Compute the percent of the total food in the hub."""
-        # grid = self.grid
-        # hub_loc = self.hub.location
-        # neighbours = grid.get_neighborhood(hub_loc, self.hub.radius)
-        # food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
-        # _, hub_grid = grid.find_grid(hub_loc)
-        # for food in self.foods:
-        #     _, food_grid = grid.find_grid(food.location)
-        #     if food_grid == hub_grid:
-        #         food_objects += [food]
         food_objects = list(set(self.hub.dropped_objects))
         food_objects = [
             food for food in food_objects if type(food).__name__ == 'Food']
@@ -302,13 +293,6 @@ class CoevolutionModel(Model):
 
     def maintenance_percent(self):
         """Find amount of debris cleaned."""
-        # debris_objects = []
-        # grid = self.grid
-        # for boundary in [self.boundary]:
-        #     boundary_loc = boundary.location
-        #     neighbours = grid.get_neighborhood(boundary_loc, boundary.radius)
-        #     debris_objects += grid.get_objects_from_list_of_grid('Debris', neighbours)
-        # debris_objects = set(debris_objects)
         self.debris_objects = []
         for boundary in self.boundaries:
             debris_objects = list(set(boundary.dropped_objects))

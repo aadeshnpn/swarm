@@ -76,20 +76,6 @@ def learning_phase(args):
         success = False
     env.experiment.update_experiment_simulation(foraging_percent, success)
 
-    # print('max, min generations', np.max(generations), np.min(generations))
-    # pdb.set_trace()
-    # allphenotypes = env.behavior_sampling_objects(ratio_value=1.0)
-    # # save the phenotype to json file
-    # phenotype_to_json(
-    #     env.pname, env.runid + '-' + 'all', allphenotypes)
-
-    # print('total generation', [agent.generation for agent in env.agents])
-    # try:
-    #     # return list(phenotypes.keys())
-    #     return allphenotypes, foraging_percent, env.pname
-    # except UnboundLocalError:
-    #     return None, None, None
-
 
 def phenotype_to_json(pname, runid, phenotypes):
     """Store the phenotype to a json file."""
