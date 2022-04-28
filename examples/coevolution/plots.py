@@ -1900,8 +1900,6 @@ def obstacle_introduced_compare():
     ax1 = fig.add_subplot(1, 1, 1)
 
 
-
-
 def ip_paper_efficiency_power(t=5):
     ip = [0.5, 0.7, 0.8, 0.85, 0.9, 0.99]
     axeslimitdict = {
@@ -1911,7 +1909,7 @@ def ip_paper_efficiency_power(t=5):
         n=100, iter=12000, threshold=t, time=10000, iprob=i,
         addobject='None',no_objects=1, radius=5, idx=[2])), axis=0) for i in ip]
 
-    fig = plt.figure(figsize=(8,6), dpi=200)
+    fig = plt.figure(figsize=(6,4), dpi=200)
     ax1 = fig.add_subplot(1, 1, 1)
 
     xvalues = np.array(list(range(12002)))
@@ -1921,7 +1919,7 @@ def ip_paper_efficiency_power(t=5):
         p = ax1.plot(xvalues[mask], data[i][mask], marker="v", ls='-', label=str(ip[i]))
         colors += [p[0].get_color()]
 
-    ax_zoom = ax1.inset_axes([0.05,0.5,0.47,0.47])
+    ax_zoom = ax1.inset_axes([0.08,0.5,0.47,0.47])
     ax_zoom.patch.set_alpha(0.5)
 
     data100 = [read_data_n_agent_perturbations(
@@ -1947,7 +1945,7 @@ def ip_paper_efficiency_power(t=5):
     for patch, color in zip(bp1['boxes'], colors):
         patch.set_facecolor(color)
 
-    ax_zoom.set_yticks(range(0, 105, 10))
+    ax_zoom.set_yticks(range(0, 105, 20))
     ax_zoom.set_xticklabels(ip)
     ax1.set_yticks(range(0, 105, 20))
     ax1.set_xlabel('Steps', fontsize="large")
@@ -2130,7 +2128,7 @@ def st_paper_efficiency_power_boxplot_all():
     positions = [
         [1, 2, 3], [5, 6, 7], [9, 10, 11], [13, 14, 15]
         ]
-    fig = plt.figure(figsize=(8,6), dpi=200)
+    fig = plt.figure(figsize=(6,4), dpi=200)
     ax1 = fig.add_subplot(1, 1, 1)
     colordict = {
         0: 'gold',
@@ -2465,9 +2463,10 @@ def main():
     # for i in [2, 4]:
     #     compare_lt_on_off_no_obst(no=i)
 
-    ants22_paper_efficiency_power_obstacles(t=7)
+    # ants22_paper_efficiency_power_obstacles(t=7)
     # ip_paper_efficiency_power(t=7)
     # plot_shift_foraging_lt_on_off()
+    st_paper_efficiency_power_boxplot_all()
 
 
 if __name__ == '__main__':
