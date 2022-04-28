@@ -1,5 +1,6 @@
 """Experiment script to run coevolution simulation."""
 
+from copyreg import pickle
 import numpy as np
 # import pdb
 # import hashlib
@@ -75,6 +76,23 @@ def learning_phase(args):
     else:
         success = False
     env.experiment.update_experiment_simulation(foraging_percent, success)
+    # phenotypes = env.behavior_sampling(ratio_value=0.99)
+    # print(phenotypes)
+    # JsonPhenotypeData.to_json(phenotypes, env.pname + '/' + env.runid + '.json')
+    csize = compute_controller_size(env.agents)
+    JsonPhenotypeData.to_json(csize, env.pname + '/' + env.runid + '.json')
+
+
+def compute_controller_size(agents):
+    sizedict = dict()
+    for agent in agents:
+        allnodes = list(agent.bt.behaviour_tree.root.iterate())
+        # print(agent.name, [node.name for node in allnodes ])
+        actions = list(filter(
+            lambda x: x.name.split('_')[-1] == 'Act', allnodes)
+            )
+        sizedict[len(actions)] = sizedict.get(len(actions), 0) + 1
+    return sizedict
 
 
 def phenotype_to_json(pname, runid, phenotypes):
