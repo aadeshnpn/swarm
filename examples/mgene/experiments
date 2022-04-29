@@ -1,0 +1,15 @@
+#!/bin/bash
+
+python experiment.py --exp_no 0 --runs 16 --threads 16 --n 100 --iter 12000
+python experiment.py --exp_no 0 --runs 16 --threads 16 --n 100 --iter 12000
+python experiment.py --exp_no 0 --runs 16 --threads 16 --n 100 --iter 12000
+python experiment.py --exp_no 0 --runs 16 --threads 16 --n 100 --iter 12000
+python experiment.py --exp_no 0 --runs 16 --threads 16 --n 100 --iter 12000
+python experiment.py --exp_no 0 --runs 16 --threads 16 --n 100 --iter 12000
+python experiment.py --exp_no 0 --runs 16 --threads 16 --n 100 --iter 12000
+python experiment.py --exp_no 0 --runs 16 --threads 16 --n 100 --iter 12000
+python experiment.py --exp_no 0 --runs 16 --threads 16 --n 100 --iter 12000
+python experiment.py --exp_no 0 --runs 16 --threads 16 --n 100 --iter 12000
+python experiment.py --exp_no 0 --runs 16 --threads 16 --n 100 --iter 12000
+python experiment.py --exp_no 0 --runs 16 --threads 16 --n 100 --iter 12000
+python experiment.py --exp_no 0 --runs 16 --threads 16 --n 100 --iter 12000
