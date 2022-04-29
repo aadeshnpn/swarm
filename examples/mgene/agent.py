@@ -1,5 +1,5 @@
 from inspect import CO_ITERABLE_COROUTINE
-from py_trees import common
+from py_trees.common import Status
 from py_trees.composites import Selector, Sequence, Parallel
 from py_trees import common, blackboard
 from py_trees.trees import BehaviourTree
@@ -52,6 +52,7 @@ class CoevoAgent(Agent):
         self.fitness_name = True
         self.ltrate = 0     # LT flag
         self.geneticrate = False
+        self.brepotire = dict()
 
     def init_evolution_algo(self):
         """Agent's GE algorithm operation defination."""
@@ -187,6 +188,19 @@ class LearningAgent(CoevoAgent):
         self.threshold = threshold
         # self.trace.append({k:self.functions[k]() for k in self.keys})
         # self.trace[self.step_count] = {k:self.functions[k]() for k in self.keys}
+
+    def update_brepotire(self):
+        allnodes = list(self.bt.behaviour_tree.root.iterate())
+        actions = list(filter(
+            lambda x: x.name.split('_')[-1] == 'Act', allnodes)
+            )
+        if len(actions) == 1 and actions[0].status == Status.SUCCESS:
+            val = self.brepotire.get(type(actions[0]).__name__, None)
+            if val == None:
+                self.brepotire[type(actions[0]).__name__] = self.individual[0]
+            else:
+                if val.fitness < self.individual[0].fitness:
+                    self.brepotire[type(actions[0]).__name__] = self.individual[0]
 
     def evaluate_constraints_conditions(self):
         allnodes = list(self.bt.behaviour_tree.root.iterate())
@@ -351,7 +365,8 @@ class LearningAgent(CoevoAgent):
             self.phenotypes = dict()
             self.phenotypes[self.individual[0].phenotype] = (
                 self.individual[0].fitness)
-
+            # Updated behavior repotire
+            self.update_brepotire()
             if not self.model.stop_lateral_transfer:
                 # Find the nearby agents
                 cellmates = self.model.grid.get_objects_from_grid(
@@ -417,9 +432,9 @@ class ExecutingAgent(CoevoAgent):
             bt = BTConstruct(None, self, self.xmlstring[i])
             bt.construct()
             bts.append(bt.behaviour_tree.root)
-        # root = Selector('RootAll')
+        root = Selector('RootAll')
         # root = Sequence('RootAll')
-        root = Parallel('RootAll')
+        # root = Parallel('RootAll')
         self.model.random.shuffle(bts)
         root.add_children(bts)
         self.bt.behaviour_tree = BehaviourTree(root)

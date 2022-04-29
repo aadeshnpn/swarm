@@ -912,7 +912,8 @@ class SimCoevoModel(Model):
     def __init__(
             self, N, width, height, grid=10, iter=100000,
             xmlstrings=None, seed=None, viewer=False, pname=None,
-            agent=ExecutingAgent, expsite=None, trap=5, obs=5, notrap=1, noobs=1, nosite=1):
+            agent=ExecutingAgent, expsite=None, trap=5, obs=5, notrap=0,
+            noobs=0, nosite=1):
         """Initialize the attributes."""
         if seed is None:
             super(SimCoevoModel, self).__init__(seed=None)
@@ -972,13 +973,13 @@ class SimCoevoModel(Model):
 
         self.agents = []
 
-        bound = np.ceil((self.num_agents * 1.0) / len(self.xmlstrings))
+        bound = len(self.xmlstrings)
 
         j = 0
         # Create agents
         for i in range(self.num_agents):
             # print (i, j, self.xmlstrings[j])
-            a = self.agent(i, self, xmlstring=self.xmlstrings)
+            a = self.agent(i, self, xmlstring=self.xmlstrings[j])
             self.schedule.add(a)
             # Add the hub to agents memory
             # a.shared_content['Hub'] = {self.hub}
@@ -997,9 +998,9 @@ class SimCoevoModel(Model):
             self.grid.add_object_to_grid((x, y), a)
             a.operation_threshold = 2  # self.num_agents // 10
             self.agents.append(a)
-
+            j += 1
             if (i + 1) % bound == 0:
-                j += 1
+                j = 0
 
         # Add equal number of food source
         # for i in range(20):
@@ -1011,8 +1012,10 @@ class SimCoevoModel(Model):
         theta = np.linspace(0, 2*np.pi, 36)
         while True:
             t = self.random.choice(theta, 1, replace=False)[0]
-            x = int(self.hub.location[0] + np.cos(t) * self.expsite)
-            y = int(self.hub.location[0] + np.sin(t) * self.expsite)
+            # x = int(self.hub.location[0] + np.cos(t) * self.expsite)
+            # y = int(self.hub.location[0] + np.sin(t) * self.expsite)
+            x = -30
+            y = 30
             location = (x, y)
             radius = 10
             q_value = 0.9
@@ -1066,7 +1069,7 @@ class SimCoevoModel(Model):
                     temp_obj = None
                     for t in range(self.no_trap):
                         self.place_static_objs(Traps, self.trap_radius)
-                elif name =='obstacles':
+                elif name == 'obstacles':
                     temp_obj = None
                     for o in range(self.no_obs):
                         self.place_static_objs(Obstacles, self.obs_radius)
@@ -1185,18 +1188,13 @@ class SimCoevoModel(Model):
 
     def food_in_hub(self):
         """Find amount of food in hub."""
-        grid = self.grid
-        hub_loc = self.hub.location
-        neighbours = grid.get_neighborhood(hub_loc, self.hub.radius)
-        food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
-        _, hub_grid = grid.find_grid(hub_loc)
-        for food in self.foods:
-            _, food_grid = grid.find_grid(food.location)
-            if food_grid == hub_grid:
-                food_objects += [food]
+        food_objects = list(set(self.hub.dropped_objects))
+        food_objects = [
+            food for food in food_objects if type(food).__name__ == 'Food']
         food_objects = set(food_objects)
         total_food_weights = sum([food.weight for food in food_objects])
-        return int(((total_food_weights * 1.0) / self.total_food_units) * 100)
+        return np.round(
+            ((total_food_weights * 1.0) / self.total_food_units) * 100, 2)
         # return len(food_objects)
 
     def debris_cleaned(self):

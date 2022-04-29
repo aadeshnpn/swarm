@@ -1,16 +1,17 @@
 """Experiment script to run coevolution simulation."""
 
 from copyreg import pickle
+from unittest import result
 import numpy as np
 # import pdb
 # import hashlib
 # import sys
 import argparse
-from model import EvolveModel
+from model import EvolveModel, SimCoevoModel
 from swarms.utils.jsonhandler import JsonPhenotypeData
 from swarms.utils.graph import Graph, GraphACC  # noqa : F401
 from joblib import Parallel, delayed    # noqa : F401
-from swarms.utils.results import SimulationResultsLt
+from swarms.utils.results import SimulationResultsLt, SimulationResults
 # import py_trees
 # Global variables for width and height
 width = 100
@@ -76,11 +77,34 @@ def learning_phase(args):
     else:
         success = False
     env.experiment.update_experiment_simulation(foraging_percent, success)
-    # phenotypes = env.behavior_sampling(ratio_value=0.99)
+    phenotypes = env.behavior_sampling(ratio_value=0.99)
     # print(phenotypes)
-    # JsonPhenotypeData.to_json(phenotypes, env.pname + '/' + env.runid + '.json')
-    csize = compute_controller_size(env.agents)
-    JsonPhenotypeData.to_json(csize, env.pname + '/' + env.runid + '.json')
+    JsonPhenotypeData.to_json(phenotypes, env.pname + '/' + env.runid + '.json')
+    # csize = compute_controller_size(env.agents)
+    # JsonPhenotypeData.to_json(csize, env.pname + '/' + env.runid + 'shape.json')
+    # print(env.agents[0].brepotire)
+    if foraging_percent > 5:
+        static_bheavior_test(args, env.agents, env.pname)
+
+
+def static_bheavior_test(args, agents, pname):
+    xmlstrings = [[gene.phenotype for gene in agent.brepotire.values()] for agent in agents if len(agent.brepotire.values())>3]
+    # print(xmlstrings)
+    env = SimCoevoModel(
+        args.n, width, height, 10, iter=args.iter, xmlstrings=xmlstrings,
+        expsite=30, pname=pname)
+    env.build_environment_from_json()
+    JsonPhenotypeData.to_json(xmlstrings, pname + '/' + env.runid + '_all.json')
+    results = SimulationResults(
+        env.pname, env.connect, env.sn, env.stepcnt, env.food_in_hub(), None)
+    results.save_to_file()
+
+    for i in range(5000):
+        env.step()
+        results = SimulationResults(
+            env.pname, env.connect, env.sn, env.stepcnt, env.food_in_hub(), None)
+        results.save_to_file()
+    print('Test foraging percent', env.food_in_hub())
 
 
 def compute_controller_size(agents):
@@ -91,6 +115,7 @@ def compute_controller_size(agents):
         actions = list(filter(
             lambda x: x.name.split('_')[-1] == 'Act', allnodes)
             )
+        # print(actions[0].status, type(actions[0]).__name__)
         sizedict[len(actions)] = sizedict.get(len(actions), 0) + 1
     return sizedict
 
