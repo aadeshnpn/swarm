@@ -87,14 +87,54 @@ def learning_phase(args):
         static_bheavior_test(args, env.agents, env.pname)
 
 
+def filter_agents(agents, ratio=0.1):
+    # xmlstrings = [[gene.phenotype for gene in agent.brepotire.values()] for agent in agents if len(agent.brepotire.values())>3]
+    filteredagents = {}
+    for agent in agents:
+        if len(agent.brepotire.values()) > 3:
+            filteredagents[agent] = np.average([gene.fitness for gene in agent.brepotire.values()])
+    sortedagents = dict(sorted(filteredagents.items(), key=lambda item: item[1]))
+    sortedagents = list(sortedagents.keys())[: int(len(sortedagents)*ratio)]
+    return [[gene.phenotype for gene in agent.brepotire.values()] for agent in sortedagents]
+
+
 def static_bheavior_test(args, agents, pname):
-    xmlstrings = [[gene.phenotype for gene in agent.brepotire.values()] for agent in agents if len(agent.brepotire.values())>3]
+    # xmlstrings = [[gene.phenotype for gene in agent.brepotire.values()] for agent in agents if len(agent.brepotire.values())>3]
+    for sample in [0.1, 0.2, 0.3, 0.4, 0.5]:
+        pname = pname + str(sample)
+        xmlstrings = filter_agents(agents)
+        # print(xmlstrings)
+        env = SimCoevoModel(
+            args.n, width, height, 10, iter=args.iter, xmlstrings=xmlstrings,
+            expsite=30, pname=pname)
+        env.build_environment_from_json()
+        JsonPhenotypeData.to_json(
+            xmlstrings, pname + '/' + env.runid + '_all_' + str(sample) + '_.json')
+        results = SimulationResults(
+            env.pname, env.connect, env.sn, env.stepcnt, env.food_in_hub(), None)
+        results.save_to_file()
+
+        for i in range(3000):
+            env.step()
+            results = SimulationResults(
+                env.pname, env.connect, env.sn, env.stepcnt, env.food_in_hub(), None)
+            results.save_to_file()
+        print('Test foraging percent', env.food_in_hub())
+
+
+def static_bheavior_test_from_json(args):
+    xmlstrings = JsonPhenotypeData.load_json_file(args.fname)
+    xmlstrings = xmlstrings['phenotypes']
+    # print(len(xmlstrings))
+    pname = '/tmp/swarm/data/experiments/'
     # print(xmlstrings)
     env = SimCoevoModel(
         args.n, width, height, 10, iter=args.iter, xmlstrings=xmlstrings,
         expsite=30, pname=pname)
     env.build_environment_from_json()
-    JsonPhenotypeData.to_json(xmlstrings, pname + '/' + env.runid + '_all.json')
+    for agent in env.agents:
+        agent.shared_content['Hub'] = {env.hub}
+    # JsonPhenotypeData.to_json(xmlstrings, pname + '/' + env.runid + '_all.json')
     results = SimulationResults(
         env.pname, env.connect, env.sn, env.stepcnt, env.food_in_hub(), None)
     results.save_to_file()
@@ -105,6 +145,7 @@ def static_bheavior_test(args, agents, pname):
             env.pname, env.connect, env.sn, env.stepcnt, env.food_in_hub(), None)
         results.save_to_file()
     print('Test foraging percent', env.food_in_hub())
+    print([food.location for food in env.foods])
 
 
 def compute_controller_size(agents):
@@ -156,7 +197,7 @@ def experiments(args):
     exp_no = {
         0: standard_evolution,
         1: exp_varying_n_evolution,
-        # 2: behavior_sampling,
+        2: static_bheavior_test_from_json,
         # 3: single_evo,
         # 4: behavior_sampling_after,
         # 5: exp_with_size_trap
@@ -208,6 +249,10 @@ if __name__ == '__main__':
     parser.add_argument('--probability', default=0.5, type=float)
     parser.add_argument('--no_objects', default=1, type=int)
     parser.add_argument('--location', default=(-np.inf, -np.inf), type=str)
+    parser.add_argument(
+        '--fname',
+        default='/home/aadeshnpn/Desktop/mgene/16512150699454EvoCoevolutionPPA/16512205317773_all.json',
+        type=str)
     parser.add_argument('--radius', default=5, type=int)
     parser.add_argument('--time', default=10000, type=int)
     parser.add_argument('--stoplen', default=0, type=int)
