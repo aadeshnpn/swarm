@@ -202,6 +202,21 @@ class LearningAgent(CoevoAgent):
                 if val.fitness < self.individual[0].fitness:
                     self.brepotire[type(actions[0]).__name__] = self.individual[0]
 
+    def update_brepotire_others(self, cell):
+        allnodes = list(cell.bt.behaviour_tree.root.iterate())
+        actions = list(filter(
+            lambda x: x.name.split('_')[-1] == 'Act', allnodes)
+            )
+        # if actions[0].status == Status.SUCCESS:
+        #     print(actions, actions[0].status)
+        if len(actions) == 1 and actions[0].status == Status.SUCCESS:
+            val = self.brepotire.get(type(actions[0]).__name__, None)
+            if val is None:
+                self.brepotire[type(actions[0]).__name__] = cell.individual[0]
+            else:
+                if val.fitness < cell.individual[0].fitness:
+                    self.brepotire[type(actions[0]).__name__] = cell.individual[0]
+
     def evaluate_constraints_conditions(self):
         allnodes = list(self.bt.behaviour_tree.root.iterate())
         selectors = list(filter(
@@ -366,7 +381,7 @@ class LearningAgent(CoevoAgent):
             self.phenotypes[self.individual[0].phenotype] = (
                 self.individual[0].fitness)
             # Updated behavior repotire
-            self.update_brepotire()
+            # self.update_brepotire()
             if not self.model.stop_lateral_transfer:
                 # Find the nearby agents
                 cellmates = self.model.grid.get_objects_from_grid(
@@ -382,6 +397,9 @@ class LearningAgent(CoevoAgent):
                     #     cellmates, self.model.random.randint(
                     #         1, len(cellmates)-1), replace=False))
                     self.store_genome(cellmates)
+                    # Update behavior repotire
+                    for cell in cellmates:
+                        self.update_brepotire_others(cell)
 
             # Logic for gentic operations.
             # If the genome storage has enough genomes and agents has done some
