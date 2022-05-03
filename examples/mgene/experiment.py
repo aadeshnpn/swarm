@@ -77,9 +77,10 @@ def learning_phase(args):
     else:
         success = False
     env.experiment.update_experiment_simulation(foraging_percent, success)
-    phenotypes = env.behavior_sampling(ratio_value=0.99)
+    # phenotypes = env.behavior_sampling(ratio_value=0.99)
     # print(phenotypes)
-    JsonPhenotypeData.to_json(phenotypes, env.pname + '/' + env.runid + '.json')
+    phenotypes = filter_agents(env.agents, ratio=0.999)
+    JsonPhenotypeData.to_json(phenotypes, env.pname + '/' + env.runid + '_all.json')
     # csize = compute_controller_size(env.agents)
     # JsonPhenotypeData.to_json(csize, env.pname + '/' + env.runid + 'shape.json')
     # print(env.agents[0].brepotire)
@@ -100,9 +101,9 @@ def filter_agents(agents, ratio=0.1):
 
 def static_bheavior_test(args, agents, pname):
     # xmlstrings = [[gene.phenotype for gene in agent.brepotire.values()] for agent in agents if len(agent.brepotire.values())>3]
-    for sample in [0.1, 0.2, 0.3, 0.4, 0.5]:
+    for sample in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
         pname = pname + str(sample)
-        xmlstrings = filter_agents(agents)
+        xmlstrings = filter_agents(agents, ratio=sample)
         # print(xmlstrings)
         env = SimCoevoModel(
             args.n, width, height, 10, iter=args.iter, xmlstrings=xmlstrings,
@@ -119,33 +120,35 @@ def static_bheavior_test(args, agents, pname):
             results = SimulationResults(
                 env.pname, env.connect, env.sn, env.stepcnt, env.food_in_hub(), None)
             results.save_to_file()
-        print('Test foraging percent', env.food_in_hub())
+        print('Test foraging percent:', env.food_in_hub(), ' ,Sampling:', sample)
 
 
 def static_bheavior_test_from_json(args):
     xmlstrings = JsonPhenotypeData.load_json_file(args.fname)
     xmlstrings = xmlstrings['phenotypes']
-    # print(len(xmlstrings))
-    pname = '/tmp/swarm/data/experiments/'
-    # print(xmlstrings)
-    env = SimCoevoModel(
-        args.n, width, height, 10, iter=args.iter, xmlstrings=xmlstrings,
-        expsite=30, pname=pname)
-    env.build_environment_from_json()
-    for agent in env.agents:
-        agent.shared_content['Hub'] = {env.hub}
-    # JsonPhenotypeData.to_json(xmlstrings, pname + '/' + env.runid + '_all.json')
-    results = SimulationResults(
-        env.pname, env.connect, env.sn, env.stepcnt, env.food_in_hub(), None)
-    results.save_to_file()
-
-    for i in range(5000):
-        env.step()
+    print(len(xmlstrings))
+    for sample in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
+        pname = '/tmp/swarm/data/experiments/'+ str(sample) + '/'
+        # print(xmlstrings)
+        xmlstrings = xmlstrings[:int(len(xmlstrings)*sample)]
+        env = SimCoevoModel(
+            args.n, width, height, 10, iter=args.iter, xmlstrings=xmlstrings,
+            expsite=30, pname=pname)
+        env.build_environment_from_json()
+        for agent in env.agents:
+            agent.shared_content['Hub'] = {env.hub}
+        # JsonPhenotypeData.to_json(xmlstrings, pname + '/' + env.runid + '_all.json')
         results = SimulationResults(
             env.pname, env.connect, env.sn, env.stepcnt, env.food_in_hub(), None)
         results.save_to_file()
-    print('Test foraging percent', env.food_in_hub())
-    print([food.location for food in env.foods])
+
+        for i in range(3000):
+            env.step()
+            results = SimulationResults(
+                env.pname, env.connect, env.sn, env.stepcnt, env.food_in_hub(), None)
+            results.save_to_file()
+        print('Test foraging percent', env.food_in_hub())
+        print([food.location for food in env.foods])
 
 
 def compute_controller_size(agents):
@@ -189,6 +192,18 @@ def standard_evolution(args):
                         args.runs))
 
 
+def static_behavior_test(args):
+    # static_bheavior_test_from_json,
+    if args.threads <= 1:
+        for i in range(args.runs):
+            static_bheavior_test_from_json(args)
+    else:
+        Parallel(
+                n_jobs=args.threads)(
+                    delayed(static_bheavior_test_from_json)(args) for i in range(
+                        args.runs))
+
+
 def experiments(args):
     ## New experiments      # noqa : E266
     ## Remove the communication behavior nodes  # noqa : E266
@@ -197,7 +212,7 @@ def experiments(args):
     exp_no = {
         0: standard_evolution,
         1: exp_varying_n_evolution,
-        2: static_bheavior_test_from_json,
+        2: static_behavior_test,
         # 3: single_evo,
         # 4: behavior_sampling_after,
         # 5: exp_with_size_trap

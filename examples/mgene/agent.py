@@ -453,7 +453,7 @@ class ExecutingAgent(CoevoAgent):
         # root = Selector('RootAll')
         # root = Sequence('RootAll')
         root = Parallel('RootAll')
-        self.model.random.shuffle(bts)
+        # self.model.random.shuffle(bts)
         root.add_children(bts)
         self.bt.behaviour_tree = BehaviourTree(root)
         # py_trees.display.render_dot_tree(
