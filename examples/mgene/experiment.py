@@ -12,6 +12,10 @@ from swarms.utils.jsonhandler import JsonPhenotypeData
 from swarms.utils.graph import Graph, GraphACC  # noqa : F401
 from joblib import Parallel, delayed    # noqa : F401
 from swarms.utils.results import SimulationResultsLt, SimulationResults
+from swarms.behaviors.scbehaviors import (
+    ExploreNormal, MoveAwayNormal, MoveTowardsNormal,
+    CompositeSingleCarry, CompositeDrop)
+
 # import py_trees
 # Global variables for width and height
 width = 100
@@ -92,17 +96,30 @@ def filter_agents(agents, ratio=0.1):
     # xmlstrings = [[gene.phenotype for gene in agent.brepotire.values()] for agent in agents if len(agent.brepotire.values())>3]
     filteredagents = {}
     for agent in agents:
-        if len(agent.brepotire.values()) > 3:
+        if len(agent.brepotire.values()) >=4:
             filteredagents[agent] = np.average([gene.fitness for gene in agent.brepotire.values()])
-    sortedagents = dict(sorted(filteredagents.items(), key=lambda item: item[1]))
+    sortedagents = dict(sorted(filteredagents.items(), key=lambda item: item[1], reverse=True))
     sortedagents = list(sortedagents.keys())[: int(len(sortedagents)*ratio)]
-    return [[gene.phenotype for gene in agent.brepotire.values()] for agent in sortedagents]
+    return [[gene.phenotype for gene in sortbehavior(agent.brepotire)] for agent in sortedagents]
+
+
+def sortbehavior(brepotire):
+    # names = [
+    #    CompositeDrop.__name__, MoveAwayNormal.__name__,
+    #    CompositeSingleCarry.__name__, MoveTowardsNormal.__name__,
+    #    ExploreNormal.__name__]
+    # return dict(sorted(brepotire.items(), key=lambda item: item[0]))
+    # print(names)
+    # return [brepotire[k] for k in names]
+    brepotire = {gene:gene.fitness for gene in brepotire.values()}
+    sortedbehavior = dict(sorted(brepotire.items(), key=lambda item: item[1]))
+    return list(sortedbehavior.keys())
 
 
 def static_bheavior_test(args, agents, pname):
     # xmlstrings = [[gene.phenotype for gene in agent.brepotire.values()] for agent in agents if len(agent.brepotire.values())>3]
     for sample in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
-        pname = pname + str(sample)
+        pname = pname + '/' + str(sample)
         xmlstrings = filter_agents(agents, ratio=sample)
         # print(xmlstrings)
         env = SimCoevoModel(
