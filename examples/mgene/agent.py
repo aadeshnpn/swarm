@@ -381,7 +381,7 @@ class LearningAgent(CoevoAgent):
             self.phenotypes[self.individual[0].phenotype] = (
                 self.individual[0].fitness)
             # Updated behavior repotire
-            # self.update_brepotire()
+            self.update_brepotire()
             if not self.model.stop_lateral_transfer:
                 # Find the nearby agents
                 cellmates = self.model.grid.get_objects_from_grid(
@@ -398,8 +398,8 @@ class LearningAgent(CoevoAgent):
                     #         1, len(cellmates)-1), replace=False))
                     self.store_genome(cellmates)
                     # Update behavior repotire
-                    for cell in cellmates:
-                        self.update_brepotire_others(cell)
+                    # for cell in cellmates:
+                    #     self.update_brepotire_others(cell)
 
             # Logic for gentic operations.
             # If the genome storage has enough genomes and agents has done some

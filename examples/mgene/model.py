@@ -987,12 +987,12 @@ class SimCoevoModel(Model):
             # use the phenotype
             a.construct_bt()
             # Add the agent to a random grid cell
-            x = self.random.randint(
-               -self.grid.width / 2, self.grid.width / 2)
-            # x = 0
-            y = self.random.randint(
-               -self.grid.height / 2, self.grid.height / 2)
-            # y = 0
+            # x = self.random.randint(
+            #    -self.grid.width / 2, self.grid.width / 2)
+            x = 0
+            # y = self.random.randint(
+            #    -self.grid.height / 2, self.grid.height / 2)
+            y = 0
 
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)
@@ -1014,8 +1014,8 @@ class SimCoevoModel(Model):
             t = self.random.choice(theta, 1, replace=False)[0]
             x = int(self.hub.location[0] + np.cos(t) * self.expsite)
             y = int(self.hub.location[0] + np.sin(t) * self.expsite)
-            # x = -30
-            # y = 30
+            x = -30
+            y = 30
             location = (x, y)
             radius = 10
             q_value = 0.9
