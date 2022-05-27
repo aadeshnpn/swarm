@@ -95,12 +95,13 @@ def learning_phase(args):
 def filter_agents(agents, ratio=0.1):
     # xmlstrings = [[gene.phenotype for gene in agent.brepotire.values()] for agent in agents if len(agent.brepotire.values())>3]
     filteredagents = {}
-    for agent in agents:
-        if len(agent.brepotire.values()) >=4:
-            filteredagents[agent] = np.average([gene.fitness for gene in agent.brepotire.values()])
-    sortedagents = dict(sorted(filteredagents.items(), key=lambda item: item[1], reverse=True))
-    sortedagents = list(sortedagents.keys())[: int(len(sortedagents)*ratio)]
-    return [[gene.phenotype for gene in sortbehavior(agent.brepotire)] for agent in sortedagents]
+    # for agent in agents:
+    #     if len(agent.brepotire.values()) >=4:
+    #         filteredagents[agent] = np.average([gene.fitness for gene in agent.brepotire.values()])
+    # sortedagents = dict(sorted(filteredagents.items(), key=lambda item: item[1], reverse=True))
+    # sortedagents = list(sortedagents.keys())[: int(len(sortedagents)*ratio)]
+    # return [[gene.phenotype for gene in sortbehavior(agent.brepotire)] for agent in sortedagents]
+    return [[gene.phenotype for gene in agent.brepotire.values()] for agent in agents]
 
 
 def sortbehavior(brepotire):
@@ -111,9 +112,10 @@ def sortbehavior(brepotire):
     # return dict(sorted(brepotire.items(), key=lambda item: item[0]))
     # print(names)
     # return [brepotire[k] for k in names]
-    brepotire = {gene:gene.fitness for gene in brepotire.values()}
-    sortedbehavior = dict(sorted(brepotire.items(), key=lambda item: item[1]))
-    return list(sortedbehavior.keys())
+    # brepotire = {gene:gene.fitness for gene in brepotire.values()}
+    # sortedbehavior = dict(sorted(brepotire.items(), key=lambda item: item[1]))
+    # return list(sortedbehavior.keys())
+    pass
 
 
 def static_bheavior_test(args, agents, pname):

@@ -18,7 +18,8 @@ from ponyge.operators.selection import selection
 
 import py_trees
 import copy
-from flloat.parser.ltlf import LTLfParser
+# from flloat.parser.ltlf import LTLfParser
+from collections import OrderedDict
 
 
 class CoevoAgent(Agent):
@@ -52,7 +53,7 @@ class CoevoAgent(Agent):
         self.fitness_name = True
         self.ltrate = 0     # LT flag
         self.geneticrate = False
-        self.brepotire = dict()
+        self.brepotire = OrderedDict()
 
     def init_evolution_algo(self):
         """Agent's GE algorithm operation defination."""
@@ -160,10 +161,11 @@ class CoevoAgent(Agent):
     """Function related to LTLf and goals."""
     def evaluate_trace(self, goalspec, trace):
         # Evaluate the trace
-        parser = LTLfParser()
-        parsed_formula = parser(goalspec)
-        result = parsed_formula.truth(trace)
-        return result
+        # parser = LTLfParser()
+        # parsed_formula = parser(goalspec)
+        # result = parsed_formula.truth(trace)
+        # return result
+        pass
 
 
 class LearningAgent(CoevoAgent):
@@ -195,12 +197,16 @@ class LearningAgent(CoevoAgent):
             lambda x: x.name.split('_')[-1] == 'Act', allnodes)
             )
         if len(actions) == 1 and actions[0].status == Status.SUCCESS:
-            val = self.brepotire.get(type(actions[0]).__name__, None)
-            if val == None:
-                self.brepotire[type(actions[0]).__name__] = self.individual[0]
+            if type(actions[0]).__name__ in ['MoveTowardsNormal', 'MoveAwayNormal']:
+                action_key = type(actions[0]).__name__ + '_' + actions[0].item
             else:
-                if val.fitness < self.individual[0].fitness:
-                    self.brepotire[type(actions[0]).__name__] = self.individual[0]
+                action_key = type(actions[0]).__name__
+            val = self.brepotire.get(action_key, None)
+            if val == None:
+                self.brepotire[action_key] = self.individual[0]
+            # else:
+            #     if val.fitness < self.individual[0].fitness:
+            #         self.brepotire[type(actions[0]).__name__] = self.individual[0]
 
     def update_brepotire_others(self, cell):
         allnodes = list(cell.bt.behaviour_tree.root.iterate())
