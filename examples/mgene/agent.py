@@ -3,7 +3,9 @@ from py_trees.common import Status
 from py_trees.composites import Selector, Sequence, Parallel
 from py_trees import common, blackboard
 from py_trees.trees import BehaviourTree
-from swarms.behaviors.sbehaviors import DropCue, SendSignal, ObjectsStore
+from swarms.behaviors.sbehaviors import (
+    DropCue, SendSignal, ObjectsStore,
+    NeighbourObjects)
 import numpy as np
 from swarms.lib.agent import Agent
 from swarms.utils.bt import BTConstruct
@@ -442,6 +444,16 @@ class ExecutingAgent(CoevoAgent):
         self.blackboard = blackboard.Client(name=str(self.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.WRITE)
         self.blackboard.neighbourobj = dict()
+        self.current_behavior_counter = 0
+
+
+    def create_root_node(self, node):
+        root = Sequence('RootAll')
+        # root = Parallel('RootAll')
+        # self.model.random.shuffle(bts)
+        # root.add_children(bts[self.current_behavior_counter])
+        root.add_children([node])
+        return BehaviourTree(root)
 
     def construct_bt(self):
         """Construct BT."""
@@ -456,16 +468,28 @@ class ExecutingAgent(CoevoAgent):
             bt = BTConstruct(None, self, self.xmlstring[i])
             bt.construct()
             bts.append(bt.behaviour_tree.root)
+        self.bts = bts
         # root = Selector('RootAll')
         # root = Sequence('RootAll')
-        root = Parallel('RootAll')
+        # root = Parallel('RootAll')
         # self.model.random.shuffle(bts)
-        root.add_children(bts)
-        self.bt.behaviour_tree = BehaviourTree(root)
+        # root.add_children(bts[self.current_behavior_counter])
+        self.bt.behaviour_tree = self.create_root_node(
+            self.bts[self.current_behavior_counter])
+        self.current_behavior_counter += 1
+        # Condition to change between different behaviors
+        # If found any neighbours, then change behaviors
         # py_trees.display.render_dot_tree(
         #    self.bt.behaviour_tree.root, name='/tmp/' + str(self.name))
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
         # print(self.name, py_trees.display.ascii_tree(self.bt.behaviour_tree.root))
+
+    def check_conditions(self):
+        cellobjects = self.model.grid.get_objects_from_grid(
+                    None, self.location)
+        object_names = ["Hub", "Sites", "Food"]
+        objects_of_interest = [ cell for cell in cellobjects if type(cell).__name__ in object_names]
+        return True if len(objects_of_interest) > 0 else False
 
     def step(self):
         """Agent action at a single time step."""
@@ -474,6 +498,13 @@ class ExecutingAgent(CoevoAgent):
 
         # Compute the behavior tree
         self.bt.behaviour_tree.tick()
+
+        # If some condition meet change the behavior
+        if self.check_conditions():
+            del self.bt.behaviour_tree
+            self.bt.behaviour_tree = self.create_root_node(
+                self.bts[self.current_behavior_counter % len(self.bts)])
+            self.current_behavior_counter += 1
 
         # Find the no.of food collected from the BT execution
         # self.food_collected = len(self.get_food_in_hub())

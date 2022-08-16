@@ -391,17 +391,17 @@ def subplot_perturbations(
 def plot_power_efficiency_subplots():
     TINNY_SIZE = 5
     TINY_SIZE = 7
-    SMALL_SIZE = 8
+    SMALL_SIZE = 9
     MEDIUM_SIZE = 10
     BIGGER_SIZE = 12
 
     plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
-    plt.rc('axes', titlesize=TINY_SIZE)     # fontsize of the axes title
-    plt.rc('axes', labelsize=TINY_SIZE)    # fontsize of the x and y labels
-    plt.rc('xtick', labelsize=TINY_SIZE)    # fontsize of the tick labels
-    plt.rc('ytick', labelsize=TINY_SIZE)    # fontsize of the tick labels
-    plt.rc('legend', fontsize=TINNY_SIZE)    # legend fontsize
-    plt.rc('figure', titlesize=TINY_SIZE)  # fontsize of the figure title
+    plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
+    plt.rc('axes', labelsize=SMALL_SIZE)    # fontsize of the x and y labels
+    plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+    plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+    plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
+    plt.rc('figure', titlesize=SMALL_SIZE)  # fontsize of the figure title
 
     # Foraging data
     ablation = np.load(
@@ -432,7 +432,7 @@ def plot_power_efficiency_subplots():
         '/tmp/EvoNestMNewPPA1_power_efficiency_addition.npy',
         allow_pickle=True)
 
-    fig = plt.figure(figsize=(6, 4), dpi=300)
+    fig = plt.figure(figsize=(6, 4), dpi=1600)
     ax1 = fig.add_subplot(2, 4, 1)
     ax2 = fig.add_subplot(2, 4, 5)
     ax3 = fig.add_subplot(2, 4, 2)
@@ -543,6 +543,8 @@ def plot_power_efficiency_subplots():
 
     fig.savefig(
         maindir + '/' + fname + '.png')
+    fig.savefig(
+        maindir + '/' + fname + '.eps')
     # pylint: disable = E1101
 
     plt.close(fig)
@@ -654,7 +656,7 @@ def power_efficiency_curve_lt_st_ltr_gs():
 
 
 def main():
-    ablation_efficiency_power()
+    # ablation_efficiency_power()
     # distortion_efficiency_power()
     # addition_efficiency_power(fname="EvoCoevolutionPPA")
     # shift_efficiency_power()
@@ -664,7 +666,7 @@ def main():
     # addition_efficiency_power(fname="EvoNestMNewPPA1")
     # shift_efficiency_power(fname="EvoNestMNewPPA1")
 
-    # plot_power_efficiency_subplots()
+    plot_power_efficiency_subplots()
 
     # addition_efficiency_power(fname="EvoCoevolutionPPAAd")
     # ip_ltr_gsr_relationship()
