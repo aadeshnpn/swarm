@@ -1909,7 +1909,7 @@ def ip_paper_efficiency_power(t=5):
         n=100, iter=12000, threshold=t, time=10000, iprob=i,
         addobject='None',no_objects=1, radius=5, idx=[2])), axis=0) for i in ip]
 
-    fig = plt.figure(figsize=(6,4), dpi=200)
+    fig = plt.figure(figsize=(6,4), dpi=1200)
     ax1 = fig.add_subplot(1, 1, 1)
 
     xvalues = np.array(list(range(12002)))
@@ -2128,7 +2128,7 @@ def st_paper_efficiency_power_boxplot_all():
     positions = [
         [1, 2, 3], [5, 6, 7], [9, 10, 11], [13, 14, 15]
         ]
-    fig = plt.figure(figsize=(6,4), dpi=200)
+    fig = plt.figure(figsize=(6,4), dpi=1200)
     ax1 = fig.add_subplot(1, 1, 1)
     colordict = {
         0: 'gold',
@@ -2412,6 +2412,115 @@ def ants22_paper_efficiency_power_obstacles(t=7):
     plt.close(fig)
 
 
+def ants22_fig_2():
+    ips = [0.8, 0.85, 0.9]
+    thresholds = [5, 7, 10, 15]
+    datas = {}
+    for t in thresholds:
+        data100 = [read_data_n_agent_perturbations(
+            n=100, iter=12000, threshold=t, time=10000, iprob=ip)[:,-1] for ip in ips]
+        datas[t] = data100
+    positions = [
+        [1, 2, 3], [5, 6, 7], [9, 10, 11], [13, 14, 15]
+        ]
+    fig = plt.figure(figsize=(8,4), dpi=1200)
+
+    ax1 = fig.add_subplot(1, 2, 2)
+    colordict = {
+        0: 'gold',
+        1: 'linen',
+        2: 'orchid',
+        3: 'peru',
+        4: 'olivedrab',
+        5: 'indianred',
+        6: 'tomato'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+
+    # labels = [ "> n/"+str(a) for a in thresholds]
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    for i in range(len(thresholds)):
+        # print([d[0].shape for d in datas[i]])
+        # print(datas[thresholds[i]], len(datas[thresholds[i]]))
+        bp1 = ax1.boxplot(
+            datas[thresholds[i]], 0, 'gD', showmeans=True, meanline=True,
+            patch_artist=True, medianprops=medianprops,
+            meanprops=meanprops, widths=0.8, positions = positions[i])
+        for patch, color in zip(bp1['boxes'], colordict.values()):
+            patch.set_facecolor(color)
+
+    ax1.legend(zip(bp1['boxes']), ips, fontsize="small", loc="upper right", title='IP')
+
+    ax1.set_xticks([2,6,10,14])
+    ax1.set_xticklabels(thresholds)
+    ax1.set_yticks(range(0, 105, 20))
+    ax1.set_xlabel('Storage Threshold (ST)', fontsize="large")
+    # ax1.set_ylabel('Foraging (%)', fontsize="large")
+
+    ip = [0.5, 0.7, 0.8, 0.85, 0.9, 0.99]
+    axeslimitdict = {
+        0:[(11500,12002), (75,95)]
+        }
+    data = [np.median(np.squeeze(read_data_n_agent_perturbations_all(
+        n=100, iter=12000, threshold=7, time=10000, iprob=i,
+        addobject='None',no_objects=1, radius=5, idx=[2])), axis=0) for i in ip]
+
+    # fig = plt.figure(figsize=(6,4), dpi=1200)
+    ax2 = fig.add_subplot(1, 2, 1)
+
+    xvalues = np.array(list(range(12002)))
+    mask = xvalues % 1000 == 0
+    colors = []
+    for i in range(len(ip)):
+        p = ax2.plot(xvalues[mask], data[i][mask], marker="v", ls='-', label=str(ip[i]))
+        colors += [p[0].get_color()]
+
+    ax_zoom = ax2.inset_axes([0.12,0.5,0.47,0.47])
+    ax_zoom.patch.set_alpha(0.5)
+
+    data100 = [read_data_n_agent_perturbations(
+        n=100, iter=12000, threshold=7, time=10000, iprob=i)[:,-1] for i in ip]
+    colordict = {
+        0: 'gold',
+        1: 'linen',
+        2: 'orchid',
+        3: 'peru',
+        4: 'olivedrab',
+        5: 'indianred',
+        6: 'tomato'}
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    bp1 = ax_zoom.boxplot(
+        data100, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, widths=0.8)
+    for patch, color in zip(bp1['boxes'], colors):
+        patch.set_facecolor(color)
+
+    ax_zoom.set_yticks(range(0, 105, 20))
+    ax_zoom.set_xticklabels(ip)
+    ax2.set_yticks(range(0, 105, 20))
+    ax2.set_xlabel('Steps', fontsize="large")
+    ax2.set_ylabel('Foraging (%)', fontsize="large")
+    ax2.legend(fontsize="small", loc="center right", title='IPs')
+
+    plt.tight_layout()
+    maindir = '/tmp/swarm/data/experiments'
+    fname = 'figure2'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+    # pylint: disable = E1101
+
+    plt.close(fig)
+
+
 def main():
     # plot_evolution_algo_performance_boxplot()
     # plot_evolution_algo_performance()
@@ -2466,7 +2575,8 @@ def main():
     # ants22_paper_efficiency_power_obstacles(t=7)
     # ip_paper_efficiency_power(t=7)
     # plot_shift_foraging_lt_on_off()
-    st_paper_efficiency_power_boxplot_all()
+    # st_paper_efficiency_power_boxplot_all()
+    ants22_fig_2()
 
 
 if __name__ == '__main__':
