@@ -19,7 +19,7 @@ def plot_locality(locality, reversemap, begin=0, end=3000):
         'MoveTowards': 4, 'MoveAway': 5
     }
 
-    fig = plt.figure(figsize=(10, 6), dpi=300)
+    fig = plt.figure(figsize=(10, 6), dpi=1200)
     ax1 = fig.add_subplot(1, 1, 1)
     plt.rcParams["legend.markerscale"] = 0.5
     ax1.spines['top'].set_color('none')
@@ -42,16 +42,34 @@ def plot_locality(locality, reversemap, begin=0, end=3000):
             label=list(
                 simple_behavior_number.keys())[j-1])
 
-    ax1.set_xticks(range(-50, 51, 10))
-    ax1.set_yticks(range(-50, 51, 10))
-    # ax1.set_xlabel(list(range(-50, 51, 10)), fontsize="large")
-    # ax1.set_ylabel(list(range(-50, 51, 10)), fontsize="large")
+    ax1.set_xticks(
+        range(-50, 51, 10), labels=range(-50, 51, 10), fontsize="x-large")
+    ax1.set_yticks(
+        range(-50, 51, 10), labels=range(-50, 51, 10), fontsize="x-large")
     plt.xlim(-50, 50)
     plt.ylim(-50, 50)
 
-    plt.legend(
-        fontsize="large", bbox_to_anchor=(1.04, 1),
-        borderaxespad=0)
+    # plt.legend(
+    #     fontsize="large", bbox_to_anchor=(1.04, 1),
+    #     borderaxespad=0)
+
+    plt.legend(fontsize="x-large", loc="lower left")
+
+    bbox_props = dict(boxstyle="round", fc="w", ec="0.5", alpha=0.9)
+    ax1.text(-30, 20, "Site", ha="center", va="center", size=20,
+            bbox=bbox_props)
+    ax1.text(0, -10, "Hub", ha="center", va="center", size=20,
+            bbox=bbox_props)
+
+
+    # bbox_props = dict(boxstyle="rarrow", fc=(0.8, 0.9, 0.9), ec="b", lw=2)
+    # t = ax1.text(0, 0, "Direction", ha="center", va="center", rotation=45,
+    #             size=15,
+    #             bbox=bbox_props)
+
+    # bb = t.get_bbox_patch()
+    # bb.set_boxstyle("rarrow", pad=0.6)
+
     plt.tight_layout()
     maindir = '/tmp/swarm/data/experiments/locality'
     fname = 'locality_all_' + str(begin) + '_' + str(end) + '_'
@@ -261,24 +279,24 @@ def compute_state_transition(agents, reversemap, static_objs):
 
 
 def main():
-    # locality, reversemap = np.load(
-    #     '/home/aadeshnpn/Desktop/coevolution/ANTS/locality.npy',
-    #     allow_pickle=True)
+    locality, reversemap = np.load(
+        '/home/aadeshnpn/Desktop/coevolution/ANTS/locality.npy',
+        allow_pickle=True)
 
-    agents, reversemap = np.load(
-        '/tmp/visual.npy',
-        allow_pickle=True)
-    static_objs = np.load(
-        '/tmp/staticobjs.npy',
-        allow_pickle=True)
-    # plot_locality(
-    #     locality, reversemap, begin=0, end=3000)
+    plot_locality(
+        locality, reversemap, begin=0, end=3000)
     # plot_locality(
     #     locality, reversemap, begin=0, end=2000)
 
+    # agents, reversemap = np.load(
+    #     '/tmp/visual.npy',
+    #     allow_pickle=True)
+    # static_objs = np.load(
+    #     '/tmp/staticobjs.npy',
+    #     allow_pickle=True)
     # plot_locality_gif(locality, reversemap, frames=50)
     # plot_foraging_gif(agents, reversemap, static_objs, frames=1)
-    compute_state_transition(agents, reversemap, static_objs)
+    # compute_state_transition(agents, reversemap, static_objs)
 
 
 if __name__ == "__main__":
