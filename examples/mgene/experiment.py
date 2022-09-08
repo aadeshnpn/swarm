@@ -121,15 +121,15 @@ def sortbehavior(brepotire):
 def static_bheavior_test(args, agents, pname):
     # xmlstrings = [[gene.phenotype for gene in agent.brepotire.values()] for agent in agents if len(agent.brepotire.values())>3]
     for sample in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
-        pname = pname + '/' + str(sample)
+        pname_static = pname + '/' + str(sample)
         xmlstrings = filter_agents(agents, ratio=sample)
         # print(xmlstrings)
         env = SimCoevoModel(
             args.n, width, height, 10, iter=args.iter, xmlstrings=xmlstrings,
-            expsite=30, pname=pname)
+            expsite=30, pname=pname_static)
         env.build_environment_from_json()
         JsonPhenotypeData.to_json(
-            xmlstrings, pname + '/' + env.runid + '_all_' + str(sample) + '_.json')
+            xmlstrings, pname_static + '/' + env.runid + '_all_' + str(sample) + '_.json')
         results = SimulationResults(
             env.pname, env.connect, env.sn, env.stepcnt, env.food_in_hub(), None)
         results.save_to_file()

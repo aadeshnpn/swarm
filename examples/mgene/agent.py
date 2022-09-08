@@ -447,12 +447,13 @@ class ExecutingAgent(CoevoAgent):
         self.current_behavior_counter = 0
 
 
-    def create_root_node(self, node):
+    def create_root_node(self, nodes):
         root = Sequence('RootAll')
         # root = Parallel('RootAll')
         # self.model.random.shuffle(bts)
         # root.add_children(bts[self.current_behavior_counter])
-        root.add_children([node])
+        # root.add_children([node])
+        root.add_children(nodes)
         return BehaviourTree(root)
 
     def construct_bt(self):
@@ -474,9 +475,13 @@ class ExecutingAgent(CoevoAgent):
         # root = Parallel('RootAll')
         # self.model.random.shuffle(bts)
         # root.add_children(bts[self.current_behavior_counter])
+        # self.bt.behaviour_tree = self.create_root_node(
+        #     self.bts[self.current_behavior_counter])
+        # self.current_behavior_counter += 1
+        # print(self.bts, len(self.bts))
         self.bt.behaviour_tree = self.create_root_node(
-            self.bts[self.current_behavior_counter])
-        self.current_behavior_counter += 1
+            self.bts)
+
         # Condition to change between different behaviors
         # If found any neighbours, then change behaviors
         # py_trees.display.render_dot_tree(
@@ -500,11 +505,11 @@ class ExecutingAgent(CoevoAgent):
         self.bt.behaviour_tree.tick()
 
         # If some condition meet change the behavior
-        if self.check_conditions():
-            del self.bt.behaviour_tree
-            self.bt.behaviour_tree = self.create_root_node(
-                self.bts[self.current_behavior_counter % len(self.bts)])
-            self.current_behavior_counter += 1
+        # if self.check_conditions():
+        #     del self.bt.behaviour_tree
+        #     self.bt.behaviour_tree = self.create_root_node(
+        #         self.bts[self.current_behavior_counter % len(self.bts)])
+        #     self.current_behavior_counter += 1
 
         # Find the no.of food collected from the BT execution
         # self.food_collected = len(self.get_food_in_hub())
