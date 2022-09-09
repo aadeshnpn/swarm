@@ -145,11 +145,11 @@ def static_bheavior_test(args, agents, pname):
 def static_bheavior_test_from_json(args):
     xmlstrings = JsonPhenotypeData.load_json_file(args.fname)
     xmlstrings = xmlstrings['phenotypes']
-    print(len(xmlstrings))
-    for sample in [0.999]: #, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
+    # print(len(xmlstrings))
+    for sample in [0.5]: # [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
         pname = '/tmp/swarm/data/experiments/'+ str(sample) + '/'
         # print(xmlstrings)
-        # xmlstrings = xmlstrings[:int(len(xmlstrings)*sample)]
+        xmlstrings = xmlstrings[:int(len(xmlstrings)*sample)]
         env = SimCoevoModel(
             args.n, width, height, 10, iter=args.iter, xmlstrings=xmlstrings,
             expsite=30, pname=pname)

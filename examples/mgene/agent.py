@@ -445,17 +445,18 @@ class ExecutingAgent(CoevoAgent):
         self.blackboard.register_key(key='neighbourobj', access=common.Access.WRITE)
         self.blackboard.neighbourobj = dict()
         self.current_behavior_counter = 0
+        self.timer = 0
 
 
     def create_root_node(self, nodes):
         # root = Sequence('RootAll')
-        root = Selector('RootAll')
+        # root = Selector('RootAll')
         # root = Parallel('RootAll')
         # self.model.random.shuffle(bts)
         # root.add_children(bts[self.current_behavior_counter])
         # root.add_children([node])
-        root.add_children(nodes)
-        return BehaviourTree(root)
+        # root.add_children(nodes)
+        return BehaviourTree(nodes)
 
     def construct_bt(self):
         """Construct BT."""
@@ -469,8 +470,18 @@ class ExecutingAgent(CoevoAgent):
         for i in range(len(self.xmlstring)):
             bt = BTConstruct(None, self, self.xmlstring[i])
             bt.construct()
-            bts.append(bt.behaviour_tree.root)
+            # bts.append(bt.behaviour_tree.root)
+            bts.append(bt)
         self.bts = bts
+        self.post_conditions = []
+        for i in range(len(self.xmlstring)):
+            bt = BTConstruct(None, self, self.xmlstring[i])
+            bt.construct()
+            # bts.append(bt.behaviour_tree.root)
+            # bts.append(bt)
+            other_branch_id = bt.behaviour_tree.root.children[0].children[1].id
+            bt.behaviour_tree.prune_subtree(other_branch_id)
+            self.post_conditions.append(bt)
         # root = Selector('RootAll')
         # root = Sequence('RootAll')
         # root = Parallel('RootAll')
@@ -480,15 +491,30 @@ class ExecutingAgent(CoevoAgent):
         #     self.bts[self.current_behavior_counter])
         # self.current_behavior_counter += 1
         # print(self.bts, len(self.bts))
-        self.bt.behaviour_tree = self.create_root_node(
-            self.bts)
+
+        # self.bt.behaviour_tree = self.create_root_node(
+        #     self.bts)
 
         # Condition to change between different behaviors
         # If found any neighbours, then change behaviors
         # py_trees.display.render_dot_tree(
         #    self.bt.behaviour_tree.root, name='/tmp/' + str(self.name))
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
-        # print(self.name, py_trees.display.ascii_tree(self.bt.behaviour_tree.root))
+        # for i in range(len(self.xmlstring)):
+        # print(self.name, py_trees.display.ascii_tree(self.bts[0].behaviour_tree.root))
+        # print(self.name, py_trees.display.ascii_tree(self.post_conditions[0].behaviour_tree.root))
+
+        # print(self.bts[0].behaviour_tree.root.children[0].children[0].children)
+        # postcondition_sequence = copy.copy(self.bts[0].behaviour_tree.root.children[0].children[0])
+        # all_postcondition = []
+        # for pconds in postcondition_sequence.children:
+        #     pconds_copy = copy.copy(pconds)
+        #     all_postcondition.append(pconds_copy)
+        # postcondition_sequence_new = Sequence('PC_Sequence')
+        # print(dir(pconds_copy))
+        # postcondition_sequence_new.add_children(all_postcondition)
+        # print('copied', postcondition_sequence_new.children)
+        # exit()
 
     def check_conditions(self):
         cellobjects = self.model.grid.get_objects_from_grid(
@@ -497,14 +523,35 @@ class ExecutingAgent(CoevoAgent):
         objects_of_interest = [ cell for cell in cellobjects if type(cell).__name__ in object_names]
         return True if len(objects_of_interest) > 0 else False
 
+    def check_post_condition(self):
+        curr_postcondition = self.post_conditions[self.current_behavior_counter % len(self.xmlstring)]
+        curr_postcondition.behaviour_tree.tick()
+        # if self.name == 0:
+        #     print(self.name, curr_postcondition.behaviour_tree.root.status, self.current_behavior_counter % len(self.xmlstring))
+        if curr_postcondition.behaviour_tree.root.status == Status.SUCCESS:
+            return True
+        else:
+            return False
+        # post_cond = curr_bt
+
+
     def step(self):
         """Agent action at a single time step."""
         # Maintain the location history of the agent
         # self.location_history.add(self.location)
 
         # Compute the behavior tree
-        self.bt.behaviour_tree.tick()
+        self.bts[self.current_behavior_counter % len(self.xmlstring)].behaviour_tree.tick()
 
+        # Check postcondition for that particular bt
+        if self.check_post_condition():
+            self.timer = 0
+            self.current_behavior_counter += 1
+        else:
+            if self.timer > 10:
+                self.timer = 0
+                self.current_behavior_counter += 1
+        self.timer += 1
         # If some condition meet change the behavior
         # if self.check_conditions():
         #     del self.bt.behaviour_tree
