@@ -146,22 +146,22 @@ def static_bheavior_test_from_json(args):
     xmlstrings = JsonPhenotypeData.load_json_file(args.fname)
     xmlstrings = xmlstrings['phenotypes']
     print(len(xmlstrings))
-    for sample in [1.0]: #, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
+    for sample in [0.999]: #, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
         pname = '/tmp/swarm/data/experiments/'+ str(sample) + '/'
         # print(xmlstrings)
-        xmlstrings = xmlstrings[:int(len(xmlstrings)*sample)]
+        # xmlstrings = xmlstrings[:int(len(xmlstrings)*sample)]
         env = SimCoevoModel(
             args.n, width, height, 10, iter=args.iter, xmlstrings=xmlstrings,
             expsite=30, pname=pname)
         env.build_environment_from_json()
-        for agent in env.agents:
-            agent.shared_content['Hub'] = {env.hub}
+        # for agent in env.agents:
+        #     agent.shared_content['Hub'] = {env.hub}
         # JsonPhenotypeData.to_json(xmlstrings, pname + '/' + env.runid + '_all.json')
         results = SimulationResults(
             env.pname, env.connect, env.sn, env.stepcnt, env.food_in_hub(), None)
         results.save_to_file()
 
-        for i in range(5000):
+        for i in range(12000):
             env.step()
             results = SimulationResults(
                 env.pname, env.connect, env.sn, env.stepcnt, env.food_in_hub(), None)

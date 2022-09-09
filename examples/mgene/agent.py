@@ -448,7 +448,8 @@ class ExecutingAgent(CoevoAgent):
 
 
     def create_root_node(self, nodes):
-        root = Sequence('RootAll')
+        # root = Sequence('RootAll')
+        root = Selector('RootAll')
         # root = Parallel('RootAll')
         # self.model.random.shuffle(bts)
         # root.add_children(bts[self.current_behavior_counter])
