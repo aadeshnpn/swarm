@@ -83,25 +83,28 @@ def learning_phase(args):
     env.experiment.update_experiment_simulation(foraging_percent, success)
     # phenotypes = env.behavior_sampling(ratio_value=0.99)
     # print(phenotypes)
-    phenotypes = filter_agents(env.agents, ratio=0.999)
+    # phenotypes = filter_agents(env.agents, ratio=0.999)
+    phenotypes = [[gene.phenotype for gene in agent.brepotire.values()] for agent in env.agents]
     JsonPhenotypeData.to_json(phenotypes, env.pname + '/' + env.runid + '_all.json')
     # csize = compute_controller_size(env.agents)
     # JsonPhenotypeData.to_json(csize, env.pname + '/' + env.runid + 'shape.json')
     # print(env.agents[0].brepotire)
-    if foraging_percent > 5:
+    if foraging_percent > 70:
         static_bheavior_test(args, env.agents, env.pname)
 
 
-def filter_agents(agents, ratio=0.1):
+def filter_agents(agents):
     # xmlstrings = [[gene.phenotype for gene in agent.brepotire.values()] for agent in agents if len(agent.brepotire.values())>3]
     filteredagents = {}
-    # for agent in agents:
-    #     if len(agent.brepotire.values()) >=4:
-    #         filteredagents[agent] = np.average([gene.fitness for gene in agent.brepotire.values()])
-    # sortedagents = dict(sorted(filteredagents.items(), key=lambda item: item[1], reverse=True))
+    for agent in agents:
+        if len(agent.brepotire.values()) >=4:
+            filteredagents[agent] = np.average([gene.fitness for gene in agent.brepotire.values()])
+    sortedagents = dict(sorted(filteredagents.items(), key=lambda item: item[1], reverse=True))
+    return sortedagents
     # sortedagents = list(sortedagents.keys())[: int(len(sortedagents)*ratio)]
     # return [[gene.phenotype for gene in sortbehavior(agent.brepotire)] for agent in sortedagents]
-    return [[gene.phenotype for gene in agent.brepotire.values()] for agent in agents]
+
+    # return [[gene.phenotype for gene in agent.brepotire.values()] for agent in agents]
 
 
 def sortbehavior(brepotire):
@@ -120,10 +123,15 @@ def sortbehavior(brepotire):
 
 def static_bheavior_test(args, agents, pname):
     # xmlstrings = [[gene.phenotype for gene in agent.brepotire.values()] for agent in agents if len(agent.brepotire.values())>3]
+    sortedagentsall = filter_agents(agents)
+    # print('sorted agents', len(sortedagentsall))
     for sample in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
         pname_static = pname + '/' + str(sample)
-        xmlstrings = filter_agents(agents, ratio=sample)
-        # print(xmlstrings)
+        sortedagents = list(sortedagentsall.keys())[: int(len(sortedagentsall)*sample)]
+        # print('sample soreted agents', len(sortedagents))
+        # xmlstrings = [[gene.phenotype for gene in sortbehavior(agent.brepotire)] for agent in sortedagents]
+        xmlstrings = [[gene.phenotype for gene in agent.brepotire.values()] for agent in sortedagents]
+        # print('xmlstrings', len(xmlstrings))
         env = SimCoevoModel(
             args.n, width, height, 10, iter=args.iter, xmlstrings=xmlstrings,
             expsite=30, pname=pname_static)
@@ -134,7 +142,7 @@ def static_bheavior_test(args, agents, pname):
             env.pname, env.connect, env.sn, env.stepcnt, env.food_in_hub(), None)
         results.save_to_file()
 
-        for i in range(3000):
+        for i in range(12000):
             env.step()
             results = SimulationResults(
                 env.pname, env.connect, env.sn, env.stepcnt, env.food_in_hub(), None)
@@ -143,13 +151,13 @@ def static_bheavior_test(args, agents, pname):
 
 
 def static_bheavior_test_from_json(args):
-    xmlstrings = JsonPhenotypeData.load_json_file(args.fname)
-    xmlstrings = xmlstrings['phenotypes']
+    xmlstringsall = JsonPhenotypeData.load_json_file(args.fname)
+    xmlstringsall = xmlstringsall['phenotypes']
     # print(len(xmlstrings))
-    for sample in [0.5]: # [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
+    for sample in [0.4]: # [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
         pname = '/tmp/swarm/data/experiments/'+ str(sample) + '/'
         # print(xmlstrings)
-        xmlstrings = xmlstrings[:int(len(xmlstrings)*sample)]
+        xmlstrings = xmlstringsall[:int(len(xmlstringsall)*sample)]
         env = SimCoevoModel(
             args.n, width, height, 10, iter=args.iter, xmlstrings=xmlstrings,
             expsite=30, pname=pname)
