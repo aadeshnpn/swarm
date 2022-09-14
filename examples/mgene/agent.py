@@ -199,16 +199,17 @@ class LearningAgent(CoevoAgent):
             lambda x: x.name.split('_')[-1] == 'Act', allnodes)
             )
         if len(actions) == 1 and actions[0].status == Status.SUCCESS:
-            if type(actions[0]).__name__ in ['MoveTowardsNormal', 'MoveAwayNormal']:
-                action_key = type(actions[0]).__name__ + '_' + actions[0].item
-            else:
-                action_key = type(actions[0]).__name__
+            # if type(actions[0]).__name__ in ['MoveTowardsNormal', 'MoveAwayNormal']:
+            #     action_key = type(actions[0]).__name__ + '_' + actions[0].item
+            # else:
+            #     action_key = type(actions[0]).__name__
+            action_key = type(actions[0]).__name__
             val = self.brepotire.get(action_key, None)
             if val == None:
                 self.brepotire[action_key] = self.individual[0]
-            # else:
-            #     if val.fitness < self.individual[0].fitness:
-            #         self.brepotire[type(actions[0]).__name__] = self.individual[0]
+            else:
+                if val.fitness < self.individual[0].fitness:
+                    self.brepotire[action_key] = self.individual[0]
 
     def update_brepotire_others(self, cell):
         allnodes = list(cell.bt.behaviour_tree.root.iterate())
@@ -548,7 +549,7 @@ class ExecutingAgent(CoevoAgent):
             self.timer = 0
             self.current_behavior_counter += 1
         else:
-            if self.timer > 10:
+            if self.timer > 50:
                 self.timer = 0
                 self.current_behavior_counter += 1
         self.timer += 1

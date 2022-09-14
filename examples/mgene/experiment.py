@@ -83,8 +83,8 @@ def learning_phase(args):
     env.experiment.update_experiment_simulation(foraging_percent, success)
     # phenotypes = env.behavior_sampling(ratio_value=0.99)
     # print(phenotypes)
-    # phenotypes = filter_agents(env.agents, ratio=0.999)
-    phenotypes = [[gene.phenotype for gene in agent.brepotire.values()] for agent in env.agents]
+    phenotypes = filter_agents(env.agents)
+    # phenotypes = [[gene.phenotype for gene in agent.brepotire.values()] for agent in env.agents]
     JsonPhenotypeData.to_json(phenotypes, env.pname + '/' + env.runid + '_all.json')
     # csize = compute_controller_size(env.agents)
     # JsonPhenotypeData.to_json(csize, env.pname + '/' + env.runid + 'shape.json')
@@ -98,11 +98,11 @@ def filter_agents(agents):
     filteredagents = {}
     for agent in agents:
         if len(agent.brepotire.values()) >=4:
-            filteredagents[agent] = np.average([gene.fitness for gene in agent.brepotire.values()])
+            filteredagents[agent] = np.max([gene.fitness for gene in agent.brepotire.values()])
     sortedagents = dict(sorted(filteredagents.items(), key=lambda item: item[1], reverse=True))
-    return sortedagents
+    # return sortedagents
     # sortedagents = list(sortedagents.keys())[: int(len(sortedagents)*ratio)]
-    # return [[gene.phenotype for gene in sortbehavior(agent.brepotire)] for agent in sortedagents]
+    return [[gene.phenotype for gene in sortbehavior(agent.brepotire)] for agent in sortedagents]
 
     # return [[gene.phenotype for gene in agent.brepotire.values()] for agent in agents]
 
@@ -116,9 +116,9 @@ def sortbehavior(brepotire):
     # print(names)
     # return [brepotire[k] for k in names]
     # brepotire = {gene:gene.fitness for gene in brepotire.values()}
-    # sortedbehavior = dict(sorted(brepotire.items(), key=lambda item: item[1]))
-    # return list(sortedbehavior.keys())
-    pass
+    sortedbehavior = dict(sorted(brepotire.items(), key=lambda item: item[1].fitness))
+    return list(sortedbehavior.values())
+    # return sortedbehavior
 
 
 def static_bheavior_test(args, agents, pname):
@@ -154,7 +154,7 @@ def static_bheavior_test_from_json(args):
     xmlstringsall = JsonPhenotypeData.load_json_file(args.fname)
     xmlstringsall = xmlstringsall['phenotypes']
     # print(len(xmlstrings))
-    for sample in [0.4]: # [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
+    for sample in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
         pname = '/tmp/swarm/data/experiments/'+ str(sample) + '/'
         # print(xmlstrings)
         xmlstrings = xmlstringsall[:int(len(xmlstringsall)*sample)]
