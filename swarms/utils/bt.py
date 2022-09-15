@@ -201,7 +201,7 @@ class BTComplexConstruct(BTConstruct):
                 method = node_text
                 if root.tag == 'Act':
                     xmlstring = self.agent.brepotire[method].phenotype
-                    bt = BTConstruct(None, self, xmlstring)
+                    bt = BTConstruct(None, self.agent, xmlstring)
                     bt.construct()
                     behavior = bt.behaviour_tree.root
                 else:

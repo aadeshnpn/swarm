@@ -127,10 +127,11 @@ def static_bheavior_test(args, agents, pname):
     # print('sorted agents', len(sortedagentsall))
     for sample in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
         pname_static = pname + '/' + str(sample)
-        sortedagents = list(sortedagentsall.keys())[: int(len(sortedagentsall)*sample)]
+        # sortedagents = list(sortedagentsall.keys())[: int(len(sortedagentsall)*sample)]
+        xmlstrings = sortedagentsall[: int(len(sortedagentsall)*sample)]
         # print('sample soreted agents', len(sortedagents))
         # xmlstrings = [[gene.phenotype for gene in sortbehavior(agent.brepotire)] for agent in sortedagents]
-        xmlstrings = [[gene.phenotype for gene in agent.brepotire.values()] for agent in sortedagents]
+        # xmlstrings = [[gene.phenotype for gene in agent.brepotire.values()] for agent in sortedagents]
         # print('xmlstrings', len(xmlstrings))
         env = SimCoevoModel(
             args.n, width, height, 10, iter=args.iter, xmlstrings=xmlstrings,

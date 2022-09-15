@@ -549,7 +549,7 @@ class ExecutingAgent(CoevoAgent):
             self.timer = 0
             self.current_behavior_counter += 1
         else:
-            if self.timer > 50:
+            if self.timer > 100:
                 self.timer = 0
                 self.current_behavior_counter += 1
         self.timer += 1

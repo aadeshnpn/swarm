@@ -48,8 +48,8 @@ class SwarmMoveTowards(Agent):
         # Grammatical Evolution part
         from ponyge.algorithm.parameters import Parameters
         parameter = Parameters()
-        parameter_list = ['--parameters', '../..,test_new.txt']
-        parameter.params['RANDOM_SEED'] = 123
+        parameter_list = ['--parameters', '../..,test_new_complex.txt']
+        parameter.params['RANDOM_SEED'] = 1235
         parameter.params['POPULATION_SIZE'] = 10 // 2
         parameter.set_params(parameter_list)
         self.parameter = parameter
@@ -59,13 +59,13 @@ class SwarmMoveTowards(Agent):
         print(self.name, 'test new',  individual[0].phenotype)
         self.individual = individual
         # print(individual[0])
-        # self.bt = BTConstruct(None, self)
-        # self.bt.xmlstring = self.individual[0].phenotype
+        self.bt = BTConstruct(None, self)
+        self.bt.xmlstring = self.individual[0].phenotype
         # Construct actual BT from xmlstring
-        # self.bt.construct()
+        self.bt.construct()
         # # Debugging stuffs for py_trees
-        # # py_trees.logging.level = py_trees.logging.Level.DEBUG
-        # # print(py_trees.display.ascii_tree(self.bt.behaviour_tree.root))
+        py_trees.logging.level = py_trees.logging.Level.DEBUG
+        print(py_trees.display.ascii_tree(self.bt.behaviour_tree.root))
         # self.blackboard = blackboard.Client(name=str(name))
         # self.blackboard.register_key(key='neighbourobj', access=common.Access.WRITE)
         # self.blackboard.neighbourobj = dict()
