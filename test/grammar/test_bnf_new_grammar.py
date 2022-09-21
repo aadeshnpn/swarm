@@ -27,7 +27,7 @@ from ponyge.operators.crossover import crossover
 from ponyge.operators.mutation import mutation
 from ponyge.operators.replacement import replacement
 from ponyge.operators.selection import selection
-from swarms.utils.bt import BTConstruct
+from swarms.utils.bt import BTComplexConstruct
 
 
 class SwarmMoveTowards(Agent):
@@ -48,7 +48,7 @@ class SwarmMoveTowards(Agent):
         # Grammatical Evolution part
         from ponyge.algorithm.parameters import Parameters
         parameter = Parameters()
-        parameter_list = ['--parameters', '../..,test_new_complex.txt']
+        parameter_list = ['--parameters', '../..,test_new.txt']
         parameter.params['RANDOM_SEED'] = 1235
         parameter.params['POPULATION_SIZE'] = 10 // 2
         parameter.set_params(parameter_list)
@@ -59,7 +59,7 @@ class SwarmMoveTowards(Agent):
         print(self.name, 'test new',  individual[0].phenotype)
         self.individual = individual
         # print(individual[0])
-        self.bt = BTConstruct(None, self)
+        self.bt = BTComplexConstruct(None, self)
         self.bt.xmlstring = self.individual[0].phenotype
         # Construct actual BT from xmlstring
         self.bt.construct()

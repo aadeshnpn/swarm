@@ -8,7 +8,7 @@ from swarms.behaviors.sbehaviors import (
     NeighbourObjects)
 import numpy as np
 from swarms.lib.agent import Agent
-from swarms.utils.bt import BTConstruct
+from swarms.utils.bt import BTConstruct, BTComplexConstruct
 from swarms.utils.results import Results    # noqa : F401
 
 from ponyge.operators.initialisation import initialisation
@@ -432,6 +432,16 @@ class LearningAgent(CoevoAgent):
                 self.genetic_step()
 
 
+class CombiningAgent(LearningAgent):
+    """Agent that combines the simple controllers."""
+
+    def __init__(self, name, model, brepotire, threshold=10):
+        """Initialize the agent."""
+        super().__init__(name, model, threshold)
+        self.brepotire = brepotire
+        self.bt = BTComplexConstruct(None, self)
+
+
 class ExecutingAgent(CoevoAgent):
     """A coevolution swarm agent.
 
@@ -548,10 +558,10 @@ class ExecutingAgent(CoevoAgent):
         if self.check_post_condition():
             self.timer = 0
             self.current_behavior_counter += 1
-        else:
-            if self.timer > 100:
-                self.timer = 0
-                self.current_behavior_counter += 1
+        # else:
+        #     if self.timer > 40:
+        #         self.timer = 0
+        #         self.current_behavior_counter += 1
         self.timer += 1
         # If some condition meet change the behavior
         # if self.check_conditions():

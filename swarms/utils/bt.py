@@ -159,7 +159,7 @@ class BTComplexConstruct(BTConstruct):
             agent: agent object
             xmlstring: xml stream instead of file
         """
-        super.__init__(self, filename, xmlstring, agent)
+        super().__init__(filename, agent, xmlstring)
 
     def create_bt(self, root):
         """Recursive method to construct BT."""

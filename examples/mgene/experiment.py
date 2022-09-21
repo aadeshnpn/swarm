@@ -1,13 +1,12 @@
 """Experiment script to run coevolution simulation."""
 
-from copyreg import pickle
-from unittest import result
 import numpy as np
 # import pdb
 # import hashlib
 # import sys
 import argparse
-from model import EvolveModel, SimCoevoModel
+import pickle
+from model import CombineModel, EvolveModel, SimCoevoModel
 from swarms.utils.jsonhandler import JsonPhenotypeData
 from swarms.utils.graph import Graph, GraphACC  # noqa : F401
 from joblib import Parallel, delayed    # noqa : F401
@@ -78,19 +77,24 @@ def learning_phase(args):
     foraging_percent = env.foraging_percent()
     if foraging_percent > 5:
         success = True
+        # Save the behavior tree repotires.
+        with open('/tmp/behaviors.pickle', 'wb') as handle:
+            pickle.dump(filter_brepotires(env.agents), handle, protocol=pickle.HIGHEST_PROTOCOL)
+        combine_controllers(args, env.agents, env.pname)
     else:
         success = False
-    env.experiment.update_experiment_simulation(foraging_percent, success)
-    # phenotypes = env.behavior_sampling(ratio_value=0.99)
-    # print(phenotypes)
-    phenotypes = filter_agents(env.agents)
-    # phenotypes = [[gene.phenotype for gene in agent.brepotire.values()] for agent in env.agents]
-    JsonPhenotypeData.to_json(phenotypes, env.pname + '/' + env.runid + '_all.json')
-    # csize = compute_controller_size(env.agents)
-    # JsonPhenotypeData.to_json(csize, env.pname + '/' + env.runid + 'shape.json')
-    # print(env.agents[0].brepotire)
-    if foraging_percent > 70:
-        static_bheavior_test(args, env.agents, env.pname)
+
+    # env.experiment.update_experiment_simulation(foraging_percent, success)
+    # # phenotypes = env.behavior_sampling(ratio_value=0.99)
+    # # print(phenotypes)
+    # phenotypes = filter_agents(env.agents)
+    # # phenotypes = [[gene.phenotype for gene in agent.brepotire.values()] for agent in env.agents]
+    # JsonPhenotypeData.to_json(phenotypes, env.pname + '/' + env.runid + '_all.json')
+    # # csize = compute_controller_size(env.agents)
+    # # JsonPhenotypeData.to_json(csize, env.pname + '/' + env.runid + 'shape.json')
+    # # print(env.agents[0].brepotire)
+    # if foraging_percent > 70:
+    #     static_bheavior_test(args, env.agents, env.pname)
 
 
 def filter_agents(agents):
@@ -119,6 +123,32 @@ def sortbehavior(brepotire):
     sortedbehavior = dict(sorted(brepotire.items(), key=lambda item: item[1].fitness))
     return list(sortedbehavior.values())
     # return sortedbehavior
+
+
+def filter_brepotires(agents):
+    return [agent.brepotire for agent in agents]
+
+
+def combine_controllers(args, agents=None, pname='/tmp'):
+    # brepotires = filter_brepotires(agents)
+    pname = '/tmp/swarm/data/experiments/'
+    with open('/tmp/behaviors.pickle', 'rb') as handle:
+        brepotires = pickle.load(handle)
+
+    env = CombineModel(
+        args.n, width, height, 10, iter=args.iter, name=pname,
+        brepotires=brepotires, args=args)
+    env.build_environment_from_json()
+    env.create_agents()
+    results = SimulationResults(
+            env.pname, env.connect, env.sn, env.stepcnt, env.foraging_percent(), None)
+    results.save_to_file()
+
+    for i in range(2):
+        env.step()
+        results = SimulationResults(
+            env.pname, env.connect, env.sn, env.stepcnt, env.foraging_percent(), None)
+        results.save_to_file()
 
 
 def static_bheavior_test(args, agents, pname):
@@ -219,6 +249,16 @@ def standard_evolution(args):
                     delayed(learning_phase)(args) for i in range(
                         args.runs))
 
+def combine_controller_exp(args):
+    if args.threads <= 1:
+        for i in range(args.runs):
+            combine_controllers(args)
+    else:
+        Parallel(
+                n_jobs=args.threads)(
+                    delayed(combine_controllers)(args) for i in range(
+                        args.runs))
+
 
 def static_behavior_test(args):
     # static_bheavior_test_from_json,
@@ -241,6 +281,7 @@ def experiments(args):
         0: standard_evolution,
         1: exp_varying_n_evolution,
         2: static_behavior_test,
+        3: combine_controller_exp
         # 3: single_evo,
         # 4: behavior_sampling_after,
         # 5: exp_with_size_trap

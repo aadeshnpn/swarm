@@ -10,7 +10,7 @@ from swarms.utils.jsonhandler import JsonData
 from swarms.utils.results import Best, Experiment
 from swarms.utils.db import Connect
 from swarms.utils.ui import UI
-from agent import LearningAgent, ExecutingAgent  # noqa : F041
+from agent import CombiningAgent, LearningAgent, ExecutingAgent  # noqa : F041
 from swarms.lib.objects import (    # noqa : F401
     Hub, Sites, Food, Debris, Obstacles, Traps, Boundary)
 import os
@@ -681,6 +681,51 @@ class EvolveModel(CoevolutionModel):
 
     def deactivate_stop_lateral_transfer(self):
         self.stop_lateral_transfer = False
+
+
+class CombineModel(EvolveModel):
+    """A environment to combine controllers."""
+
+    def __init__(
+            self, N, width, height, grid=10, iter=100000,
+            seed=None, name="EvoCoevolutionPPA", viewer=False, db=False,
+            threshold=10, gstep=200, expp=2, args=[], brepotires=None):
+        """Initialize the attributes."""
+        super(CombineModel, self).__init__(
+            N, width, height, grid, iter, seed, name, viewer, db=db,
+            threshold=threshold, gstep=gstep, expp=expp, args=args)
+        self.brepotires = brepotires
+
+    def create_agents(self, random_init=True):
+        """Initialize agents in the environment."""
+        # Create agents
+        for i in range(self.num_agents):
+            a = CombiningAgent(i, self, self.brepotires[i], self.threshold)
+            # Add agent to the scheduler
+            self.schedule.add(a)
+            # Add the hub to agents memory
+            a.shared_content['Hub'] = {self.hub}
+            # First intitialize the Genetic algorithm. Then BT
+            a.init_evolution_algo()
+            # Initialize the BT. Since the agents are evolutionary
+            # the bt will be random
+            a.construct_bt()
+
+            if random_init:
+                # Add the agent to a random grid cell
+                x = self.random.randint(
+                    -self.grid.width / 2, self.grid.width / 2)
+                y = self.random.randint(
+                    -self.grid.height / 2, self.grid.height / 2)
+            else:
+                try:
+                    x, y = self.hub.location
+                except AttributeError:
+                    x, y = 0, 0
+            a.location = (x, y)
+            self.grid.add_object_to_grid((x, y), a)
+            # a.operation_threshold = 2  # self.num_agents // 10
+            self.agents.append(a)
 
 
 class ValidationModel(CoevolutionModel):
