@@ -281,6 +281,7 @@ class LearningAgent(CoevoAgent):
         """Construct BT."""
         # Get the phenotype of the genome and store as xmlstring
         self.bt.xmlstring = self.individual[0].phenotype
+        # print(self.name, self.bt.xmlstring)
         # Construct actual BT from xmlstring
         self.bt.construct()
         # print(self.bt.xmlstring)
@@ -441,6 +442,113 @@ class CombiningAgent(LearningAgent):
         self.brepotire = brepotire
         self.bt = BTComplexConstruct(None, self)
 
+    def init_evolution_algo(self):
+        """Agent's GE algorithm operation defination."""
+        # Genetic algorithm parameters
+        self.operation_threshold = 50
+        self.genome_storage = []
+
+        # Grammatical Evolution part
+        from ponyge.algorithm.parameters import Parameters
+        parameter = Parameters()
+        parameter_list = ['--parameters', '../..,test_new.txt']
+        # Comment when different results is desired.
+        # Else set this for testing purpose
+        # parameter.params['RANDOM_SEED'] = name
+        # # np.random.randint(1, 99999999)
+        # Set GE runtime parameters
+        parameter.params['POPULATION_SIZE'] = self.operation_threshold // 2
+        parameter.set_params(parameter_list)
+        self.parameter = parameter
+        # Initialize the genome
+        individual = initialisation(self.parameter, size=3)
+        individual = evaluate_fitness(individual, self.parameter)
+        # Assign the genome to the agent
+        self.individual = individual
+        # Fitness
+        self.beta = 0.9
+        self.diversity_fitness = self.individual[0].fitness
+        self.individual[0].fitness = 0
+        self.generation = 0
+
+        self.delayed_cf = 0
+        self.delayed_ef = 0
+
+    def step(self):
+        """Take a step in the simulation."""
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
+
+        # Couting variables
+        self.timestamp += 1
+        self.step_count += 1
+        self.prev_location = copy.copy(self.location)
+        self.geneticrate = False
+        self.ltrate = 0
+        # Increase beta
+        # self.beta = self.timestamp / self.model.iter
+        # if self.name ==1:
+        # print(self.timestamp, self.name, len(self.trace))
+        if self.dead is False:
+            # Compute the behavior tree
+            self.bt.behaviour_tree.tick()
+
+            # Maintain location history
+            _, gridval = self.model.grid.find_grid(self.location)
+            self.location_history.add(gridval)
+
+            # Hash the phenotype with its fitness
+            # We need to move this from here to genetic step
+            self.ef = self.exploration_fitness()
+
+            # Computes overall fitness using Beta function
+            self.overall_fitness()
+            # print(self.name, self.individual[0].fitness)
+
+            self.phenotypes = dict()
+            self.phenotypes[self.individual[0].phenotype] = (
+                self.individual[0].fitness)
+
+            if not self.model.stop_lateral_transfer:
+                # Find the nearby agents
+                cellmates = self.model.grid.get_objects_from_grid(
+                    type(self).__name__, self.location)
+
+                # Interaction Probability with other agents
+                cellmates = [cell for cell in cellmates  if self.model.random.rand() < self.model.iprob and cell.dead is False]
+                # cellmates = [cell for cell in cellmates if cell.individual[0] not in self.genome_storage]
+                self.ltrate = len(cellmates)
+                # If neighbours found, store the genome
+                if len(cellmates) > 1:
+                    # cellmates = list(self.model.random.choice(
+                    #     cellmates, self.model.random.randint(
+                    #         1, len(cellmates)-1), replace=False))
+                    self.store_genome(cellmates)
+                    # Update behavior repotire
+                    # for cell in cellmates:
+                    #     self.update_brepotire_others(cell)
+
+            # Logic for gentic operations.
+            # If the genome storage has enough genomes and agents has done some
+            # exploration then compute the genetic step OR
+            # 200 time step has passed and the agent has not done anything useful
+            # then also perform genetic step
+            storage_threshold = len(
+                self.genome_storage) >= self.threshold
+            # (self.model.num_agents / (self.threshold* 1.0))
+
+            if storage_threshold:
+                self.geneticrate = storage_threshold
+                self.genetic_step()
+            elif (
+                    (
+                        storage_threshold is False and self.timestamp > self.model.gstep
+                        ) and (self.exploration_fitness() < self.model.expp)):
+                individual = initialisation(self.parameter, 10)
+                individual = evaluate_fitness(individual, self.parameter)
+                self.genome_storage = self.genome_storage + individual
+                self.genetic_step()
+
 
 class ExecutingAgent(CoevoAgent):
     """A coevolution swarm agent.
@@ -448,10 +556,12 @@ class ExecutingAgent(CoevoAgent):
     This agent will run the various behaviors evolved.
     """
 
-    def __init__(self, name, model, xmlstring=None):
+    def __init__(self, name, model, xmlstring=None, brepotire=None):
         """Initialize the agent."""
         super().__init__(name, model)
         self.xmlstring = xmlstring
+        self.brepotire = brepotire
+        self.bt = BTComplexConstruct(None, self)
         self.blackboard = blackboard.Client(name=str(self.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.WRITE)
         self.blackboard.neighbourobj = dict()
@@ -472,27 +582,28 @@ class ExecutingAgent(CoevoAgent):
     def construct_bt(self):
         """Construct BT."""
         # Get the phenotype of the genome and store as xmlstring
-        # self.bt.xmlstring = self.xmlstring
+        self.bt.xmlstring = self.xmlstring
         # # Construct actual BT from xmlstring
-        # self.bt.construct()
+        self.bt.construct()
 
         # New way to create BT
-        bts = []
-        for i in range(len(self.xmlstring)):
-            bt = BTConstruct(None, self, self.xmlstring[i])
-            bt.construct()
-            # bts.append(bt.behaviour_tree.root)
-            bts.append(bt)
-        self.bts = bts
-        self.post_conditions = []
-        for i in range(len(self.xmlstring)):
-            bt = BTConstruct(None, self, self.xmlstring[i])
-            bt.construct()
-            # bts.append(bt.behaviour_tree.root)
-            # bts.append(bt)
-            other_branch_id = bt.behaviour_tree.root.children[0].children[1].id
-            bt.behaviour_tree.prune_subtree(other_branch_id)
-            self.post_conditions.append(bt)
+        # bts = []
+        # for i in range(len(self.xmlstring)):
+        #     bt = BTConstruct(None, self, self.xmlstring[i])
+        #     bt.construct()
+        #     # bts.append(bt.behaviour_tree.root)
+        #     bts.append(bt)
+        # self.bts = bts
+        # self.post_conditions = []
+        # for i in range(len(self.xmlstring)):
+        #     bt = BTConstruct(None, self, self.xmlstring[i])
+        #     bt.construct()
+        #     # bts.append(bt.behaviour_tree.root)
+        #     # bts.append(bt)
+        #     other_branch_id = bt.behaviour_tree.root.children[0].children[1].id
+        #     bt.behaviour_tree.prune_subtree(other_branch_id)
+        #     self.post_conditions.append(bt)
+
         # root = Selector('RootAll')
         # root = Sequence('RootAll')
         # root = Parallel('RootAll')
@@ -550,19 +661,19 @@ class ExecutingAgent(CoevoAgent):
         """Agent action at a single time step."""
         # Maintain the location history of the agent
         # self.location_history.add(self.location)
-
+        self.bt.behaviour_tree.tick()
         # Compute the behavior tree
-        self.bts[self.current_behavior_counter % len(self.xmlstring)].behaviour_tree.tick()
+        # self.bts[self.current_behavior_counter % len(self.xmlstring)].behaviour_tree.tick()
 
-        # Check postcondition for that particular bt
-        if self.check_post_condition():
-            self.timer = 0
-            self.current_behavior_counter += 1
-        # else:
-        #     if self.timer > 40:
-        #         self.timer = 0
-        #         self.current_behavior_counter += 1
-        self.timer += 1
+        # # Check postcondition for that particular bt
+        # if self.check_post_condition():
+        #     self.timer = 0
+        #     self.current_behavior_counter += 1
+        # # else:
+        # #     if self.timer > 40:
+        # #         self.timer = 0
+        # #         self.current_behavior_counter += 1
+        # self.timer += 1
         # If some condition meet change the behavior
         # if self.check_conditions():
         #     del self.bt.behaviour_tree

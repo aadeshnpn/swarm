@@ -256,7 +256,7 @@ class BTComplexConstruct(BTConstruct):
         top.add_children(whole_list)
         self.behaviour_tree = py_trees.trees.BehaviourTree(top)
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
-        # py_trees.display.print_ascii_tree(top)
+        # print(py_trees.display.ascii_tree(top))
 
     def visualize(self, name='bt.png'):
         """Save bt graph to a file."""

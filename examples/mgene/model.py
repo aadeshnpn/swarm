@@ -958,7 +958,7 @@ class SimCoevoModel(Model):
             self, N, width, height, grid=10, iter=100000,
             xmlstrings=None, seed=None, viewer=False, pname=None,
             agent=ExecutingAgent, expsite=None, trap=5, obs=5, notrap=0,
-            noobs=0, nosite=1):
+            noobs=0, nosite=1, brepotires=None):
         """Initialize the attributes."""
         if seed is None:
             super(SimCoevoModel, self).__init__(seed=None)
@@ -979,6 +979,7 @@ class SimCoevoModel(Model):
         self.no_trap = notrap
         self.no_obs = noobs
         self.no_site = nosite
+        self.brepotires = brepotires
         # print('agent type', agent)
         # # Create db connection
         # try:
@@ -1024,7 +1025,8 @@ class SimCoevoModel(Model):
         # Create agents
         for i in range(self.num_agents):
             # print (i, j, self.xmlstrings[j])
-            a = self.agent(i, self, xmlstring=self.xmlstrings[j])
+            a = self.agent(i, self, xmlstring=self.xmlstrings[j], brepotire=self.brepotires[j])
+            # a.brepotire = self.brepotires[j]
             self.schedule.add(a)
             # Add the hub to agents memory
             # a.shared_content['Hub'] = {self.hub}

@@ -19,9 +19,8 @@
 <sobjects>::=Hub|Sites
 <dobjects>::=Food
 <objects>::=<sobjects>|<dobjects>
-MoveTowards_<sobjects>|Explore|CompositeSingleCarry_<dobjects>|CompositeDrop_<dobjects>|MoveAway_<sobjects>
-<actiona> ::= Explore
-<actionb> ::= MoveTowards
-<actionc> ::= MoveAway
+<actiona> ::= ExploreNormal
+<actionb> ::= MoveTowardsNormal
+<actionc> ::= MoveAwayNormal
 <actiond> ::= CompositeSingleCarry
 <actione> ::= CompositeDrop

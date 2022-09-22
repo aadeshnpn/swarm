@@ -75,10 +75,10 @@ def learning_phase(args):
 
     # Update the experiment table
     foraging_percent = env.foraging_percent()
-    if foraging_percent > 5:
+    if foraging_percent > 65:
         success = True
         # Save the behavior tree repotires.
-        with open('/tmp/behaviors.pickle', 'wb') as handle:
+        with open(env.pname +'/behaviors_.pickle', 'wb') as handle:
             pickle.dump(filter_brepotires(env.agents), handle, protocol=pickle.HIGHEST_PROTOCOL)
         combine_controllers(args, env.agents, env.pname)
     else:
@@ -132,7 +132,7 @@ def filter_brepotires(agents):
 def combine_controllers(args, agents=None, pname='/tmp'):
     # brepotires = filter_brepotires(agents)
     pname = '/tmp/swarm/data/experiments/'
-    with open('/tmp/behaviors.pickle', 'rb') as handle:
+    with open('/tmp/behaviors_.pickle', 'rb') as handle:
         brepotires = pickle.load(handle)
 
     env = CombineModel(
@@ -144,11 +144,15 @@ def combine_controllers(args, agents=None, pname='/tmp'):
             env.pname, env.connect, env.sn, env.stepcnt, env.foraging_percent(), None)
     results.save_to_file()
 
-    for i in range(2):
+    for i in range(args.iter):
         env.step()
         results = SimulationResults(
             env.pname, env.connect, env.sn, env.stepcnt, env.foraging_percent(), None)
         results.save_to_file()
+
+    phenotypes = [agent.individual[0].phenotype for agent in env.agents]
+    JsonPhenotypeData.to_json(phenotypes, env.pname + '/' + env.runid + '_all.json')
+    # print([a.individual[0].phenotype for a in env.agents])
 
 
 def static_bheavior_test(args, agents, pname):
@@ -184,14 +188,16 @@ def static_bheavior_test(args, agents, pname):
 def static_bheavior_test_from_json(args):
     xmlstringsall = JsonPhenotypeData.load_json_file(args.fname)
     xmlstringsall = xmlstringsall['phenotypes']
-    # print(len(xmlstrings))
+    with open('/tmp/behaviors_.pickle', 'rb') as handle:
+        brepotires = pickle.load(handle)
+    print(len(brepotires))
     for sample in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
         pname = '/tmp/swarm/data/experiments/'+ str(sample) + '/'
         # print(xmlstrings)
         xmlstrings = xmlstringsall[:int(len(xmlstringsall)*sample)]
         env = SimCoevoModel(
             args.n, width, height, 10, iter=args.iter, xmlstrings=xmlstrings,
-            expsite=30, pname=pname)
+            expsite=30, pname=pname, brepotires=brepotires)
         env.build_environment_from_json()
         # for agent in env.agents:
         #     agent.shared_content['Hub'] = {env.hub}
