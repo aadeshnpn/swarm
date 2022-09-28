@@ -78,9 +78,9 @@ def learning_phase(args):
     if foraging_percent > 65:
         success = True
         # Save the behavior tree repotires.
-        with open(env.pname +'/behaviors_.pickle', 'wb') as handle:
-            pickle.dump(filter_brepotires(env.agents), handle, protocol=pickle.HIGHEST_PROTOCOL)
-        combine_controllers(args, env.agents, env.pname)
+        agents = env.agents
+        # brepotires = filter_brepotires(agents)
+        combine_controllers(args, agents)
     else:
         success = False
 
@@ -126,17 +126,17 @@ def sortbehavior(brepotire):
 
 
 def filter_brepotires(agents):
-    return [agent.brepotire for agent in agents]
+    return {agent.name:agent.brepotire for agent in agents}
 
 
 def combine_controllers(args, agents=None, pname='/tmp'):
-    # brepotires = filter_brepotires(agents)
-    pname = '/tmp/swarm/data/experiments/'
-    with open('/tmp/behaviors_.pickle', 'rb') as handle:
-        brepotires = pickle.load(handle)
+    brepotires = filter_brepotires(agents)
+    # pname = '/tmp/swarm/data/experiments/'
+    # with open('/tmp/behaviors_.pickle', 'rb') as handle:
+    #     brepotires = pickle.load(handle)
 
     env = CombineModel(
-        args.n, width, height, 10, iter=args.iter, name=pname,
+        args.n, width, height, 10, iter=args.iter,
         brepotires=brepotires, args=args)
     env.build_environment_from_json()
     env.create_agents()
@@ -150,26 +150,37 @@ def combine_controllers(args, agents=None, pname='/tmp'):
             env.pname, env.connect, env.sn, env.stepcnt, env.foraging_percent(), None)
         results.save_to_file()
 
-    phenotypes = [agent.individual[0].phenotype for agent in env.agents]
+    sorted_agents = sorted(
+        env.agents, key=lambda x: x.individual[0].fitness, reverse=True)
+
+    phenotypes = [agent.individual[0].phenotype for agent in sorted_agents]
+    sorted_brepotires = [brepotires[agent.name] for agent in sorted_agents]
+    print('pheonetype:', len(phenotypes), 'brepotirese', len(sorted_brepotires))
+    with open(env.pname +'/behaviors_' + env.runid + '.pickle', 'wb') as handle:
+        pickle.dump(sorted_brepotires, handle, protocol=pickle.HIGHEST_PROTOCOL)
     JsonPhenotypeData.to_json(phenotypes, env.pname + '/' + env.runid + '_all.json')
     # print([a.individual[0].phenotype for a in env.agents])
 
+    # Run static behavior experiments
+    if env.foraging_percent() > 40:
+        static_bheavior_test_from_json(args, phenotypes, sorted_brepotires, env.pname)
 
-def static_bheavior_test(args, agents, pname):
+
+def static_bheavior_test(args, xmlstringall, brepotires, pname):
     # xmlstrings = [[gene.phenotype for gene in agent.brepotire.values()] for agent in agents if len(agent.brepotire.values())>3]
-    sortedagentsall = filter_agents(agents)
+    # sortedagentsall = filter_agents(agents)
     # print('sorted agents', len(sortedagentsall))
     for sample in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
         pname_static = pname + '/' + str(sample)
         # sortedagents = list(sortedagentsall.keys())[: int(len(sortedagentsall)*sample)]
-        xmlstrings = sortedagentsall[: int(len(sortedagentsall)*sample)]
+        xmlstrings = xmlstringall[: int(len(xmlstringall)*sample)]
         # print('sample soreted agents', len(sortedagents))
         # xmlstrings = [[gene.phenotype for gene in sortbehavior(agent.brepotire)] for agent in sortedagents]
         # xmlstrings = [[gene.phenotype for gene in agent.brepotire.values()] for agent in sortedagents]
         # print('xmlstrings', len(xmlstrings))
         env = SimCoevoModel(
             args.n, width, height, 10, iter=args.iter, xmlstrings=xmlstrings,
-            expsite=30, pname=pname_static)
+            expsite=30, pname=pname_static, brepotires=brepotires)
         env.build_environment_from_json()
         JsonPhenotypeData.to_json(
             xmlstrings, pname_static + '/' + env.runid + '_all_' + str(sample) + '_.json')
@@ -185,19 +196,20 @@ def static_bheavior_test(args, agents, pname):
         print('Test foraging percent:', env.food_in_hub(), ' ,Sampling:', sample)
 
 
-def static_bheavior_test_from_json(args):
-    xmlstringsall = JsonPhenotypeData.load_json_file(args.fname)
-    xmlstringsall = xmlstringsall['phenotypes']
-    with open('/tmp/behaviors_.pickle', 'rb') as handle:
-        brepotires = pickle.load(handle)
+def static_bheavior_test_from_json(args, xmlstringsall=None, brepotires=None, pname=None):
+    # xmlstringsall = JsonPhenotypeData.load_json_file(args.fname)
+    # xmlstringsall = xmlstringsall['phenotypes']
+    # with open('/tmp/behaviors_16642277014973.pickle', 'rb') as handle:
+    #     brepotires = pickle.load(handle)
     print(len(brepotires))
     for sample in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
-        pname = '/tmp/swarm/data/experiments/'+ str(sample) + '/'
+        # pname = '/tmp/swarm/data/experiments/'+ str(sample) + '/'
         # print(xmlstrings)
+        pname_static = pname + '/' + str(sample)
         xmlstrings = xmlstringsall[:int(len(xmlstringsall)*sample)]
         env = SimCoevoModel(
             args.n, width, height, 10, iter=args.iter, xmlstrings=xmlstrings,
-            expsite=30, pname=pname, brepotires=brepotires)
+            expsite=30, pname=pname_static, brepotires=brepotires)
         env.build_environment_from_json()
         # for agent in env.agents:
         #     agent.shared_content['Hub'] = {env.hub}

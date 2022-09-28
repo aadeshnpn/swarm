@@ -688,7 +688,7 @@ class CombineModel(EvolveModel):
 
     def __init__(
             self, N, width, height, grid=10, iter=100000,
-            seed=None, name="EvoCoevolutionPPA", viewer=False, db=False,
+            seed=None, name="CombinedModelPPA", viewer=False, db=False,
             threshold=10, gstep=200, expp=2, args=[], brepotires=None):
         """Initialize the attributes."""
         super(CombineModel, self).__init__(
