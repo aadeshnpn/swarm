@@ -31,6 +31,25 @@ def read_data_sample_ratio(ratio=0.1):
     return data
 
 
+def read_data_sample_comparision(suffix="geese-bt", simname="*EvoSForge_3"):
+    maindir = '/home/aadeshnpn/Desktop/plots_ants22j/learning_comparision/'+ suffix
+    data = []
+    # print(maindir)
+    folders = pathlib.Path(maindir).glob(simname)
+    for f in folders:
+        try:
+            flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
+            # print(flist)
+            datas = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+            # print(datas.shape)
+            data.append(datas[2])
+        except:
+            pass
+    data = np.array(data)
+    print(suffix, data.shape)
+    return data
+
+
 def fixed_behaviors_sampling_ratio():
     ratios = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]
     data = [read_data_sample_ratio(r) for r in ratios]
@@ -79,8 +98,58 @@ def fixed_behaviors_sampling_ratio():
     plt.close(fig)
 
 
+def compare_all_geese_efficiency():
+
+    suffixs = ["geese-bt", "betr-geese", "complex-geese"]
+    simnames = ["*EvoSForge_3", "*EvoCoevolutionPPA", "*CombinedModelPPA"]
+
+    color = [
+        'indianred', 'forestgreen', 'gold',
+        'tomato', 'royalblue']
+    colorshade = [
+        'coral', 'springgreen', 'yellow',
+        'lightsalmon', 'deepskyblue']
+
+    plt.style.use('fivethirtyeight')
+    fig = plt.figure(figsize=(10, 6), dpi=300)
+    ax1 = fig.add_subplot(1, 1, 1)
+
+    for j in range(len(suffixs)):
+        data = read_data_sample_comparision(suffixs[j], simnames[j])
+
+        medianf = np.quantile(data, 0.5, axis=0)
+        q1f = np.quantile(data, 0.25, axis=0)
+        q3f = np.quantile(data, 0.75, axis=0)
+
+
+        xvalues = range(data.shape[1])
+        ax1.plot(
+            xvalues, medianf, # color=color[j],
+            linewidth=1.0, label=suffixs[j])
+        ax1.fill_between(
+            xvalues, q3f, q1f,
+            alpha=0.3)
+
+    ax1.set_xlabel('Steps')
+    ax1.set_ylabel('Foraging (%)')
+
+    # ax1.set_xticks(
+    #     np.linspace(0, data.shape[-1], 5))
+    plt.legend()
+    plt.tight_layout()
+
+    # fig.savefig(
+    #     '/tmp/goal/data/experiments/' + pname + '.pdf')
+    maindir = '/tmp/swarm/data/experiments/'
+    # nadir = os.path.join(maindir, str(n), agent)
+    fig.savefig(
+        maindir + 'all_geese_comparasion.png')
+    plt.close(fig)
+
+
 def main():
-    fixed_behaviors_sampling_ratio()
+    # fixed_behaviors_sampling_ratio()
+    compare_all_geese_efficiency()
 
 
 if __name__ == '__main__':
