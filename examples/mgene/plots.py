@@ -1,4 +1,5 @@
 import os
+from turtle import position
 import numpy as np
 import scipy.stats as stats
 import matplotlib
@@ -12,18 +13,21 @@ import glob
 import pathlib
 
 
-def read_data_sample_ratio(ratio=0.1):
-    maindir = '/tmp/swarm/data/experiments/'+ str(ratio)
+def read_data_sample_ratio_complex_geese(ratio=0.1):
+    maindir = '/tmp/samplingcomparision/complex-geese/' # + str(ratio)
     data = []
     # print(maindir)
-    folders = pathlib.Path(maindir).glob("*CoevoSimulation")
+    folders = pathlib.Path(maindir).glob("*CombinedModelPPA")
     for f in folders:
         try:
-            flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
-            # print(flist)
-            _, _, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
-            # print(d.shape)
-            data.append(d[-1])
+            # print(f, ratio, f.joinpath(str(ratio)))
+            nested_folder = pathlib.Path(f.joinpath(str(ratio))).glob("*CoevoSimulation")
+            for f1 in nested_folder:
+                flist = [p for p in pathlib.Path(f1).iterdir() if p.is_file() and p.match('simulation.csv')]
+                # print(flist)
+                _, _, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+                # print(d.shape)
+                data.append(d[-1])
         except:
             pass
     data = np.array(data)
@@ -47,6 +51,38 @@ def read_data_sample_comparision(suffix="geese-bt", simname="*EvoSForge_3"):
             pass
     data = np.array(data)
     print(suffix, data.shape)
+    return data
+
+
+def read_data_sample_ratio_geesebt(ratio=0.1):
+    maindir = '/tmp/samplingcomparision/bsample/'
+    folders = pathlib.Path(maindir).glob("*_" + str(ratio) + "_ValidateSForgeNewPPA1")
+    flist = []
+    data = []
+    for f in folders:
+        try:
+            flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
+            _, _, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+            data.append(d[-1])
+        except:
+            pass
+    data = np.array(data)
+    return data
+
+
+def read_data_sample_ratio_betrgeese(ratio=0.1):
+    maindir = '/tmp/samplingcomparision/ratioijcai/'
+    folders = pathlib.Path(maindir).glob("*[0-9]*-" + str(ratio))
+    flist = []
+    data = []
+    for f in folders:
+        try:
+            flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
+            _, _, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+            data.append(d[-1])
+        except:
+            pass
+    data = np.array(data)
     return data
 
 
@@ -110,7 +146,7 @@ def compare_all_geese_efficiency():
         'coral', 'springgreen', 'yellow',
         'lightsalmon', 'deepskyblue']
 
-    plt.style.use('fivethirtyeight')
+    # plt.style.use('fivethirtyeight')
     fig = plt.figure(figsize=(10, 6), dpi=300)
     ax1 = fig.add_subplot(1, 1, 1)
 
@@ -132,10 +168,10 @@ def compare_all_geese_efficiency():
 
     ax1.set_xlabel('Steps')
     ax1.set_ylabel('Foraging (%)')
-
+    ax1.set_yticks(range(0,110,20))
     # ax1.set_xticks(
     #     np.linspace(0, data.shape[-1], 5))
-    plt.legend()
+    plt.legend(loc="upper left")
     plt.tight_layout()
 
     # fig.savefig(
@@ -147,9 +183,109 @@ def compare_all_geese_efficiency():
     plt.close(fig)
 
 
+def compare_sampling_differences_plot():
+    # plt.style.use('fivethirtyeight')
+    sampling_size = [0.1, 0.3, 0.5, 0.7, 0.9]
+
+    datasnew_forge = [read_data_sample_ratio_geesebt(s) for s in sampling_size]
+    datasold_forge = [read_data_sample_ratio_betrgeese(s) for s in sampling_size]
+    datacomplex_forge = [read_data_sample_ratio_complex_geese(s) for s in sampling_size]
+    fig = plt.figure(figsize=(8,6), dpi=300)
+    ax1 = fig.add_subplot(1, 1, 1)
+
+    sampling_size = [10, 30, 50, 70, 90]
+    colordict = {
+        0: 'forestgreen',
+        1: 'gold',
+        2: 'royalblue',
+        3: 'orchid',
+        4: 'olivedrab',
+        5: 'peru',
+        6: 'linen',
+        7: 'indianred',
+        8: 'tomato'}
+
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+    labels = sampling_size
+
+    positions = [1.5, 4.5, 7.5, 10.5, 13.5]
+    # datas = [
+    #     [datasold[0],datasnew[0]],
+    #     [datasold[1],datasnew[1]],
+    #     [datasold[2],datasnew[2]],
+    #     [datasold[3],datasnew[3]],
+    #     [datasold[4],datasnew[4]],
+    # ]
+
+    datasforge = [
+        [datasold_forge[0],datasnew_forge[0], datacomplex_forge[0]],
+        [datasold_forge[1],datasnew_forge[1], datacomplex_forge[1]],
+        [datasold_forge[2],datasnew_forge[2], datacomplex_forge[2]],
+        [datasold_forge[3],datasnew_forge[3], datacomplex_forge[3]],
+        [datasold_forge[4],datasnew_forge[4], datacomplex_forge[4]],
+    ]
+
+    colors = ['hotpink', 'mediumblue', 'olivedrab']
+    plabels = ['Top Agents (GEESE-BT)', 'Parallel (BeTr-GEESE)', 'Top Agents (Complex-GEESE)']
+    # lss = ['--', '-']
+    markers=['o', '^']
+    # for i in range(2):
+        # p = ax1.plot(
+        #     [x for x in positions],
+        #     [np.mean(d[i]) for d in datas], marker=markers[0],
+        #     ls='-', label=plabels[i], color=colors[i], markersize=10, linewidth=3)
+        # colors += [p[0].get_color()]
+
+    for i in range(3):
+        p = ax1.plot(
+            [x for x in positions],
+            [np.mean(d[i]) for d in datasforge], marker=markers[1],
+            ls='-', label=plabels[i], color = colors[i], markersize=10, linewidth=3)
+        # colors += [p[0].get_color()]
+
+    f = lambda m,c: plt.plot([],[],marker=m, color=c, ls="none")[0]
+
+    handles1 = [f('_', colors[i]) for i in range(3)]
+    handles2 = [f(markers[1], 'k') for i in range(2)]
+
+    # legendlabels = plabels + ["Foraging", "Maintenance"]
+    # plt.xlim(0, len(mean))
+    legend1 = ax1.legend(handles1, plabels,
+        fontsize="large", loc="upper right", title='Sampling Algorithm', markerscale=6)
+
+    legend2 = ax1.legend(handles2, ["Foraging"],
+        fontsize="large", loc="upper left", title='Task')
+
+    plt.setp(legend1.get_title(),fontsize='large')
+    plt.setp(legend2.get_title(),fontsize='large')
+    ax1.add_artist(legend1)
+    ax1.add_artist(legend2)
+    ax1.set_xticks([1.5, 4.5, 7.5, 10.5, 13.5])
+    ax1.set_xticklabels(labels, fontsize='large')
+    ax1.set_yticks(range(0, 105, 20))
+    ax1.set_yticklabels(range(0, 105, 20), fontsize='large')
+    ax1.set_xlabel('Sampling Size (%)', fontsize="large")
+    ax1.set_ylabel('Performance (%)',  fontsize="large")
+    # ax1.set_title('Behavior Sampling',  fontsize="large")
+    # plt.rcParams['legend.title_fontsize'] = 'large'
+    plt.tight_layout()
+
+    maindir = '/tmp/swarm/data/experiments'
+    fname = 'behavior_samplingnest_agg'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+
+    plt.close(fig)
+
+
 def main():
     # fixed_behaviors_sampling_ratio()
     compare_all_geese_efficiency()
+    # compare_sampling_differences_plot()
+    # read_data_sample_ratio_complex_geese(0.1)
 
 
 if __name__ == '__main__':
