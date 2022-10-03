@@ -54,6 +54,29 @@ def read_data_sample_comparision(suffix="geese-bt", simname="*EvoSForge_3"):
     return data
 
 
+def read_data_restrictive_grammar():
+    maindir = '/home/aadeshnpn/Desktop/plots_ants22j/restrictivegrammar/'
+    data = []
+    # print(maindir)
+    folders = pathlib.Path(maindir).glob("*EvoCoevolutionPPA")
+    for f in folders:
+        try:
+            flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
+            # print(flist)
+            datas = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+            # print(datas.shape)
+            temp_data = np.array([0]* 12001)
+            temp_data[: len(datas[2])] = datas[2]
+            temp_data[len(datas[2]):] = np.array([datas[2][-1]] * (12001 - len(datas[2])))
+            # print(temp_data.shape, temp_data[11990:])
+            temp_data[0] = 0
+            data.append(temp_data)
+        except:
+            pass
+    data = np.array(data)
+    return data
+
+
 def read_data_sample_ratio_geesebt(ratio=0.1):
     maindir = '/tmp/samplingcomparision/bsample/'
     folders = pathlib.Path(maindir).glob("*_" + str(ratio) + "_ValidateSForgeNewPPA1")
@@ -281,11 +304,48 @@ def compare_sampling_differences_plot():
     plt.close(fig)
 
 
+def plot_restictive_grammar():
+    # plt.style.use('fivethirtyeight')
+    fig = plt.figure(figsize=(10, 6), dpi=300)
+    ax1 = fig.add_subplot(1, 1, 1)
+
+    data = read_data_restrictive_grammar()
+    print(data)
+    medianf = np.quantile(data, 0.5, axis=0)
+    q1f = np.quantile(data, 0.25, axis=0)
+    q3f = np.quantile(data, 0.75, axis=0)
+
+    xvalues = range(data.shape[1])
+    ax1.plot(
+        xvalues, medianf, # color=color[j],
+        linewidth=1.0, label='Complex-GEESE')
+    ax1.fill_between(
+        xvalues, q3f, q1f,
+        alpha=0.3)
+
+    ax1.set_xlabel('Steps')
+    ax1.set_ylabel('Foraging (%)')
+    ax1.set_yticks(range(0,110,20))
+    # ax1.set_xticks(
+    #     np.linspace(0, data.shape[-1], 5))
+    plt.legend(loc="upper left")
+    plt.tight_layout()
+
+    # fig.savefig(
+    #     '/tmp/goal/data/experiments/' + pname + '.pdf')
+    maindir = '/tmp/swarm/data/experiments/'
+    # nadir = os.path.join(maindir, str(n), agent)
+    fig.savefig(
+        maindir + 'complex_geese.png')
+    plt.close(fig)
+
+
 def main():
     # fixed_behaviors_sampling_ratio()
-    compare_all_geese_efficiency()
+    # compare_all_geese_efficiency()
     # compare_sampling_differences_plot()
     # read_data_sample_ratio_complex_geese(0.1)
+    plot_restictive_grammar()
 
 
 if __name__ == '__main__':
