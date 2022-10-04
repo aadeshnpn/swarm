@@ -1,12 +1,12 @@
 from inspect import CO_ITERABLE_COROUTINE
-from py_trees import common
+from py_trees.common import Status
 from py_trees.composites import Selector, Parallel
 from py_trees import common, blackboard
 from py_trees.trees import BehaviourTree
 from swarms.behaviors.sbehaviors import DropCue, SendSignal, ObjectsStore
 import numpy as np
 from swarms.lib.agent import Agent
-from swarms.utils.bt import BTConstruct
+from swarms.utils.bt import BTConstruct, BTComplexConstruct
 from swarms.utils.results import Results    # noqa : F401
 from swarms.utils.distangle import point_distance
 
@@ -53,6 +53,7 @@ class NestAgent(Agent):
         self.fitness_name = True
         self.ltrate = 0
         self.geneticrate = False
+        self.brepotire = OrderedDict()
 
     def init_evolution_algo(self):
         """Agent's GE algorithm operation defination."""
@@ -168,6 +169,39 @@ class LearningAgent(NestAgent):
         self.constraints_reward = 0
         self.postcond_reward = 0
         self.threshold = threshold
+
+    def update_brepotire(self):
+        allnodes = list(self.bt.behaviour_tree.root.iterate())
+        actions = list(filter(
+            lambda x: x.name.split('_')[-1] == 'Act', allnodes)
+            )
+        if len(actions) == 1 and actions[0].status == Status.SUCCESS:
+            # if type(actions[0]).__name__ in ['MoveTowardsNormal', 'MoveAwayNormal']:
+            #     action_key = type(actions[0]).__name__ + '_' + actions[0].item
+            # else:
+            #     action_key = type(actions[0]).__name__
+            action_key = type(actions[0]).__name__
+            val = self.brepotire.get(action_key, None)
+            if val == None:
+                self.brepotire[action_key] = self.individual[0]
+            else:
+                if val.fitness < self.individual[0].fitness:
+                    self.brepotire[action_key] = self.individual[0]
+
+    def update_brepotire_others(self, cell):
+        allnodes = list(cell.bt.behaviour_tree.root.iterate())
+        actions = list(filter(
+            lambda x: x.name.split('_')[-1] == 'Act', allnodes)
+            )
+        # if actions[0].status == Status.SUCCESS:
+        #     print(actions, actions[0].status)
+        if len(actions) == 1 and actions[0].status == Status.SUCCESS:
+            val = self.brepotire.get(type(actions[0]).__name__, None)
+            if val is None:
+                self.brepotire[type(actions[0]).__name__] = cell.individual[0]
+            else:
+                if val.fitness < cell.individual[0].fitness:
+                    self.brepotire[type(actions[0]).__name__] = cell.individual[0]
 
     def evaluate_constraints_conditions(self):
         allnodes = list(self.bt.behaviour_tree.root.iterate())
@@ -381,6 +415,9 @@ class LearningAgent(NestAgent):
             self.phenotypes[self.individual[0].phenotype] = (
                 self.individual[0].fitness)
 
+            # Updated behavior repotire
+            self.update_brepotire()
+
             if not self.model.stop_lateral_transfer:
                 # Find the nearby agents
                 cellmates = self.model.grid.get_objects_from_grid(
@@ -415,6 +452,123 @@ class LearningAgent(NestAgent):
                 self.genetic_step()
 
 
+class CombiningAgent(LearningAgent):
+    """Agent that combines the simple controllers."""
+
+    def __init__(self, name, model, brepotire, threshold=10):
+        """Initialize the agent."""
+        super().__init__(name, model, threshold)
+        self.brepotire = brepotire
+        self.bt = BTComplexConstruct(None, self)
+
+    def init_evolution_algo(self):
+        """Agent's GE algorithm operation defination."""
+        # Genetic algorithm parameters
+        self.operation_threshold = 50
+        self.genome_storage = []
+
+        # Grammatical Evolution part
+        from ponyge.algorithm.parameters import Parameters
+        parameter = Parameters()
+        parameter_list = ['--parameters', '../..,test_new.txt']
+        # Comment when different results is desired.
+        # Else set this for testing purpose
+        # parameter.params['RANDOM_SEED'] = name
+        # # np.random.randint(1, 99999999)
+        # Set GE runtime parameters
+        parameter.params['POPULATION_SIZE'] = self.operation_threshold // 2
+        parameter.set_params(parameter_list)
+        self.parameter = parameter
+        # Initialize the genome
+        individual = initialisation(self.parameter, size=3)
+        individual = evaluate_fitness(individual, self.parameter)
+        # Assign the genome to the agent
+        self.individual = individual
+        # Fitness
+        self.beta = 0.9
+        self.diversity_fitness = self.individual[0].fitness
+        self.individual[0].fitness = 0
+        self.generation = 0
+
+        self.delayed_cf = 0
+        self.delayed_ef = 0
+
+    def step(self):
+        """Take a step in the simulation."""
+        # py_trees.logging.level = py_trees.logging.Level.DEBUG
+        # output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
+
+        # Couting variables
+        self.timestamp += 1
+        self.step_count += 1
+        self.prev_location = copy.copy(self.location)
+        self.geneticrate = False
+        self.ltrate = 0
+        # Increase beta
+        # self.beta = self.timestamp / self.model.iter
+        # if self.name ==1:
+        # print(self.timestamp, self.name, len(self.trace))
+        if self.dead is False:
+            # Compute the behavior tree
+            self.bt.behaviour_tree.tick()
+
+            # Maintain location history
+            _, gridval = self.model.grid.find_grid(self.location)
+            self.location_history.add(gridval)
+
+            # Hash the phenotype with its fitness
+            # We need to move this from here to genetic step
+            self.ef = self.exploration_fitness()
+
+            # Computes overall fitness using Beta function
+            self.overall_fitness()
+            # print(self.name, self.individual[0].fitness)
+
+            self.phenotypes = dict()
+            self.phenotypes[self.individual[0].phenotype] = (
+                self.individual[0].fitness)
+
+            if not self.model.stop_lateral_transfer:
+                # Find the nearby agents
+                cellmates = self.model.grid.get_objects_from_grid(
+                    type(self).__name__, self.location)
+
+                # Interaction Probability with other agents
+                cellmates = [cell for cell in cellmates  if self.model.random.rand() < self.model.iprob and cell.dead is False]
+                # cellmates = [cell for cell in cellmates if cell.individual[0] not in self.genome_storage]
+                self.ltrate = len(cellmates)
+                # If neighbours found, store the genome
+                if len(cellmates) > 1:
+                    # cellmates = list(self.model.random.choice(
+                    #     cellmates, self.model.random.randint(
+                    #         1, len(cellmates)-1), replace=False))
+                    self.store_genome(cellmates)
+                    # Update behavior repotire
+                    # for cell in cellmates:
+                    #     self.update_brepotire_others(cell)
+
+            # Logic for gentic operations.
+            # If the genome storage has enough genomes and agents has done some
+            # exploration then compute the genetic step OR
+            # 200 time step has passed and the agent has not done anything useful
+            # then also perform genetic step
+            storage_threshold = len(
+                self.genome_storage) >= self.threshold
+            # (self.model.num_agents / (self.threshold* 1.0))
+
+            if storage_threshold:
+                self.geneticrate = storage_threshold
+                self.genetic_step()
+            elif (
+                    (
+                        storage_threshold is False and self.timestamp > self.model.gstep
+                        ) and (self.exploration_fitness() < self.model.expp)):
+                individual = initialisation(self.parameter, 10)
+                individual = evaluate_fitness(individual, self.parameter)
+                self.genome_storage = self.genome_storage + individual
+                self.genetic_step()
+
+
 class ExecutingAgent(NestAgent):
     """A Nest maintenance swarm agent.
 
@@ -432,17 +586,21 @@ class ExecutingAgent(NestAgent):
     def construct_bt(self):
         """Construct BT."""
         # Get the phenotype of the genome and store as xmlstring
-        bts = []
-        for i in range(len(self.xmlstring)):
-            bt = BTConstruct(None, self, self.xmlstring[i])
-            bt.construct()
-            bts.append(bt.behaviour_tree.root)
-        # root = Selector('RootAll')
-        # root = Sequence('RootAll')
-        root = Parallel('RootAll')
-        self.model.random.shuffle(bts)
-        root.add_children(bts)
-        self.bt.behaviour_tree = BehaviourTree(root)
+        self.bt.xmlstring = self.xmlstring
+        # # Construct actual BT from xmlstring
+        self.bt.construct()
+
+        # bts = []
+        # for i in range(len(self.xmlstring)):
+        #     bt = BTConstruct(None, self, self.xmlstring[i])
+        #     bt.construct()
+        #     bts.append(bt.behaviour_tree.root)
+        # # root = Selector('RootAll')
+        # # root = Sequence('RootAll')
+        # root = Parallel('RootAll')
+        # self.model.random.shuffle(bts)
+        # root.add_children(bts)
+        # self.bt.behaviour_tree = BehaviourTree(root)
 
         # self.bt.xmlstring = self.xmlstring
         # # Construct actual BT from xmlstring

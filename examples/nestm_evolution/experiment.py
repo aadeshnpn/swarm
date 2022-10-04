@@ -4,8 +4,11 @@ import numpy as np
 # import pdb
 # import hashlib
 import sys
+import pickle
 import argparse
-from model import EvolveModel, ValidationModel, TestModel, ViewerModel
+from model import (
+    EvolveModel, ValidationModel, TestModel, ViewerModel,
+    CombineModel, SimNestMModel)
 from swarms.utils.jsonhandler import JsonPhenotypeData
 from swarms.utils.graph import Graph, GraphACC  # noqa : F401
 from joblib import Parallel, delayed    # noqa : F401
@@ -194,11 +197,90 @@ def learning_phase(args):
 
     # Update the experiment table
     mpercent = env.maintenance_percent()
-    if mpercent > 5:
+    if mpercent > 65:
         success = True
+        agents = env.agents
+        combine_controllers(args, agents)
     else:
         success = False
     env.experiment.update_experiment_simulation(mpercent, success)
+
+
+def filter_brepotires(agents):
+    return {agent.name:agent.brepotire for agent in agents}
+
+
+def combine_controllers(args, agents=None, pname='/tmp'):
+    brepotires = filter_brepotires(agents)
+    # pname = '/tmp/swarm/data/experiments/'
+    # with open('/tmp/behaviors_.pickle', 'rb') as handle:
+    #     brepotires = pickle.load(handle)
+
+    env = CombineModel(
+        args.n, width, height, 10, iter=args.iter,
+        brepotires=brepotires, args=args)
+    env.build_environment_from_json()
+    env.create_agents()
+    results = SimulationResults(
+            env.pname, env.connect, env.sn, env.stepcnt,
+            env.maintenance_percent(), None)
+    results.save_to_file()
+
+    for i in range(args.iter):
+        env.step()
+        results = SimulationResults(
+            env.pname, env.connect, env.sn, env.stepcnt,
+            env.maintenance_percent(), None)
+        results.save_to_file()
+
+    sorted_agents = sorted(
+        env.agents, key=lambda x: x.individual[0].fitness, reverse=True)
+
+    phenotypes = [agent.individual[0].phenotype for agent in sorted_agents]
+    sorted_brepotires = [brepotires[agent.name] for agent in sorted_agents]
+    print('pheonetype:', len(phenotypes), 'brepotirese', len(sorted_brepotires))
+    with open(env.pname +'/behaviors_' + env.runid + '.pickle', 'wb') as handle:
+        pickle.dump(sorted_brepotires, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    JsonPhenotypeData.to_json(phenotypes, env.pname + '/' + env.runid + '_all.json')
+    # print([a.individual[0].phenotype for a in env.agents])
+
+    # Run static behavior experiments
+    if env.maintenance_percent() > 40:
+        static_bheavior_test_from_json(args, phenotypes, sorted_brepotires, env.pname)
+
+
+def static_bheavior_test_from_json(args, xmlstringsall=None, brepotires=None, pname=None):
+    # xmlstringsall = JsonPhenotypeData.load_json_file(args.fname)
+    # xmlstringsall = xmlstringsall['phenotypes']
+    # with open('/tmp/behaviors_16642277014973.pickle', 'rb') as handle:
+    #     brepotires = pickle.load(handle)
+    print(len(brepotires))
+    for sample in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
+        # pname = '/tmp/swarm/data/experiments/'+ str(sample) + '/'
+        # print(xmlstrings)
+        pname_static = pname + '/' + str(sample)
+        xmlstrings = xmlstringsall[:int(len(xmlstringsall)*sample)]
+        env = SimNestMModel(
+            args.n, width, height, 10, iter=args.iter, xmlstrings=xmlstrings,
+            expsite=30, pname=pname_static, brepotires=brepotires)
+        env.build_environment_from_json()
+        # for agent in env.agents:
+        #     agent.shared_content['Hub'] = {env.hub}
+        # JsonPhenotypeData.to_json(xmlstrings, pname + '/' + env.runid + '_all.json')
+        results = SimulationResults(
+            env.pname, env.connect, env.sn, env.stepcnt,
+            env.maintenance_percent(), None)
+        results.save_to_file()
+
+        for i in range(12000):
+            env.step()
+            results = SimulationResults(
+                env.pname, env.connect, env.sn, env.stepcnt,
+                env.maintenance_percent(), None)
+            results.save_to_file()
+        print('Test maintenance percent',
+            env.maintenance_percent(), ' ,Sampling:', sample)
+        # print([food.location for food in env.foods])
 
 
 def phenotype_to_json(pname, runid, phenotypes):
