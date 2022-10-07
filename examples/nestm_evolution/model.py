@@ -723,6 +723,7 @@ class CombineModel(NestMModel):
             N, width, height, grid, iter, seed, name, viewer, db=db,
             threshold=threshold, gstep=gstep, expp=expp, args=args)
         self.brepotires = brepotires
+        self.stop_lateral_transfer = False
 
     def create_agents(self, random_init=True):
         """Initialize agents in the environment."""

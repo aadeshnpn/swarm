@@ -163,27 +163,26 @@ def combine_controllers(args, agents=None, pname='/tmp'):
 
     # Run static behavior experiments
     if env.foraging_percent() > 40:
-        static_bheavior_test_from_json(args, phenotypes, sorted_brepotires, env.pname)
+        static_bheavior_test(args, phenotypes, sorted_brepotires, env.pname)
 
 
-def static_bheavior_test(args, xmlstringall, brepotires, pname):
+def static_bheavior_test(args, xmlstringsall, brepotires, pname):
     # xmlstrings = [[gene.phenotype for gene in agent.brepotire.values()] for agent in agents if len(agent.brepotire.values())>3]
     # sortedagentsall = filter_agents(agents)
     # print('sorted agents', len(sortedagentsall))
+    print(len(brepotires))
     for sample in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
+        # pname = '/tmp/swarm/data/experiments/'+ str(sample) + '/'
+        # print(xmlstrings)
         pname_static = pname + '/' + str(sample)
-        # sortedagents = list(sortedagentsall.keys())[: int(len(sortedagentsall)*sample)]
-        xmlstrings = xmlstringall[: int(len(xmlstringall)*sample)]
-        # print('sample soreted agents', len(sortedagents))
-        # xmlstrings = [[gene.phenotype for gene in sortbehavior(agent.brepotire)] for agent in sortedagents]
-        # xmlstrings = [[gene.phenotype for gene in agent.brepotire.values()] for agent in sortedagents]
-        # print('xmlstrings', len(xmlstrings))
+        xmlstrings = xmlstringsall[:int(len(xmlstringsall)*sample)]
         env = SimCoevoModel(
             args.n, width, height, 10, iter=args.iter, xmlstrings=xmlstrings,
             expsite=30, pname=pname_static, brepotires=brepotires)
         env.build_environment_from_json()
-        JsonPhenotypeData.to_json(
-            xmlstrings, pname_static + '/' + env.runid + '_all_' + str(sample) + '_.json')
+        # for agent in env.agents:
+        #     agent.shared_content['Hub'] = {env.hub}
+        # JsonPhenotypeData.to_json(xmlstrings, pname + '/' + env.runid + '_all.json')
         results = SimulationResults(
             env.pname, env.connect, env.sn, env.stepcnt, env.food_in_hub(), None)
         results.save_to_file()
@@ -193,19 +192,20 @@ def static_bheavior_test(args, xmlstringall, brepotires, pname):
             results = SimulationResults(
                 env.pname, env.connect, env.sn, env.stepcnt, env.food_in_hub(), None)
             results.save_to_file()
-        print('Test foraging percent:', env.food_in_hub(), ' ,Sampling:', sample)
+        print('Test foraging percent', env.food_in_hub(), ' ,Sampling:', sample)
+        # print([food.location for food in env.foods])
 
 
 def static_bheavior_test_from_json(args, xmlstringsall=None, brepotires=None, pname=None):
-    # xmlstringsall = JsonPhenotypeData.load_json_file(args.fname)
-    # xmlstringsall = xmlstringsall['phenotypes']
-    # with open('/tmp/behaviors_16642277014973.pickle', 'rb') as handle:
-    #     brepotires = pickle.load(handle)
+    xmlstringsall = JsonPhenotypeData.load_json_file(args.fname)
+    xmlstringsall = xmlstringsall['phenotypes']
+    with open('/tmp/behaviors_16644389907579.pickle', 'rb') as handle:
+        brepotires = pickle.load(handle)
     print(len(brepotires))
     for sample in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
-        # pname = '/tmp/swarm/data/experiments/'+ str(sample) + '/'
+        pname = '/tmp/swarm/data/experiments/'+ str(sample) + '/'
         # print(xmlstrings)
-        pname_static = pname + '/' + str(sample)
+        pname_static = pname
         xmlstrings = xmlstringsall[:int(len(xmlstringsall)*sample)]
         env = SimCoevoModel(
             args.n, width, height, 10, iter=args.iter, xmlstrings=xmlstrings,

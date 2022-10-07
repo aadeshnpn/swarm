@@ -13,35 +13,61 @@ import glob
 import pathlib
 
 
+# def read_data_sample_ratio_complex_geese(ratio=0.1, end=True):
+#     maindir = '/tmp/samplingcomparision/complex-geese/' # + str(ratio)
+#     data = []
+#     # print(maindir)
+#     folders = pathlib.Path(maindir).glob("*CombinedModelPPA")
+#     for f in folders:
+#         try:
+#             # print(f, ratio, f.joinpath(str(ratio)))
+#             nested_folder = pathlib.Path(f.joinpath(str(ratio))).glob("*CoevoSimulation")
+#             for f1 in nested_folder:
+#                 flist = [p for p in pathlib.Path(f1).iterdir() if p.is_file() and p.match('simulation.csv')]
+#                 # print(flist)
+#                 _, _, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+#                 # print(d.shape)
+#                 if end:
+#                     data.append(d[-1])
+#                 else:
+#                     data.append(d)
+#         except:
+#             pass
+#     data = np.array(data)
+#     # print(ratio, data.shape, data)
+#     return data
+
+
 def read_data_sample_ratio_complex_geese(ratio=0.1):
-    maindir = '/tmp/samplingcomparision/complex-geese/' # + str(ratio)
+    maindir = '/home/aadeshnpn/Desktop/plots_ants22j/ratios/complex-geese/' + str(ratio)
     data = []
     # print(maindir)
-    folders = pathlib.Path(maindir).glob("*CombinedModelPPA")
+    folders = pathlib.Path(maindir).glob("*CoevoSimulation")
     for f in folders:
         try:
             # print(f, ratio, f.joinpath(str(ratio)))
-            nested_folder = pathlib.Path(f.joinpath(str(ratio))).glob("*CoevoSimulation")
-            for f1 in nested_folder:
-                flist = [p for p in pathlib.Path(f1).iterdir() if p.is_file() and p.match('simulation.csv')]
-                # print(flist)
-                _, _, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
-                # print(d.shape)
-                data.append(d[-1])
+            flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
+            # print(flist)
+            _, _, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+            # print(d.shape)
+            data.append(d[-1])
         except:
             pass
     data = np.array(data)
-    # print(ratio, data.shape, data)
+    # print(ratio, data.shape)
     return data
 
 
-def read_data_sample_comparision(suffix="geese-bt", simname="*EvoSForge_3"):
-    maindir = '/home/aadeshnpn/Desktop/plots_ants22j/learning_comparision/'+ suffix
+def read_data_sample_comparision(
+        suffix="geese-bt", simname="*EvoSForge_3",
+        folder="learning_comparision"):
+    maindir = '/home/aadeshnpn/Desktop/plots_ants22j/'+ folder + '/' + suffix
     data = []
-    # print(maindir)
+    # print(maindir, simname)
     folders = pathlib.Path(maindir).glob(simname)
     for f in folders:
         try:
+            # print(f)
             flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
             # print(flist)
             datas = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
@@ -77,8 +103,28 @@ def read_data_restrictive_grammar():
     return data
 
 
-def read_data_sample_ratio_geesebt(ratio=0.1):
-    maindir = '/tmp/samplingcomparision/bsample/'
+def read_data_sample_ratio_geesebt(ratio=0.1, end=True):
+    maindir = '/home/aadeshnpn/Desktop/plots_ants22j/ratios/geese-bt/'
+    folders = pathlib.Path(maindir).glob("*[0-9]*-" + str(ratio))
+
+    flist = []
+    data = []
+    for f in folders:
+        try:
+            flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
+            _, _, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+            if end:
+                data.append(d[-1])
+            else:
+                data.append(d)
+        except:
+            pass
+    data = np.array(data)
+    return data
+
+
+def read_data_sample_ratio_betrgeese(ratio=0.1, end=True):
+    maindir = '/home/aadeshnpn/Desktop/plots_ants22j/ratios/betr-geese/'
     folders = pathlib.Path(maindir).glob("*_" + str(ratio) + "_ValidateSForgeNewPPA1")
     flist = []
     data = []
@@ -86,75 +132,14 @@ def read_data_sample_ratio_geesebt(ratio=0.1):
         try:
             flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
             _, _, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
-            data.append(d[-1])
+            if end:
+                data.append(d[-1])
+            else:
+                data.append(d)
         except:
             pass
     data = np.array(data)
     return data
-
-
-def read_data_sample_ratio_betrgeese(ratio=0.1):
-    maindir = '/tmp/samplingcomparision/ratioijcai/'
-    folders = pathlib.Path(maindir).glob("*[0-9]*-" + str(ratio))
-    flist = []
-    data = []
-    for f in folders:
-        try:
-            flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
-            _, _, d = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
-            data.append(d[-1])
-        except:
-            pass
-    data = np.array(data)
-    return data
-
-
-def fixed_behaviors_sampling_ratio():
-    ratios = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]
-    data = [read_data_sample_ratio(r) for r in ratios]
-
-    fig = plt.figure(figsize=(8,6), dpi=200)
-    ax1 = fig.add_subplot(1, 1, 1)
-    medianprops = dict(linewidth=2.5, color='firebrick')
-    meanprops = dict(linewidth=2.5, color='#ff7f0e')
-
-    colordict = {
-        0: 'grey',
-        1: 'whitesmoke',
-        2: 'rosybrown',
-        3: 'darkred',
-        4: 'darkorange',
-        5: 'olive',
-        6: 'yellow',
-        7: 'lawngreen',
-        8: 'aqua',
-        9: 'indigo',
-        }
-
-    bp1 = ax1.boxplot(
-        data, 0, 'gD', showmeans=True, meanline=True,
-        patch_artist=True, medianprops=medianprops,
-        meanprops=meanprops, widths=0.8)
-
-    for patch, color in zip(bp1['boxes'], colordict.values()):
-        patch.set_facecolor(color)
-
-    ax1.legend(zip(bp1['boxes']), ratios, fontsize="small", loc="upper right", title='Sampling Values')
-    # ax1.set_xticks([1.5, 4.5, 7.5, 10.5, 13.5])
-    ax1.set_xticklabels(ratios)
-    ax1.set_yticks(range(0, 105, 20))
-    ax1.set_xlabel('Sampling Frequence', fontsize="large")
-    ax1.set_ylabel('Foraging (%)', fontsize="large")
-    plt.tight_layout()
-
-    maindir = '/tmp/swarm/data/experiments'
-    fname = 'samplingboxplot'
-
-    fig.savefig(
-        maindir + '/' + fname + '.png')
-    # pylint: disable = E1101
-
-    plt.close(fig)
 
 
 def compare_all_geese_efficiency():
@@ -206,12 +191,131 @@ def compare_all_geese_efficiency():
     plt.close(fig)
 
 
+def compare_all_fixed_behaviors_efficiency():
+
+    suffixs = ["geese-bt", "betr-geese", "complex-geese"]
+    simnames = ["*-0.5", "*_0.5_ValidateSForgeNewPPA1", "*CoevoSimulation"]
+
+    color = [
+        'indianred', 'forestgreen', 'gold',
+        'tomato', 'royalblue']
+    colorshade = [
+        'coral', 'springgreen', 'yellow',
+        'lightsalmon', 'deepskyblue']
+
+    # plt.style.use('fivethirtyeight')
+    fig = plt.figure(figsize=(10, 6), dpi=300)
+    ax1 = fig.add_subplot(1, 1, 1)
+
+    for j in range(len(suffixs)):
+        data = read_data_sample_comparision(
+            suffixs[j], simnames[j], folder="fixed_behavior_efficiency")
+
+        medianf = np.quantile(data, 0.5, axis=0)
+        q1f = np.quantile(data, 0.25, axis=0)
+        q3f = np.quantile(data, 0.75, axis=0)
+
+
+        xvalues = range(data.shape[1])
+        ax1.plot(
+            xvalues, medianf, # color=color[j],
+            linewidth=1.0, label=suffixs[j])
+        ax1.fill_between(
+            xvalues, q3f, q1f,
+            alpha=0.3)
+
+    ax1.set_xlabel('Steps')
+    ax1.set_ylabel('Foraging (%)')
+    ax1.set_yticks(range(0,110,20))
+    # ax1.set_xticks(
+    #     np.linspace(0, data.shape[-1], 5))
+    plt.legend(loc="upper left")
+    plt.tight_layout()
+
+    # fig.savefig(
+    #     '/tmp/goal/data/experiments/' + pname + '.pdf')
+    maindir = '/tmp/swarm/data/experiments/'
+    # nadir = os.path.join(maindir, str(n), agent)
+    fig.savefig(
+        maindir + 'all_geese_fixed_behaviors_comparasion.png')
+    plt.close(fig)
+
+
+def compare_sampling_differences():
+    # plt.style.use('fivethirtyeight')
+    sampling_size = [0.1, 0.3, 0.5, 0.7, 0.9]
+    datasnew = [read_data_sample_ratio_betrgeese(s) for s in sampling_size]
+    datasold = [read_data_sample_ratio_geesebt(s) for s in sampling_size]
+    datascom = [read_data_sample_ratio_complex_geese(s) for s in sampling_size]
+    # print(datasnew, datasold)
+    fig = plt.figure(figsize=(8,6), dpi=300)
+    ax1 = fig.add_subplot(1, 1, 1)
+
+    colordict = {
+        0: 'forestgreen',
+        1: 'gold',
+        2: 'royalblue',
+        3: 'orchid',
+        4: 'olivedrab',
+        5: 'peru',
+        6: 'linen',
+        7: 'indianred',
+        8: 'tomato'}
+
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+    labels = sampling_size
+    positions = [
+        [1, 2, 3], [5, 6, 7], [9, 10, 11], [13, 14, 15], [17, 18, 19] # , [16, 17]
+        ]
+    datas = [
+        [datasold[0], datasnew[0], datascom[0] ],
+        [datasold[1], datasnew[1], datascom[1] ],
+        [datasold[2], datasnew[2], datascom[2] ],
+        [datasold[3], datasnew[3], datascom[3] ],
+        [datasold[4], datasnew[4], datascom[4] ],
+        # [datasold[5],datasnew[5]],
+    ]
+
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    for i in range(len(positions)):
+        bp1 = ax1.boxplot(
+            datas[i], 0, 'gD', showmeans=True, meanline=True,
+            patch_artist=True, medianprops=medianprops,
+            meanprops=meanprops, positions=positions[i], widths=0.8)
+        for patch, color in zip(bp1['boxes'], colordict.values()):
+            patch.set_facecolor(color)
+
+    # plt.xlim(0, len(mean))
+    ax1.legend(
+        zip(bp1['boxes']), ['Top Agents (GEESE-BT)', 'Parallel (BeTr-GEESE)', 'Top Agents (Complex-GEESE)'],
+        fontsize="small", loc="upper right", title='Sampling Algorithm')
+    ax1.set_xticks([2, 6, 10, 14, 18])
+    ax1.set_xticklabels(labels)
+    ax1.set_yticks(range(0, 105, 20))
+    ax1.set_xlabel('Sampling Size', fontsize="large")
+    ax1.set_ylabel('Maintenance (%)',  fontsize="large")
+    # ax1.set_title('Behavior Sampling',  fontsize="large")
+
+    plt.tight_layout()
+
+    maindir = '/tmp/swarm/data/experiments/'
+    fname = 'behavior_sampling'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+
+    plt.close(fig)
+
+
 def compare_sampling_differences_plot():
     # plt.style.use('fivethirtyeight')
     sampling_size = [0.1, 0.3, 0.5, 0.7, 0.9]
 
-    datasnew_forge = [read_data_sample_ratio_geesebt(s) for s in sampling_size]
-    datasold_forge = [read_data_sample_ratio_betrgeese(s) for s in sampling_size]
+    datasold_forge = [read_data_sample_ratio_geesebt(s) for s in sampling_size]
+    datasnew_forge = [read_data_sample_ratio_betrgeese(s) for s in sampling_size]
     datacomplex_forge = [read_data_sample_ratio_complex_geese(s) for s in sampling_size]
     fig = plt.figure(figsize=(8,6), dpi=300)
     ax1 = fig.add_subplot(1, 1, 1)
@@ -343,9 +447,11 @@ def plot_restictive_grammar():
 def main():
     # fixed_behaviors_sampling_ratio()
     # compare_all_geese_efficiency()
-    # compare_sampling_differences_plot()
-    # read_data_sample_ratio_complex_geese(0.1)
-    plot_restictive_grammar()
+    compare_sampling_differences_plot()
+    compare_sampling_differences()
+    # read_data_sample_ratio_complex_geese1(0.1)
+    # plot_restictive_grammar()
+    compare_all_fixed_behaviors_efficiency()
 
 
 if __name__ == '__main__':
