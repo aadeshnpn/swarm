@@ -72,7 +72,37 @@ def read_data_sample_comparision(
             # print(flist)
             datas = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
             # print(datas.shape)
-            data.append(datas[2])
+            if len(datas[2]) <= 12000:
+                temp_data = np.array([0]* 12001)
+                temp_data[: len(datas[2])] = datas[2]
+                temp_data[len(datas[2]):] = np.array([datas[2][-1]] * (12001 - len(datas[2])))
+                # print(temp_data.shape, temp_data[11990:])
+                temp_data[0] = 0
+                data.append(temp_data)
+            else:
+                data.append(datas[2])
+        except:
+            pass
+    data = np.array(data)
+    print(suffix, data.shape)
+    return data
+
+
+def read_data_sample_runtime(
+        suffix="geese-bt", simname="*EvoSForge_3",
+        folder="learning_comparision"):
+    maindir = '/home/aadeshnpn/Desktop/plots_ants22j/'+ folder + '/' + suffix
+    data = []
+    # print(maindir, simname)
+    folders = pathlib.Path(maindir).glob(simname)
+    for f in folders:
+        try:
+            # print(f)
+            flist = [p for p in pathlib.Path(f).iterdir() if p.is_file() and p.match('simulation.csv')]
+            # print(flist)
+            datas = np.genfromtxt(flist[0], autostrip=True, unpack=True, delimiter='|')
+            time = datas[3][-1] - datas[3][1]
+            data.append(time/60.0)
         except:
             pass
     data = np.array(data)
@@ -194,7 +224,7 @@ def compare_all_geese_efficiency():
 def compare_all_fixed_behaviors_efficiency():
 
     suffixs = ["geese-bt", "betr-geese", "complex-geese"]
-    simnames = ["*-0.5", "*_0.5_ValidateSForgeNewPPA1", "*CoevoSimulation"]
+    simnames = ["*ValidateSForge","*_0.5_ValidateSForgeNewPPA1", "*CoevoSimulation"]
 
     color = [
         'indianred', 'forestgreen', 'gold',
@@ -204,8 +234,9 @@ def compare_all_fixed_behaviors_efficiency():
         'lightsalmon', 'deepskyblue']
 
     # plt.style.use('fivethirtyeight')
-    fig = plt.figure(figsize=(10, 6), dpi=300)
-    ax1 = fig.add_subplot(1, 1, 1)
+    fig = plt.figure(figsize=(10, 4), dpi=300)
+    ax1 = fig.add_subplot(1, 2, 1)
+    labels = ['Top Agents (GEESE-BT)', 'Parallel (BeTr-GEESE)', 'Top Agents (Complex-GEESE)']
 
     for j in range(len(suffixs)):
         data = read_data_sample_comparision(
@@ -219,7 +250,7 @@ def compare_all_fixed_behaviors_efficiency():
         xvalues = range(data.shape[1])
         ax1.plot(
             xvalues, medianf, # color=color[j],
-            linewidth=1.0, label=suffixs[j])
+            linewidth=1.0, label=labels[j])
         ax1.fill_between(
             xvalues, q3f, q1f,
             alpha=0.3)
@@ -229,15 +260,109 @@ def compare_all_fixed_behaviors_efficiency():
     ax1.set_yticks(range(0,110,20))
     # ax1.set_xticks(
     #     np.linspace(0, data.shape[-1], 5))
-    plt.legend(loc="upper left")
-    plt.tight_layout()
+    ax1.legend(loc="upper left")
 
-    # fig.savefig(
-    #     '/tmp/goal/data/experiments/' + pname + '.pdf')
+    suffixs = ["geese-bt", "betr-geese", "complex-geese"]
+    simnames = ["*ValidateSForge","*CoevoSimulation", "*CoevoSimulation"]
+    datas = []
+
+    for j in range(3):
+        data = read_data_sample_runtime(
+            suffixs[j], simnames[j], folder="computation_time")
+        datas.append(data)
+
+    ax2 = fig.add_subplot(1, 2, 2)
+    colordict = {
+        0: 'forestgreen',
+        1: 'gold',
+        2: 'royalblue',
+        3: 'orchid',
+        4: 'olivedrab',
+        5: 'peru',
+        6: 'linen',
+        7: 'indianred',
+        8: 'tomato'}
+
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    bp1 = ax2.boxplot(
+        datas, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, widths=0.3)
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+
+    # ax2.legend(
+    #     zip(bp1['boxes']), labels,
+    #     fontsize="small", loc="center left")
+    ax2.set_xticklabels(['GEESE-BT', 'BeTr-GEESE', 'Complex-GEESE'])
+    ax2.set_ylabel('Run Time (Minutes)',  fontsize="large")
+
+    # ax1.indicate_inset_zoom(ax_zoom, edgecolor="black", label="Zoomed", alpha=0.3)
+    plt.tight_layout()
     maindir = '/tmp/swarm/data/experiments/'
-    # nadir = os.path.join(maindir, str(n), agent)
     fig.savefig(
         maindir + 'all_geese_fixed_behaviors_comparasion.png')
+
+    plt.close(fig)
+
+
+def compare_run_time():
+    suffixs = ["geese-bt", "betr-geese", "complex-geese"]
+    simnames = ["*ValidateSForge","*CoevoSimulation", "*CoevoSimulation"]
+    datas = []
+    for j in range(3):
+        data = read_data_sample_runtime(
+            suffixs[j], simnames[j], folder="computation_time")
+        datas.append(data)
+
+    fig = plt.figure(figsize=(8,6), dpi=300)
+    ax1 = fig.add_subplot(1, 1, 1)
+
+    colordict = {
+        0: 'forestgreen',
+        1: 'gold',
+        2: 'royalblue',
+        3: 'orchid',
+        4: 'olivedrab',
+        5: 'peru',
+        6: 'linen',
+        7: 'indianred',
+        8: 'tomato'}
+
+    colorshade = [
+        'springgreen', 'lightcoral',
+        'khaki', 'lightsalmon', 'deepskyblue']
+
+    medianprops = dict(linewidth=2.5, color='firebrick')
+    meanprops = dict(linewidth=2.5, color='#ff7f0e')
+    bp1 = ax1.boxplot(
+        datas, 0, 'gD', showmeans=True, meanline=True,
+        patch_artist=True, medianprops=medianprops,
+        meanprops=meanprops, widths=0.8)
+    for patch, color in zip(bp1['boxes'], colordict.values()):
+        patch.set_facecolor(color)
+
+    # plt.xlim(0, len(mean))
+    labels = ['Top Agents (GEESE-BT)', 'Parallel (BeTr-GEESE)', 'Top Agents (Complex-GEESE)']
+    ax1.legend(
+        zip(bp1['boxes']), labels,
+        fontsize="small", loc="upper right", title='Sampling Algorithm')
+    # ax1.set_xticks([2, 6, 10, 14, 18])
+    ax1.set_xticklabels(labels)
+    # ax1.set_yticks(range(0, 105, 20))
+    # ax1.set_xlabel('Sampling Size', fontsize="large")
+    ax1.set_ylabel('Run Time (Minutes)',  fontsize="large")
+    # ax1.set_title('Behavior Sampling',  fontsize="large")
+
+    plt.tight_layout()
+
+    maindir = '/tmp/swarm/data/experiments/'
+    fname = 'run_time'
+
+    fig.savefig(
+        maindir + '/' + fname + '.png')
+
     plt.close(fig)
 
 
@@ -447,11 +572,12 @@ def plot_restictive_grammar():
 def main():
     # fixed_behaviors_sampling_ratio()
     # compare_all_geese_efficiency()
-    compare_sampling_differences_plot()
-    compare_sampling_differences()
+    # compare_sampling_differences_plot()
+    # compare_sampling_differences()
     # read_data_sample_ratio_complex_geese1(0.1)
     # plot_restictive_grammar()
     compare_all_fixed_behaviors_efficiency()
+    # compare_run_time()
 
 
 if __name__ == '__main__':

@@ -13,7 +13,8 @@ from swarms.utils.jsonhandler import JsonPhenotypeData
 from swarms.utils.graph import Graph, GraphACC  # noqa : F401
 from joblib import Parallel, delayed    # noqa : F401
 from swarms.utils.results import (
-    SimulationResults, SimulationResultsTraps, SimulationResultsLt)
+    SimulationResults, SimulationResultsTraps, SimulationResultsLt,
+    SimulationResultsWTime)
 # import py_trees
 # Global variables for width and height
 width = 100
@@ -267,14 +268,14 @@ def static_bheavior_test_from_json(args, xmlstringsall=None, brepotires=None, pn
         # for agent in env.agents:
         #     agent.shared_content['Hub'] = {env.hub}
         # JsonPhenotypeData.to_json(xmlstrings, pname + '/' + env.runid + '_all.json')
-        results = SimulationResults(
+        results = SimulationResultsWTime(
             env.pname, env.connect, env.sn, env.stepcnt,
             env.maintenance_percent(), None)
         results.save_to_file()
 
         for i in range(12000):
             env.step()
-            results = SimulationResults(
+            results = SimulationResultsWTime(
                 env.pname, env.connect, env.sn, env.stepcnt,
                 env.maintenance_percent(), None)
             results.save_to_file()
