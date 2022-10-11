@@ -104,8 +104,8 @@ def main(args):
         pathlib.Path(dname).mkdir(parents=True, exist_ok=True)
         steps = [args.steps for i in range(args.runs)]
         jname = args.json_file
-        phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
-        with open('/tmp/behaviors_16644979314449.pickle', 'rb') as handle:
+        phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes'][:50]
+        with open('/tmp/behaviors_1664944869543.pickle', 'rb') as handle:
             brepotires = pickle.load(handle)
         env = (phenotype, dname, brepotires)
         Parallel(
@@ -201,7 +201,7 @@ if __name__ == '__main__':
     parser.add_argument('--dry_run', action='store_false')
     parser.add_argument('--exp_no', default=0, type=int)
     parser.add_argument('--grid', default=10, type=int)
-    parser.add_argument('--json_file', default='/tmp/16644979314449_all.json', type=str)
+    parser.add_argument('--json_file', default='/tmp/1664944869543_all.json', type=str)
     parser.add_argument('--all', default=False)
     args = parser.parse_args()
     print(args)
