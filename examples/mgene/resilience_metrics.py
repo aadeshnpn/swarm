@@ -137,6 +137,7 @@ def distortion_efficiency_power(fname="CoevoSimulation"):
     for g in grid:
         data = read_data_n_agent_perturbations_all(expp=6, no_obs=0, no_site=1, grid=g)
         # print(o, len(data), data[8:])
+        data = np.squeeze(data)
         powerdata100 = np.squeeze(data)[:, -1]
         allpower[g] = powerdata100
 
@@ -194,6 +195,7 @@ def shift_efficiency_power(fname="CoevoSimulation"):
     for s in sites:
         data = read_data_n_agent_perturbations_all(expp=5, no_obs=0, no_site=s, grid=10)
         # print(o, len(data), data[8:])
+        data = np.squeeze(data)
         powerdata100 = np.squeeze(data)[:, -1]
         allpower[s] = powerdata100
         effdata = [np.squeeze(
@@ -244,13 +246,14 @@ def shift_efficiency_power(fname="CoevoSimulation"):
         np.array([allpower, allefficiency], dtype=object))
 
 
-def addition_efficiency_power(fname="EvoCoevolutionPPA"):
+def addition_efficiency_power(fname="CoevoSimulation"):
     allpower = {}
     allefficiency = {}
     hitrate = []
     size = [100, 200, 300, 400, 500]
     for s in size:
         data = read_data_n_agent_perturbations_all(expp=3, no_obs=0, no_site=1, width=s, height=s)
+        data = np.squeeze(data)
         print(data.shape)
         powerdata100 = np.squeeze(data)[:, -1]
         allpower[s] = powerdata100
@@ -356,32 +359,32 @@ def plot_power_efficiency_subplots():
 
     # Foraging data
     ablation = np.load(
-        '/tmp/EvoCoevolutionPPA_power_efficiency_ablation.npy',
+        '/tmp/CoevoSimulation_power_efficiency_ablation.npy',
         allow_pickle=True)
     addition = np.load(
-        '/tmp/EvoCoevolutionPPA_power_efficiency_addition.npy',
+        '/tmp/CoevoSimulation_power_efficiency_addition.npy',
         allow_pickle=True)
     distortion = np.load(
-        '/tmp/EvoCoevolutionPPA_power_efficiency_distortion.npy',
+        '/tmp/CoevoSimulation_power_efficiency_distortion.npy',
         allow_pickle=True)
     shift = np.load(
-        '/tmp/EvoCoevolutionPPA_power_efficiency_shift.npy',
+        '/tmp/CoevoSimulation_power_efficiency_shift.npy',
         allow_pickle=True)
-    distortion_nest = np.load(
-        '/tmp/EvoNestMNewPPA1_power_efficiency_distortion.npy',
-        allow_pickle=True)
+    # distortion_nest = np.load(
+    #     '/tmp/EvoNestMNewPPA1_power_efficiency_distortion.npy',
+    #     allow_pickle=True)
 
-    ablation_nest = np.load(
-        '/tmp/EvoNestMNewPPA1_power_efficiency_ablation.npy',
-        allow_pickle=True)
+    # ablation_nest = np.load(
+    #     '/tmp/EvoNestMNewPPA1_power_efficiency_ablation.npy',
+    #     allow_pickle=True)
 
-    shift_nest = np.load(
-        '/tmp/EvoNestMNewPPA1_power_efficiency_shift.npy',
-        allow_pickle=True)
+    # shift_nest = np.load(
+    #     '/tmp/EvoNestMNewPPA1_power_efficiency_shift.npy',
+    #     allow_pickle=True)
 
-    addition_nest = np.load(
-        '/tmp/EvoNestMNewPPA1_power_efficiency_addition.npy',
-        allow_pickle=True)
+    # addition_nest = np.load(
+    #     '/tmp/EvoNestMNewPPA1_power_efficiency_addition.npy',
+    #     allow_pickle=True)
 
     fig = plt.figure(figsize=(6, 4), dpi=1600)
     ax1 = fig.add_subplot(2, 4, 1)
@@ -396,26 +399,26 @@ def plot_power_efficiency_subplots():
     colors = ['hotpink', 'mediumblue']
 
     # Shift
-    xticks = [i if i==0 else str(i)+'k' for i in [1, 2, 3, 4]]
+    xticks = [1, 2, 3, 4, 5]
     # Fixing the ytick issue with shit data
     ax8.scatter([1], [96], color="white", alpha=0.1, s=0.8, marker="x")
 
     subplot_perturbations(
-        shift[0], ax7, range(1, 5), xticks,
+        shift[0], ax7, range(1, 6), xticks,
         color=colors[0], xlabel='', pname='Shift', metric='Power', j=1)
     subplot_perturbations(
-        shift[1], ax8, range(1, 5), xticks,
-        color=colors[0], xlabel='LT Stop Interval',
+        shift[1], ax8, range(1, 6), xticks,
+        color=colors[0], xlabel='No. of Site',
         pname='Shift', metric='Efficiency', j=1)
 
-    subplot_perturbations(
-        shift_nest[0], ax7, range(1, 5), xticks,
-        color=colors[1], xlabel='', pname='Shift',
-        metric='Power', forge=False, j=1)
-    subplot_perturbations(
-        shift_nest[1], ax8, range(1, 5), xticks,
-        color=colors[1], xlabel='LT Stop Interval',
-        pname='Shift', metric='Efficiency', forge=False, j=1)
+    # subplot_perturbations(
+    #     shift_nest[0], ax7, range(1, 5), xticks,
+    #     color=colors[1], xlabel='', pname='Shift',
+    #     metric='Power', forge=False, j=1)
+    # subplot_perturbations(
+    #     shift_nest[1], ax8, range(1, 5), xticks,
+    #     color=colors[1], xlabel='LT Stop Interval',
+    #     pname='Shift', metric='Efficiency', forge=False, j=1)
 
     # # Foraging Ablation
     subplot_perturbations(
@@ -426,55 +429,58 @@ def plot_power_efficiency_subplots():
         color=colors[0], xlabel='No. of Obstacles',
         pname='Ablation', metric='Efficiency', j=1)
     # Nest Ablation
-    subplot_perturbations(
-        ablation_nest[0], ax1, range(1, 6, 1), range(1, 6, 1),
-        color=colors[1], xlabel='', pname='Ablation',
-        metric='Power', forge=False, j=1)
-    subplot_perturbations(
-        ablation_nest[1], ax2, range(1, 6, 1), range(1, 6, 1),
-        color=colors[1], xlabel='No. of Obstacles',
-        pname='Ablation', metric='Efficiency', forge=False, j=1)
+    # subplot_perturbations(
+    #     ablation_nest[0], ax1, range(1, 6, 1), range(1, 6, 1),
+    #     color=colors[1], xlabel='', pname='Ablation',
+    #     metric='Power', forge=False, j=1)
+    # subplot_perturbations(
+    #     ablation_nest[1], ax2, range(1, 6, 1), range(1, 6, 1),
+    #     color=colors[1], xlabel='No. of Obstacles',
+    #     pname='Ablation', metric='Efficiency', forge=False, j=1)
 
     # # Addition.
-    xticks = [i if i==0 else str(i)+'k' for i in range(2, 11, 2)]
-    addition[0] = {k:v for k,v in addition[0].items() if k in range(2000, 11000, 2000)}
-    addition[1] = {k:v for k,v in addition[1].items() if k in range(2000, 11000, 2000)}
+    # xticks = [i if i==0 else str(i)+'k' for i in range(1, 6, 1)]
+    # addition[0] = {k:v for k,v in addition[0].items() if k in range(2000, 11000, 2000)}
+    # addition[1] = {k:v for k,v in addition[1].items() if k in range(2000, 11000, 2000)}
+
     subplot_perturbations(
         addition[0], ax3, range(1, 6, 1), xticks,
         color=colors[0], xlabel='', pname='Addition', metric='Power', j=1)
     subplot_perturbations(
         addition[1], ax4, range(1, 6, 1), xticks,
-        color=colors[0], xlabel='Timings',
+        color=colors[0], xlabel='Environment Size',
         pname='Addition', metric='Efficiency', j=1)
-    addition_nest[0] = {k:v for k,v in addition_nest[0].items() if k in range(2000, 11000, 2000)}
-    addition_nest[1] = {k:v for k,v in addition_nest[1].items() if k in range(2000, 11000, 2000)}
-    subplot_perturbations(
-        addition_nest[0], ax3, range(1, 6, 1), xticks,
-        color=colors[1], xlabel='', pname='Addition',
-        metric='Power', forge=False, j=1)
-    subplot_perturbations(
-        addition_nest[1], ax4, range(1, 6, 1), xticks,
-        color=colors[1], xlabel='Timings',
-        pname='Addition', metric='Efficiency', forge=False, j=1)
+    # Nest
+    # addition_nest[0] = {k:v for k,v in addition_nest[0].items() if k in range(2000, 11000, 2000)}
+    # addition_nest[1] = {k:v for k,v in addition_nest[1].items() if k in range(2000, 11000, 2000)}
+    # subplot_perturbations(
+    #     addition_nest[0], ax3, range(1, 6, 1), xticks,
+    #     color=colors[1], xlabel='', pname='Addition',
+    #     metric='Power', forge=False, j=1)
+    # subplot_perturbations(
+    #     addition_nest[1], ax4, range(1, 6, 1), xticks,
+    #     color=colors[1], xlabel='Timings',
+    #     pname='Addition', metric='Efficiency', forge=False, j=1)
 
     # # Distortion
     # # Foraging
+    xticks = [2, 5, 10]
     subplot_perturbations(
-        distortion[0], ax5, range(0, 4, 1), [0.8, 0.85, 0.9, 0.99],
+        distortion[0], ax5, range(0, 3, 1), xticks,
         color=colors[0], xlabel='', pname='Distortion', metric='Power')
     subplot_perturbations(
-        distortion[1], ax6, range(0, 4, 1), [0.8, 0.85, 0.9, 0.99],
-        color=colors[0], xlabel='IP',
+        distortion[1], ax6, range(0, 3, 1), xticks,
+        color=colors[0], xlabel='Grid Size',
         pname='Distortion', metric='Efficiency')
     # Nest
-    subplot_perturbations(
-        distortion_nest[0], ax5, range(0, 4, 1), [0.8, 0.85, 0.9, 0.99],
-        color=colors[1], xlabel='',
-        pname='Distortion', metric='Power', forge=False)
-    subplot_perturbations(
-        distortion_nest[1], ax6, range(0, 4, 1), [0.8, 0.85, 0.9, 0.99],
-        color=colors[1], xlabel='IP',
-        pname='Distortion', metric='Efficiency', forge=False)
+    # subplot_perturbations(
+    #     distortion_nest[0], ax5, range(0, 4, 1), [0.8, 0.85, 0.9, 0.99],
+    #     color=colors[1], xlabel='',
+    #     pname='Distortion', metric='Power', forge=False)
+    # subplot_perturbations(
+    #     distortion_nest[1], ax6, range(0, 4, 1), [0.8, 0.85, 0.9, 0.99],
+    #     color=colors[1], xlabel='IP',
+    #     pname='Distortion', metric='Efficiency', forge=False)
 
     f = lambda m,c: plt.plot([],[],marker=m, color=c, ls="none")[0]
 
@@ -490,7 +496,7 @@ def plot_power_efficiency_subplots():
 
     plt.tight_layout()
     maindir = '/tmp/swarm/data/experiments'
-    fname = 'efficiency_power_all'
+    fname = 'efficiency_power_all_fixed'
 
     fig.savefig(
         maindir + '/' + fname + '.png')
@@ -610,7 +616,7 @@ def main():
     # ablation_efficiency_power()
     # addition_efficiency_power()
     # distortion_efficiency_power()
-    shift_efficiency_power()
+    # shift_efficiency_power()
     # data = read_data_n_agent_perturbations_all(expp=4, no_obs=1, no_site=1)
     # print(data, data.shape)
     # distortion_efficiency_power()
@@ -622,7 +628,7 @@ def main():
     # addition_efficiency_power(fname="EvoNestMNewPPA1")
     # shift_efficiency_power(fname="EvoNestMNewPPA1")
 
-    # plot_power_efficiency_subplots()
+    plot_power_efficiency_subplots()
 
     # addition_efficiency_power(fname="EvoCoevolutionPPAAd")
     # ip_ltr_gsr_relationship()

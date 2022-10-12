@@ -1130,6 +1130,10 @@ class SimNestMModel(Model):
                     for o in range(self.no_obs):
                         self.place_static_objs(Obstacles, self.obs_radius)
                     # temp_obj = obj(i, location, self.obs_radius)
+                elif name =='boundary':
+                    temp_obj = None
+                    for o in range(self.no_obs):
+                        self.place_static_objs(Obstacles, self.obs_radius)
                 elif name == 'hub':
                     temp_obj = obj(i, location, json_object["radius"])
             if temp_obj is not None:

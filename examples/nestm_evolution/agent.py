@@ -20,6 +20,7 @@ from ponyge.operators.selection import selection
 import py_trees
 import copy
 from flloat.parser.ltlf import LTLfParser
+from collections import OrderedDict
 
 
 class NestAgent(Agent):
@@ -575,10 +576,12 @@ class ExecutingAgent(NestAgent):
     This agent will run the behaviors evolved.
     """
 
-    def __init__(self, name, model, xmlstring=None):
+    def __init__(self, name, model, xmlstring=None, brepotire=None):
         """Initialize the agent."""
         super().__init__(name, model)
         self.xmlstring = xmlstring
+        self.brepotire = brepotire
+        self.bt = BTComplexConstruct(None, self)
         self.blackboard = blackboard.Client(name=str(self.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.WRITE)
         self.blackboard.neighbourobj = dict()

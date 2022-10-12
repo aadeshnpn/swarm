@@ -1,4 +1,21 @@
-# python experiment.py --exp_no 0 --runs 18 --threads 18 --n 100 --threshold 7 --iprob 0.85
+python experiment.py --exp_no 0 --runs 2 --threads 2 --n 100
+python experiment.py --exp_no 0 --runs 2 --threads 2 --n 100
+python experiment.py --exp_no 0 --runs 2 --threads 2 --n 100
+python experiment.py --exp_no 0 --runs 2 --threads 2 --n 100
+python experiment.py --exp_no 0 --runs 2 --threads 2 --n 100
+python experiment.py --exp_no 0 --runs 2 --threads 2 --n 100
+python experiment.py --exp_no 0 --runs 2 --threads 2 --n 100
+python experiment.py --exp_no 0 --runs 2 --threads 2 --n 100
+python experiment.py --exp_no 0 --runs 2 --threads 2 --n 100
+python experiment.py --exp_no 0 --runs 2 --threads 2 --n 100
+python experiment.py --exp_no 0 --runs 2 --threads 2 --n 100
+python experiment.py --exp_no 0 --runs 2 --threads 2 --n 100
+python experiment.py --exp_no 0 --runs 2 --threads 2 --n 100
+python experiment.py --exp_no 0 --runs 2 --threads 2 --n 100
+python experiment.py --exp_no 0 --runs 2 --threads 2 --n 100
+python experiment.py --exp_no 0 --runs 2 --threads 2 --n 100
+python experiment.py --exp_no 0 --runs 2 --threads 2 --n 100
+python experiment.py --exp_no 0 --runs 2 --threads 2 --n 100
 
 # python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --time 1000 --no_objects 1 --addobject Obstacles --radius 10 --n 100 --iprob 0.85 --threshold 7
 # python experiment.py --exp_no 0 --runs 18 --threads 18 --iter 12000 --time 2000 --no_objects 1 --addobject Obstacles --radius 10 --n 100 --iprob 0.85 --threshold 7

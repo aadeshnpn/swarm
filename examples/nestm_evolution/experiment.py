@@ -265,9 +265,11 @@ def static_bheavior_test_from_json(args, xmlstringsall=None, brepotires=None, pn
             args.n, width, height, 10, iter=args.iter, xmlstrings=xmlstrings,
             expsite=30, pname=pname_static, brepotires=brepotires)
         env.build_environment_from_json()
+
         # for agent in env.agents:
         #     agent.shared_content['Hub'] = {env.hub}
         # JsonPhenotypeData.to_json(xmlstrings, pname + '/' + env.runid + '_all.json')
+
         results = SimulationResultsWTime(
             env.pname, env.connect, env.sn, env.stepcnt,
             env.maintenance_percent(), None)
@@ -406,13 +408,16 @@ def experiments(args):
 
 
 def behavior_sampling_after(args):
-    jname = '/tmp/experiments/100/12000/1624352990396EvoSForgeNewPPA1/1624352990396-all.json'
+    jname = '/tmp/16655645891583_all.json'
     phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
-    print(len(phenotype))
-    for r in [0.1, 0.2, 0.3, 0.5, 0.7, 1.0]:
-        Parallel(
-            n_jobs=18)(delayed(validation_loop)(
-                phenotype, 5000, None, r, db=False) for i in range(18))
+    with open('/tmp/behaviors_16655645891583.pickle', 'rb') as handle:
+        brepotires = pickle.load(handle)
+    # print(len(phenotype))
+    # static_bheavior_test_from_json(
+    #         args, phenotype, brepotires, '/tmp/tmp/')
+    Parallel(
+        n_jobs=18)(delayed(static_bheavior_test_from_json)(
+            args, phenotype, brepotires, '/tmp/tmp/') for i in range(18))
 
 # def exp_with_size_trap(args):
 #     jname = '/tmp/experiments/100/12000/1624352990396EvoSForgeNewPPA1/1624352990396-all.json'
