@@ -1,0 +1,26 @@
+<s> ::= [?xml version=%1.0% encoding=%UTF-8%?]<root>
+<root> ::= [Sequence]<ppa><ppa><ppa><ppa><ppa>[/Sequence]
+<ppa>  ::= <ppaA> | <ppaB> | <ppaD> | <ppaE> | <ppaC>
+<ppaA> ::= [Sequence]<lastSelectorA><postcondition>[/Sequence]
+<ppaB> ::= [Sequence]<lastSelectorB><postcondition>[/Sequence]
+<ppaC> ::= [Sequence]<lastSelectorC><postcondition>[/Sequence]
+<ppaD> ::= [Sequence]<lastSelectorD><postcondition>[/Sequence]
+<ppaE> ::= [Sequence]<lastSelectorE><postcondition>[/Sequence]
+<postcondition> ::= <postcondition>[PostCnd]<postconditiont>[/PostCnd]|[PostCnd]<postconditiont>[/PostCnd]
+<postconditiont> ::= NeighbourObjects_<objects>|NeighbourObjects_<sobjects>|NeighbourObjects_<dobjects>|DidAvoidedObj_<sobjects>|IsCarrying_<dobjects>|IsVisitedBefore_<sobjects>
+<lastSelectorA> ::=  [Selector]<preconditions>[Act]<actiona>[/Act][/Selector]
+<lastSelectorB> ::=  [Selector]<preconditions>[Act]<actionb>[/Act][/Selector]
+<lastSelectorC> ::=  [Selector]<preconditions>[Act]<actionc>[/Act][/Selector]
+<lastSelectorD> ::=  [Selector]<preconditions>[Act]<actiond>[/Act][/Selector]
+<lastSelectorE> ::=  [Selector]<preconditions>[Act]<actione>[/Act][/Selector]
+<preconditions> ::= [Sequence]<precondition>[/Sequence]
+<precondition> ::= <precondition>[PreCnd]<preconditiont>[/PreCnd]|[PreCnd]<preconditiont>[/PreCnd]
+<preconditiont> ::=IsDropable_<sobjects>|NeighbourObjects_<objects>|NeighbourObjects_<objects>_invert|IsVisitedBefore_<sobjects>|IsVisitedBefore_<sobjects>_invert|IsCarrying_<dobjects>|IsCarrying_<dobjects>_invert
+<sobjects>::=Hub|Boundary
+<dobjects>::=Debris
+<objects>::=<sobjects>|<dobjects>
+<actiona> ::= ExploreNormal
+<actionb> ::= MoveTowardsNormal
+<actionc> ::= MoveAwayNormal
+<actiond> ::= CompositeSingleCarry
+<actione> ::= CompositeDrop

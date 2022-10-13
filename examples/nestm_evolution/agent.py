@@ -471,7 +471,7 @@ class CombiningAgent(LearningAgent):
         # Grammatical Evolution part
         from ponyge.algorithm.parameters import Parameters
         parameter = Parameters()
-        parameter_list = ['--parameters', '../..,test_new.txt']
+        parameter_list = ['--parameters', '../..,test_new_nest.txt']
         # Comment when different results is desired.
         # Else set this for testing purpose
         # parameter.params['RANDOM_SEED'] = name
