@@ -222,14 +222,14 @@ def combine_controllers(args, agents=None, pname='/tmp'):
         brepotires=brepotires, args=args)
     env.build_environment_from_json()
     env.create_agents()
-    results = SimulationResults(
+    results = SimulationResultsWTime(
             env.pname, env.connect, env.sn, env.stepcnt,
             env.maintenance_percent(), None)
     results.save_to_file()
 
     for i in range(args.iter):
         env.step()
-        results = SimulationResults(
+        results = SimulationResultsWTime(
             env.pname, env.connect, env.sn, env.stepcnt,
             env.maintenance_percent(), None)
         results.save_to_file()
@@ -256,31 +256,37 @@ def static_bheavior_test_from_json(args, xmlstringsall=None, brepotires=None, pn
     # with open('/tmp/behaviors_16642277014973.pickle', 'rb') as handle:
     #     brepotires = pickle.load(handle)
     print(len(brepotires))
-    for sample in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
+    for sample in [0.5]: # [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
         # pname = '/tmp/swarm/data/experiments/'+ str(sample) + '/'
         # print(xmlstrings)
         pname_static = pname + '/' + str(sample)
         xmlstrings = xmlstringsall[:int(len(xmlstringsall)*sample)]
+        brepotire = brepotires[:int(len(brepotires)*sample)]
         env = SimNestMModel(
             args.n, width, height, 10, iter=args.iter, xmlstrings=xmlstrings,
-            expsite=30, pname=pname_static, brepotires=brepotires)
+            expsite=30, pname=pname_static, brepotires=brepotire)
         env.build_environment_from_json()
-
-        # for agent in env.agents:
-        #     agent.shared_content['Hub'] = {env.hub}
+        env.create_agents()
         # JsonPhenotypeData.to_json(xmlstrings, pname + '/' + env.runid + '_all.json')
-
+        # print([b.location for b in env.boundaries])
+        # print([a.location for a in env.agents])
         results = SimulationResultsWTime(
             env.pname, env.connect, env.sn, env.stepcnt,
             env.maintenance_percent(), None)
         results.save_to_file()
 
-        for i in range(12000):
+        for i in range(1000):
             env.step()
+            # print(i, [a.location for a in env.agents])
+            # print(i, [d.location for d in env.debris])
             results = SimulationResultsWTime(
                 env.pname, env.connect, env.sn, env.stepcnt,
                 env.maintenance_percent(), None)
             results.save_to_file()
+        # print('Boundaries',[b.location for b in env.boundaries])
+        # print(i, [d.location for d in env.debris])
+        for a in env.agents:
+            print(a.name, a.attached_objects, a.location)
         print('Test maintenance percent',
             env.maintenance_percent(), ' ,Sampling:', sample)
         # print([food.location for food in env.foods])
@@ -408,16 +414,16 @@ def experiments(args):
 
 
 def behavior_sampling_after(args):
-    jname = '/tmp/16655645891583_all.json'
+    jname = '/tmp/16657482554046_all.json'
     phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes']
-    with open('/tmp/behaviors_16655645891583.pickle', 'rb') as handle:
+    with open('/tmp/behaviors_16657482554046.pickle', 'rb') as handle:
         brepotires = pickle.load(handle)
     # print(len(phenotype))
-    # static_bheavior_test_from_json(
-    #         args, phenotype, brepotires, '/tmp/tmp/')
-    Parallel(
-        n_jobs=18)(delayed(static_bheavior_test_from_json)(
-            args, phenotype, brepotires, '/tmp/tmp/') for i in range(18))
+    static_bheavior_test_from_json(
+            args, phenotype, brepotires, '/tmp/tmp/')
+    # Parallel(
+    #     n_jobs=4)(delayed(static_bheavior_test_from_json)(
+    #         args, phenotype, brepotires, '/tmp/tmp/') for i in range(4))
 
 # def exp_with_size_trap(args):
 #     jname = '/tmp/experiments/100/12000/1624352990396EvoSForgeNewPPA1/1624352990396-all.json'

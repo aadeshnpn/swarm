@@ -1036,9 +1036,9 @@ class SimCoevoModel(Model):
             # Add the agent to a random grid cell
             # x = self.random.randint(
             #    -self.grid.width / 2, self.grid.width / 2)
-            x = 0
             # y = self.random.randint(
             #    -self.grid.height / 2, self.grid.height / 2)
+            x = 0
             y = 0
 
             a.location = (x, y)

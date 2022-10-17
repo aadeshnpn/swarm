@@ -221,6 +221,54 @@ def compare_all_geese_efficiency():
     plt.close(fig)
 
 
+def power_efficiency_slides():
+    suffixs = ["geese-bt", "betr-geese", "complex-geese"]
+    simnames = ["*EvoSForge_3", "*EvoCoevolutionPPA", "*CombinedModelPPA"]
+
+    color = [
+        'indianred', 'forestgreen', 'gold',
+        'tomato', 'royalblue']
+    colorshade = [
+        'coral', 'springgreen', 'yellow',
+        'lightsalmon', 'deepskyblue']
+
+    # plt.style.use('fivethirtyeight')
+    fig = plt.figure(figsize=(10, 6), dpi=300)
+    ax1 = fig.add_subplot(1, 1, 1)
+
+    data = read_data_sample_comparision(suffixs[1], simnames[1])
+    maxv_idx = np.argmax(np.max(data[:, 1:], axis=1))
+    # print(maxvalues.shape, maxvalues)
+    sample = data[maxv_idx]
+    t_theta = np.where(sample>80)
+    print(t_theta)
+    xvalues = range(data.shape[1])
+    ax1.plot(
+        xvalues, sample, # color=color[j],
+        linewidth=1.0, label='BeTr-GEESE')
+    ax1.plot(
+        xvalues, [80]*len(xvalues), color='green', label=r'$\theta$')
+
+    ax1.plot(
+        [t_theta[0][0]]*100, range(100), color='red', label=r'$t_{\theta}$')
+    ax1.set_xlabel('Steps')
+    ax1.set_ylabel('Foraging (%)')
+    ax1.set_yticks(range(0,110,20))
+    # ax1.set_xticks(
+    #     np.linspace(0, data.shape[-1], 5))
+    plt.legend(loc="upper left")
+    plt.tight_layout()
+
+    # fig.savefig(
+    #     '/tmp/goal/data/experiments/' + pname + '.pdf')
+    maindir = '/tmp/swarm/data/experiments/'
+    # nadir = os.path.join(maindir, str(n), agent)
+    fig.savefig(
+        maindir + 'power_efficiency_slide.png')
+    plt.close(fig)
+    pass
+
+
 def compare_all_fixed_behaviors_efficiency():
 
     suffixs = ["geese-bt", "betr-geese", "complex-geese"]
@@ -576,8 +624,9 @@ def main():
     # compare_sampling_differences()
     # read_data_sample_ratio_complex_geese1(0.1)
     # plot_restictive_grammar()
-    compare_all_fixed_behaviors_efficiency()
+    # compare_all_fixed_behaviors_efficiency()
     # compare_run_time()
+    power_efficiency_slides()
 
 
 if __name__ == '__main__':

@@ -215,7 +215,7 @@ class NestMModel(Model):
         theta = np.linspace(0, 2*np.pi, 36)
         while True:
             # dist = self.random.choice(range(25, self.width//2, 5))
-            dist = 31
+            dist = 30
             t = self.random.choice(theta, 1, replace=False)[0]
             x = int(0 + np.cos(t) * dist)
             y = int(0 + np.sin(t) * dist)
@@ -1045,9 +1045,11 @@ class SimNestMModel(Model):
         self.schedule = SimultaneousActivation(self)
         self.traps = []
         self.obstacles = []
+        self.boundaries = []
 
         self.agents = []
 
+    def create_agents(self):
         # bound = np.ceil((self.num_agents * 1.0) / len(self.xmlstrings))
         bound = len(self.xmlstrings)
 
@@ -1065,15 +1067,17 @@ class SimNestMModel(Model):
             # Add the agent to a random grid cell
             # x = self.random.randint(
             #    -self.grid.width / 2, self.grid.width / 2)
-            x = 0
             # y = self.random.randint(
             #    -self.grid.height / 2, self.grid.height / 2)
+            x = 0
             y = 0
 
             a.location = (x, y)
             self.grid.add_object_to_grid((x, y), a)
             a.operation_threshold = 2  # self.num_agents // 10
             self.agents.append(a)
+            a.shared_content['Hub'] = {self.hub}
+            # a.shared_content['Boundary'] = {self.boundary}
             j += 1
             if (i + 1) % bound == 0:
                 j = 0
@@ -1104,6 +1108,8 @@ class SimNestMModel(Model):
                     self.traps += [envobj]
                 if isinstance(envobj, Obstacles):
                     self.obstacles += [envobj]
+                if isinstance(envobj, Boundary):
+                    self.boundaries += [envobj]
                 break
 
     def create_environment_object(self, jsondata, obj):
@@ -1133,7 +1139,10 @@ class SimNestMModel(Model):
                 elif name =='boundary':
                     temp_obj = None
                     for o in range(self.no_obs):
-                        self.place_static_objs(Obstacles, self.obs_radius)
+                        temp_obj = obj(i, location, self.obs_radius)
+                        # print(temp_obj, temp_obj.passable, temp_obj.dropable)
+                        self.boundaries += [temp_obj]
+                        # self.place_static_objs(Boundary, self.obs_radius)
                 elif name == 'hub':
                     temp_obj = obj(i, location, json_object["radius"])
             if temp_obj is not None:
@@ -1182,9 +1191,11 @@ class SimNestMModel(Model):
                 jsondata, obj)
 
         self.hub = self.render.objects['hub'][0]
-        self.boundaries = []
-        for i in range(5):
-            self.place_static_objs_special(Boundary, 10)
+        # self.hub.dropable = False
+        # self.hub.dropped_objects = dict()
+        # self.boundaries = []
+        # for i in range(5):
+        #     self.place_static_objs_special(Boundary, 10)
         self.boundary = self.boundaries[0]
         self.total_debris_units = 0
         self.debris = []
@@ -1197,7 +1208,7 @@ class SimNestMModel(Model):
                 # dy = self.hub.location[1] + dy
                 # d = Debris(
                 #     i, location=(int(0), int(0)), radius=10, weight=5)
-                d = Debris(i, location=self.hub.location, radius=10)
+                d = Debris(i, location=self.hub.location, radius=5)
                 d.agent_name = None
                 self.grid.add_object_to_grid(d.location, d)
                 self.total_debris_units += d.weight

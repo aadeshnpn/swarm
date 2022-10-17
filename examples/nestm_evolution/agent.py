@@ -581,6 +581,7 @@ class ExecutingAgent(NestAgent):
         super().__init__(name, model)
         self.xmlstring = xmlstring
         self.brepotire = brepotire
+        # print(self.name, self.xmlstring, self.brepotire)
         self.bt = BTComplexConstruct(None, self)
         self.blackboard = blackboard.Client(name=str(self.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.WRITE)
