@@ -162,7 +162,7 @@ def combine_controllers(args, agents=None, pname='/tmp'):
     # print([a.individual[0].phenotype for a in env.agents])
 
     # Run static behavior experiments
-    if env.foraging_percent() > 40:
+    if env.maintenance_percent() > 40:
         static_bheavior_test(args, phenotypes, sorted_brepotires, env.pname)
 
 
