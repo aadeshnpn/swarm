@@ -16,7 +16,7 @@
 <constraint> ::= <constraint>[Cnstr]<constraintt>[/Cnstr]|[Cnstr]<constraintt>[/Cnstr]
 <constraintt> ::=CanMove|IsCarryable_<dobjects>|IsDropable_<sobjects>
 
-<action> ::= MoveTowards_<sobjects>_Avoid|Explore_0_Avoid|MoveAway_<sobjects>_Avoid|CompositeSingleCarry_<dobjects>|CompositeDrop_<dobjects>
+<action> ::= MoveTowards_<sobjects>_Normal|Explore_0_Normal|MoveAway_<sobjects>_Normal|CompositeSingleCarry_<dobjects>|CompositeDrop_<dobjects>
 
 <sobjects>::=Hub|Boundary
 <dobjects>::=Debris

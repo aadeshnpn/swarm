@@ -1,14 +1,15 @@
 from inspect import CO_ITERABLE_COROUTINE
 from py_trees.common import Status
-from py_trees.composites import Selector, Parallel
+from py_trees.composites import Selector, Sequence, Parallel
 from py_trees import common, blackboard
 from py_trees.trees import BehaviourTree
-from swarms.behaviors.sbehaviors import DropCue, SendSignal, ObjectsStore
+from swarms.behaviors.sbehaviors import (
+    DropCue, SendSignal, ObjectsStore,
+    NeighbourObjects)
 import numpy as np
 from swarms.lib.agent import Agent
 from swarms.utils.bt import BTConstruct, BTComplexConstruct
 from swarms.utils.results import Results    # noqa : F401
-from swarms.utils.distangle import point_distance
 
 from ponyge.operators.initialisation import initialisation
 from ponyge.fitness.evaluation import evaluate_fitness
@@ -19,12 +20,12 @@ from ponyge.operators.selection import selection
 
 import py_trees
 import copy
-from flloat.parser.ltlf import LTLfParser
+# from flloat.parser.ltlf import LTLfParser
 from collections import OrderedDict
 
 
-class NestAgent(Agent):
-    """An minimalistic nest maintenance swarm agent."""
+class CoevoAgent(Agent):
+    """An minimalistic Coevolution swarm agent."""
 
     def __init__(self, name, model):
         """Initialize the agent."""
@@ -52,7 +53,7 @@ class NestAgent(Agent):
         self.step_count = 0
 
         self.fitness_name = True
-        self.ltrate = 0
+        self.ltrate = 0     # LT flag
         self.geneticrate = False
         self.brepotire = OrderedDict()
 
@@ -85,14 +86,32 @@ class NestAgent(Agent):
         """Require for staged activation."""
         pass
 
-    def get_debris_transported(self, distance_threshold=35):
+    def get_food_in_hub(self, agent_name=True):
+        """Get the food in the hub stored by the agent."""
+        grid = self.model.grid
+        hub_loc = self.model.hub.location
+        neighbours = grid.get_neighborhood(hub_loc, self.model.hub.radius)
+        food_objects = grid.get_objects_from_list_of_grid('Food', neighbours)
+        agent_food_objects = []
+        if not agent_name:
+            for food in food_objects:
+                agent_food_objects.append(food)
+        else:
+            for food in food_objects:
+                if food.agent_name == self.name:
+                    agent_food_objects.append(food)
+        return agent_food_objects
+
+    def get_debris_transported(self):
         """Return debris that have been cleared from hub."""
         # Not computational efficient method
         debris_objects = []
-        for debry in self.model.debris:
-            distance = point_distance(debry.location, self.model.hub.location)
-            if distance > distance_threshold:
-                debris_objects.append(debry)
+        grid = self.model.grid
+        for boundary in self.model.boundaries:
+            boundary_loc = boundary.location
+            neighbours = grid.get_neighborhood(boundary_loc, boundary.radius)
+            debris_objects += grid.get_objects_from_list_of_grid('Debris', neighbours)
+        debris_objects = set(debris_objects)
 
         agent_debris_objects = []
         for debris in debris_objects:
@@ -105,10 +124,10 @@ class NestAgent(Agent):
                 pass
         return agent_debris_objects
 
-    def detect_debris_carrying(self):
-        """Detect if the agent is carrying debris."""
+    def detect_food_carrying(self):
+        """Check if the agent is carrying food."""
         if len(self.attached_objects) > 0:
-            print('Derbis carying', self.name, self.attached_objects)
+            print('Food carying', self.name, self.attached_objects)
             output = py_trees.display.ascii_tree(self.bt.behaviour_tree.root)
             print(output)
 
@@ -144,16 +163,17 @@ class NestAgent(Agent):
     """Function related to LTLf and goals."""
     def evaluate_trace(self, goalspec, trace):
         # Evaluate the trace
-        parser = LTLfParser()
-        parsed_formula = parser(goalspec)
-        result = parsed_formula.truth(trace)
-        return result
+        # parser = LTLfParser()
+        # parsed_formula = parser(goalspec)
+        # result = parsed_formula.truth(trace)
+        # return result
+        pass
 
 
-class LearningAgent(NestAgent):
+class LearningAgent(CoevoAgent):
     """Simple agent with GE capabilities."""
 
-    def __init__(self, name, model, threshold=5):
+    def __init__(self, name, model, threshold=10):
         """Initialize the agent."""
         super().__init__(name, model)
         self.delayed_reward = 0
@@ -170,6 +190,8 @@ class LearningAgent(NestAgent):
         self.constraints_reward = 0
         self.postcond_reward = 0
         self.threshold = threshold
+        # self.trace.append({k:self.functions[k]() for k in self.keys})
+        # self.trace[self.step_count] = {k:self.functions[k]() for k in self.keys}
 
     def update_brepotire(self):
         allnodes = list(self.bt.behaviour_tree.root.iterate())
@@ -217,7 +239,7 @@ class LearningAgent(NestAgent):
         postcond = list(filter(
             lambda x: x.name.split('_')[-1] == 'postcond', allnodes)
             )
-        # print([(node.name) for node in allnodes])
+        # print(list(self.bt.behaviour_tree.visitors))
         self.selectors_reward = sum([1 for sel in selectors if sel.status == common.Status.SUCCESS])
         self.constraints_reward = sum([-2 for const in constraints if const.status == common.Status.FAILURE])
         self.postcond_reward = sum([1 for pcond in postcond if pcond.status == common.Status.SUCCESS])
@@ -254,16 +276,15 @@ class LearningAgent(NestAgent):
 
         self.delayed_cf = 0
         self.delayed_ef = 0
-        # if self.name == 7:
-        #    self.individual[0].fitness = 10000000000000
-        #    self.delayed_reward = 10000000000000
 
     def construct_bt(self):
         """Construct BT."""
         # Get the phenotype of the genome and store as xmlstring
         self.bt.xmlstring = self.individual[0].phenotype
+        # print(self.name, self.bt.xmlstring)
         # Construct actual BT from xmlstring
         self.bt.construct()
+        # print(self.bt.xmlstring)
 
     def store_genome(self, cellmates):
         """Store the genome from neighbours."""
@@ -285,16 +306,7 @@ class LearningAgent(NestAgent):
         self.genome_storage = []
 
     def genetic_step(self):
-        """Additional procedures called after genecti step."""
-        # print(
-        #    'fitness: ', self.name, self.step_count, self.timestamp,
-        #    self.beta,
-        #    self.delayed_reward, self.exploration_fitness(),
-        #    self.carrying_fitness(), self.food_collected)
-
-        # self.phenotypes[self.individual[0].phenotype] = (
-        #    self.exploration_fitness(), self.carrying_fitness(),
-        #    self.food_collected)
+        """Additional procedures called after genetic step."""
 
         self.delayed_reward = self.individual[0].fitness
         self.exchange_chromosome()
@@ -323,51 +335,11 @@ class LearningAgent(NestAgent):
         # food has been found, the next block will focus on dropping
         # the food on hub
 
-        # self.delayed_reward = round(self.beta * self.delayed_reward, 4)
-
         # # Goal Specification Fitness
-        # self.individual[0].fitness = (1 - self.beta) * self.diversity_fitness + self.ef  + self.evaluate_constraints_conditions()
-        divb = self.model.fmodels[self.model.fitid][0]
-        efb = self.model.fmodels[self.model.fitid][1]
-        # cfb = self.model.fmodels[self.model.fitid][2]
-        dfb = self.model.fmodels[self.model.fitid][3]
-        # print(self.name, divb, efb, dfb)
+        self.individual[0].fitness = (1-self.beta) * self.delayed_reward + self.ef + self.evaluate_constraints_conditions()
 
-        self.individual[0].fitness = (
-            (1 - self.beta) * self.delayed_reward * divb +
-            self.ef * efb +
-            # self.cf * cfb +
-            # self.debris_collected * dfb
-            self.evaluate_constraints_conditions() * dfb
-            )
-        # self.individual[0].fitness = (1 - self.beta) * self.delayed_reward + self.ef + self.evaluate_constraints_conditions()
-
-    def get_debris_transported(self, distance_threshold=35):
-        """Return debris that have been cleared from hub."""
-        # Not computational efficient method
-        # debris_objects = []
-        # for debry in self.model.debris:
-        #     distance = point_distance(debry.location, self.model.hub.location)
-        #     if distance > distance_threshold:
-        #         debris_objects.append(debry)
-        debris_objects = []
-        # debris_grid = []
-
-        # grid = self.model.grid
-        # for boundary in self.model.boundaries:
-        #     # boundary_loc = boundary.location
-        #     # neighbours = grid.get_neighborhood(boundary_loc, boundary.radius)
-        #     # debris_objects += grid.get_objects_from_list_of_grid('Debris', neighbours)
-        #     debris_objects +=  list(set(boundary.dropped_objects))
-        #     # _, dgrid = grid.find_grid(boundary_loc)
-        #     # debris_grid += dgrid
-
-        # for debry in self.model.debris:
-        #     _, debry_grid = grid.find_grid(debry.location)
-        #     if debry_grid in debris_grid:
-        #         debris_objects += [debry]
-        # debris_objects = set(debris_objects)
-        # return debris_objects
+    def get_debris_transported(self):
+        """Get the debris in the boundary region."""
         debris_objects = list(set(self.model.boundary.dropped_objects))
         agent_debris_objects = []
         for debris in debris_objects:
@@ -405,40 +377,44 @@ class LearningAgent(NestAgent):
 
             # Hash the phenotype with its fitness
             # We need to move this from here to genetic step
-            # self.cf = self.carrying_fitness()
             self.ef = self.exploration_fitness()
-            # self.scf = self.communication_fitness()
 
             # Computes overall fitness using Beta function
             self.overall_fitness()
+            # print(self.name, self.individual[0].fitness)
 
             self.phenotypes = dict()
             self.phenotypes[self.individual[0].phenotype] = (
                 self.individual[0].fitness)
-
             # Updated behavior repotire
             self.update_brepotire()
-
             if not self.model.stop_lateral_transfer:
                 # Find the nearby agents
                 cellmates = self.model.grid.get_objects_from_grid(
                     type(self).__name__, self.location)
 
                 # Interaction Probability with other agents
-                cellmates = [cell for cell in cellmates if self.model.random.rand() < self.model.iprob and cell.dead is False]
+                cellmates = [cell for cell in cellmates  if self.model.random.rand() < self.model.iprob and cell.dead is False]
                 # cellmates = [cell for cell in cellmates if cell.individual[0] not in self.genome_storage]
                 self.ltrate = len(cellmates)
                 # If neighbours found, store the genome
                 if len(cellmates) > 1:
+                    # cellmates = list(self.model.random.choice(
+                    #     cellmates, self.model.random.randint(
+                    #         1, len(cellmates)-1), replace=False))
                     self.store_genome(cellmates)
+                    # Update behavior repotire
+                    # for cell in cellmates:
+                    #     self.update_brepotire_others(cell)
 
             # Logic for gentic operations.
             # If the genome storage has enough genomes and agents has done some
             # exploration then compute the genetic step OR
-            # 600 time step has passed and the agent has not done anything useful
+            # 200 time step has passed and the agent has not done anything useful
             # then also perform genetic step
             storage_threshold = len(
                 self.genome_storage) >= self.threshold
+            # (self.model.num_agents / (self.threshold* 1.0))
 
             if storage_threshold:
                 self.geneticrate = storage_threshold
@@ -570,10 +546,10 @@ class CombiningAgent(LearningAgent):
                 self.genetic_step()
 
 
-class ExecutingAgent(NestAgent):
-    """A Nest maintenance swarm agent.
+class ExecutingAgent(CoevoAgent):
+    """A coevolution swarm agent.
 
-    This agent will run the behaviors evolved.
+    This agent will run the various behaviors evolved.
     """
 
     def __init__(self, name, model, xmlstring=None, brepotire=None):
@@ -581,11 +557,23 @@ class ExecutingAgent(NestAgent):
         super().__init__(name, model)
         self.xmlstring = xmlstring
         self.brepotire = brepotire
-        # print(self.name, self.xmlstring, self.brepotire)
         self.bt = BTComplexConstruct(None, self)
         self.blackboard = blackboard.Client(name=str(self.name))
         self.blackboard.register_key(key='neighbourobj', access=common.Access.WRITE)
         self.blackboard.neighbourobj = dict()
+        self.current_behavior_counter = 0
+        self.timer = 0
+
+
+    def create_root_node(self, nodes):
+        # root = Sequence('RootAll')
+        # root = Selector('RootAll')
+        # root = Parallel('RootAll')
+        # self.model.random.shuffle(bts)
+        # root.add_children(bts[self.current_behavior_counter])
+        # root.add_children([node])
+        # root.add_children(nodes)
+        return BehaviourTree(nodes)
 
     def construct_bt(self):
         """Construct BT."""
@@ -594,33 +582,100 @@ class ExecutingAgent(NestAgent):
         # # Construct actual BT from xmlstring
         self.bt.construct()
 
+        # New way to create BT
         # bts = []
         # for i in range(len(self.xmlstring)):
         #     bt = BTConstruct(None, self, self.xmlstring[i])
         #     bt.construct()
-        #     bts.append(bt.behaviour_tree.root)
-        # # root = Selector('RootAll')
-        # # root = Sequence('RootAll')
+        #     # bts.append(bt.behaviour_tree.root)
+        #     bts.append(bt)
+        # self.bts = bts
+        # self.post_conditions = []
+        # for i in range(len(self.xmlstring)):
+        #     bt = BTConstruct(None, self, self.xmlstring[i])
+        #     bt.construct()
+        #     # bts.append(bt.behaviour_tree.root)
+        #     # bts.append(bt)
+        #     other_branch_id = bt.behaviour_tree.root.children[0].children[1].id
+        #     bt.behaviour_tree.prune_subtree(other_branch_id)
+        #     self.post_conditions.append(bt)
+
+        # root = Selector('RootAll')
+        # root = Sequence('RootAll')
         # root = Parallel('RootAll')
         # self.model.random.shuffle(bts)
-        # root.add_children(bts)
-        # self.bt.behaviour_tree = BehaviourTree(root)
+        # root.add_children(bts[self.current_behavior_counter])
+        # self.bt.behaviour_tree = self.create_root_node(
+        #     self.bts[self.current_behavior_counter])
+        # self.current_behavior_counter += 1
+        # print(self.bts, len(self.bts))
 
-        # self.bt.xmlstring = self.xmlstring
-        # # Construct actual BT from xmlstring
-        # self.bt.construct()
+        # self.bt.behaviour_tree = self.create_root_node(
+        #     self.bts)
+
+        # Condition to change between different behaviors
+        # If found any neighbours, then change behaviors
         # py_trees.display.render_dot_tree(
         #    self.bt.behaviour_tree.root, name='/tmp/' + str(self.name))
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
-        # print(self.name, py_trees.display.ascii_tree(self.bt.behaviour_tree.root))
+        # for i in range(len(self.xmlstring)):
+        # print(self.name, py_trees.display.ascii_tree(self.bts[0].behaviour_tree.root))
+        # print(self.name, py_trees.display.ascii_tree(self.post_conditions[0].behaviour_tree.root))
+
+        # print(self.bts[0].behaviour_tree.root.children[0].children[0].children)
+        # postcondition_sequence = copy.copy(self.bts[0].behaviour_tree.root.children[0].children[0])
+        # all_postcondition = []
+        # for pconds in postcondition_sequence.children:
+        #     pconds_copy = copy.copy(pconds)
+        #     all_postcondition.append(pconds_copy)
+        # postcondition_sequence_new = Sequence('PC_Sequence')
+        # print(dir(pconds_copy))
+        # postcondition_sequence_new.add_children(all_postcondition)
+        # print('copied', postcondition_sequence_new.children)
+        # exit()
+
+    def check_conditions(self):
+        cellobjects = self.model.grid.get_objects_from_grid(
+                    None, self.location)
+        object_names = ["Hub", "Sites", "Food"]
+        objects_of_interest = [ cell for cell in cellobjects if type(cell).__name__ in object_names]
+        return True if len(objects_of_interest) > 0 else False
+
+    def check_post_condition(self):
+        curr_postcondition = self.post_conditions[self.current_behavior_counter % len(self.xmlstring)]
+        curr_postcondition.behaviour_tree.tick()
+        # if self.name == 0:
+        #     print(self.name, curr_postcondition.behaviour_tree.root.status, self.current_behavior_counter % len(self.xmlstring))
+        if curr_postcondition.behaviour_tree.root.status == Status.SUCCESS:
+            return True
+        else:
+            return False
+        # post_cond = curr_bt
+
 
     def step(self):
         """Agent action at a single time step."""
         # Maintain the location history of the agent
         # self.location_history.add(self.location)
-
-        # Compute the behavior tree
         self.bt.behaviour_tree.tick()
+        # Compute the behavior tree
+        # self.bts[self.current_behavior_counter % len(self.xmlstring)].behaviour_tree.tick()
+
+        # # Check postcondition for that particular bt
+        # if self.check_post_condition():
+        #     self.timer = 0
+        #     self.current_behavior_counter += 1
+        # # else:
+        # #     if self.timer > 40:
+        # #         self.timer = 0
+        # #         self.current_behavior_counter += 1
+        # self.timer += 1
+        # If some condition meet change the behavior
+        # if self.check_conditions():
+        #     del self.bt.behaviour_tree
+        #     self.bt.behaviour_tree = self.create_root_node(
+        #         self.bts[self.current_behavior_counter % len(self.bts)])
+        #     self.current_behavior_counter += 1
 
         # Find the no.of food collected from the BT execution
         # self.food_collected = len(self.get_food_in_hub())

@@ -16,7 +16,7 @@
 <preconditions> ::= [Sequence]<precondition>[/Sequence]
 <precondition> ::= <precondition>[PreCnd]<preconditiont>[/PreCnd]|[PreCnd]<preconditiont>[/PreCnd]
 <preconditiont> ::=IsDropable_<sobjects>|NeighbourObjects_<objects>|NeighbourObjects_<objects>_invert|IsVisitedBefore_<sobjects>|IsVisitedBefore_<sobjects>_invert|IsCarrying_<dobjects>|IsCarrying_<dobjects>_invert
-<sobjects>::=Hub|Boundary
+<sobjects>::=Boundary|Hub
 <dobjects>::=Debris
 <objects>::=<sobjects>|<dobjects>
 <actiona> ::= ExploreNormal
