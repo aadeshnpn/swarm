@@ -1092,6 +1092,8 @@ class SimCoevoModel(Model):
                     # temp_obj = obj(i, location, self.obs_radius)
                 elif name == 'hub':
                     temp_obj = obj(i, location, json_object["radius"])
+                elif name == 'boundary':
+                    temp_obj = obj(i, location, json_object["radius"])
             if temp_obj is not None:
                 self.grid.add_object_to_grid(location, temp_obj)
                 temp_list.append(temp_obj)
@@ -1115,6 +1117,7 @@ class SimCoevoModel(Model):
         self.boundaries = self.render.objects['boundary']
         self.boundary = self.boundaries[0]
         self.debris = []
+        self.total_debris_units = 0
         try:
             for i in range(self.num_agents):
                 # Add food to the site

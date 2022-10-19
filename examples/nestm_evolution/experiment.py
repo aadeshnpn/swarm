@@ -183,13 +183,13 @@ def static_bheavior_test(args, xmlstringsall, brepotires, pname):
         # for agent in env.agents:
         #     agent.shared_content['Hub'] = {env.hub}
         # JsonPhenotypeData.to_json(xmlstrings, pname + '/' + env.runid + '_all.json')
-        results = SimulationResults(
+        results = SimulationResultsWTime(
             env.pname, env.connect, env.sn, env.stepcnt, env.maintenance_percent(), None)
         results.save_to_file()
 
         for i in range(12000):
             env.step()
-            results = SimulationResults(
+            results = SimulationResultsWTime(
                 env.pname, env.connect, env.sn, env.stepcnt, env.maintenance_percent(), None)
             results.save_to_file()
         print('Test maintenance percent', env.maintenance_percent(), ' ,Sampling:', sample)
@@ -199,7 +199,8 @@ def static_bheavior_test(args, xmlstringsall, brepotires, pname):
 def static_bheavior_test_from_json(args, xmlstringsall=None, brepotires=None, pname=None):
     xmlstringsall = JsonPhenotypeData.load_json_file(args.fname)
     xmlstringsall = xmlstringsall['phenotypes']
-    with open('/tmp/behaviors_16644389907579.pickle', 'rb') as handle:
+    # 16661697132279_all.json
+    with open('/tmp/behaviors_16661697132279.pickle', 'rb') as handle:
         brepotires = pickle.load(handle)
     print(len(brepotires))
     for sample in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
@@ -214,13 +215,13 @@ def static_bheavior_test_from_json(args, xmlstringsall=None, brepotires=None, pn
         # for agent in env.agents:
         #     agent.shared_content['Hub'] = {env.hub}
         # JsonPhenotypeData.to_json(xmlstrings, pname + '/' + env.runid + '_all.json')
-        results = SimulationResults(
+        results = SimulationResultsWTime(
             env.pname, env.connect, env.sn, env.stepcnt, env.maintenance_percent(), None)
         results.save_to_file()
 
-        for i in range(12000):
+        for i in range(args.iter):
             env.step()
-            results = SimulationResults(
+            results = SimulationResultsWTime(
                 env.pname, env.connect, env.sn, env.stepcnt, env.maintenance_percent(), None)
             results.save_to_file()
         print('Test maintenance percent', env.maintenance_percent(), ' ,Sampling:', sample)
