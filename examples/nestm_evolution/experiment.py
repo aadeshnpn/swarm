@@ -200,11 +200,12 @@ def static_bheavior_test_from_json(args, xmlstringsall=None, brepotires=None, pn
     xmlstringsall = JsonPhenotypeData.load_json_file(args.fname)
     xmlstringsall = xmlstringsall['phenotypes']
     # 16661697132279_all.json
-    with open('/tmp/behaviors_16661697132279.pickle', 'rb') as handle:
+    # 16662976634729_all.json
+    with open('/tmp/behaviors_16662976634729.pickle', 'rb') as handle:
         brepotires = pickle.load(handle)
     print(len(brepotires))
-    for sample in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
-        pname = '/tmp/swarm/data/experiments/'+ str(sample) + '/'
+    for sample in [0.3, 0.4, 0.5]: # [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]:
+        pname = '/tmp/tmp/'+ str(sample) + '/'
         # print(xmlstrings)
         pname_static = pname
         xmlstrings = xmlstringsall[:int(len(xmlstringsall)*sample)]

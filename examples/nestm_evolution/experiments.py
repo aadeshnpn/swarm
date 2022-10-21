@@ -37,7 +37,7 @@ def simulate_forg(
         # agent.shared_content['Sites'] = {sim.site}
 
     simresults = SimulationResultsWTime(
-        sim.pname, sim.connect, sim.sn, sim.stepcnt, sim.food_in_hub(),
+        sim.pname, sim.connect, sim.sn, sim.stepcnt, sim.maintenance_percent(),
         phenotypes[0]
         )
 
@@ -55,13 +55,13 @@ def simulate_forg(
         # print(i, [(a.name, a.location, sim.grid.find_grid(a.location), a.dead, round(a.direction, 2)) for a in sim.agents])
         # print("total dead agents",i, sim.no_agent_dead())
 
-        value = sim.food_in_hub()
+        # value = sim.maintenance_percent()
 
-        foraging_percent = (
-            value * 100.0) / (sim.num_agents * 1)
+        # foraging_percent = (
+        #     value * 100.0) / (sim.num_agents * 1)
 
         simresults = SimulationResultsWTime(
-            sim.pname, sim.connect, sim.sn, sim.stepcnt, foraging_percent,
+            sim.pname, sim.connect, sim.sn, sim.stepcnt, sim.maintenance_percent(),
             phenotypes[0]
             )
         simresults.save_to_file()
@@ -105,7 +105,7 @@ def main(args):
         steps = [args.steps for i in range(args.runs)]
         jname = args.json_file
         phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes'][:50]
-        with open('/tmp/behaviors_1664944869543.pickle', 'rb') as handle:
+        with open('/tmp/behaviors_16662337876288.pickle', 'rb') as handle:
             brepotires = pickle.load(handle)
         env = (phenotype, dname, brepotires)
         Parallel(
@@ -201,7 +201,7 @@ if __name__ == '__main__':
     parser.add_argument('--dry_run', action='store_false')
     parser.add_argument('--exp_no', default=0, type=int)
     parser.add_argument('--grid', default=10, type=int)
-    parser.add_argument('--json_file', default='/tmp/1664944869543_all.json', type=str)
+    parser.add_argument('--json_file', default='/tmp/16662337876288_all.json', type=str)
     parser.add_argument('--all', default=False)
     args = parser.parse_args()
     print(args)

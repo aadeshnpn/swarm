@@ -984,7 +984,7 @@ class SimCoevoModel(Model):
         self.schedule = SimultaneousActivation(self)
         self.traps = []
         self.obstacles = []
-
+        self.boundaries = []
         self.agents = []
 
         bound = len(self.xmlstrings)
@@ -1066,6 +1066,25 @@ class SimCoevoModel(Model):
                     self.obstacles += [envobj]
                 break
 
+    def place_static_objs_special(self, obj, radius):
+        theta = np.linspace(0, 2*np.pi, 36)
+        while True:
+            dist = 30
+            t = self.random.choice(theta, 1, replace=False)[0]
+            x = int(0 + np.cos(t) * dist)
+            y = int(0 + np.sin(t) * dist)
+            location = (x, y)
+            other_bojects = self.grid.get_objects_from_list_of_grid(
+                None, self.grid.get_neighborhood((x,y), radius))
+            # print(obj, radius, location)
+            if len(other_bojects) == 0:
+                envobj = obj(
+                        dist, location, radius)
+                self.grid.add_object_to_grid(location, envobj)
+                if isinstance(envobj, Boundary):
+                    self.boundaries += [envobj]
+                break
+
     def create_environment_object(self, jsondata, obj):
         """Create env from jsondata."""
         name = obj.__name__.lower()
@@ -1094,6 +1113,9 @@ class SimCoevoModel(Model):
                     temp_obj = obj(i, location, json_object["radius"])
                 elif name == 'boundary':
                     temp_obj = obj(i, location, json_object["radius"])
+                    # temp_obj = None
+                    # for j in range(5):
+                    #     self.place_static_objs_special(Boundary, 10)
             if temp_obj is not None:
                 self.grid.add_object_to_grid(location, temp_obj)
                 temp_list.append(temp_obj)
