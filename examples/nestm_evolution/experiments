@@ -1,9 +1,9 @@
 #!/bin/bash
 
-python experiments.py --exp_no 4 --runs 2 --thread 2 --no_trap 0 --dry_run --steps 12000
-python experiments.py --exp_no 5 --runs 2 --thread 2 --no_trap 0  --no_obs 0 --dry_run --steps 12000
-python experiments.py --exp_no 6 --runs 2 --thread 2 --no_trap 0  --no_obs 0 --dry_run --steps 12000
-python experiments.py --exp_no 3 --runs 2 --thread 2 --no_trap 0  --no_obs 0 --dry_run --steps 12000
+python experiments.py --exp_no 4 --runs 16 --thread 16 --no_trap 0 --dry_run --steps 12000
+python experiments.py --exp_no 5 --runs 16 --thread 16 --no_trap 0  --no_obs 0 --dry_run --steps 12000
+python experiments.py --exp_no 6 --runs 16 --thread 16 --no_trap 0  --no_obs 0 --dry_run --steps 12000
+python experiments.py --exp_no 3 --runs 16 --thread 16 --no_trap 0  --no_obs 0 --dry_run --steps 12000
 # python experiment.py --exp_no 0 --runs 2 --threads 2 --n 100 --iter 12000
 # python experiment.py --exp_no 0 --runs 2 --threads 2 --n 100 --iter 12000
 # python experiment.py --exp_no 0 --runs 2 --threads 2 --n 100 --iter 12000

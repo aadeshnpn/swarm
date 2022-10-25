@@ -158,9 +158,10 @@ def compute_DEP(equivalance, succesor):
 
 
 def main():
-    gnames = [
-        '/tmp/coevo.bnf', '/tmp/bt.bnf', '/tmp/swarm.bnf',
-        '/tmp/coevoAddition.bnf']
+    # gnames = [
+    #     '/tmp/coevo.bnf', '/tmp/bt.bnf', '/tmp/swarm.bnf',
+    #     '/tmp/coevoAddition.bnf']
+    gnames = ['/tmp/test_new.bnf']
     for gname in gnames:
         size_metrics(gname)
         structure_metrics(gname)

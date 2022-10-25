@@ -175,6 +175,7 @@ def read_data_sample_ratio_betrgeese(ratio=0.1, end=True):
 def compare_all_geese_efficiency():
 
     suffixs = ["geese-bt", "betr-geese", "complex-geese"]
+    labels = ["GEESE-BT", "BeTr-GEESE", "Multi-GEESE"]
     simnames = ["*EvoSForge_3", "*EvoCoevolutionPPA", "*CombinedModelPPA"]
 
     color = [
@@ -199,7 +200,7 @@ def compare_all_geese_efficiency():
         xvalues = range(data.shape[1])
         ax1.plot(
             xvalues, medianf, # color=color[j],
-            linewidth=1.0, label=suffixs[j])
+            linewidth=1.0, label=labels[j])
         ax1.fill_between(
             xvalues, q3f, q1f,
             alpha=0.3)
@@ -284,7 +285,7 @@ def compare_all_fixed_behaviors_efficiency():
     # plt.style.use('fivethirtyeight')
     fig = plt.figure(figsize=(10, 4), dpi=300)
     ax1 = fig.add_subplot(1, 2, 1)
-    labels = ['Top Agents (GEESE-BT)', 'Parallel (BeTr-GEESE)', 'Top Agents (Complex-GEESE)']
+    labels = ['Top Agents (GEESE-BT)', 'Parallel (BeTr-GEESE)', 'Top Agents (Multi-GEESE)']
 
     for j in range(len(suffixs)):
         data = read_data_sample_comparision(
@@ -343,7 +344,7 @@ def compare_all_fixed_behaviors_efficiency():
     # ax2.legend(
     #     zip(bp1['boxes']), labels,
     #     fontsize="small", loc="center left")
-    ax2.set_xticklabels(['GEESE-BT', 'BeTr-GEESE', 'Complex-GEESE'])
+    ax2.set_xticklabels(['GEESE-BT', 'BeTr-GEESE', 'Multi-GEESE'])
     ax2.set_ylabel('Run Time (Minutes)',  fontsize="large")
 
     # ax1.indicate_inset_zoom(ax_zoom, edgecolor="black", label="Zoomed", alpha=0.3)
@@ -463,7 +464,7 @@ def compare_sampling_differences():
 
     # plt.xlim(0, len(mean))
     ax1.legend(
-        zip(bp1['boxes']), ['Top Agents (GEESE-BT)', 'Parallel (BeTr-GEESE)', 'Top Agents (Complex-GEESE)'],
+        zip(bp1['boxes']), ['Top Agents (GEESE-BT)', 'Parallel (BeTr-GEESE)', 'Top Agents (Multi-GEESE)'],
         fontsize="small", loc="upper right", title='Sampling Algorithm')
     ax1.set_xticks([2, 6, 10, 14, 18])
     ax1.set_xticklabels(labels)
@@ -528,7 +529,7 @@ def compare_sampling_differences_plot():
     ]
 
     colors = ['hotpink', 'mediumblue', 'olivedrab']
-    plabels = ['Top Agents (GEESE-BT)', 'Parallel (BeTr-GEESE)', 'Top Agents (Complex-GEESE)']
+    plabels = ['Top Agents (GEESE-BT)', 'Parallel (BeTr-GEESE)', 'Top Agents (Multi-GEESE)']
     # lss = ['--', '-']
     markers=['o', '^']
     # for i in range(2):
@@ -624,9 +625,9 @@ def main():
     # compare_sampling_differences()
     # read_data_sample_ratio_complex_geese1(0.1)
     # plot_restictive_grammar()
-    # compare_all_fixed_behaviors_efficiency()
+    compare_all_fixed_behaviors_efficiency()
     # compare_run_time()
-    power_efficiency_slides()
+    # power_efficiency_slides()
 
 
 if __name__ == '__main__':

@@ -26,7 +26,7 @@ def read_data_n_agent_perturbations_all(
                 str(no_trap) + '_' + str(no_obs), str(width) + '_' + str(height), str(no_site), str(grid)
                 )
 
-    print(nadir)
+    print(nadir, fname)
     folders = pathlib.Path(nadir).glob("*"+fname)
     flist = []
     fdata = []
@@ -62,7 +62,7 @@ def ablation_efficiency_power(fname="CoevoSimulation"):
     allefficiency = {}
 
     for o in no_obstacles:
-        data = [read_data_n_agent_perturbations_all(expp=4, no_obs=o, no_site=1)]
+        data = [read_data_n_agent_perturbations_all(expp=4, no_obs=o, no_site=1, fname=fname)]
         # print(o, len(data), data[8:])
         powerdata100 = np.squeeze(data)[:, -1]
         print(o, powerdata100)
@@ -84,7 +84,7 @@ def ablation_efficiency_power(fname="CoevoSimulation"):
         print('min', np.min(effdata))
         # Perturbations: 5279, 2756
         tmax = 12000
-        tmin = 5200  # 2756
+        tmin = np.min(effdata)  # 2756
         effdata = [(
             (
                 1 - ((effdata[i] - tmin)/(
@@ -135,7 +135,8 @@ def distortion_efficiency_power(fname="CoevoSimulation"):
     allpower = {}
     allefficiency = {}
     for g in grid:
-        data = read_data_n_agent_perturbations_all(expp=6, no_obs=0, no_site=1, grid=g)
+        data = read_data_n_agent_perturbations_all(
+            expp=6, no_obs=0, no_site=1, grid=g, fname=fname)
         # print(o, len(data), data[8:])
         data = np.squeeze(data)
         powerdata100 = np.squeeze(data)[:, -1]
@@ -149,7 +150,7 @@ def distortion_efficiency_power(fname="CoevoSimulation"):
         print('min', np.min(effdata))
         # Min: 5200
         tmax = 12000
-        tmin = 2756     # 5200
+        tmin = np.min(effdata)     # 5200
         effdata = [(
             (
                 1 - (abs(effdata[i] - tmin)/(
@@ -193,7 +194,8 @@ def shift_efficiency_power(fname="CoevoSimulation"):
     allpower = {}
     allefficiency = {}
     for s in sites:
-        data = read_data_n_agent_perturbations_all(expp=5, no_obs=0, no_site=s, grid=10)
+        data = read_data_n_agent_perturbations_all(
+            expp=5, no_obs=0, no_site=s, grid=10, fname=fname)
         # print(o, len(data), data[8:])
         data = np.squeeze(data)
         powerdata100 = np.squeeze(data)[:, -1]
@@ -206,7 +208,7 @@ def shift_efficiency_power(fname="CoevoSimulation"):
         print('min', np.min(effdata))
         # Min: 6778
         tmax = 12000
-        tmin = 2756     # 5200
+        tmin = np.min(effdata)     # 5200
         effdata = [(
             (
                 1 - (abs(effdata[i] - tmin)/(
@@ -252,9 +254,10 @@ def addition_efficiency_power(fname="CoevoSimulation"):
     hitrate = []
     size = [100, 200, 300, 400, 500]
     for s in size:
-        data = read_data_n_agent_perturbations_all(expp=3, no_obs=0, no_site=1, width=s, height=s)
+        data = read_data_n_agent_perturbations_all(
+            expp=3, no_obs=0, no_site=1, width=s, height=s, fname=fname)
         data = np.squeeze(data)
-        print(data.shape)
+        # print(data.shape)
         powerdata100 = np.squeeze(data)[:, -1]
         allpower[s] = powerdata100
 
@@ -264,18 +267,20 @@ def addition_efficiency_power(fname="CoevoSimulation"):
             [effdata[i][0] if effdata[i].shape[
                 0] > 1 else 12000 for i in range(len(effdata))])]
         hitrate.append(np.sum(effdata[0]!=12000)/effdata[0].shape[0])
-        print('min', np.min(effdata))
+        # print('min', np.min(effdata))
         # 5310
         tmax = 12000
-        tmin = 2756     # 5200
+        tmin = np.min(effdata)     # 5200
         effdata = [(
             (
                 1 - (abs(effdata[i] - tmin)/(
-                    tmax-tmin)))*100) for i in range(len(effdata))]
+                    tmax-tmin)))*100) if tmin!=12000 else [0] for i in range(len(effdata))]
+        # print(effdata)
         # effdata = [(
         #     ((12000-effdata[i])/12000)*100) for i in range(len(effdata))]
         allefficiency[s] = np.round(effdata[0], 2)
-    print('Success Rate', np.round(np.median(np.array(hitrate)), 2))
+    # print(hitrate)
+    # print('Success Rate', np.round(np.median(np.array(hitrate)), 2))
     X = np.concatenate(
         np.array([[i] * len(v[1]) for (i, v) in enumerate(allpower.items())]))
     Y = np.concatenate(np.array([v for _, v in allpower.items()]))
@@ -370,21 +375,22 @@ def plot_power_efficiency_subplots():
     shift = np.load(
         '/tmp/CoevoSimulation_power_efficiency_shift.npy',
         allow_pickle=True)
-    # distortion_nest = np.load(
-    #     '/tmp/EvoNestMNewPPA1_power_efficiency_distortion.npy',
-    #     allow_pickle=True)
 
-    # ablation_nest = np.load(
-    #     '/tmp/EvoNestMNewPPA1_power_efficiency_ablation.npy',
-    #     allow_pickle=True)
+    distortion_nest = np.load(
+        '/tmp/NestSimulation_power_efficiency_distortion.npy',
+        allow_pickle=True)
 
-    # shift_nest = np.load(
-    #     '/tmp/EvoNestMNewPPA1_power_efficiency_shift.npy',
-    #     allow_pickle=True)
+    ablation_nest = np.load(
+        '/tmp/NestSimulation_power_efficiency_ablation.npy',
+        allow_pickle=True)
 
-    # addition_nest = np.load(
-    #     '/tmp/EvoNestMNewPPA1_power_efficiency_addition.npy',
-    #     allow_pickle=True)
+    shift_nest = np.load(
+        '/tmp/NestSimulation_power_efficiency_shift.npy',
+        allow_pickle=True)
+
+    addition_nest = np.load(
+        '/tmp/NestSimulation_power_efficiency_addition.npy',
+        allow_pickle=True)
 
     fig = plt.figure(figsize=(6, 4), dpi=1600)
     ax1 = fig.add_subplot(2, 4, 1)
@@ -405,20 +411,20 @@ def plot_power_efficiency_subplots():
 
     subplot_perturbations(
         shift[0], ax7, range(1, 6), xticks,
-        color=colors[0], xlabel='', pname='Shift', metric='Power', j=1)
+        color=colors[0], xlabel='', pname='Shift II', metric='Power', j=1)
     subplot_perturbations(
         shift[1], ax8, range(1, 6), xticks,
         color=colors[0], xlabel='No. of Site',
-        pname='Shift', metric='Efficiency', j=1)
+        pname='Shift II', metric='Efficiency', j=1)
 
-    # subplot_perturbations(
-    #     shift_nest[0], ax7, range(1, 5), xticks,
-    #     color=colors[1], xlabel='', pname='Shift',
-    #     metric='Power', forge=False, j=1)
-    # subplot_perturbations(
-    #     shift_nest[1], ax8, range(1, 5), xticks,
-    #     color=colors[1], xlabel='LT Stop Interval',
-    #     pname='Shift', metric='Efficiency', forge=False, j=1)
+    subplot_perturbations(
+        shift_nest[0], ax7, range(1, 6), xticks,
+        color=colors[1], xlabel='', pname='Shift II',
+        metric='Power', forge=False, j=1)
+    subplot_perturbations(
+        shift_nest[1], ax8, range(1, 6), xticks,
+        color=colors[1], xlabel='No. of Site',
+        pname='Shift II', metric='Efficiency', forge=False, j=1)
 
     # # Foraging Ablation
     subplot_perturbations(
@@ -429,14 +435,14 @@ def plot_power_efficiency_subplots():
         color=colors[0], xlabel='No. of Obstacles',
         pname='Ablation', metric='Efficiency', j=1)
     # Nest Ablation
-    # subplot_perturbations(
-    #     ablation_nest[0], ax1, range(1, 6, 1), range(1, 6, 1),
-    #     color=colors[1], xlabel='', pname='Ablation',
-    #     metric='Power', forge=False, j=1)
-    # subplot_perturbations(
-    #     ablation_nest[1], ax2, range(1, 6, 1), range(1, 6, 1),
-    #     color=colors[1], xlabel='No. of Obstacles',
-    #     pname='Ablation', metric='Efficiency', forge=False, j=1)
+    subplot_perturbations(
+        ablation_nest[0], ax1, range(1, 6, 1), range(1, 6, 1),
+        color=colors[1], xlabel='', pname='Ablation',
+        metric='Power', forge=False, j=1)
+    subplot_perturbations(
+        ablation_nest[1], ax2, range(1, 6, 1), range(1, 6, 1),
+        color=colors[1], xlabel='No. of Obstacles',
+        pname='Ablation', metric='Efficiency', forge=False, j=1)
 
     # # Addition.
     # xticks = [i if i==0 else str(i)+'k' for i in range(1, 6, 1)]
@@ -445,42 +451,42 @@ def plot_power_efficiency_subplots():
 
     subplot_perturbations(
         addition[0], ax3, range(1, 6, 1), xticks,
-        color=colors[0], xlabel='', pname='Addition', metric='Power', j=1)
+        color=colors[0], xlabel='', pname='Addition II', metric='Power', j=1)
     subplot_perturbations(
         addition[1], ax4, range(1, 6, 1), xticks,
         color=colors[0], xlabel='Environment Size',
-        pname='Addition', metric='Efficiency', j=1)
+        pname='Addition II', metric='Efficiency', j=1)
     # Nest
     # addition_nest[0] = {k:v for k,v in addition_nest[0].items() if k in range(2000, 11000, 2000)}
     # addition_nest[1] = {k:v for k,v in addition_nest[1].items() if k in range(2000, 11000, 2000)}
-    # subplot_perturbations(
-    #     addition_nest[0], ax3, range(1, 6, 1), xticks,
-    #     color=colors[1], xlabel='', pname='Addition',
-    #     metric='Power', forge=False, j=1)
-    # subplot_perturbations(
-    #     addition_nest[1], ax4, range(1, 6, 1), xticks,
-    #     color=colors[1], xlabel='Timings',
-    #     pname='Addition', metric='Efficiency', forge=False, j=1)
+    subplot_perturbations(
+        addition_nest[0], ax3, range(1, 6, 1), xticks,
+        color=colors[1], xlabel='', pname='Addition II',
+        metric='Power', forge=False, j=1)
+    subplot_perturbations(
+        addition_nest[1], ax4, range(1, 6, 1), xticks,
+        color=colors[1], xlabel='Environment Size',
+        pname='Addition II', metric='Efficiency', forge=False, j=1)
 
     # # Distortion
     # # Foraging
     xticks = [2, 5, 10]
     subplot_perturbations(
         distortion[0], ax5, range(0, 3, 1), xticks,
-        color=colors[0], xlabel='', pname='Distortion', metric='Power')
+        color=colors[0], xlabel='', pname='Distortion II', metric='Power')
     subplot_perturbations(
         distortion[1], ax6, range(0, 3, 1), xticks,
         color=colors[0], xlabel='Grid Size',
-        pname='Distortion', metric='Efficiency')
+        pname='Distortion II', metric='Efficiency')
     # Nest
-    # subplot_perturbations(
-    #     distortion_nest[0], ax5, range(0, 4, 1), [0.8, 0.85, 0.9, 0.99],
-    #     color=colors[1], xlabel='',
-    #     pname='Distortion', metric='Power', forge=False)
-    # subplot_perturbations(
-    #     distortion_nest[1], ax6, range(0, 4, 1), [0.8, 0.85, 0.9, 0.99],
-    #     color=colors[1], xlabel='IP',
-    #     pname='Distortion', metric='Efficiency', forge=False)
+    subplot_perturbations(
+        distortion_nest[0], ax5, range(0, 3, 1), xticks,
+        color=colors[1], xlabel='',
+        pname='Distortion II', metric='Power', forge=False)
+    subplot_perturbations(
+        distortion_nest[1], ax6, range(0, 3, 1), xticks,
+        color=colors[1], xlabel='Grid Size',
+        pname='Distortion II', metric='Efficiency', forge=False)
 
     f = lambda m,c: plt.plot([],[],marker=m, color=c, ls="none")[0]
 
@@ -496,7 +502,7 @@ def plot_power_efficiency_subplots():
 
     plt.tight_layout()
     maindir = '/tmp/swarm/data/experiments'
-    fname = 'efficiency_power_all_fixed'
+    fname = 'efficiency_power_all_fixed_resilience'
 
     fig.savefig(
         maindir + '/' + fname + '.png')
@@ -613,20 +619,20 @@ def power_efficiency_curve_lt_st_ltr_gs():
 
 
 def main():
-    # ablation_efficiency_power()
-    # addition_efficiency_power()
-    # distortion_efficiency_power()
-    # shift_efficiency_power()
+    ablation_efficiency_power()
+    addition_efficiency_power()
+    distortion_efficiency_power()
+    shift_efficiency_power()
     # data = read_data_n_agent_perturbations_all(expp=4, no_obs=1, no_site=1)
     # print(data, data.shape)
     # distortion_efficiency_power()
     # addition_efficiency_power(fname="EvoCoevolutionPPA")
     # shift_efficiency_power()
 
-    # ablation_efficiency_power(fname="EvoNestMNewPPA1")
-    # distortion_efficiency_power(fname="EvoNestMNewPPA1")
-    # addition_efficiency_power(fname="EvoNestMNewPPA1")
-    # shift_efficiency_power(fname="EvoNestMNewPPA1")
+    ablation_efficiency_power(fname="NestSimulation")
+    distortion_efficiency_power(fname="NestSimulation")
+    addition_efficiency_power(fname="NestSimulation")
+    shift_efficiency_power(fname="NestSimulation")
 
     plot_power_efficiency_subplots()
 

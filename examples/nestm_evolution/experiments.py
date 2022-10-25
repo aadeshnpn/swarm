@@ -105,7 +105,7 @@ def main(args):
         steps = [args.steps for i in range(args.runs)]
         jname = args.json_file
         phenotype = JsonPhenotypeData.load_json_file(jname)['phenotypes'][:50]
-        with open('/tmp/behaviors_16662337876288.pickle', 'rb') as handle:
+        with open('/tmp/behaviors_16664610749721.pickle', 'rb') as handle:
             brepotires = pickle.load(handle)
         env = (phenotype, dname, brepotires)
         Parallel(
@@ -201,7 +201,7 @@ if __name__ == '__main__':
     parser.add_argument('--dry_run', action='store_false')
     parser.add_argument('--exp_no', default=0, type=int)
     parser.add_argument('--grid', default=10, type=int)
-    parser.add_argument('--json_file', default='/tmp/16662337876288_all.json', type=str)
+    parser.add_argument('--json_file', default='/tmp/16664610749721_all.json', type=str)
     parser.add_argument('--all', default=False)
     args = parser.parse_args()
     print(args)
