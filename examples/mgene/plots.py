@@ -618,6 +618,97 @@ def plot_restictive_grammar():
     plt.close(fig)
 
 
+def learning_efficience_sampling_combined():
+    suffixs = ["geese-bt", "betr-geese", "complex-geese"]
+    labels = ["GEESE-BT", "BeTr-GEESE", "Multi-GEESE"]
+    simnames = ["*EvoSForge_3", "*EvoCoevolutionPPA", "*CombinedModelPPA"]
+    fig = plt.figure(figsize=(12, 6), dpi=300)
+    ax2 = fig.add_subplot(1, 2, 1)
+
+    for j in range(len(suffixs)):
+        data = read_data_sample_comparision(suffixs[j], simnames[j])
+
+        medianf = np.quantile(data, 0.5, axis=0)
+        q1f = np.quantile(data, 0.25, axis=0)
+        q3f = np.quantile(data, 0.75, axis=0)
+
+
+        xvalues = range(data.shape[1])
+        ax2.plot(
+            xvalues, medianf, # color=color[j],
+            linewidth=1.0, label=labels[j])
+        ax2.fill_between(
+            xvalues, q3f, q1f,
+            alpha=0.3)
+
+    ax2.set_xlabel('Steps', fontsize='large')
+    ax2.set_ylabel('Foraging (%)', fontsize='large')
+    ax2.set_yticks(range(0,110,20))
+    ax2.legend(loc="upper left", fontsize='large')
+
+    sampling_size = [0.1, 0.3, 0.5, 0.7, 0.9]
+    datasold_forge = [read_data_sample_ratio_geesebt(s) for s in sampling_size]
+    datasnew_forge = [read_data_sample_ratio_betrgeese(s) for s in sampling_size]
+    datacomplex_forge = [read_data_sample_ratio_complex_geese(s) for s in sampling_size]
+
+    ax1 = fig.add_subplot(1, 2, 2)
+
+    sampling_size = [10, 30, 50, 70, 90]
+    labels = sampling_size
+
+    positions = [1.5, 4.5, 7.5, 10.5, 13.5]
+
+    datasforge = [
+        [datasold_forge[0],datasnew_forge[0], datacomplex_forge[0]],
+        [datasold_forge[1],datasnew_forge[1], datacomplex_forge[1]],
+        [datasold_forge[2],datasnew_forge[2], datacomplex_forge[2]],
+        [datasold_forge[3],datasnew_forge[3], datacomplex_forge[3]],
+        [datasold_forge[4],datasnew_forge[4], datacomplex_forge[4]],
+    ]
+
+    colors = ['hotpink', 'mediumblue', 'olivedrab']
+    plabels = ['Top Agents (GEESE-BT)', 'Parallel (BeTr-GEESE)', 'Top Agents (Multi-GEESE)']
+    markers=['o', '^']
+
+    for i in range(3):
+        p = ax1.plot(
+            [x for x in positions],
+            [np.mean(d[i]) for d in datasforge], marker=markers[1],
+            ls='-', label=plabels[i], color = colors[i], markersize=10, linewidth=3)
+
+    f = lambda m,c: plt.plot([],[],marker=m, color=c, ls="none")[0]
+
+    handles1 = [f('_', colors[i]) for i in range(3)]
+    handles2 = [f(markers[1], 'k') for i in range(2)]
+
+    legend1 = ax1.legend(handles1, plabels,
+        fontsize="large", loc="upper right", title='Sampling Algorithm', markerscale=6)
+
+    # legend2 = ax1.legend(handles2, ["Foraging"],
+    #     fontsize="large", loc="upper left", title='Task')
+
+    plt.setp(legend1.get_title(),fontsize='large')
+    # plt.setp(legend2.get_title(),fontsize='large')
+    ax1.add_artist(legend1)
+    # ax1.add_artist(legend2)
+    ax1.set_xticks([1.5, 4.5, 7.5, 10.5, 13.5])
+    ax1.set_xticklabels(labels, fontsize='large')
+    ax1.set_yticks(range(0, 105, 20))
+    ax1.set_yticklabels(range(0, 105, 20), fontsize='large')
+    ax1.set_xlabel('Sampling Size (%)', fontsize="large")
+    ax1.set_ylabel('Performance (%)',  fontsize="large")
+
+    plt.tight_layout()
+
+    # fig.savefig(
+    #     '/tmp/goal/data/experiments/' + pname + '.pdf')
+    maindir = '/tmp/swarm/data/experiments/'
+    # nadir = os.path.join(maindir, str(n), agent)
+    fig.savefig(
+        maindir + 'learning_efficiency_sampling.png')
+    plt.close(fig)
+
+
 def main():
     # fixed_behaviors_sampling_ratio()
     # compare_all_geese_efficiency()
@@ -625,9 +716,10 @@ def main():
     # compare_sampling_differences()
     # read_data_sample_ratio_complex_geese1(0.1)
     # plot_restictive_grammar()
-    compare_all_fixed_behaviors_efficiency()
+    # compare_all_fixed_behaviors_efficiency()
     # compare_run_time()
     # power_efficiency_slides()
+    learning_efficience_sampling_combined()
 
 
 if __name__ == '__main__':
