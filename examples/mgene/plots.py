@@ -709,6 +709,45 @@ def learning_efficience_sampling_combined():
     plt.close(fig)
 
 
+def debug_learning_efficience():
+    suffixs = ["complex-geese"]
+    labels = ["Multi-GEESE"]
+    simnames = ["*CombinedModelPPA"]
+    fig = plt.figure(figsize=(6, 3), dpi=100)
+    ax2 = fig.add_subplot(1, 1, 1)
+
+    for j in range(len(suffixs)):
+        data = read_data_sample_comparision(suffixs[j], simnames[j])
+
+        medianf = np.quantile(data, 0.5, axis=0)
+        q1f = np.quantile(data, 0.25, axis=0)
+        q3f = np.quantile(data, 0.75, axis=0)
+
+
+        xvalues = range(data.shape[1])
+        ax2.plot(
+            xvalues, medianf, # color=color[j],
+            linewidth=1.0, label=labels[j])
+        ax2.fill_between(
+            xvalues, q3f, q1f,
+            alpha=0.3)
+
+    ax2.set_xlabel('Steps', fontsize='large')
+    ax2.set_ylabel('Foraging (%)', fontsize='large')
+    ax2.set_yticks(range(0,110,20))
+    ax2.legend(loc="upper left", fontsize='large')
+    plt.tight_layout()
+
+    # fig.savefig(
+    #     '/tmp/goal/data/experiments/' + pname + '.pdf')
+    maindir = '/tmp/swarm/data/experiments/'
+    # nadir = os.path.join(maindir, str(n), agent)
+    fig.savefig(
+        maindir + 'debug_learning_efficiency.png')
+    plt.show()
+    # plt.close(fig)
+
+
 def main():
     # fixed_behaviors_sampling_ratio()
     # compare_all_geese_efficiency()
@@ -719,7 +758,8 @@ def main():
     # compare_all_fixed_behaviors_efficiency()
     # compare_run_time()
     # power_efficiency_slides()
-    learning_efficience_sampling_combined()
+    # learning_efficience_sampling_combined()
+    debug_learning_efficience()
 
 
 if __name__ == '__main__':
