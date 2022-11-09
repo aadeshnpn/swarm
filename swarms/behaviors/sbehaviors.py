@@ -1974,3 +1974,53 @@ class DummyNode(Behaviour):
     def update(self):
         """Nothing much to do."""
         return common.Status.SUCCESS
+
+
+class IsBored(Behaviour):
+    """IsBored behavior for the agents.
+
+    Inherits the Behaviors class from py_trees. This
+    behavior implements the IsBored function for the agents. This allows
+    the agents to trace how much time it has been in that state.
+    """
+
+    def __init__(self, name):
+        """Init method for the GoTo behavior."""
+        super(IsBored, self).__init__(name)
+
+    def setup(self, timeout, agent, item):
+        """Have defined the setup method.
+
+        This method defines the other objects required for the
+        behavior. Agent is the actor in the environment,
+        item is the name of the item we are trying to find in the
+        environment and timeout defines the execution time for the
+        behavior.
+        """
+        self.agent = agent
+        self.item = item
+        self.blackboard = blackboard.Client(name=str(agent.name))
+        self.blackboard.register_key(key='neighbourobj', access=common.Access.READ)
+        self.steps = 0
+        self.bored_threshold = 50
+
+    def initialise(self):
+        """Everytime initialization. Not required for now."""
+        pass
+
+    def reset(self):
+        """Reset the steps."""
+        self.steps = 0
+
+    def update(self):
+        """
+        Count no.of timesteps. If it exceeds bored_threshold return Success
+
+        This method keep tracks of time steps and returns success if it has
+        passed that time.
+        """
+        self.steps += 1
+        if self.steps >= self.bored_threshold:
+            return common.Status.SUCCESS
+        else:
+            return common.Status.FAILURE

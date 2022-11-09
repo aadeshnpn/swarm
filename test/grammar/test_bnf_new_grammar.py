@@ -27,7 +27,7 @@ from ponyge.operators.crossover import crossover
 from ponyge.operators.mutation import mutation
 from ponyge.operators.replacement import replacement
 from ponyge.operators.selection import selection
-from swarms.utils.bt import BTComplexConstruct
+from swarms.utils.bt import BTComplexConstruct, BTConstruct
 
 
 class SwarmMoveTowards(Agent):
@@ -59,13 +59,15 @@ class SwarmMoveTowards(Agent):
         print(self.name, 'test new',  individual[0].phenotype)
         self.individual = individual
         # print(individual[0])
-        self.bt = BTComplexConstruct(None, self)
+        self.bt = BTConstruct(None, self)
         self.bt.xmlstring = self.individual[0].phenotype
         # Construct actual BT from xmlstring
         self.bt.construct()
         # # Debugging stuffs for py_trees
         py_trees.logging.level = py_trees.logging.Level.DEBUG
         print(py_trees.display.ascii_tree(self.bt.behaviour_tree.root))
+        # allnodes = list(self.bt.behaviour_tree.root.iterate())
+        # print([a.name for a in allnodes])
         # self.blackboard = blackboard.Client(name=str(name))
         # self.blackboard.register_key(key='neighbourobj', access=common.Access.WRITE)
         # self.blackboard.neighbourobj = dict()

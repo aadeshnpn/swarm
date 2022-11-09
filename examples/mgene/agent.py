@@ -1,3 +1,4 @@
+from cgitb import reset
 from inspect import CO_ITERABLE_COROUTINE
 from py_trees.common import Status
 from py_trees.composites import Selector, Sequence, Parallel
@@ -8,7 +9,7 @@ from swarms.behaviors.sbehaviors import (
     NeighbourObjects)
 import numpy as np
 from swarms.lib.agent import Agent
-from swarms.utils.bt import BTConstruct, BTComplexConstruct
+from swarms.utils.bt import BTConstruct, BTComplexConstruct, reset_bored_node
 from swarms.utils.results import Results    # noqa : F401
 
 from ponyge.operators.initialisation import initialisation
@@ -375,6 +376,10 @@ class LearningAgent(CoevoAgent):
             # Compute the behavior tree
             self.bt.behaviour_tree.tick()
 
+            # Need to reset if BT returns Success
+            if self.bt.behaviour_tree.root.status == common.Status.SUCCESS:
+                reset_bored_node(self.bt)
+
             # Maintain location history
             _, gridval = self.model.grid.find_grid(self.location)
             self.location_history.add(gridval)
@@ -474,6 +479,28 @@ class CombiningAgent(LearningAgent):
         self.delayed_cf = 0
         self.delayed_ef = 0
 
+    def evaluate_constraints_conditions(self):
+        allnodes = list(self.bt.behaviour_tree.root.iterate())
+        selectors = list(filter(
+            lambda x: isinstance(x, Selector), allnodes)
+            )
+
+        leave_condition = list(filter(
+            lambda x: x.name.split('_')[-1] == 'EnterCnd', allnodes)
+            )
+
+        enter_condition = list(filter(
+            lambda x: x.name.split('_')[-1] == 'LeaveCnd', allnodes)
+            )
+        # print(list(self.bt.behaviour_tree.visitors))
+        self.selectors_reward = sum([1 for sel in selectors if sel.status == common.Status.SUCCESS])
+        self.leave_reward = sum([1 for const in leave_condition if const.status == common.Status.FAILURE])
+        self.enter_reward = sum([1 for pcond in enter_condition if pcond.status == common.Status.SUCCESS])
+        return self.selectors_reward + self.leave_reward + self.enter_reward
+
+    def overall_fitness(self):
+        self.individual[0].fitness = (1-self.beta) * self.delayed_reward + self.ef + self.evaluate_constraints_conditions()
+
     def step(self):
         """Take a step in the simulation."""
         # py_trees.logging.level = py_trees.logging.Level.DEBUG
@@ -492,6 +519,10 @@ class CombiningAgent(LearningAgent):
         if self.dead is False:
             # Compute the behavior tree
             self.bt.behaviour_tree.tick()
+
+            # Need to reset if BT returns Success
+            if self.bt.behaviour_tree.root.status == common.Status.SUCCESS:
+                reset_bored_node(self.bt)
 
             # Maintain location history
             _, gridval = self.model.grid.find_grid(self.location)
@@ -662,6 +693,9 @@ class ExecutingAgent(CoevoAgent):
         # Maintain the location history of the agent
         # self.location_history.add(self.location)
         self.bt.behaviour_tree.tick()
+        # Need to reset if BT returns Success
+        if self.bt.behaviour_tree.root.status == common.Status.SUCCESS:
+            reset_bored_node(self.bt)
         # Compute the behavior tree
         # self.bts[self.current_behavior_counter % len(self.xmlstring)].behaviour_tree.tick()
 

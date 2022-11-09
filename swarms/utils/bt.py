@@ -4,7 +4,7 @@
 from typing import Type
 import xml.etree.ElementTree as ET
 import py_trees
-from py_trees.composites import Sequence, Selector  # noqa: F401
+from py_trees.composites import Sequence, Selector, Parallel  # noqa: F401
 
 from swarms.behaviors.scbehaviors import (      # noqa: F401
     MoveTowards, MoveAway, Explore, CompositeSingleCarry,
@@ -17,7 +17,7 @@ from swarms.behaviors.sbehaviors import (       # noqa: F401
     IsVisitedBefore, IsInPartialAttached, CanMove,
     DidAvoidedObj, IsCarryable, IsAgentDead, IsAttractivePheromone,
     IsRepulsivePheromone, IsSignalActive, SignalDoesNotExists,
-    PheromoneExists, DummyNode
+    PheromoneExists, DummyNode, IsBored
     )
 
 from py_trees.decorators import SuccessIsRunning, Inverter
@@ -96,7 +96,7 @@ class BTConstruct:
         else:
             list1 = []
             for node in list(root):
-                if node.tag in ['Selector', 'Sequence']:
+                if node.tag in ['Selector', 'Sequence', 'Parallel']:
                     composits = eval(node.tag)(node.tag + str(
                         self.agent.model.random.randint(10, 90)))
                     # print('composits', composits, node)
@@ -215,7 +215,7 @@ class BTComplexConstruct(BTConstruct):
         else:
             list1 = []
             for node in list(root):
-                if node.tag in ['Selector', 'Sequence']:
+                if node.tag in ['Selector', 'Sequence','Parallel']:
                     composits = eval(node.tag)(node.tag + str(
                         self.agent.model.random.randint(10, 90)))
                     # print('composits', composits, node)
@@ -261,3 +261,12 @@ class BTComplexConstruct(BTConstruct):
     def visualize(self, name='bt.png'):
         """Save bt graph to a file."""
         py_trees.display.render_dot_tree(self.behaviour_tree.root, name=name)
+
+
+def reset_bored_node(bt):
+        allnodes = list(bt.behaviour_tree.root.iterate())
+        bored_nodes= list(filter(
+            lambda x: isinstance(x, IsBored), allnodes)
+            )
+        for node in bored_nodes:
+            node.reset()

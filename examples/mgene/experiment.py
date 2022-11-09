@@ -10,7 +10,7 @@ from model import CombineModel, EvolveModel, SimCoevoModel
 from swarms.utils.jsonhandler import JsonPhenotypeData
 from swarms.utils.graph import Graph, GraphACC  # noqa : F401
 from joblib import Parallel, delayed    # noqa : F401
-from swarms.utils.results import SimulationResultsLt, SimulationResults
+from swarms.utils.results import SimulationResultsLt, SimulationResults, SimulationResultsWTime
 from swarms.behaviors.scbehaviors import (
     ExploreNormal, MoveAwayNormal, MoveTowardsNormal,
     CompositeSingleCarry, CompositeDrop)
@@ -130,23 +130,23 @@ def filter_brepotires(agents):
 
 
 def combine_controllers(args, agents=None, pname='/tmp'):
-    brepotires = filter_brepotires(agents)
-    # pname = '/tmp/swarm/data/experiments/'
-    # with open('/tmp/behaviors_.pickle', 'rb') as handle:
-    #     brepotires = pickle.load(handle)
+    # brepotires = filter_brepotires(agents)
+    pname = '/tmp/swarm/data/experiments/'
+    with open('/tmp/behaviors_16642277014973.pickle', 'rb') as handle:
+        brepotires = pickle.load(handle)
 
     env = CombineModel(
         args.n, width, height, 10, iter=args.iter,
         brepotires=brepotires, args=args)
     env.build_environment_from_json()
     env.create_agents()
-    results = SimulationResults(
+    results = SimulationResultsWTime(
             env.pname, env.connect, env.sn, env.stepcnt, env.foraging_percent(), None)
     results.save_to_file()
 
     for i in range(args.iter):
         env.step()
-        results = SimulationResults(
+        results = SimulationResultsWTime(
             env.pname, env.connect, env.sn, env.stepcnt, env.foraging_percent(), None)
         results.save_to_file()
 
