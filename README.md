@@ -1,6 +1,6 @@
 # Swarm
 
-A simple swarm simulator to simulate collective behaviors using grammatical evolution and Behavior Trees. Users can use the exisiting primitive behaviors or can define new behaviors with ease and see collective behaviors either manually building behavior tree or let grammatical eovlution do the trick to evolve collective behaviors. This project is based on mesa framework. Brief feature list:
+A simple swarm simulator to simulate collective behaviors using grammatical evolution and Behavior Trees. Users can use the exisiting primitive behaviors or can define new behaviors with ease and see collective behaviors either manually building behavior tree or let grammatical evolution do the trick to evolve collective behaviors. This project is based on mesa framework. Brief feature list:
 * Notable primitive behaviors already coded
 * Easy to use and visualize
 * Uses behaviors trees
